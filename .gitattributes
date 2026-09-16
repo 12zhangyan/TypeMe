@@ -1,0 +1,14 @@
+# 统一换行：源码以 LF 存进仓库，避免 Windows / macOS 之间整文件 diff
+* text=auto
+
+# 二进制：不要做换行或编码转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.jar binary
+*.pdf binary

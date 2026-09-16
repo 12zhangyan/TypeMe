@@ -1,0 +1,623 @@
+schemaVersion: 2
+packageId: "ipip50-zh1"
+locale: "zh-CN"
+localeRevision: "ipip50-zh1-2026-09-15"
+helpRevision: "help-ipip50-zh1-r1"
+copyRevision: "report-ipip50-r1"
+contentStatus: "draft"
+instrument:
+  id: "ipip50"
+  revision: "goldberg-bfm-50"
+  scoringVersion: "ipip-bfm50-1.0"
+  format: "agreement"
+  hasTypeCode: false
+interpretation:
+  version: "typeme-conservative-v2"
+  minRatingsPerDimension: 10
+  typeMinDistance: 6
+  markedDistance: 11
+title: "IPIP 大五 50 题（候选修订稿）"
+estimatedMinutes: 6
+dimensionOrder:
+  - "E"
+  - "A"
+  - "C"
+  - "ES"
+  - "O"
+questionnaire:
+  version: "ipip50"
+  title: "IPIP 大五人格 50 题"
+  questionCount: 50
+  estimatedMinutes: 6
+  format: "agreement"
+  responseAnchors:
+    - "非常不贴切"
+    - "有些不贴切"
+    - "谈不上贴切或不贴切"
+    - "有些贴切"
+    - "非常贴切"
+  scoring:
+    midpoint: 30
+    constants:
+      E: 30
+      A: 24
+      C: 24
+      ES: 48
+      O: 18
+  questions:
+    # en: 1. I am the life of the party.
+    - id: 1
+      text: "我是聚会里活跃气氛的那个人。"
+      dimension: "E"
+      direction: 1
+    # en: 2. I feel little concern for others.
+    - id: 2
+      text: "我很少关心别人的情况。"
+      dimension: "A"
+      direction: -1
+    # en: 3. I am always prepared.
+    - id: 3
+      text: "我通常提前做好准备。"
+      dimension: "C"
+      direction: 1
+    # en: 4. I get stressed out easily.
+    - id: 4
+      text: "我很容易感到压力大。"
+      dimension: "ES"
+      direction: -1
+    # en: 5. I have a rich vocabulary.
+    - id: 5
+      text: "我的词汇量比较丰富。"
+      dimension: "O"
+      direction: 1
+    # en: 6. I don't talk a lot.
+    - id: 6
+      text: "我平时话不多。"
+      dimension: "E"
+      direction: -1
+    # en: 7. I am interested in people.
+    - id: 7
+      text: "我对别人的事情感兴趣。"
+      dimension: "A"
+      direction: 1
+    # en: 8. I leave my belongings around.
+    - id: 8
+      text: "我的东西经常随手乱放。"
+      dimension: "C"
+      direction: -1
+    # en: 9. I am relaxed most of the time.
+    - id: 9
+      text: "我大多数时候比较放松。"
+      dimension: "ES"
+      direction: 1
+    # en: 10. I have difficulty understanding abstract ideas.
+    - id: 10
+      text: "理解抽象的概念对我来说比较困难。"
+      dimension: "O"
+      direction: -1
+    # en: 11. I feel comfortable around people.
+    - id: 11
+      text: "和别人在一起时我感到自在。"
+      dimension: "E"
+      direction: 1
+    # en: 12. I insult people.
+    - id: 12
+      text: "我会说让人难堪的话。"
+      dimension: "A"
+      direction: -1
+    # en: 13. I pay attention to details.
+    - id: 13
+      text: "我会留意事情里的细节。"
+      dimension: "C"
+      direction: 1
+    # en: 14. I worry about things.
+    - id: 14
+      text: "我常为各种事情担心。"
+      dimension: "ES"
+      direction: -1
+    # en: 15. I have a vivid imagination.
+    - id: 15
+      text: "我的想象力比较丰富。"
+      dimension: "O"
+      direction: 1
+    # en: 16. I keep in the background.
+    - id: 16
+      text: "在集体场合我习惯待在不起眼的位置。"
+      dimension: "E"
+      direction: -1
+    # en: 17. I sympathize with others' feelings.
+    - id: 17
+      text: "我能体谅别人的感受。"
+      dimension: "A"
+      direction: 1
+    # en: 18. I make a mess of things.
+    - id: 18
+      text: "我常把事情弄得一团糟。"
+      dimension: "C"
+      direction: -1
+    # en: 19. I seldom feel blue.
+    - id: 19
+      text: "我很少感到情绪低落。"
+      dimension: "ES"
+      direction: 1
+    # en: 20. I am not interested in abstract ideas.
+    - id: 20
+      text: "我对抽象的想法不太感兴趣。"
+      dimension: "O"
+      direction: -1
+    # en: 21. I start conversations.
+    - id: 21
+      text: "我常主动和别人搭话。"
+      dimension: "E"
+      direction: 1
+    # en: 22. I am not interested in other people's problems.
+    - id: 22
+      text: "我对别人的困难不太感兴趣。"
+      dimension: "A"
+      direction: -1
+    # en: 23. I get chores done right away.
+    - id: 23
+      text: "家务和杂事我会马上做完。"
+      dimension: "C"
+      direction: 1
+    # en: 24. I am easily disturbed.
+    - id: 24
+      text: "我很容易被周围的事情扰乱心绪。"
+      dimension: "ES"
+      direction: -1
+    # en: 25. I have excellent ideas.
+    - id: 25
+      text: "我常有不错的点子。"
+      dimension: "O"
+      direction: 1
+    # en: 26. I have little to say.
+    - id: 26
+      text: "我没什么话要说。"
+      dimension: "E"
+      direction: -1
+    # en: 27. I have a soft heart.
+    - id: 27
+      text: "我的心比较软。"
+      dimension: "A"
+      direction: 1
+    # en: 28. I often forget to put things back in their proper place.
+    - id: 28
+      text: "我常忘记把东西放回原处。"
+      dimension: "C"
+      direction: -1
+    # en: 29. I get upset easily.
+    - id: 29
+      text: "我容易感到心里不痛快。"
+      dimension: "ES"
+      direction: -1
+    # en: 30. I do not have a good imagination.
+    - id: 30
+      text: "我的想象力不太好。"
+      dimension: "O"
+      direction: -1
+    # en: 31. I talk to a lot of different people at parties.
+    - id: 31
+      text: "在聚会上我会和很多不同的人交谈。"
+      dimension: "E"
+      direction: 1
+    # en: 32. I am not really interested in others.
+    - id: 32
+      text: "我对别人没什么兴趣。"
+      dimension: "A"
+      direction: -1
+    # en: 33. I like order.
+    - id: 33
+      text: "我喜欢事情有条理。"
+      dimension: "C"
+      direction: 1
+    # en: 34. I change my mood a lot.
+    - id: 34
+      text: "我的心情变化比较大。"
+      dimension: "ES"
+      direction: -1
+    # en: 35. I am quick to understand things.
+    - id: 35
+      text: "我理解事情比较快。"
+      dimension: "O"
+      direction: 1
+    # en: 36. I don't like to draw attention to myself.
+    - id: 36
+      text: "我不喜欢让别人注意到我。"
+      dimension: "E"
+      direction: -1
+    # en: 37. I take time out for others.
+    - id: 37
+      text: "我愿意为别人留出时间。"
+      dimension: "A"
+      direction: 1
+    # en: 38. I shirk my duties.
+    - id: 38
+      text: "我会回避自己该做的事。"
+      dimension: "C"
+      direction: -1
+    # en: 39. I have frequent mood swings.
+    - id: 39
+      text: "我的情绪起伏比较频繁。"
+      dimension: "ES"
+      direction: -1
+    # en: 40. I use difficult words.
+    - id: 40
+      text: "我说话时会用比较生僻的词。"
+      dimension: "O"
+      direction: 1
+    # en: 41. I don't mind being the center of attention.
+    - id: 41
+      text: "我不介意成为大家关注的焦点。"
+      dimension: "E"
+      direction: 1
+    # en: 42. I feel others' emotions.
+    - id: 42
+      text: "我能感受到别人的情绪。"
+      dimension: "A"
+      direction: 1
+    # en: 43. I follow a schedule.
+    - id: 43
+      text: "我通常按计划安排事情。"
+      dimension: "C"
+      direction: 1
+    # en: 44. I get irritated easily.
+    - id: 44
+      text: "我容易感到烦躁。"
+      dimension: "ES"
+      direction: -1
+    # en: 45. I spend time reflecting on things.
+    - id: 45
+      text: "我会花时间反思一些事情。"
+      dimension: "O"
+      direction: 1
+    # en: 46. I am quiet around strangers.
+    - id: 46
+      text: "和不熟的人在一起时我比较安静。"
+      dimension: "E"
+      direction: -1
+    # en: 47. I make people feel at ease.
+    - id: 47
+      text: "我能让别人感到自在。"
+      dimension: "A"
+      direction: 1
+    # en: 48. I am exacting in my work.
+    - id: 48
+      text: "我对自己的工作标准要求比较严格。"
+      dimension: "C"
+      direction: 1
+    # en: 49. I often feel blue.
+    - id: 49
+      text: "我常感到情绪低落。"
+      dimension: "ES"
+      direction: -1
+    # en: 50. I am full of ideas.
+    - id: 50
+      text: "我常常有很多想法。"
+      dimension: "O"
+      direction: 1
+itemHelp:
+  "1":
+    explanation: "这题问的是在聚会一类场合里，你是否常主动带动气氛、让场面热起来。例如一群人都在等谁先开口时，你会不会自然地接话。这只是一种常见倾向的描述，不代表能力强弱，也不说明哪种表现更好。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "2":
+    explanation: "这题问的是你平时对别人的处境和近况关注多少。比如同事提到家里遇到麻烦，你会不会想多问一句。关注得多与少都是常见倾向的描述，不代表人品好坏，也不说明有没有同情心。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "3":
+    explanation: "这题问的是做事之前是否习惯先把东西准备好。比如出门前检查证件、开会前把材料理一遍。提前准备和临时应付都是常见做法，不代表哪一边更聪明或更优秀。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "4":
+    explanation: "这题问的是面对要求和时间压力时，你的身体和情绪绷紧得快不快。比如几件事同时要交时，你会不会先感到紧张。这只是压力反应的常见描述，不代表抗压能力高低，也不说明心理健康状况。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "5":
+    explanation: "这题问的是你平时掌握和使用的词语多不多。比如写一段说明或和人聊天时，你能不能比较容易找到合适的词。词汇多少和阅读、受教育经历有关，只是一种常见描述，不代表聪明程度。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "6":
+    explanation: "这题问的是日常交流里你说话的分量多不多。比如几个人一起聊天时，你更常接话还是更多在听。话少是一种常见状态，不代表没有想法，也不说明表达能力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "7":
+    explanation: "这题问的是你对别人的经历、想法和近况有没有好奇。比如新同事来了，你会不会想了解他之前做什么。对人和对事感兴趣都是常见倾向，不代表哪一种更值得肯定。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "8":
+    explanation: "这题问的是你的东西平时放在哪里。比如钥匙、衣服、文件是不是常常随手一放，过后再找。物品摆放习惯是很常见的差异，不代表懒散，也不说明做事能力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "9":
+    explanation: "这题问的是你平时的底色是松弛还是紧绷。比如没有特别事情发生时，你多数时候是不是比较平静。放松是一种常见状态，不代表对事情不上心，也不说明有没有压力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "10":
+    explanation: "这题问的是理解抽象内容时的顺手程度。比如听一场只讲概念和推演的讲座，你会不会觉得跟不上。偏好具体内容是很常见的，不代表理解力差，也不说明聪明程度。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "11":
+    explanation: "这题问的是和一群众人待在一起时你自不自在。比如聚餐、团建这类场合，你会不会觉得放松。自在与否是常见的感受差异，不代表社交能力强弱，也不说明是否合群。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "12":
+    explanation: "这题问的是你说话时会不会让对方难堪。比如着急或不同意时，你会不会用带刺的话回应。直接和委婉都是常见风格，不代表人品好坏，也不说明有没有教养。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "13":
+    explanation: "这题问的是你做事时会不会留意小处。比如核对数字、检查错别字这类需要细看的地方。留意细节是一种常见习惯，不代表能力高低，也不说明做事快慢。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "14":
+    explanation: "这题问的是你多久会为还没发生的事操心。比如第二天有一场重要的沟通，你前一晚会反复想各种可能。担心是常见的情绪反应，不代表胆小，也不说明处理事情的能力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "15":
+    explanation: "这题问的是你脑子里画面和联想丰不丰富。比如读一段文字或听别人描述时，你会不会自动浮现出场景。想象力的多少是常见差异，不代表才华高低，也不说明是否务实。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "16":
+    explanation: "这题问的是在集体场合你更愿意站在什么位置。比如开会或活动时，你习惯靠前还是靠后、多说话还是少说话。选择低调是常见倾向，不代表没有主见，也不说明贡献多少。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "17":
+    explanation: "这题问的是别人说出自己的处境时，你能不能体会到他的感受。比如朋友说最近很累，你会不会先理解他的难处。体谅是常见的相处方式，不代表没有原则，也不说明会不会被人喜欢。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "18":
+    explanation: "这题问的是你做事时出岔子的频率。比如照着说明装东西，是不是常漏掉步骤或弄错顺序。做事情出点差错很常见，不代表能力差，也不说明态度问题。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "19":
+    explanation: "这题问的是你多久会出现情绪低落的时段。比如一段时间里事情都还顺利时，你多数时候心情如何。情绪低落的多少是常见差异，不代表坚强或脆弱，也不说明生活状态好坏。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "20":
+    explanation: "这题问的是你对纯想法、纯概念一类话题的兴趣。比如有人聊假设、定义、理论推演时，你会不会觉得没意思。偏好实际内容是很常见的，不代表思维水平，也不说明有没有深度。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "21":
+    explanation: "这题问的是你会不会主动开口搭话。比如在电梯里、排队时或新场合，你通常等别人先说还是自己先开口。主动开口是常见习惯，不代表健谈，也不说明是否受欢迎。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "22":
+    explanation: "这题问的是别人跟你讲自己的麻烦时，你有多大兴趣听下去。比如同事抱怨工作上的难处，你会不会想了解细节。兴趣多少是常见差异，不代表冷漠，也不说明愿不愿意帮忙。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "23":
+    explanation: "这题问的是日常杂事你会不会尽快处理。比如该洗的碗、该回的消息，你通常先做还是先放着。先做后做是常见习惯差异，不代表勤快与否，也不说明时间管理能力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "24":
+    explanation: "这题问的是外界的小变化会不会搅动你的心绪。比如计划被临时改动，你会不会半天静不下来。容易被影响是常见的反应方式，不代表脆弱，也不说明心理承受力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "25":
+    explanation: "这题问的是你想出点子的频率。比如讨论一个活动怎么办时，你会不会常提出新的做法。点子多少是常见差异，不代表创意能力，也不说明想法是否可行。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "26":
+    explanation: "这题问的是在需要发言的场合你通常有多少话想说。比如被问到一个话题时，你会不会觉得没什么可补充的。说得少是常见状态，不代表没有观点，也不说明参与度。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "27":
+    explanation: "这题问的是看到别人难受或遇到不幸时你的心软程度。比如听到陌生人的遭遇，你会不会心里不好受。心软是常见的感受方式，不代表没有原则，也不说明判断力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "28":
+    explanation: "这题问的是用完的东西你会不会放回原处。比如剪刀、充电线、餐具用完后放在哪里。忘记归位很常见，不代表懒散，也不说明整理能力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "29":
+    explanation: "这题问的是遇到不顺时你多快会心里不痛快。比如安排被临时改掉或被否定一句，你会不会一下就闷住。情绪来得快是常见反应，不代表玻璃心，也不说明成熟程度。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "30":
+    explanation: "这题问的是你需要构想或编例子时顺不顺手。比如要设计一个方案、想一个例子，你会不会觉得想不出来。想象力多少是常见差异，不代表能力高低，也不说明是否聪明。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "31":
+    explanation: "这题问的是在聚会里你会和多少人交谈。比如一个晚上下来，你是围着几个人聊还是不断换人搭话。和多少人说话是常见差别，不代表社交水平，也不说明是否受欢迎。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "32":
+    explanation: "这题问的是你对身边人的整体兴趣。比如别人分享日常生活时，你会不会觉得和自己关系不大。兴趣高低是常见差异，不代表冷漠，也不说明会不会帮助别人。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "33":
+    explanation: "这题问的是你对整齐和条理的偏好。比如桌面、文件和日程，你是不是希望它们各归各位。喜欢秩序是常见偏好，不代表死板，也不说明做事能力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "34":
+    explanation: "这题问的是你的心情一天里会不会明显起落。比如上午还挺好，下午因为一件小事就沉下来。心情变化幅度是常见差异，不代表情绪管理差，也不说明心理状况。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "35":
+    explanation: "这题问的是接触新说法、新内容时你上手快不快。比如看一份以前没接触过的说明，你能不能很快抓住要点。理解快慢受经验和内容影响，不代表聪明程度，也不说明学习能力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "36":
+    explanation: "这题问的是你愿不愿意被大家注意到。比如被点名表扬或在会上发言，你会不会希望换个方式。不想被关注是常见倾向，不代表自卑，也不说明能力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "37":
+    explanation: "这题问的是你愿不愿意为别人挪出自己的时间。比如朋友临时找你帮忙，你会不会调整原定安排。愿意花时间是常见做法，不代表没有边界，也不说明会不会被人喜欢。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "38":
+    explanation: "这题问的是面对该自己承担的事情你会不会绕开。比如分工里属于自己的那部分，你会不会想推给别人或往后拖。回避任务是常见现象，不代表人品差，也不说明工作能力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "39":
+    explanation: "这题问的是你的情绪起伏有多频繁。比如一周里心情在好和差之间来回切换的次数。起伏频繁是常见差异，不代表情绪管理能力差，也不说明心理是否健康。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "40":
+    explanation: "这题问的是你说话和写东西时的用词习惯。比如表达一个意思时，你会不会选不太常见的词。用词偏书面或偏口语都是常见风格，不代表学识高低，也不说明表达能力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "41":
+    explanation: "这题问的是被众人注视时你的感受。比如上台介绍自己或当众讲话，你会不会觉得可以接受。介意与否是常见差异，不代表自信程度，也不说明实力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "42":
+    explanation: "这题问的是你能不能觉察到别人情绪的变化。比如对方嘴上说没事，你会不会感到他其实不太舒服。感受得敏锐是常见差异，不代表判断一定准确，也不说明懂事与否。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "43":
+    explanation: "这题问的是你做事有没有固定的时间安排。比如一周的任务，你会不会按事先排好的顺序推进。按计划做事是常见习惯，不代表灵活度低，也不说明效率高低。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "44":
+    explanation: "这题问的是日常小事会不会让你烦躁。比如被打断、排队、反复解释时，你会不会很快失去耐心。容易烦躁是常见反应，不代表脾气坏，也不说明修养。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "45":
+    explanation: "这题问的是你会不会留出时间想事情。比如一天结束后，你会不会回想自己做过的事和当时的想法。花时间思考是常见习惯，不代表想得多，也不说明有没有深度。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "46":
+    explanation: "这题问的是面对不熟的人时你的状态。比如第一次见面的场合，你通常是话多还是安静。安静是常见状态，不代表冷淡，也不说明社交能力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "47":
+    explanation: "这题问的是别人和你相处时会不会放松。比如初次见面，你会不会主动找话、照顾对方的节奏。让别人自在是常见做法，不代表讨好，也不说明受欢迎程度。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "48":
+    explanation: "这题问的是你对自己做事标准的要求。比如交出去的东西，你会不会反复检查到满意为止。标准高低是常见差异，不代表完美主义，也不说明能力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "49":
+    explanation: "这题问的是你出现低落心情的频率。比如一段时间里，你是不是常常提不起劲。低落频繁是常见差异，不代表抑郁，也不说明生活好坏。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+  "50":
+    explanation: "这题问的是你脑子里想法多不多。比如聊天或做事时，你会不会同时冒出好几个方向。想法多是常见差异，不代表都会实现，也不说明创意能力。如果这句描述对你来说两边都不适用、或你缺少相关经历，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes: []
+dimensionCopy:
+  E:
+    name: "外向性"
+    lowPole: "低"
+    highPole: "高"
+    negative:
+      label: "内敛"
+      description: "这一侧描述更偏好安静、独处或小范围互动的状态。它不等于不善交际，也不说明表达能力。"
+      observation: "回想最近一次聚会或讨论，你在什么时刻觉得最省力。"
+      action: "下次需要表达前，先留出几分钟独自整理要说的话。"
+    positive:
+      label: "外露"
+      description: "这一侧描述更容易从与人互动、热闹场合中获得投入感。它不等于话多，也不等于擅长组织或带领别人。"
+      observation: "回想一次与人交谈之后，你的精神是更足还是更累。"
+      action: "需要理清想法时，先找一个人聊几分钟，再自己整理。"
+    balanced:
+      summary: "本次这一维的回答合计接近两侧均衡，先保留未定。可以回看具体题目，再观察不同情境下的表现。"
+      observation: "分别回想一次独自待着的场合和一次与人相处的场合，比较哪种安排更让你恢复精神。"
+    insufficient:
+      summary: "这一维有题目尚未形成可计分的选择，因此暂不计算分数或判定方向。你可以回看帮助，也可以保留当前报告。"
+      nextStep: "回看这一维尚未作答或标记为无法判断的题目，按平常与人相处的状态重新选一次；仍然说不清时可以保留未定。"
+  A:
+    name: "宜人性"
+    lowPole: "低"
+    highPole: "高"
+    negative:
+      label: "直接"
+      description: "这一侧描述与人相处时更直接，较少把别人的感受放在前面。它不等于自私，也不说明人品好坏。"
+      observation: "回想一次意见不合的谈话，你当时先想到的是事情本身还是对方的感受。"
+      action: "表达不同意见前，先补一句你理解对方哪一点。"
+    positive:
+      label: "体谅"
+      description: "这一侧描述与人相处时更常顾及别人的感受和需要。它不等于没有主见，也不等于一定会被人喜欢。"
+      observation: "回想一次你迁就别人的场合，看看当时的取舍是什么。"
+      action: "在顾及别人之外，也把自己的需要说出来一次。"
+    balanced:
+      summary: "本次这一维的回答合计接近两侧均衡，先保留未定。可以回看具体题目，再观察不同情境下的表现。"
+      observation: "挑一件与人相关的小事，分别按直接说明和先照顾对方感受各想一遍，比较哪种更常被你采用。"
+    insufficient:
+      summary: "这一维有题目尚未形成可计分的选择，因此暂不计算分数或判定方向。你可以回看帮助，也可以保留当前报告。"
+      nextStep: "回看这一维尚未作答或标记为无法判断的题目，按平常与人相处的方式重新选一次；仍然说不清时可以保留未定。"
+  C:
+    name: "尽责性"
+    lowPole: "低"
+    highPole: "高"
+    negative:
+      label: "随性"
+      description: "这一侧描述做事更随性，对秩序和提前安排的要求相对低。它不等于懒惰，也不说明工作能力。"
+      observation: "回想一件拖到最后才做的事，看看是什么让你延后开始。"
+      action: "给一件小事先定一个开始时间，完成后只做记录，不作评价。"
+    positive:
+      label: "有序"
+      description: "这一侧描述做事比较有条理，看重按计划和标准完成。它不等于死板，也不等于不会变通。"
+      observation: "回想一次按计划推进的经历，看看哪一步安排真正帮到了你。"
+      action: "安排里留出一小段可以调整的时间，遇到变化时先用它。"
+    balanced:
+      summary: "本次这一维的回答合计接近两侧均衡，先保留未定。可以回看具体题目，再观察不同情境下的表现。"
+      observation: "回想一件已完成的事，看看事先安排和临时调整分别在哪个环节起了作用。"
+    insufficient:
+      summary: "这一维有题目尚未形成可计分的选择，因此暂不计算分数或判定方向。你可以回看帮助，也可以保留当前报告。"
+      nextStep: "回看这一维尚未作答或标记为无法判断的题目，按平常做事的习惯重新选一次；仍然说不清时可以保留未定。"
+  ES:
+    name: "情绪稳定性"
+    lowPole: "低"
+    highPole: "高"
+    negative:
+      label: "易起伏"
+      description: "这一侧描述情绪反应容易被牵动，遇到压力时起伏更明显。它不等于抗压能力差，也不说明心理是否健康。"
+      observation: "回想最近一次情绪被牵动的时刻，当时具体发生了什么。"
+      action: "情绪上来时，先做几次缓慢呼吸，再决定要不要马上回应。"
+    positive:
+      label: "平稳"
+      description: "这一侧描述情绪在多数时候比较平稳，遇到压力后恢复得相对快。它不等于没有情绪，也不等于对事情不敏感。"
+      observation: "回想一次遇到麻烦时的反应，你的情绪多久回到平常状态。"
+      action: "把自己恢复状态的常用做法记下来，需要时主动用一次。"
+    balanced:
+      summary: "本次这一维的回答合计接近两侧均衡，先保留未定。可以回看具体题目，再观察不同情境下的表现。"
+      observation: "分别回想一件顺利的事和一件不顺的事，比较你在两种情况下心情的变化幅度。"
+    insufficient:
+      summary: "这一维有题目尚未形成可计分的选择，因此暂不计算分数或判定方向。你可以回看帮助，也可以保留当前报告。"
+      nextStep: "回看这一维尚未作答或标记为无法判断的题目，按平常的情绪状态重新选一次；仍然说不清时可以保留未定。"
+  O:
+    name: "开放性"
+    lowPole: "低"
+    highPole: "高"
+    negative:
+      label: "务实"
+      description: "这一侧描述更关注具体、实际的信息，对抽象话题的兴趣相对少。它不等于缺乏想象力，也不说明聪明程度。"
+      observation: "回想一次别人聊抽象话题的场合，你当时在关注什么。"
+      action: "遇到抽象说法时，先找一个具体例子把它落到实处。"
+    positive:
+      label: "想象"
+      description: "这一侧描述对想法、想象和抽象话题更容易产生兴趣。它不等于不切实际，也不说明知识水平。"
+      observation: "记下一个你最近产生的联想或设想，看看它从哪来的。"
+      action: "为这个设想补一条可以落地的具体做法，再决定要不要继续。"
+    balanced:
+      summary: "本次这一维的回答合计接近两侧均衡，先保留未定。可以回看具体题目，再观察不同情境下的表现。"
+      observation: "同一件事分别用具体例子和抽象说法各讲一遍，比较哪一种更接近你的习惯。"
+    insufficient:
+      summary: "这一维有题目尚未形成可计分的选择，因此暂不计算分数或判定方向。你可以回看帮助，也可以保留当前报告。"
+      nextStep: "回看这一维尚未作答或标记为无法判断的题目，按平常接触新想法时的习惯重新选一次；仍然说不清时可以保留未定。"
+reportCopy:
+  typedTitle: "五个维度本次都有较明确的方向"
+  typedSubtitle: "五个维度都达到本产品的展示条件。它描述的只是本次回答下的倾向，不代表稳定不变的个人特质。"
+  partialTitle: "我的倾向，还有待观察的部分"
+  partialSubtitle: "部分维度可以给出方向，其余维度本次还不足以给出方向，因此完整画像暂缺。"
+  undeterminedTitle: "本次回答没有显示明确方向"
+  undeterminedSubtitle: "五个维度都落在接近中点的范围，本次不给出任何方向判定。"
+  insufficientTitle: "这次先保留未定"
+  insufficientSubtitle: "有维度缺少足够的有效作答，本次不计算这些维度的分数。"
+  typeReadingLead: "本量表不做归类命名：五个维度各自独立解释，不合并成一个单一的标签。"
+  scoreMethodNote: "得分 = 该维度向上的题与向下的题分别求和后抵消（每题 1–5）。该维度 10 题都有数字答案时才会计算。"
+  dimensionReviewLead: "下面是这一维相关的题目与你的选择。它只帮助回顾，不构成因果或诊断证据。"
+  selfReflectionLead: "这段记录只用于你自己的观察，不计入量表分数，也不会改变上面的结果。"
+nextSteps:
+  - "挑几件日常小事，记下你当时怎么与人互动、怎么安排、情绪如何变化，只作记录，不下结论。"
+  - "在工作、学习和家庭等不同情境分别留意自己的表现，比较哪些比较稳定、哪些随情境变化。"
+  - "隔两三周再回看这次回答，比较各维度的方向是否一致；有变化是常见现象，可以继续观察。"
+  - "把这次结果当作描述当前倾向的一份记录，不用它来解释能力高低或给未来下判断。"
+attribution:
+  source: "International Personality Item Pool (IPIP) — Goldberg's Big-Five Factor Markers"
+  author: "Lewis R. Goldberg / IPIP"
+  url: "https://ipip.ori.org/newBigFive5broadKey.htm"
+  license: "Public Domain"
+  licenseUrl: "https://ipip.ori.org/newPermission.htm"

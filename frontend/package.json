@@ -1,0 +1,38 @@
+{
+  "name": "typeme-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "TypeMe 前端 —— 32 题四维人格倾向测评（纯前端计分，题目 CC BY-NC-SA 4.0）",
+  "license": "CC-BY-NC-SA-4.0",
+  "scripts": {
+    "gen:content": "node ../scripts/gen-fallback-content.mjs",
+    "prebuild": "npm run gen:content",
+    "pretest": "npm run gen:content",
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "build:only": "vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "pinia": "^2.2.6",
+    "vue": "^3.5.13",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/test-utils": "^2.5.0",
+    "autoprefixer": "^10.4.20",
+    "jsdom": "^30.0.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8",
+    "vue-tsc": "^2.1.10"
+  }
+}

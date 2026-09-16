@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.3.5</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>com.typeme</groupId>
+  <artifactId>typeme-backend</artifactId>
+  <version>1.0.0</version>
+  <name>typeme-backend</name>
+  <description>TypeMe 后端：内容（YAML）加载、启动期校验与只读 REST API。不参与计分，不做持久化。</description>
+
+  <properties>
+    <java.version>21</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <!--
+      IM-3：前端构建产物（frontend/dist）会被复制进 target/classes/static，
+      这样单个 spring-boot jar 就能同时提供页面与 API（ADR-5）。
+
+      这里刻意不接 frontend-maven-plugin（它会在 Maven 构建里跑 npm ci + vite build，
+      把后端构建绑死在 Node 工具链上）。改为「有产物就搬、没有就跳过」：
+        - 前端已构建（CI 或本地 npm run build）→ 真正复制，/quiz 等路由在 IP:8080 上可用；
+        - 前端未构建 → 跳过，构建仍然成功，由 RealArtifactSpaRoutingTest 显式报告缺口。
+      复制动作放在 process-resources 阶段，早于 test 阶段，所以集成测试能看到真实产物。
+    -->
+    <frontend.dist.dir>${project.basedir}/../frontend/dist</frontend.dist.dir>
+    <frontend.output.dir>${project.build.outputDirectory}/static</frontend.output.dir>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-frontend-dist</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${frontend.output.dir}</outputDirectory>
+              <overwrite>true</overwrite>
+              <resources>
+                <resource>
+                  <directory>${frontend.dist.dir}</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

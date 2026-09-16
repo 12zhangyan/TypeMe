@@ -1,0 +1,1176 @@
+﻿  warmup 完成
+
+[1] 首页（手机 / PC / 平板 / 窄屏）
+  PASS mobile 首页主文案
+  PASS mobile 首页标出大五 50 题
+  PASS mobile 首页测试前说明是 50 题
+  PASS mobile 首页提到无法判断
+  PASS mobile 首页写明五个维度
+  PASS mobile 首页维度行 E（外向性）
+  PASS mobile 首页维度名 外向性
+  PASS mobile 首页维度行 A（宜人性）
+  PASS mobile 首页维度名 宜人性
+  PASS mobile 首页维度行 C（尽责性）
+  PASS mobile 首页维度名 尽责性
+  PASS mobile 首页维度行 ES（情绪稳定性）
+  PASS mobile 首页维度名 情绪稳定性
+  PASS mobile 首页维度行 O（开放性）
+  PASS mobile 首页维度名 开放性
+  PASS mobile 首页署名是 IPIP 公有领域
+  PASS mobile 首页写明非官方测评
+  PASS mobile 默认量表不写「基于 OEJTS」
+  PASS mobile 首页没有四字母结果示例卡
+  PASS mobile 首页不出现 INFP
+  PASS mobile 首页有题目版本选择
+  PASS mobile 默认版用干净版本名
+  PASS mobile 可选旧版本用干净版本名
+  PASS mobile 首页不出现维护向字样「ipip50-zh1」
+  PASS mobile 首页不出现维护向字样「oejts32-zh1-report2」
+  PASS mobile 首页不出现维护向字样「oejts32-zh2-preview-r1」
+  PASS mobile 首页不出现维护向字样「draft」
+  PASS mobile 首页不出现维护向字样「审校」
+  PASS mobile 首页不出现维护向字样「内容状态」
+  PASS mobile 首页不出现维护向字样「修订」
+  PASS mobile 首页不出现维护向字样「专业认证版」
+  PASS mobile 首页主按钮
+  PASS mobile 首页价值三项
+  PASS mobile 价值三项按五维讲
+  PASS mobile 首页不留四维拼类型的说法
+  PASS mobile 教学例子按单句贴切度讲
+  PASS mobile 教学例子不留 OEJTS 的双极说法
+  PASS mobile 首页 FAQ
+  PASS mobile 首页 无横向溢出
+  PASS mobile 首屏可见主按钮
+  shot 10-landing-mobile.png
+  PASS mobile 首页无控制台错误
+  PASS pc 首页主文案
+  PASS pc 首页标出大五 50 题
+  PASS pc 首页测试前说明是 50 题
+  PASS pc 首页提到无法判断
+  PASS pc 首页写明五个维度
+  PASS pc 首页维度行 E（外向性）
+  PASS pc 首页维度名 外向性
+  PASS pc 首页维度行 A（宜人性）
+  PASS pc 首页维度名 宜人性
+  PASS pc 首页维度行 C（尽责性）
+  PASS pc 首页维度名 尽责性
+  PASS pc 首页维度行 ES（情绪稳定性）
+  PASS pc 首页维度名 情绪稳定性
+  PASS pc 首页维度行 O（开放性）
+  PASS pc 首页维度名 开放性
+  PASS pc 首页署名是 IPIP 公有领域
+  PASS pc 首页写明非官方测评
+  PASS pc 默认量表不写「基于 OEJTS」
+  PASS pc 首页没有四字母结果示例卡
+  PASS pc 首页不出现 INFP
+  PASS pc 首页有题目版本选择
+  PASS pc 默认版用干净版本名
+  PASS pc 可选旧版本用干净版本名
+  PASS pc 首页不出现维护向字样「ipip50-zh1」
+  PASS pc 首页不出现维护向字样「oejts32-zh1-report2」
+  PASS pc 首页不出现维护向字样「oejts32-zh2-preview-r1」
+  PASS pc 首页不出现维护向字样「draft」
+  PASS pc 首页不出现维护向字样「审校」
+  PASS pc 首页不出现维护向字样「内容状态」
+  PASS pc 首页不出现维护向字样「修订」
+  PASS pc 首页不出现维护向字样「专业认证版」
+  PASS pc 首页主按钮
+  PASS pc 首页价值三项
+  PASS pc 价值三项按五维讲
+  PASS pc 首页不留四维拼类型的说法
+  PASS pc 教学例子按单句贴切度讲
+  PASS pc 教学例子不留 OEJTS 的双极说法
+  PASS pc 首页 FAQ
+  PASS pc 首页 无横向溢出
+  shot 10-landing-pc.png
+  PASS pc 首页无控制台错误
+  PASS tablet 首页主文案
+  PASS tablet 首页标出大五 50 题
+  PASS tablet 首页测试前说明是 50 题
+  PASS tablet 首页提到无法判断
+  PASS tablet 首页写明五个维度
+  PASS tablet 首页维度行 E（外向性）
+  PASS tablet 首页维度名 外向性
+  PASS tablet 首页维度行 A（宜人性）
+  PASS tablet 首页维度名 宜人性
+  PASS tablet 首页维度行 C（尽责性）
+  PASS tablet 首页维度名 尽责性
+  PASS tablet 首页维度行 ES（情绪稳定性）
+  PASS tablet 首页维度名 情绪稳定性
+  PASS tablet 首页维度行 O（开放性）
+  PASS tablet 首页维度名 开放性
+  PASS tablet 首页署名是 IPIP 公有领域
+  PASS tablet 首页写明非官方测评
+  PASS tablet 默认量表不写「基于 OEJTS」
+  PASS tablet 首页没有四字母结果示例卡
+  PASS tablet 首页不出现 INFP
+  PASS tablet 首页有题目版本选择
+  PASS tablet 默认版用干净版本名
+  PASS tablet 可选旧版本用干净版本名
+  PASS tablet 首页不出现维护向字样「ipip50-zh1」
+  PASS tablet 首页不出现维护向字样「oejts32-zh1-report2」
+  PASS tablet 首页不出现维护向字样「oejts32-zh2-preview-r1」
+  PASS tablet 首页不出现维护向字样「draft」
+  PASS tablet 首页不出现维护向字样「审校」
+  PASS tablet 首页不出现维护向字样「内容状态」
+  PASS tablet 首页不出现维护向字样「修订」
+  PASS tablet 首页不出现维护向字样「专业认证版」
+  PASS tablet 首页主按钮
+  PASS tablet 首页价值三项
+  PASS tablet 价值三项按五维讲
+  PASS tablet 首页不留四维拼类型的说法
+  PASS tablet 教学例子按单句贴切度讲
+  PASS tablet 教学例子不留 OEJTS 的双极说法
+  PASS tablet 首页 FAQ
+  PASS tablet 首页 无横向溢出
+  shot 10-landing-tablet.png
+  PASS tablet 首页无控制台错误
+  PASS narrow320 首页主文案
+  PASS narrow320 首页标出大五 50 题
+  PASS narrow320 首页测试前说明是 50 题
+  PASS narrow320 首页提到无法判断
+  PASS narrow320 首页写明五个维度
+  PASS narrow320 首页维度行 E（外向性）
+  PASS narrow320 首页维度名 外向性
+  PASS narrow320 首页维度行 A（宜人性）
+  PASS narrow320 首页维度名 宜人性
+  PASS narrow320 首页维度行 C（尽责性）
+  PASS narrow320 首页维度名 尽责性
+  PASS narrow320 首页维度行 ES（情绪稳定性）
+  PASS narrow320 首页维度名 情绪稳定性
+  PASS narrow320 首页维度行 O（开放性）
+  PASS narrow320 首页维度名 开放性
+  PASS narrow320 首页署名是 IPIP 公有领域
+  PASS narrow320 首页写明非官方测评
+  PASS narrow320 默认量表不写「基于 OEJTS」
+  PASS narrow320 首页没有四字母结果示例卡
+  PASS narrow320 首页不出现 INFP
+  PASS narrow320 首页有题目版本选择
+  PASS narrow320 默认版用干净版本名
+  PASS narrow320 可选旧版本用干净版本名
+  PASS narrow320 首页不出现维护向字样「ipip50-zh1」
+  PASS narrow320 首页不出现维护向字样「oejts32-zh1-report2」
+  PASS narrow320 首页不出现维护向字样「oejts32-zh2-preview-r1」
+  PASS narrow320 首页不出现维护向字样「draft」
+  PASS narrow320 首页不出现维护向字样「审校」
+  PASS narrow320 首页不出现维护向字样「内容状态」
+  PASS narrow320 首页不出现维护向字样「修订」
+  PASS narrow320 首页不出现维护向字样「专业认证版」
+  PASS narrow320 首页主按钮
+  PASS narrow320 首页价值三项
+  PASS narrow320 价值三项按五维讲
+  PASS narrow320 首页不留四维拼类型的说法
+  PASS narrow320 教学例子按单句贴切度讲
+  PASS narrow320 教学例子不留 OEJTS 的双极说法
+  PASS narrow320 首页 FAQ
+  PASS narrow320 首页 无横向溢出
+  shot 10-landing-narrow320.png
+  PASS narrow320 首页无控制台错误
+
+[2] 题目版本偏好（刷新恢复）
+  PASS 清空本地记录后回到默认大五 50 题
+  PASS 首页切到 OEJTS 后题数变成 32
+  PASS 刷新后仍然是用户选的那一版（没有悄悄换回默认）
+  PASS 刷新后仍显示四维说明
+  shot 15-version-preference-oejts.png
+  PASS 再切回默认大五（偏好双向可改）
+
+[3] 答题页（手机 390×844，真实作答）
+  PASS 答题页有 5 个等权选项
+  PASS 答题页用 IPIP 的单句贴切度提示
+  PASS 答题页不出现维护细节「draft」
+  PASS 答题页不出现维护细节「审校」
+  PASS 答题页不出现维护细节「内容包」
+  PASS 答题页不出现维护细节「服务端」
+  PASS 答题页不出现维护细节「内置副本」
+  PASS 答题页不出现维护细节「typeme.quiz.v3」
+  PASS 答题页不再出现 OEJTS 的双极提示
+  PASS 不再有左右两侧陈述
+  PASS 选项文案含「非常不贴切」
+  PASS 选项文案含「有些不贴切」
+  PASS 选项文案含「谈不上贴切或不贴切」
+  PASS 选项文案含「有些贴切」
+  PASS 选项文案含「非常贴切」
+  PASS 答题页标出当前量表
+  shot 20-quiz-mobile-q1.png
+  PASS 帮助文字在题卡内展开
+  PASS 展开帮助不产生答案
+  PASS 展开帮助后会话里没有任何回答
+  shot 21-quiz-mobile-help-open.png
+  PASS 选一个分值后会话里有 1 条回答
+  PASS 进度显示 已处理 1/50
+  shot 22-quiz-mobile-answered.png
+  PASS 刷新后答案原样恢复
+  PASS 刷新后选中态也恢复
+  PASS 答题页无控制台错误
+  PASS 「暂时无法判断」单独存成 unknown（不是 3 分）
+  PASS 标记后仍是 1/50（不重复计数）
+  shot 23-quiz-mobile-unknown.png
+  PASS 答题卡有 50 个题号
+  shot 24-quiz-mobile-cards.png
+  PASS 作答期间没有把答案发出去
+  PASS 作答期间没有第三方域名请求
+
+[4] 报告：五维结果驱动
+  PASS 全中立 播种后停在报告页
+  PASS 全中立 报告展示模型可读
+  PASS 全中立 用的是 IPIP-50 内容包
+  PASS 全中立 仪器是 ipip50
+  PASS 全中立 该量表不产出类型码
+  PASS 全中立 题数是 50
+  PASS 全中立 分享类型是 undetermined
+  PASS 全中立 文件名是 typeme-profile-undetermined.png
+  PASS 全中立 模型没有完整类型
+  PASS 全中立 图片没有大字类型码
+  PASS 全中立 图片没有类型信息行
+  PASS 全中立 模型字段 shareText 非空
+  PASS 全中立 模型 shareText 不出现类型码 INTJ
+  PASS 全中立 模型 shareText 不出现类型码 INTP
+  PASS 全中立 模型 shareText 不出现类型码 ENTJ
+  PASS 全中立 模型 shareText 不出现类型码 ENTP
+  PASS 全中立 模型 shareText 不出现类型码 INFJ
+  PASS 全中立 模型 shareText 不出现类型码 INFP
+  PASS 全中立 模型 shareText 不出现类型码 ENFJ
+  PASS 全中立 模型 shareText 不出现类型码 ENFP
+  PASS 全中立 模型 shareText 不出现类型码 ISTJ
+  PASS 全中立 模型 shareText 不出现类型码 ISFJ
+  PASS 全中立 模型 shareText 不出现类型码 ESTJ
+  PASS 全中立 模型 shareText 不出现类型码 ESFJ
+  PASS 全中立 模型 shareText 不出现类型码 ISTP
+  PASS 全中立 模型 shareText 不出现类型码 ISFP
+  PASS 全中立 模型 shareText 不出现类型码 ESTP
+  PASS 全中立 模型 shareText 不出现类型码 ESFP
+  PASS 全中立 模型 shareText 不出现类型描述名「价值探索者」
+  PASS 全中立 模型 shareText 不出现类型描述名「系统规划者」
+  PASS 全中立 模型 shareText 不出现类型描述名「灵感连接者」
+  PASS 全中立 模型 shareText 不出现类型描述名「活力参与者」
+  PASS 全中立 模型 shareText 不出现类型描述名「细节照顾者」
+  PASS 全中立 模型字段 shareAlt 非空
+  PASS 全中立 模型 shareAlt 不出现类型码 INTJ
+  PASS 全中立 模型 shareAlt 不出现类型码 INTP
+  PASS 全中立 模型 shareAlt 不出现类型码 ENTJ
+  PASS 全中立 模型 shareAlt 不出现类型码 ENTP
+  PASS 全中立 模型 shareAlt 不出现类型码 INFJ
+  PASS 全中立 模型 shareAlt 不出现类型码 INFP
+  PASS 全中立 模型 shareAlt 不出现类型码 ENFJ
+  PASS 全中立 模型 shareAlt 不出现类型码 ENFP
+  PASS 全中立 模型 shareAlt 不出现类型码 ISTJ
+  PASS 全中立 模型 shareAlt 不出现类型码 ISFJ
+  PASS 全中立 模型 shareAlt 不出现类型码 ESTJ
+  PASS 全中立 模型 shareAlt 不出现类型码 ESFJ
+  PASS 全中立 模型 shareAlt 不出现类型码 ISTP
+  PASS 全中立 模型 shareAlt 不出现类型码 ISFP
+  PASS 全中立 模型 shareAlt 不出现类型码 ESTP
+  PASS 全中立 模型 shareAlt 不出现类型码 ESFP
+  PASS 全中立 模型 shareAlt 不出现类型描述名「价值探索者」
+  PASS 全中立 模型 shareAlt 不出现类型描述名「系统规划者」
+  PASS 全中立 模型 shareAlt 不出现类型描述名「灵感连接者」
+  PASS 全中立 模型 shareAlt 不出现类型描述名「活力参与者」
+  PASS 全中立 模型 shareAlt 不出现类型描述名「细节照顾者」
+  PASS 全中立 模型字段 shareFilename 非空
+  PASS 全中立 模型 shareFilename 不出现类型码 INTJ
+  PASS 全中立 模型 shareFilename 不出现类型码 INTP
+  PASS 全中立 模型 shareFilename 不出现类型码 ENTJ
+  PASS 全中立 模型 shareFilename 不出现类型码 ENTP
+  PASS 全中立 模型 shareFilename 不出现类型码 INFJ
+  PASS 全中立 模型 shareFilename 不出现类型码 INFP
+  PASS 全中立 模型 shareFilename 不出现类型码 ENFJ
+  PASS 全中立 模型 shareFilename 不出现类型码 ENFP
+  PASS 全中立 模型 shareFilename 不出现类型码 ISTJ
+  PASS 全中立 模型 shareFilename 不出现类型码 ISFJ
+  PASS 全中立 模型 shareFilename 不出现类型码 ESTJ
+  PASS 全中立 模型 shareFilename 不出现类型码 ESFJ
+  PASS 全中立 模型 shareFilename 不出现类型码 ISTP
+  PASS 全中立 模型 shareFilename 不出现类型码 ISFP
+  PASS 全中立 模型 shareFilename 不出现类型码 ESTP
+  PASS 全中立 模型 shareFilename 不出现类型码 ESFP
+  PASS 全中立 模型 shareFilename 不出现类型描述名「价值探索者」
+  PASS 全中立 模型 shareFilename 不出现类型描述名「系统规划者」
+  PASS 全中立 模型 shareFilename 不出现类型描述名「灵感连接者」
+  PASS 全中立 模型 shareFilename 不出现类型描述名「活力参与者」
+  PASS 全中立 模型 shareFilename 不出现类型描述名「细节照顾者」
+  PASS 全中立 报告按五个维度逐个给结果
+  PASS 全中立 低端记号是内容包的「低」
+  PASS 全中立 高端记号是内容包的「高」
+  PASS 全中立时五个维度都是两侧相近
+  PASS 报告按五维描述
+  PASS 报告标题按当前包的维度数写「五个维度上的结果」
+  PASS 报告里不残留「四个维度」
+  PASS 报告页面不出现字面量 undefined
+  PASS 报告给出 E 维度的结论行
+  PASS E 维度如实写「两侧相近」
+  PASS E 维度两端记号是低/高
+  PASS 报告给出 A 维度的结论行
+  PASS A 维度如实写「两侧相近」
+  PASS A 维度两端记号是低/高
+  PASS 报告给出 C 维度的结论行
+  PASS C 维度如实写「两侧相近」
+  PASS C 维度两端记号是低/高
+  PASS 报告给出 ES 维度的结论行
+  PASS ES 维度如实写「两侧相近」
+  PASS ES 维度两端记号是低/高
+  PASS 报告给出 O 维度的结论行
+  PASS O 维度如实写「两侧相近」
+  PASS O 维度两端记号是低/高
+  PASS 全中立报告 不出现类型码 INTJ
+  PASS 全中立报告 不出现类型码 INTP
+  PASS 全中立报告 不出现类型码 ENTJ
+  PASS 全中立报告 不出现类型码 ENTP
+  PASS 全中立报告 不出现类型码 INFJ
+  PASS 全中立报告 不出现类型码 INFP
+  PASS 全中立报告 不出现类型码 ENFJ
+  PASS 全中立报告 不出现类型码 ENFP
+  PASS 全中立报告 不出现类型码 ISTJ
+  PASS 全中立报告 不出现类型码 ISFJ
+  PASS 全中立报告 不出现类型码 ESTJ
+  PASS 全中立报告 不出现类型码 ESFJ
+  PASS 全中立报告 不出现类型码 ISTP
+  PASS 全中立报告 不出现类型码 ISFP
+  PASS 全中立报告 不出现类型码 ESTP
+  PASS 全中立报告 不出现类型码 ESFP
+  PASS 全中立报告 不出现类型描述名「价值探索者」
+  PASS 全中立报告 不出现类型描述名「系统规划者」
+  PASS 全中立报告 不出现类型描述名「灵感连接者」
+  PASS 全中立报告 不出现类型描述名「活力参与者」
+  PASS 全中立报告 不出现类型描述名「细节照顾者」
+  PASS 全中立报告不展开任何类型文章
+  shot 40-report-neutral-mobile.png
+  PASS 全部无法判断 播种后停在报告页
+  PASS 全部无法判断 报告展示模型可读
+  PASS 全部无法判断 用的是 IPIP-50 内容包
+  PASS 全部无法判断 仪器是 ipip50
+  PASS 全部无法判断 该量表不产出类型码
+  PASS 全部无法判断 题数是 50
+  PASS 全部无法判断 分享类型是 undetermined
+  PASS 全部无法判断 文件名是 typeme-profile-undetermined.png
+  PASS 全部无法判断 模型没有完整类型
+  PASS 全部无法判断 图片没有大字类型码
+  PASS 全部无法判断 图片没有类型信息行
+  PASS 全部无法判断 模型字段 shareText 非空
+  PASS 全部无法判断 模型 shareText 不出现类型码 INTJ
+  PASS 全部无法判断 模型 shareText 不出现类型码 INTP
+  PASS 全部无法判断 模型 shareText 不出现类型码 ENTJ
+  PASS 全部无法判断 模型 shareText 不出现类型码 ENTP
+  PASS 全部无法判断 模型 shareText 不出现类型码 INFJ
+  PASS 全部无法判断 模型 shareText 不出现类型码 INFP
+  PASS 全部无法判断 模型 shareText 不出现类型码 ENFJ
+  PASS 全部无法判断 模型 shareText 不出现类型码 ENFP
+  PASS 全部无法判断 模型 shareText 不出现类型码 ISTJ
+  PASS 全部无法判断 模型 shareText 不出现类型码 ISFJ
+  PASS 全部无法判断 模型 shareText 不出现类型码 ESTJ
+  PASS 全部无法判断 模型 shareText 不出现类型码 ESFJ
+  PASS 全部无法判断 模型 shareText 不出现类型码 ISTP
+  PASS 全部无法判断 模型 shareText 不出现类型码 ISFP
+  PASS 全部无法判断 模型 shareText 不出现类型码 ESTP
+  PASS 全部无法判断 模型 shareText 不出现类型码 ESFP
+  PASS 全部无法判断 模型 shareText 不出现类型描述名「价值探索者」
+  PASS 全部无法判断 模型 shareText 不出现类型描述名「系统规划者」
+  PASS 全部无法判断 模型 shareText 不出现类型描述名「灵感连接者」
+  PASS 全部无法判断 模型 shareText 不出现类型描述名「活力参与者」
+  PASS 全部无法判断 模型 shareText 不出现类型描述名「细节照顾者」
+  PASS 全部无法判断 模型字段 shareAlt 非空
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 INTJ
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 INTP
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 ENTJ
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 ENTP
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 INFJ
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 INFP
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 ENFJ
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 ENFP
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 ISTJ
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 ISFJ
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 ESTJ
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 ESFJ
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 ISTP
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 ISFP
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 ESTP
+  PASS 全部无法判断 模型 shareAlt 不出现类型码 ESFP
+  PASS 全部无法判断 模型 shareAlt 不出现类型描述名「价值探索者」
+  PASS 全部无法判断 模型 shareAlt 不出现类型描述名「系统规划者」
+  PASS 全部无法判断 模型 shareAlt 不出现类型描述名「灵感连接者」
+  PASS 全部无法判断 模型 shareAlt 不出现类型描述名「活力参与者」
+  PASS 全部无法判断 模型 shareAlt 不出现类型描述名「细节照顾者」
+  PASS 全部无法判断 模型字段 shareFilename 非空
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 INTJ
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 INTP
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 ENTJ
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 ENTP
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 INFJ
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 INFP
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 ENFJ
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 ENFP
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 ISTJ
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 ISFJ
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 ESTJ
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 ESFJ
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 ISTP
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 ISFP
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 ESTP
+  PASS 全部无法判断 模型 shareFilename 不出现类型码 ESFP
+  PASS 全部无法判断 模型 shareFilename 不出现类型描述名「价值探索者」
+  PASS 全部无法判断 模型 shareFilename 不出现类型描述名「系统规划者」
+  PASS 全部无法判断 模型 shareFilename 不出现类型描述名「灵感连接者」
+  PASS 全部无法判断 模型 shareFilename 不出现类型描述名「活力参与者」
+  PASS 全部无法判断 模型 shareFilename 不出现类型描述名「细节照顾者」
+  PASS 全部无法判断 报告按五个维度逐个给结果
+  PASS 全部无法判断 低端记号是内容包的「低」
+  PASS 全部无法判断 高端记号是内容包的「高」
+  PASS 全部无法判断时五个维度都信息不足
+  PASS 全部无法判断时页面写明信息不足
+  PASS 全部无法判断报告 不出现类型码 INTJ
+  PASS 全部无法判断报告 不出现类型码 INTP
+  PASS 全部无法判断报告 不出现类型码 ENTJ
+  PASS 全部无法判断报告 不出现类型码 ENTP
+  PASS 全部无法判断报告 不出现类型码 INFJ
+  PASS 全部无法判断报告 不出现类型码 INFP
+  PASS 全部无法判断报告 不出现类型码 ENFJ
+  PASS 全部无法判断报告 不出现类型码 ENFP
+  PASS 全部无法判断报告 不出现类型码 ISTJ
+  PASS 全部无法判断报告 不出现类型码 ISFJ
+  PASS 全部无法判断报告 不出现类型码 ESTJ
+  PASS 全部无法判断报告 不出现类型码 ESFJ
+  PASS 全部无法判断报告 不出现类型码 ISTP
+  PASS 全部无法判断报告 不出现类型码 ISFP
+  PASS 全部无法判断报告 不出现类型码 ESTP
+  PASS 全部无法判断报告 不出现类型码 ESFP
+  PASS 全部无法判断报告 不出现类型描述名「价值探索者」
+  PASS 全部无法判断报告 不出现类型描述名「系统规划者」
+  PASS 全部无法判断报告 不出现类型描述名「灵感连接者」
+  PASS 全部无法判断报告 不出现类型描述名「活力参与者」
+  PASS 全部无法判断报告 不出现类型描述名「细节照顾者」
+  shot 41-report-unknown-mobile.png
+  PASS 部分维度信息不足 播种后停在报告页
+  PASS 部分维度信息不足 报告展示模型可读
+  PASS 部分维度信息不足 用的是 IPIP-50 内容包
+  PASS 部分维度信息不足 仪器是 ipip50
+  PASS 部分维度信息不足 该量表不产出类型码
+  PASS 部分维度信息不足 题数是 50
+  PASS 部分维度信息不足 分享类型是 partial
+  PASS 部分维度信息不足 文件名是 typeme-profile-partial.png
+  PASS 部分维度信息不足 模型没有完整类型
+  PASS 部分维度信息不足 图片没有大字类型码
+  PASS 部分维度信息不足 图片没有类型信息行
+  PASS 部分维度信息不足 模型字段 shareText 非空
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 INTJ
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 INTP
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 ENTJ
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 ENTP
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 INFJ
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 INFP
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 ENFJ
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 ENFP
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 ISTJ
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 ISFJ
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 ESTJ
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 ESFJ
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 ISTP
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 ISFP
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 ESTP
+  PASS 部分维度信息不足 模型 shareText 不出现类型码 ESFP
+  PASS 部分维度信息不足 模型 shareText 不出现类型描述名「价值探索者」
+  PASS 部分维度信息不足 模型 shareText 不出现类型描述名「系统规划者」
+  PASS 部分维度信息不足 模型 shareText 不出现类型描述名「灵感连接者」
+  PASS 部分维度信息不足 模型 shareText 不出现类型描述名「活力参与者」
+  PASS 部分维度信息不足 模型 shareText 不出现类型描述名「细节照顾者」
+  PASS 部分维度信息不足 模型字段 shareAlt 非空
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 INTJ
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 INTP
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 ENTJ
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 ENTP
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 INFJ
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 INFP
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 ENFJ
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 ENFP
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 ISTJ
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 ISFJ
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 ESTJ
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 ESFJ
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 ISTP
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 ISFP
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 ESTP
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型码 ESFP
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型描述名「价值探索者」
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型描述名「系统规划者」
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型描述名「灵感连接者」
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型描述名「活力参与者」
+  PASS 部分维度信息不足 模型 shareAlt 不出现类型描述名「细节照顾者」
+  PASS 部分维度信息不足 模型字段 shareFilename 非空
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 INTJ
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 INTP
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 ENTJ
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 ENTP
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 INFJ
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 INFP
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 ENFJ
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 ENFP
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 ISTJ
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 ISFJ
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 ESTJ
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 ESFJ
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 ISTP
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 ISFP
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 ESTP
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型码 ESFP
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型描述名「价值探索者」
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型描述名「系统规划者」
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型描述名「灵感连接者」
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型描述名「活力参与者」
+  PASS 部分维度信息不足 模型 shareFilename 不出现类型描述名「细节照顾者」
+  PASS 部分维度信息不足 报告按五个维度逐个给结果
+  PASS 部分维度信息不足 低端记号是内容包的「低」
+  PASS 部分维度信息不足 高端记号是内容包的「高」
+  PASS mixed 下 ES 维度信息不足
+  PASS 其余维度仍然给出方向（不因一维不足全部作废）
+  shot 42-report-partial-mobile.png
+  PASS 五维都有方向 播种后停在报告页
+  PASS 五维都有方向 报告展示模型可读
+  PASS 五维都有方向 用的是 IPIP-50 内容包
+  PASS 五维都有方向 仪器是 ipip50
+  PASS 五维都有方向 该量表不产出类型码
+  PASS 五维都有方向 题数是 50
+  PASS 五维都有方向 分享类型是 clear
+  PASS 五维都有方向 文件名是 typeme-profile-clear.png
+  PASS 五维都有方向 模型没有完整类型
+  PASS 五维都有方向 图片没有大字类型码
+  PASS 五维都有方向 图片没有类型信息行
+  PASS 五维都有方向 模型字段 shareText 非空
+  PASS 五维都有方向 模型 shareText 不出现类型码 INTJ
+  PASS 五维都有方向 模型 shareText 不出现类型码 INTP
+  PASS 五维都有方向 模型 shareText 不出现类型码 ENTJ
+  PASS 五维都有方向 模型 shareText 不出现类型码 ENTP
+  PASS 五维都有方向 模型 shareText 不出现类型码 INFJ
+  PASS 五维都有方向 模型 shareText 不出现类型码 INFP
+  PASS 五维都有方向 模型 shareText 不出现类型码 ENFJ
+  PASS 五维都有方向 模型 shareText 不出现类型码 ENFP
+  PASS 五维都有方向 模型 shareText 不出现类型码 ISTJ
+  PASS 五维都有方向 模型 shareText 不出现类型码 ISFJ
+  PASS 五维都有方向 模型 shareText 不出现类型码 ESTJ
+  PASS 五维都有方向 模型 shareText 不出现类型码 ESFJ
+  PASS 五维都有方向 模型 shareText 不出现类型码 ISTP
+  PASS 五维都有方向 模型 shareText 不出现类型码 ISFP
+  PASS 五维都有方向 模型 shareText 不出现类型码 ESTP
+  PASS 五维都有方向 模型 shareText 不出现类型码 ESFP
+  PASS 五维都有方向 模型 shareText 不出现类型描述名「价值探索者」
+  PASS 五维都有方向 模型 shareText 不出现类型描述名「系统规划者」
+  PASS 五维都有方向 模型 shareText 不出现类型描述名「灵感连接者」
+  PASS 五维都有方向 模型 shareText 不出现类型描述名「活力参与者」
+  PASS 五维都有方向 模型 shareText 不出现类型描述名「细节照顾者」
+  PASS 五维都有方向 模型字段 shareAlt 非空
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 INTJ
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 INTP
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 ENTJ
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 ENTP
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 INFJ
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 INFP
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 ENFJ
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 ENFP
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 ISTJ
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 ISFJ
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 ESTJ
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 ESFJ
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 ISTP
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 ISFP
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 ESTP
+  PASS 五维都有方向 模型 shareAlt 不出现类型码 ESFP
+  PASS 五维都有方向 模型 shareAlt 不出现类型描述名「价值探索者」
+  PASS 五维都有方向 模型 shareAlt 不出现类型描述名「系统规划者」
+  PASS 五维都有方向 模型 shareAlt 不出现类型描述名「灵感连接者」
+  PASS 五维都有方向 模型 shareAlt 不出现类型描述名「活力参与者」
+  PASS 五维都有方向 模型 shareAlt 不出现类型描述名「细节照顾者」
+  PASS 五维都有方向 模型字段 shareFilename 非空
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 INTJ
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 INTP
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 ENTJ
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 ENTP
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 INFJ
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 INFP
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 ENFJ
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 ENFP
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 ISTJ
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 ISFJ
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 ESTJ
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 ESFJ
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 ISTP
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 ISFP
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 ESTP
+  PASS 五维都有方向 模型 shareFilename 不出现类型码 ESFP
+  PASS 五维都有方向 模型 shareFilename 不出现类型描述名「价值探索者」
+  PASS 五维都有方向 模型 shareFilename 不出现类型描述名「系统规划者」
+  PASS 五维都有方向 模型 shareFilename 不出现类型描述名「灵感连接者」
+  PASS 五维都有方向 模型 shareFilename 不出现类型描述名「活力参与者」
+  PASS 五维都有方向 模型 shareFilename 不出现类型描述名「细节照顾者」
+  PASS 五维都有方向 报告按五个维度逐个给结果
+  PASS 五维都有方向 低端记号是内容包的「低」
+  PASS 五维都有方向 高端记号是内容包的「高」
+  PASS ref-typed 下五个维度都达到展示条件
+  PASS clear 报告的总结语按五维给
+  PASS clear 抬头的说法与「每个维度都有方向」一致
+  PASS clear 抬头不许写成「没有明确方向」
+  PASS clear 报告页面不出现字面量 undefined
+  PASS clear 报告标题写「五个维度上的结果」
+  PASS 大五报告说「完整结论」而不是「完整类型」
+  PASS 方法说明里不写死四维
+  PASS 方法说明里不出现字面量 undefined
+  PASS 报告页面不出现维护细节「ipip50-zh1」
+  PASS 报告说明里不出现维护细节「ipip50-zh1」
+  PASS 报告页面不出现维护细节「解释政策」
+  PASS 报告说明里不出现维护细节「解释政策」
+  PASS 报告页面不出现维护细节「内容状态」
+  PASS 报告说明里不出现维护细节「内容状态」
+  PASS 报告页面不出现维护细节「审校」
+  PASS 报告说明里不出现维护细节「审校」
+  PASS 报告页面不出现维护细节「服务端」
+  PASS 报告说明里不出现维护细节「服务端」
+  PASS 报告页面不出现维护细节「内置副本」
+  PASS 报告说明里不出现维护细节「内置副本」
+  PASS 报告页面不出现维护细节「typeme.quiz.v3」
+  PASS 报告说明里不出现维护细节「typeme.quiz.v3」
+  PASS 大五报告不挂 MBTI 免责声明
+  PASS clear 报告 不出现类型码 INTJ
+  PASS clear 报告 不出现类型码 INTP
+  PASS clear 报告 不出现类型码 ENTJ
+  PASS clear 报告 不出现类型码 ENTP
+  PASS clear 报告 不出现类型码 INFJ
+  PASS clear 报告 不出现类型码 INFP
+  PASS clear 报告 不出现类型码 ENFJ
+  PASS clear 报告 不出现类型码 ENFP
+  PASS clear 报告 不出现类型码 ISTJ
+  PASS clear 报告 不出现类型码 ISFJ
+  PASS clear 报告 不出现类型码 ESTJ
+  PASS clear 报告 不出现类型码 ESFJ
+  PASS clear 报告 不出现类型码 ISTP
+  PASS clear 报告 不出现类型码 ISFP
+  PASS clear 报告 不出现类型码 ESTP
+  PASS clear 报告 不出现类型码 ESFP
+  PASS clear 报告 不出现类型描述名「价值探索者」
+  PASS clear 报告 不出现类型描述名「系统规划者」
+  PASS clear 报告 不出现类型描述名「灵感连接者」
+  PASS clear 报告 不出现类型描述名「活力参与者」
+  PASS clear 报告 不出现类型描述名「细节照顾者」
+  PASS 大五报告不提供任何四字母类型文章
+  shot 43-report-clear-mobile.png
+  PASS 正负相抵 播种后停在报告页
+  PASS 正负相抵 报告展示模型可读
+  PASS 正负相抵 用的是 IPIP-50 内容包
+  PASS 正负相抵 仪器是 ipip50
+  PASS 正负相抵 该量表不产出类型码
+  PASS 正负相抵 题数是 50
+  PASS 正负相抵 分享类型是 undetermined
+  PASS 正负相抵 文件名是 typeme-profile-undetermined.png
+  PASS 正负相抵 模型没有完整类型
+  PASS 正负相抵 图片没有大字类型码
+  PASS 正负相抵 图片没有类型信息行
+  PASS 正负相抵 模型字段 shareText 非空
+  PASS 正负相抵 模型 shareText 不出现类型码 INTJ
+  PASS 正负相抵 模型 shareText 不出现类型码 INTP
+  PASS 正负相抵 模型 shareText 不出现类型码 ENTJ
+  PASS 正负相抵 模型 shareText 不出现类型码 ENTP
+  PASS 正负相抵 模型 shareText 不出现类型码 INFJ
+  PASS 正负相抵 模型 shareText 不出现类型码 INFP
+  PASS 正负相抵 模型 shareText 不出现类型码 ENFJ
+  PASS 正负相抵 模型 shareText 不出现类型码 ENFP
+  PASS 正负相抵 模型 shareText 不出现类型码 ISTJ
+  PASS 正负相抵 模型 shareText 不出现类型码 ISFJ
+  PASS 正负相抵 模型 shareText 不出现类型码 ESTJ
+  PASS 正负相抵 模型 shareText 不出现类型码 ESFJ
+  PASS 正负相抵 模型 shareText 不出现类型码 ISTP
+  PASS 正负相抵 模型 shareText 不出现类型码 ISFP
+  PASS 正负相抵 模型 shareText 不出现类型码 ESTP
+  PASS 正负相抵 模型 shareText 不出现类型码 ESFP
+  PASS 正负相抵 模型 shareText 不出现类型描述名「价值探索者」
+  PASS 正负相抵 模型 shareText 不出现类型描述名「系统规划者」
+  PASS 正负相抵 模型 shareText 不出现类型描述名「灵感连接者」
+  PASS 正负相抵 模型 shareText 不出现类型描述名「活力参与者」
+  PASS 正负相抵 模型 shareText 不出现类型描述名「细节照顾者」
+  PASS 正负相抵 模型字段 shareAlt 非空
+  PASS 正负相抵 模型 shareAlt 不出现类型码 INTJ
+  PASS 正负相抵 模型 shareAlt 不出现类型码 INTP
+  PASS 正负相抵 模型 shareAlt 不出现类型码 ENTJ
+  PASS 正负相抵 模型 shareAlt 不出现类型码 ENTP
+  PASS 正负相抵 模型 shareAlt 不出现类型码 INFJ
+  PASS 正负相抵 模型 shareAlt 不出现类型码 INFP
+  PASS 正负相抵 模型 shareAlt 不出现类型码 ENFJ
+  PASS 正负相抵 模型 shareAlt 不出现类型码 ENFP
+  PASS 正负相抵 模型 shareAlt 不出现类型码 ISTJ
+  PASS 正负相抵 模型 shareAlt 不出现类型码 ISFJ
+  PASS 正负相抵 模型 shareAlt 不出现类型码 ESTJ
+  PASS 正负相抵 模型 shareAlt 不出现类型码 ESFJ
+  PASS 正负相抵 模型 shareAlt 不出现类型码 ISTP
+  PASS 正负相抵 模型 shareAlt 不出现类型码 ISFP
+  PASS 正负相抵 模型 shareAlt 不出现类型码 ESTP
+  PASS 正负相抵 模型 shareAlt 不出现类型码 ESFP
+  PASS 正负相抵 模型 shareAlt 不出现类型描述名「价值探索者」
+  PASS 正负相抵 模型 shareAlt 不出现类型描述名「系统规划者」
+  PASS 正负相抵 模型 shareAlt 不出现类型描述名「灵感连接者」
+  PASS 正负相抵 模型 shareAlt 不出现类型描述名「活力参与者」
+  PASS 正负相抵 模型 shareAlt 不出现类型描述名「细节照顾者」
+  PASS 正负相抵 模型字段 shareFilename 非空
+  PASS 正负相抵 模型 shareFilename 不出现类型码 INTJ
+  PASS 正负相抵 模型 shareFilename 不出现类型码 INTP
+  PASS 正负相抵 模型 shareFilename 不出现类型码 ENTJ
+  PASS 正负相抵 模型 shareFilename 不出现类型码 ENTP
+  PASS 正负相抵 模型 shareFilename 不出现类型码 INFJ
+  PASS 正负相抵 模型 shareFilename 不出现类型码 INFP
+  PASS 正负相抵 模型 shareFilename 不出现类型码 ENFJ
+  PASS 正负相抵 模型 shareFilename 不出现类型码 ENFP
+  PASS 正负相抵 模型 shareFilename 不出现类型码 ISTJ
+  PASS 正负相抵 模型 shareFilename 不出现类型码 ISFJ
+  PASS 正负相抵 模型 shareFilename 不出现类型码 ESTJ
+  PASS 正负相抵 模型 shareFilename 不出现类型码 ESFJ
+  PASS 正负相抵 模型 shareFilename 不出现类型码 ISTP
+  PASS 正负相抵 模型 shareFilename 不出现类型码 ISFP
+  PASS 正负相抵 模型 shareFilename 不出现类型码 ESTP
+  PASS 正负相抵 模型 shareFilename 不出现类型码 ESFP
+  PASS 正负相抵 模型 shareFilename 不出现类型描述名「价值探索者」
+  PASS 正负相抵 模型 shareFilename 不出现类型描述名「系统规划者」
+  PASS 正负相抵 模型 shareFilename 不出现类型描述名「灵感连接者」
+  PASS 正负相抵 模型 shareFilename 不出现类型描述名「活力参与者」
+  PASS 正负相抵 模型 shareFilename 不出现类型描述名「细节照顾者」
+  PASS 正负相抵 报告按五个维度逐个给结果
+  PASS 正负相抵 低端记号是内容包的「低」
+  PASS 正负相抵 高端记号是内容包的「高」
+  PASS 正负相抵时五个维度都回到两侧相近
+  PASS 一维待观察 播种后停在报告页
+  PASS 一维待观察 报告展示模型可读
+  PASS 一维待观察 用的是 IPIP-50 内容包
+  PASS 一维待观察 仪器是 ipip50
+  PASS 一维待观察 该量表不产出类型码
+  PASS 一维待观察 题数是 50
+  PASS 一维待观察 分享类型是 partial
+  PASS 一维待观察 文件名是 typeme-profile-partial.png
+  PASS 一维待观察 模型没有完整类型
+  PASS 一维待观察 图片没有大字类型码
+  PASS 一维待观察 图片没有类型信息行
+  PASS 一维待观察 模型字段 shareText 非空
+  PASS 一维待观察 模型 shareText 不出现类型码 INTJ
+  PASS 一维待观察 模型 shareText 不出现类型码 INTP
+  PASS 一维待观察 模型 shareText 不出现类型码 ENTJ
+  PASS 一维待观察 模型 shareText 不出现类型码 ENTP
+  PASS 一维待观察 模型 shareText 不出现类型码 INFJ
+  PASS 一维待观察 模型 shareText 不出现类型码 INFP
+  PASS 一维待观察 模型 shareText 不出现类型码 ENFJ
+  PASS 一维待观察 模型 shareText 不出现类型码 ENFP
+  PASS 一维待观察 模型 shareText 不出现类型码 ISTJ
+  PASS 一维待观察 模型 shareText 不出现类型码 ISFJ
+  PASS 一维待观察 模型 shareText 不出现类型码 ESTJ
+  PASS 一维待观察 模型 shareText 不出现类型码 ESFJ
+  PASS 一维待观察 模型 shareText 不出现类型码 ISTP
+  PASS 一维待观察 模型 shareText 不出现类型码 ISFP
+  PASS 一维待观察 模型 shareText 不出现类型码 ESTP
+  PASS 一维待观察 模型 shareText 不出现类型码 ESFP
+  PASS 一维待观察 模型 shareText 不出现类型描述名「价值探索者」
+  PASS 一维待观察 模型 shareText 不出现类型描述名「系统规划者」
+  PASS 一维待观察 模型 shareText 不出现类型描述名「灵感连接者」
+  PASS 一维待观察 模型 shareText 不出现类型描述名「活力参与者」
+  PASS 一维待观察 模型 shareText 不出现类型描述名「细节照顾者」
+  PASS 一维待观察 模型字段 shareAlt 非空
+  PASS 一维待观察 模型 shareAlt 不出现类型码 INTJ
+  PASS 一维待观察 模型 shareAlt 不出现类型码 INTP
+  PASS 一维待观察 模型 shareAlt 不出现类型码 ENTJ
+  PASS 一维待观察 模型 shareAlt 不出现类型码 ENTP
+  PASS 一维待观察 模型 shareAlt 不出现类型码 INFJ
+  PASS 一维待观察 模型 shareAlt 不出现类型码 INFP
+  PASS 一维待观察 模型 shareAlt 不出现类型码 ENFJ
+  PASS 一维待观察 模型 shareAlt 不出现类型码 ENFP
+  PASS 一维待观察 模型 shareAlt 不出现类型码 ISTJ
+  PASS 一维待观察 模型 shareAlt 不出现类型码 ISFJ
+  PASS 一维待观察 模型 shareAlt 不出现类型码 ESTJ
+  PASS 一维待观察 模型 shareAlt 不出现类型码 ESFJ
+  PASS 一维待观察 模型 shareAlt 不出现类型码 ISTP
+  PASS 一维待观察 模型 shareAlt 不出现类型码 ISFP
+  PASS 一维待观察 模型 shareAlt 不出现类型码 ESTP
+  PASS 一维待观察 模型 shareAlt 不出现类型码 ESFP
+  PASS 一维待观察 模型 shareAlt 不出现类型描述名「价值探索者」
+  PASS 一维待观察 模型 shareAlt 不出现类型描述名「系统规划者」
+  PASS 一维待观察 模型 shareAlt 不出现类型描述名「灵感连接者」
+  PASS 一维待观察 模型 shareAlt 不出现类型描述名「活力参与者」
+  PASS 一维待观察 模型 shareAlt 不出现类型描述名「细节照顾者」
+  PASS 一维待观察 模型字段 shareFilename 非空
+  PASS 一维待观察 模型 shareFilename 不出现类型码 INTJ
+  PASS 一维待观察 模型 shareFilename 不出现类型码 INTP
+  PASS 一维待观察 模型 shareFilename 不出现类型码 ENTJ
+  PASS 一维待观察 模型 shareFilename 不出现类型码 ENTP
+  PASS 一维待观察 模型 shareFilename 不出现类型码 INFJ
+  PASS 一维待观察 模型 shareFilename 不出现类型码 INFP
+  PASS 一维待观察 模型 shareFilename 不出现类型码 ENFJ
+  PASS 一维待观察 模型 shareFilename 不出现类型码 ENFP
+  PASS 一维待观察 模型 shareFilename 不出现类型码 ISTJ
+  PASS 一维待观察 模型 shareFilename 不出现类型码 ISFJ
+  PASS 一维待观察 模型 shareFilename 不出现类型码 ESTJ
+  PASS 一维待观察 模型 shareFilename 不出现类型码 ESFJ
+  PASS 一维待观察 模型 shareFilename 不出现类型码 ISTP
+  PASS 一维待观察 模型 shareFilename 不出现类型码 ISFP
+  PASS 一维待观察 模型 shareFilename 不出现类型码 ESTP
+  PASS 一维待观察 模型 shareFilename 不出现类型码 ESFP
+  PASS 一维待观察 模型 shareFilename 不出现类型描述名「价值探索者」
+  PASS 一维待观察 模型 shareFilename 不出现类型描述名「系统规划者」
+  PASS 一维待观察 模型 shareFilename 不出现类型描述名「灵感连接者」
+  PASS 一维待观察 模型 shareFilename 不出现类型描述名「活力参与者」
+  PASS 一维待观察 模型 shareFilename 不出现类型描述名「细节照顾者」
+  PASS 一维待观察 报告按五个维度逐个给结果
+  PASS 一维待观察 低端记号是内容包的「低」
+  PASS 一维待观察 高端记号是内容包的「高」
+  PASS ref-partial 下 A 维度只是待观察
+  PASS 其余四维仍然达到展示条件
+  PASS 清空后访问 /result 有明确去处
+  PASS 报告流程无控制台错误
+
+[5] PC 报告与三类导出图
+  PASS PC 五维都有方向 播种后停在报告页
+  PASS PC 五维都有方向 报告展示模型可读
+  PASS PC 五维都有方向 用的是 IPIP-50 内容包
+  PASS PC 五维都有方向 仪器是 ipip50
+  PASS PC 五维都有方向 该量表不产出类型码
+  PASS PC 五维都有方向 题数是 50
+  PASS PC 五维都有方向 分享类型是 clear
+  PASS PC 五维都有方向 文件名是 typeme-profile-clear.png
+  PASS PC 五维都有方向 模型没有完整类型
+  PASS PC 五维都有方向 图片没有大字类型码
+  PASS PC 五维都有方向 图片没有类型信息行
+  PASS PC 五维都有方向 模型字段 shareText 非空
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 INTJ
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 INTP
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 ENTJ
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 ENTP
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 INFJ
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 INFP
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 ENFJ
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 ENFP
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 ISTJ
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 ISFJ
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 ESTJ
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 ESFJ
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 ISTP
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 ISFP
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 ESTP
+  PASS PC 五维都有方向 模型 shareText 不出现类型码 ESFP
+  PASS PC 五维都有方向 模型 shareText 不出现类型描述名「价值探索者」
+  PASS PC 五维都有方向 模型 shareText 不出现类型描述名「系统规划者」
+  PASS PC 五维都有方向 模型 shareText 不出现类型描述名「灵感连接者」
+  PASS PC 五维都有方向 模型 shareText 不出现类型描述名「活力参与者」
+  PASS PC 五维都有方向 模型 shareText 不出现类型描述名「细节照顾者」
+  PASS PC 五维都有方向 模型字段 shareAlt 非空
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 INTJ
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 INTP
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 ENTJ
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 ENTP
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 INFJ
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 INFP
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 ENFJ
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 ENFP
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 ISTJ
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 ISFJ
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 ESTJ
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 ESFJ
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 ISTP
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 ISFP
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 ESTP
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型码 ESFP
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型描述名「价值探索者」
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型描述名「系统规划者」
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型描述名「灵感连接者」
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型描述名「活力参与者」
+  PASS PC 五维都有方向 模型 shareAlt 不出现类型描述名「细节照顾者」
+  PASS PC 五维都有方向 模型字段 shareFilename 非空
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 INTJ
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 INTP
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 ENTJ
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 ENTP
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 INFJ
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 INFP
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 ENFJ
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 ENFP
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 ISTJ
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 ISFJ
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 ESTJ
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 ESFJ
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 ISTP
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 ISFP
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 ESTP
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型码 ESFP
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型描述名「价值探索者」
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型描述名「系统规划者」
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型描述名「灵感连接者」
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型描述名「活力参与者」
+  PASS PC 五维都有方向 模型 shareFilename 不出现类型描述名「细节照顾者」
+  PASS PC 五维都有方向 报告按五个维度逐个给结果
+  PASS PC 五维都有方向 低端记号是内容包的「低」
+  PASS PC 五维都有方向 高端记号是内容包的「高」
+  PASS PC 报告页 无横向溢出
+  shot 50-report-clear-pc.png
+  PASS clear 分享预览能打开
+  PASS clear 导出图尺寸为 1080×1920（或低内存 540×960）
+  PASS clear 图片有可读的无障碍名称
+  PASS clear 图片 alt 不出现类型码 INTJ
+  PASS clear 图片 alt 不出现类型码 INTP
+  PASS clear 图片 alt 不出现类型码 ENTJ
+  PASS clear 图片 alt 不出现类型码 ENTP
+  PASS clear 图片 alt 不出现类型码 INFJ
+  PASS clear 图片 alt 不出现类型码 INFP
+  PASS clear 图片 alt 不出现类型码 ENFJ
+  PASS clear 图片 alt 不出现类型码 ENFP
+  PASS clear 图片 alt 不出现类型码 ISTJ
+  PASS clear 图片 alt 不出现类型码 ISFJ
+  PASS clear 图片 alt 不出现类型码 ESTJ
+  PASS clear 图片 alt 不出现类型码 ESFJ
+  PASS clear 图片 alt 不出现类型码 ISTP
+  PASS clear 图片 alt 不出现类型码 ISFP
+  PASS clear 图片 alt 不出现类型码 ESTP
+  PASS clear 图片 alt 不出现类型码 ESFP
+  PASS clear 图片 alt 不出现类型描述名「价值探索者」
+  PASS clear 图片 alt 不出现类型描述名「系统规划者」
+  PASS clear 图片 alt 不出现类型描述名「灵感连接者」
+  PASS clear 图片 alt 不出现类型描述名「活力参与者」
+  PASS clear 图片 alt 不出现类型描述名「细节照顾者」
+  shot 31-share-preview-clear.png
+  PASS clear 真实导出成功
+  PASS clear 下载文件名与展示模型一致
+  PASS clear 下载提示如实（已发起下载）
+  PASS clear 不谎称已保存到相册
+  PASS PC 部分维度信息不足 播种后停在报告页
+  PASS PC 部分维度信息不足 报告展示模型可读
+  PASS PC 部分维度信息不足 用的是 IPIP-50 内容包
+  PASS PC 部分维度信息不足 仪器是 ipip50
+  PASS PC 部分维度信息不足 该量表不产出类型码
+  PASS PC 部分维度信息不足 题数是 50
+  PASS PC 部分维度信息不足 分享类型是 partial
+  PASS PC 部分维度信息不足 文件名是 typeme-profile-partial.png
+  PASS PC 部分维度信息不足 模型没有完整类型
+  PASS PC 部分维度信息不足 图片没有大字类型码
+  PASS PC 部分维度信息不足 图片没有类型信息行
+  PASS PC 部分维度信息不足 模型字段 shareText 非空
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 INTJ
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 INTP
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 ENTJ
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 ENTP
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 INFJ
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 INFP
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 ENFJ
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 ENFP
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 ISTJ
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 ISFJ
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 ESTJ
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 ESFJ
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 ISTP
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 ISFP
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 ESTP
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型码 ESFP
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型描述名「价值探索者」
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型描述名「系统规划者」
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型描述名「灵感连接者」
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型描述名「活力参与者」
+  PASS PC 部分维度信息不足 模型 shareText 不出现类型描述名「细节照顾者」
+  PASS PC 部分维度信息不足 模型字段 shareAlt 非空
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 INTJ
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 INTP
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 ENTJ
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 ENTP
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 INFJ
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 INFP
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 ENFJ
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 ENFP
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 ISTJ
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 ISFJ
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 ESTJ
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 ESFJ
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 ISTP
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 ISFP
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 ESTP
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型码 ESFP
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型描述名「价值探索者」
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型描述名「系统规划者」
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型描述名「灵感连接者」
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型描述名「活力参与者」
+  PASS PC 部分维度信息不足 模型 shareAlt 不出现类型描述名「细节照顾者」
+  PASS PC 部分维度信息不足 模型字段 shareFilename 非空
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 INTJ
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 INTP
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 ENTJ
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 ENTP
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 INFJ
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 INFP
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 ENFJ
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 ENFP
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 ISTJ
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 ISFJ
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 ESTJ
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 ESFJ
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 ISTP
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 ISFP
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 ESTP
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型码 ESFP
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型描述名「价值探索者」
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型描述名「系统规划者」
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型描述名「灵感连接者」
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型描述名「活力参与者」
+  PASS PC 部分维度信息不足 模型 shareFilename 不出现类型描述名「细节照顾者」
+  PASS PC 部分维度信息不足 报告按五个维度逐个给结果
+  PASS PC 部分维度信息不足 低端记号是内容包的「低」
+  PASS PC 部分维度信息不足 高端记号是内容包的「高」
+  shot 51-report-partial-pc.png
+  PASS partial 分享预览能打开
+  PASS partial 导出图尺寸为 1080×1920（或低内存 540×960）
+  PASS partial 图片有可读的无障碍名称
+  PASS partial 图片 alt 不出现类型码 INTJ
+  PASS partial 图片 alt 不出现类型码 INTP
+  PASS partial 图片 alt 不出现类型码 ENTJ
+  PASS partial 图片 alt 不出现类型码 ENTP
+  PASS partial 图片 alt 不出现类型码 INFJ
+  PASS partial 图片 alt 不出现类型码 INFP
+  PASS partial 图片 alt 不出现类型码 ENFJ
+  PASS partial 图片 alt 不出现类型码 ENFP
+  PASS partial 图片 alt 不出现类型码 ISTJ
+  PASS partial 图片 alt 不出现类型码 ISFJ
+  PASS partial 图片 alt 不出现类型码 ESTJ
+  PASS partial 图片 alt 不出现类型码 ESFJ
+  PASS partial 图片 alt 不出现类型码 ISTP
+  PASS partial 图片 alt 不出现类型码 ISFP
+  PASS partial 图片 alt 不出现类型码 ESTP
+  PASS partial 图片 alt 不出现类型码 ESFP
+  PASS partial 图片 alt 不出现类型描述名「价值探索者」
+  PASS partial 图片 alt 不出现类型描述名「系统规划者」
+  PASS partial 图片 alt 不出现类型描述名「灵感连接者」
+  PASS partial 图片 alt 不出现类型描述名「活力参与者」
+  PASS partial 图片 alt 不出现类型描述名「细节照顾者」
+  shot 31-share-preview-partial.png
+  PASS partial 真实导出成功
+  PASS partial 下载文件名与展示模型一致
+  PASS partial 下载提示如实（已发起下载）
+  PASS partial 不谎称已保存到相册
+  PASS PC 全中立 播种后停在报告页
+  PASS PC 全中立 报告展示模型可读
+  PASS PC 全中立 用的是 IPIP-50 内容包
+  PASS PC 全中立 仪器是 ipip50
+  PASS PC 全中立 该量表不产出类型码
+  PASS PC 全中立 题数是 50
+  PASS PC 全中立 分享类型是 undetermined
+  PASS PC 全中立 文件名是 typeme-profile-undetermined.png
+  PASS PC 全中立 模型没有完整类型
+  PASS PC 全中立 图片没有大字类型码
+  PASS PC 全中立 图片没有类型信息行
+  PASS PC 全中立 模型字段 shareText 非空
+  PASS PC 全中立 模型 shareText 不出现类型码 INTJ
+  PASS PC 全中立 模型 shareText 不出现类型码 INTP
+  PASS PC 全中立 模型 shareText 不出现类型码 ENTJ
+  PASS PC 全中立 模型 shareText 不出现类型码 ENTP
+  PASS PC 全中立 模型 shareText 不出现类型码 INFJ
+  PASS PC 全中立 模型 shareText 不出现类型码 INFP
+  PASS PC 全中立 模型 shareText 不出现类型码 ENFJ
+  PASS PC 全中立 模型 shareText 不出现类型码 ENFP
+  PASS PC 全中立 模型 shareText 不出现类型码 ISTJ
+  PASS PC 全中立 模型 shareText 不出现类型码 ISFJ
+  PASS PC 全中立 模型 shareText 不出现类型码 ESTJ
+  PASS PC 全中立 模型 shareText 不出现类型码 ESFJ
+  PASS PC 全中立 模型 shareText 不出现类型码 ISTP
+  PASS PC 全中立 模型 shareText 不出现类型码 ISFP
+  PASS PC 全中立 模型 shareText 不出现类型码 ESTP
+  PASS PC 全中立 模型 shareText 不出现类型码 ESFP
+  PASS PC 全中立 模型 shareText 不出现类型描述名「价值探索者」
+  PASS PC 全中立 模型 shareText 不出现类型描述名「系统规划者」
+  PASS PC 全中立 模型 shareText 不出现类型描述名「灵感连接者」
+  PASS PC 全中立 模型 shareText 不出现类型描述名「活力参与者」
+  PASS PC 全中立 模型 shareText 不出现类型描述名「细节照顾者」
+  PASS PC 全中立 模型字段 shareAlt 非空
+  PASS PC 全中立 模型 shareAlt 不出现类型码 INTJ
+  PASS PC 全中立 模型 shareAlt 不出现类型码 INTP
+  PASS PC 全中立 模型 shareAlt 不出现类型码 ENTJ
+  PASS PC 全中立 模型 shareAlt 不出现类型码 ENTP
+  PASS PC 全中立 模型 shareAlt 不出现类型码 INFJ
+  PASS PC 全中立 模型 shareAlt 不出现类型码 INFP
+  PASS PC 全中立 模型 shareAlt 不出现类型码 ENFJ
+  PASS PC 全中立 模型 shareAlt 不出现类型码 ENFP
+  PASS PC 全中立 模型 shareAlt 不出现类型码 ISTJ
+  PASS PC 全中立 模型 shareAlt 不出现类型码 ISFJ
+  PASS PC 全中立 模型 shareAlt 不出现类型码 ESTJ
+  PASS PC 全中立 模型 shareAlt 不出现类型码 ESFJ
+  PASS PC 全中立 模型 shareAlt 不出现类型码 ISTP
+  PASS PC 全中立 模型 shareAlt 不出现类型码 ISFP
+  PASS PC 全中立 模型 shareAlt 不出现类型码 ESTP
+  PASS PC 全中立 模型 shareAlt 不出现类型码 ESFP
+  PASS PC 全中立 模型 shareAlt 不出现类型描述名「价值探索者」
+  PASS PC 全中立 模型 shareAlt 不出现类型描述名「系统规划者」
+  PASS PC 全中立 模型 shareAlt 不出现类型描述名「灵感连接者」
+  PASS PC 全中立 模型 shareAlt 不出现类型描述名「活力参与者」
+  PASS PC 全中立 模型 shareAlt 不出现类型描述名「细节照顾者」
+  PASS PC 全中立 模型字段 shareFilename 非空
+  PASS PC 全中立 模型 shareFilename 不出现类型码 INTJ
+  PASS PC 全中立 模型 shareFilename 不出现类型码 INTP
+  PASS PC 全中立 模型 shareFilename 不出现类型码 ENTJ
+  PASS PC 全中立 模型 shareFilename 不出现类型码 ENTP
+  PASS PC 全中立 模型 shareFilename 不出现类型码 INFJ
+  PASS PC 全中立 模型 shareFilename 不出现类型码 INFP
+  PASS PC 全中立 模型 shareFilename 不出现类型码 ENFJ
+  PASS PC 全中立 模型 shareFilename 不出现类型码 ENFP
+  PASS PC 全中立 模型 shareFilename 不出现类型码 ISTJ
+  PASS PC 全中立 模型 shareFilename 不出现类型码 ISFJ
+  PASS PC 全中立 模型 shareFilename 不出现类型码 ESTJ
+  PASS PC 全中立 模型 shareFilename 不出现类型码 ESFJ
+  PASS PC 全中立 模型 shareFilename 不出现类型码 ISTP
+  PASS PC 全中立 模型 shareFilename 不出现类型码 ISFP
+  PASS PC 全中立 模型 shareFilename 不出现类型码 ESTP
+  PASS PC 全中立 模型 shareFilename 不出现类型码 ESFP
+  PASS PC 全中立 模型 shareFilename 不出现类型描述名「价值探索者」
+  PASS PC 全中立 模型 shareFilename 不出现类型描述名「系统规划者」
+  PASS PC 全中立 模型 shareFilename 不出现类型描述名「灵感连接者」
+  PASS PC 全中立 模型 shareFilename 不出现类型描述名「活力参与者」
+  PASS PC 全中立 模型 shareFilename 不出现类型描述名「细节照顾者」
+  PASS PC 全中立 报告按五个维度逐个给结果
+  PASS PC 全中立 低端记号是内容包的「低」
+  PASS PC 全中立 高端记号是内容包的「高」
+  shot 52-report-neutral-pc.png
+  PASS undetermined 分享预览能打开
+  PASS undetermined 导出图尺寸为 1080×1920（或低内存 540×960）
+  PASS undetermined 图片有可读的无障碍名称
+  PASS undetermined 图片 alt 不出现类型码 INTJ
+  PASS undetermined 图片 alt 不出现类型码 INTP
+  PASS undetermined 图片 alt 不出现类型码 ENTJ
+  PASS undetermined 图片 alt 不出现类型码 ENTP
+  PASS undetermined 图片 alt 不出现类型码 INFJ
+  PASS undetermined 图片 alt 不出现类型码 INFP
+  PASS undetermined 图片 alt 不出现类型码 ENFJ
+  PASS undetermined 图片 alt 不出现类型码 ENFP
+  PASS undetermined 图片 alt 不出现类型码 ISTJ
+  PASS undetermined 图片 alt 不出现类型码 ISFJ
+  PASS undetermined 图片 alt 不出现类型码 ESTJ
+  PASS undetermined 图片 alt 不出现类型码 ESFJ
+  PASS undetermined 图片 alt 不出现类型码 ISTP
+  PASS undetermined 图片 alt 不出现类型码 ISFP
+  PASS undetermined 图片 alt 不出现类型码 ESTP
+  PASS undetermined 图片 alt 不出现类型码 ESFP
+  PASS undetermined 图片 alt 不出现类型描述名「价值探索者」
+  PASS undetermined 图片 alt 不出现类型描述名「系统规划者」
+  PASS undetermined 图片 alt 不出现类型描述名「灵感连接者」
+  PASS undetermined 图片 alt 不出现类型描述名「活力参与者」
+  PASS undetermined 图片 alt 不出现类型描述名「细节照顾者」
+  shot 31-share-preview-undetermined.png
+  PASS undetermined 真实导出成功
+  PASS undetermined 下载文件名与展示模型一致
+  PASS undetermined 下载提示如实（已发起下载）
+  PASS undetermined 不谎称已保存到相册
+  PASS PC 报告与导出无控制台错误
+
+[6] 关于页（默认大五）
+  PASS 关于页写明五个维度
+  PASS 关于页写明大五没有类型码
+  PASS 关于页写明 IPIP 公有领域
+  PASS 关于页保留免责说明
+  PASS 关于页说明本地保存了什么
+  PASS 关于页保留清除入口
+  PASS 关于页不出现维护细节「typeme.quiz.v3」
+  PASS 关于页不出现维护细节「typeme.package.v1」
+  PASS 关于页不出现维护细节「localStorage」
+  PASS 关于页不出现维护细节「内容包」
+  PASS 关于页不出现维护细节「解释政策」
+  PASS 关于页不出现维护细节「内容状态」
+  PASS 关于页不出现维护细节「draft」
+  PASS 关于页不出现维护细节「审校」
+  PASS 关于页不出现维护细节「服务端」
+  PASS 关于页不出现维护细节「内置副本」
+  PASS 关于页不出现维护细节「旧版本（OEJTS 32 题）的方法说明」
+  PASS 关于页不出现维护细节「packageId」
+  PASS 内容装载路径可读
+  PASS 关于页 无横向溢出
+  shot 60-about-mobile.png（整页）
+
+通过 1139 条，失败 0 条
+报告：D:\develop\develop\code\TypeMe\docs\2026-09-15\verification\assessment-ipip50\REPORT.md

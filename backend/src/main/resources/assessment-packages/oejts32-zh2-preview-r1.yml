@@ -1,0 +1,463 @@
+schemaVersion: 2
+packageId: "oejts32-zh2-preview-r1"
+locale: "zh-CN"
+localeRevision: "zh2-preview-r1-2026-09-15"
+helpRevision: "help-zh2-r1"
+copyRevision: "report2-r1"
+contentStatus: "draft"
+instrument:
+  id: "oejts32"
+  revision: "1.2"
+  scoringVersion: "oejts-1.2"
+interpretation:
+  version: "typeme-conservative-v2"
+  minRatingsPerDimension: 8
+  typeMinDistance: 5
+  markedDistance: 9
+title: "快速版（审校候选题面·本地试用）"
+estimatedMinutes: 5
+questionnaire:
+  version: "quick"
+  title: "快速版（审校候选）"
+  questionCount: 32
+  estimatedMinutes: 5
+  scoring:
+    midpoint: 24
+    constants:
+      EI: 30
+      SN: 12
+      TF: 30
+      JP: 18
+  questions:
+    - id: 1
+      textLeft: "倾向把要做的事列成清单"
+      textRight: "倾向靠记忆记住要做的事"
+      dimension: "JP"
+      direction: 1
+    - id: 2
+      textLeft: "通常先持怀疑态度"
+      textRight: "通常愿意先相信"
+      dimension: "TF"
+      direction: -1
+    - id: 3
+      textLeft: "独处时容易感到无聊"
+      textRight: "觉得自己需要独处时间"
+      dimension: "EI"
+      direction: -1
+    - id: 4
+      textLeft: "较容易接受事情目前的样子"
+      textRight: "常觉得事情目前的样子还不能让我满意"
+      dimension: "SN"
+      direction: 1
+    - id: 5
+      textLeft: "通常把自己的房间保持整洁"
+      textRight: "通常把东西随手放在方便的位置"
+      dimension: "JP"
+      direction: 1
+    - id: 6
+      textLeft: "觉得被说“像机器人”是一种负面评价"
+      textRight: "希望自己的头脑能像机器那样运作"
+      dimension: "TF"
+      direction: 1
+    - id: 7
+      textLeft: "通常精力充沛"
+      textRight: "通常平和沉静"
+      dimension: "EI"
+      direction: -1
+    - id: 8
+      textLeft: "更愿意回答选择题"
+      textRight: "更愿意回答需要展开说明的论述题"
+      dimension: "SN"
+      direction: 1
+    - id: 9
+      textLeft: "做事或安排比较随性、零散"
+      textRight: "做事或安排比较有条理"
+      dimension: "JP"
+      direction: -1
+    - id: 10
+      textLeft: "容易因别人的话受到伤害"
+      textRight: "不容易因别人的话受到伤害"
+      dimension: "TF"
+      direction: 1
+    - id: 11
+      textLeft: "与别人一起做事时，通常发挥更好"
+      textRight: "自己独立做事时，通常发挥更好"
+      dimension: "EI"
+      direction: -1
+    - id: 12
+      textLeft: "注意力更常放在当下"
+      textRight: "注意力更常放在未来"
+      dimension: "SN"
+      direction: 1
+    - id: 13
+      textLeft: "提前较长时间做计划"
+      textRight: "接近事情发生时再做计划"
+      dimension: "JP"
+      direction: 1
+    - id: 14
+      textLeft: "更希望别人尊重我"
+      textRight: "更希望别人喜欢我"
+      dimension: "TF"
+      direction: -1
+    - id: 15
+      textLeft: "参加聚会后，通常感到精力被消耗"
+      textRight: "参加聚会后，通常感觉更有精神"
+      dimension: "EI"
+      direction: 1
+    - id: 16
+      textLeft: "通常容易融入周围的人"
+      textRight: "通常显得与周围的人不同"
+      dimension: "SN"
+      direction: 1
+    - id: 17
+      textLeft: "倾向继续保留可选的方案"
+      textRight: "倾向选定方案并确定下来"
+      dimension: "JP"
+      direction: -1
+    - id: 18
+      textLeft: "更希望擅长修理物品"
+      textRight: "更希望擅长帮助别人处理他们遇到的问题"
+      dimension: "TF"
+      direction: -1
+    - id: 19
+      textLeft: "与别人交流时，我通常说得更多"
+      textRight: "与别人交流时，我通常听得更多"
+      dimension: "EI"
+      direction: -1
+    - id: 20
+      textLeft: "讲述一件事时，更侧重发生的经过"
+      textRight: "讲述一件事时，更侧重这件事的含义"
+      dimension: "SN"
+      direction: 1
+    - id: 21
+      textLeft: "有事情要做时，通常尽快完成"
+      textRight: "有事情要做时，通常会往后拖"
+      dimension: "JP"
+      direction: 1
+    - id: 22
+      textLeft: "做决定时，更跟随内心感受"
+      textRight: "做决定时，更跟随理性分析"
+      dimension: "TF"
+      direction: 1
+    - id: 23
+      textLeft: "通常更愿意待在家里"
+      textRight: "通常更愿意出门活动"
+      dimension: "EI"
+      direction: 1
+    - id: 24
+      textLeft: "更想先了解整体情况"
+      textRight: "更想先了解具体细节"
+      dimension: "SN"
+      direction: -1
+    - id: 25
+      textLeft: "通常倾向到现场再作应对"
+      textRight: "通常倾向事先做好准备"
+      dimension: "JP"
+      direction: -1
+    - id: 26
+      textLeft: "判断一件事是否合宜时，更重视公平原则"
+      textRight: "判断一件事是否合宜时，更重视对人的体谅"
+      dimension: "TF"
+      direction: -1
+    - id: 27
+      textLeft: "我觉得很难大声喊话"
+      textRight: "对远处的人大声喊话，我觉得很自然"
+      dimension: "EI"
+      direction: 1
+    - id: 28
+      textLeft: "更偏重理论解释"
+      textRight: "更偏重观察到的事实和实际证据"
+      dimension: "SN"
+      direction: -1
+    - id: 29
+      textLeft: "工作时通常很投入"
+      textRight: "玩乐时通常很投入"
+      dimension: "JP"
+      direction: 1
+    - id: 30
+      textLeft: "面对情绪表达时，常感到不太自在"
+      textRight: "觉得情绪感受很重要"
+      dimension: "TF"
+      direction: -1
+    - id: 31
+      textLeft: "喜欢在别人面前展示或表演"
+      textRight: "倾向避免在众人面前讲话"
+      dimension: "EI"
+      direction: -1
+    - id: 32
+      textLeft: "更想弄清涉及谁、发生什么、何时发生"
+      textRight: "更想弄清事情为什么发生"
+      dimension: "SN"
+      direction: 1
+itemHelp:
+  "1":
+    explanation: "比较你通常用什么方式记住要做的事。两种方式都会用时，按你觉得更接近自己的程度选择，不是评哪种方式更好。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "B"
+  "2":
+    explanation: "比较一般情况下先保留疑问还是先愿意相信的倾向。不是要求你忽略证据、相信可疑信息，也不是评价诚实程度。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+      - "C"
+  "3":
+    explanation: "比较你对独处的通常感受。这里不要求你永远喜欢独处或永远不喜欢独处；若两侧差不多符合，可选中间。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "B"
+  "4":
+    explanation: "比较对事情现有样子的感受。不是问是否努力、能否改变现状，也不是问你对某一件重大问题的态度。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+      - "C"
+  "5":
+    explanation: "回想通常对自己房间内物品的处理方式。不要只按一次大扫除后的样子回答；如果没有自己的空间，也可以暂时无法判断。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "C"
+  "6":
+    explanation: "左侧问你是否把“像机器人”看作负面评价；右侧问你是否希望有机械式运作的思考方式。这是比喻，若觉得两侧不能表达你的看法，可以无法判断。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+      - "B"
+  "7":
+    explanation: "左侧描述精力活跃，右侧描述平和温和的状态。两种描述可能同时符合；不要仅凭今天疲劳与否判断，也不涉及健康评价。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "B"
+      - "C"
+  "8":
+    explanation: "选择题提供选项；论述题需要自己组织较完整的文字。比较愿意回答哪种，不是问哪种能拿高分；没有相关经历可暂不判断。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "C"
+  "9":
+    explanation: "比较安排事情时呈现出的随性零散或条理感。不是评价勤劳、能力或是否守规矩。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+      - "C"
+  "10":
+    explanation: "比较面对别人言语时通常的感受程度。不代表敏感就是弱点，也不要求你对伤害性的言语无动于衷。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "C"
+  "11":
+    explanation: "比较共同做事与独立做事时的发挥感受。不是问是否喜欢同事，也不是问你有没有能力与别人合作。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+  "12":
+    explanation: "“当下”指眼前正在发生的事；“未来”指尚未发生的情况。比较注意力通常更偏向哪里，不是问会不会做计划。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "B"
+  "13":
+    explanation: "比较开始规划的时间早晚。不是判断你会不会守约；不同事情差别很大、没有通常偏向时，可以暂不判断。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "C"
+  "14":
+    explanation: "“尊重”侧重敬重和认可；“喜欢”侧重亲近和好感。两者都想要很常见，按两侧符合程度选择。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "B"
+  "15":
+    explanation: "回顾你通常参加聚会后的感受。不要只用一次特别愉快或特别累的聚会代表全部；疲惫与兴奋也可能同时出现。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "B"
+      - "C"
+  "16":
+    explanation: "比较自己通常更容易融入周围，还是更显得不同。不是判断哪一边更有个性或更优秀，也不是要求刻意迎合别人。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "C"
+  "17":
+    explanation: "比较作选择时继续留着几个方案，还是选定并确定一个方案的倾向。这里不特指恋爱关系或重大人生承诺。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+  "18":
+    explanation: "比较你希望擅长的事情：处理物品的问题，或帮助别人处理他们的问题。不是问现在会不会修理，也不把其中一边说成更有爱心。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "B"
+      - "C"
+  "19":
+    explanation: "比较交流中通常说与听的相对比例。不是判断谁更有价值，也不要求按一次会议或特定岗位职责回答。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "C"
+  "20":
+    explanation: "“经过”是发生了哪些事；“含义”是你认为这件事说明了什么。比较讲述时的侧重，不是在问哪个更真实。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+      - "B"
+  "21":
+    explanation: "比较拿到任务后通常多快开始并完成。不要把临时被其他事情阻挡直接当作拖延，也不因此评价你是否负责。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "C"
+  "22":
+    explanation: "左侧侧重自己的感受，右侧侧重理性分析。两者都可能参与决定；不是“感性的人不理智”或“理性的人没有感受”。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+      - "C"
+  "23":
+    explanation: "比较通常更愿意待在家还是出门活动。出门不一定是社交，在家也可以与人互动；受出行条件限制时可以暂不判断。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "C"
+  "24":
+    explanation: "“整体”指事情的大体结构和全貌；“细节”指具体组成和小处。比较你更想先了解哪一边，这不是在比哪一种能力更强。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+      - "B"
+  "25":
+    explanation: "“现场应对”是在情况出现后调整做法；“事先准备”是在之前做好安排。不是问能否在危险事件中随意行动。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "C"
+  "26":
+    explanation: "一侧强调对不同人适用的公平原则，一侧强调对具体处境和感受的体谅。两者可能兼顾，不存在更高尚的标准答案。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+      - "B"
+  "27":
+    explanation: "比较大声喊话这件事对你是否自然。嗓音条件或场合限制使你难以回答时，可以无法判断；不是评价胆量。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "C"
+  "28":
+    explanation: "“理论解释”是用概念、原理说明事情；“事实和证据”是观察或实践中获得的信息。两者都有价值，不是空想与科学的对比。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+  "29":
+    explanation: "比较工作投入与玩乐投入两种描述对你的符合程度。你可以两边都投入或都不投入；不是要求你必须把工作或娱乐放第一位。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "B"
+      - "C"
+  "30":
+    explanation: "一侧描述面对情绪的自在程度，另一侧描述重视情绪的程度。两者不是严格相反；若无法用这对描述定位，选择无法判断。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+      - "B"
+  "31":
+    explanation: "一侧关于在人前展示/表演，另一侧关于当众讲话。若自己对这两种场景感受明显不同，不必强行用一个分值概括。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+      - "C"
+  "32":
+    explanation: "一侧关心人物、事件、时间等信息，另一侧关心原因。两边都想了解是可能的，不代表哪个人更深入或更聪明。如果仍不能判断，或两边都不适用，可以选择“暂时无法判断”。"
+    reviewStatus: "draft"
+    riskCodes:
+      - "L"
+      - "B"
+dimensionCopy:
+  EI:
+    name: "精力方向"
+    negative:
+      label: "内向"
+      description: "这一侧描述更偏好留出独处或内部整理的空间。它不等于害怕社交，也不说明表达能力。"
+      observation: "回想一次交流前后，哪些安排让你更容易整理想法。"
+      action: "下次重要讨论前，先给自己几分钟准备要点。"
+    positive:
+      label: "外向"
+      description: "这一侧描述更偏好从外部互动和活动中获得投入感。它不等于总想说话，也不等于擅长领导。"
+      observation: "回想一次互动是否帮助你理清了思路。"
+      action: "需要想法时，可以先与人短时间交流，再独立整理。"
+    balanced:
+      summary: "本次这一维的回答合计接近两侧均衡，先保留未定。可以回看具体题目，再观察不同情境下的偏好。"
+      observation: "分别回想一次需要独处的场合和一次与人一起的场合，比较哪种安排让你更容易恢复精力。"
+    insufficient:
+      summary: "这一维有题目尚未形成可计分的选择，因此暂不计算分数或判定方向。你可以回看帮助，也可以保留当前报告。"
+      nextStep: "回看这一维尚未作答或标记为暂时无法判断的题目，按平常的精力状态重新选一次；仍然说不清时可以保留未定。"
+  SN:
+    name: "信息关注方式"
+    negative:
+      label: "实感"
+      description: "这一侧描述更关注具体事实、经验和可观察的信息。它不等于缺少想象力，也不说明聪明程度。"
+      observation: "接触新任务时，观察自己是否先去找例子和事实。"
+      action: "把已知信息先列清楚，再考虑还有哪些可能。"
+    positive:
+      label: "直觉"
+      description: "这一侧描述更关注联系、模式和可能性。它不等于更聪明，也不等于不重视事实。"
+      observation: "记录自己形成的一个推测。"
+      action: "为这个推测再找一条可以支持或修正它的实际信息。"
+    balanced:
+      summary: "本次这一维的回答合计接近两侧均衡，先保留未定。可以回看具体题目，再观察不同情境下的偏好。"
+      observation: "同一类事情分别试一次“先看例子和事实”和一次“先形成推测”，比较哪一种更顺手。"
+    insufficient:
+      summary: "这一维有题目尚未形成可计分的选择，因此暂不计算分数或判定方向。你可以回看帮助，也可以保留当前报告。"
+      nextStep: "回看这一维尚未作答或标记为暂时无法判断的题目，就平常接触新信息时的习惯重新选一次；仍然说不清时可以保留未定。"
+  TF:
+    name: "决策依据"
+    negative:
+      label: "情感"
+      description: "这一侧描述更重视价值取向以及选择对人的影响。它不等于不理性，也不说明道德水平高低。"
+      observation: "做一个选择时，写下自己最在意的价值。"
+      action: "在价值之外，再补充实际成本与约束。"
+    positive:
+      label: "思考"
+      description: "这一侧描述更重视逻辑一致、原则和分析依据。它不等于没有感受，也不说明道德水平高低。"
+      observation: "做一个选择时，先列出判断依据。"
+      action: "再主动了解相关人的感受，以及这个选择对他们的影响。"
+    balanced:
+      summary: "本次这一维的回答合计接近两侧均衡，先保留未定。可以回看具体题目，再观察不同情境下的偏好。"
+      observation: "挑一个还没决定的小选择，分别按在意的价值和列出的依据各想一遍，比较哪一边更常被自己采用。"
+    insufficient:
+      summary: "这一维有题目尚未形成可计分的选择，因此暂不计算分数或判定方向。你可以回看帮助，也可以保留当前报告。"
+      nextStep: "回看这一维尚未作答或标记为暂时无法判断的题目，就平常做选择时的依据重新选一次；仍然说不清时可以保留未定。"
+  JP:
+    name: "安排方式"
+    negative:
+      label: "判断"
+      description: "这一侧描述更偏好确定的安排与结构。它不等于勤奋，也不说明一定更可靠。"
+      observation: "观察计划在什么情境下帮到了你。"
+      action: "尝试为一个安排保留一个可以调整的小窗口。"
+    positive:
+      label: "知觉"
+      description: "这一侧描述更偏好保留灵活性和继续调整。它不等于拖延，也不等于不负责任。"
+      observation: "观察灵活性在什么情境下帮到了你。"
+      action: "为一件重要事项设一个最晚检查节点。"
+    balanced:
+      summary: "本次这一维的回答合计接近两侧均衡，先保留未定。可以回看具体题目，再观察不同情境下的偏好。"
+      observation: "回想一件已完成的事，看看事先安排和临场调整分别在哪个环节起了作用。"
+    insufficient:
+      summary: "这一维有题目尚未形成可计分的选择，因此暂不计算分数或判定方向。你可以回看帮助，也可以保留当前报告。"
+      nextStep: "回看这一维尚未作答或标记为暂时无法判断的题目，就平常安排事情的习惯重新选一次；仍然说不清时可以保留未定。"
+reportCopy:
+  typedTitle: "本次问卷参考组合"
+  typedSubtitle: "四个维度都达到本产品的展示条件。它仍是本次回答下的参考组合，不代表稳定不变的类型。"
+  partialTitle: "我的偏好，还有待观察的部分"
+  partialSubtitle: "部分维度可以给出方向，其余维度本次不足以判型，因此完整类型为空。"
+  undeterminedTitle: "本次回答没有显示明确方向"
+  undeterminedSubtitle: "四个维度都落在接近中点的范围，本次不生成完整类型。"
+  insufficientTitle: "这次先保留未定"
+  insufficientSubtitle: "有维度缺少足够的有效作答，本次不计算这些维度的分数。"
+  typeReadingLead: "类型参考介绍：按本版题目组合起来的通用阅读材料，不是逐项测得的个人能力。"
+  scoreMethodNote: "得分 = 该维度常量 + Σ(方向符号 × 你的选择)。该维度 8 题都有数字答案时才会计算。"
+  dimensionReviewLead: "下面是这一维相关的题目与你的选择。它只帮助回顾，不构成因果或诊断证据。"
+  selfReflectionLead: "这段记录只用于你自己的观察，不计入量表分数，也不会改变上面的结果。"
+nextSteps:
+  - "挑一件日常小事，记下你当时关注的信息、用到的判断依据和安排方式，只作记录，不下结论。"
+  - "在工作、学习和与家人朋友相处等不同情境里分别留意自己的选择，比较哪些表现稳定、哪些随情境变化。"
+  - "隔两三周再回看这次回答，比较各维度的方向是否一致；有变化是常见现象，可以继续观察。"
+attribution:
+  source: "Open Extended Jungian Type Scales (OEJTS) 1.2"
+  author: "Eric Jorgenson"
+  url: "https://openpsychometrics.org/tests/OEJTS/"
+  license: "CC BY-NC-SA 4.0"
+  licenseUrl: "https://creativecommons.org/licenses/by-nc-sa/4.0/"

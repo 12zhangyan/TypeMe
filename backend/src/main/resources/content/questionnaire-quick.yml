@@ -1,0 +1,264 @@
+# TypeMe 快速版题库（32 题）
+#
+# 题目来源：Open Extended Jungian Type Scales (OEJTS) 1.2, Eric Jorgenson, 2015-03-03
+#           许可 CC BY-NC-SA 4.0（署名 / 非商业 / 相同方式共享）
+#           官方 PDF: https://openpsychometrics.org/tests/OJTS/development/OEJTS1.2.pdf
+#
+# ⚠️ 左右端顺序的唯一依据是官方 PDF 第 2 页：
+#      textLeft  = 官方题项中「圈 1」的一端
+#      textRight = 官方题项中「圈 5」的一端
+#    左右写反会让 direction 的符号整体反转 —— 属于「跑得通但全错」的 bug。
+#    本文件逐题与 research/_sources/OEJTS1.2.txt 及 research/01-题库来源.md §A1 表格核对过。
+#
+# ⚠️ dimension / direction 是官方 PDF 第 3 页四条计分公式的直接展开，不得手改。
+#    服务端 ContentService 会在启动期对本题库做硬断言，任何不符都会导致启动失败。
+
+version: "quick"
+title: "快速版"
+questionCount: 32
+estimatedMinutes: 5
+
+# 计分常量（官方公式的常数项）。判定阈值为 midpoint，判定用 > midpoint（不是 >=）。
+#   IE = 30 - Q3 - Q7 - Q11 + Q15 - Q19 + Q23 + Q27 - Q31
+#   SN = 12 + Q4 + Q8 + Q12 + Q16 + Q20 - Q24 - Q28 + Q32
+#   FT = 30 - Q2 + Q6 + Q10 - Q14 - Q18 + Q22 - Q26 - Q30
+#   JP = 18 + Q1 + Q5 - Q9 + Q13 - Q17 + Q21 - Q25 + Q29
+scoring:
+  midpoint: 24
+  constants:
+    EI: 30
+    SN: 12
+    TF: 30
+    JP: 18
+
+questions:
+  # Q1  makes lists / relies on memory                              → JP (+)
+  - id: 1
+    textLeft: "喜欢列清单"
+    textRight: "凭记忆"
+    dimension: "JP"
+    direction: 1
+
+  # Q2  sceptical / wants to believe                                → FT (−)
+  - id: 2
+    textLeft: "习惯先怀疑"
+    textRight: "愿意先相信"
+    dimension: "TF"
+    direction: -1
+
+  # Q3  bored by time alone / needs time alone                      → EI (−)
+  - id: 3
+    textLeft: "独处久了会无聊"
+    textRight: "需要独处的时间"
+    dimension: "EI"
+    direction: -1
+
+  # Q4  accepts things as they are / unsatisfied with the ways things are → SN (+)
+  - id: 4
+    textLeft: "接受事物的现状"
+    textRight: "不满足于事物的现状"
+    dimension: "SN"
+    direction: 1
+
+  # Q5  keeps a clean room / just puts stuff where ever             → JP (+)
+  - id: 5
+    textLeft: "房间保持整洁"
+    textRight: "东西随手放"
+    dimension: "JP"
+    direction: 1
+
+  # Q6  thinks "robotic" is an insult / strives to have a mechanical mind → FT (+)
+  #     MI-7：右端原为「希望思维像机器一样」，读起来像在陈述现状，丢掉了原文 strives to
+  #     「努力追求」的意味。改为「希望自己有一颗像机器一样精确的头脑」。
+  - id: 6
+    textLeft: "认为“像机器人”是贬义"
+    textRight: "希望自己有一颗像机器一样精确的头脑"
+    dimension: "TF"
+    direction: 1
+
+  # Q7  energetic / mellow                                          → EI (−)
+  - id: 7
+    textLeft: "精力充沛"
+    textRight: "平和沉静"
+    dimension: "EI"
+    direction: -1
+
+  # Q8  prefer to take multiple choice test / prefer essay answers   → SN (+)
+  - id: 8
+    textLeft: "更愿意做选择题"
+    textRight: "更愿意做论述题"
+    dimension: "SN"
+    direction: 1
+
+  # Q9  chaotic / organized                                         → JP (−)
+  #     ⚠️ BK-2 裁决：两端改为中性对照，避免「杂乱无章 / 井井有条」的褒贬落差引发社会称许性作答。
+  #     左端必须仍是 chaotic 一侧、右端必须仍是 organized 一侧，direction: -1 不得改动。
+  - id: 9
+    textLeft: "随性，有点乱"
+    textRight: "有条理，按规矩放"
+    dimension: "JP"
+    direction: -1
+
+  # Q10 easily hurt / thick-skinned                                 → FT (+)
+  - id: 10
+    textLeft: "容易被话伤到"
+    textRight: "不太往心里去"
+    dimension: "TF"
+    direction: 1
+
+  # Q11 works best in groups / works best alone                     → EI (−)
+  - id: 11
+    textLeft: "在群体中状态最好"
+    textRight: "独处时状态最好"
+    dimension: "EI"
+    direction: -1
+
+  # Q12 focused on the present / focused on the future              → SN (+)
+  - id: 12
+    textLeft: "关注当下"
+    textRight: "关注未来"
+    dimension: "SN"
+    direction: 1
+
+  # Q13 plans far ahead / plans at the last minute                  → JP (+)
+  - id: 13
+    textLeft: "很早就做好计划"
+    textRight: "事到临头才计划"
+    dimension: "JP"
+    direction: 1
+
+  # Q14 wants people's respect / wants their love                   → FT (−)
+  - id: 14
+    textLeft: "希望被人敬重"
+    textRight: "希望被人喜爱"
+    dimension: "TF"
+    direction: -1
+
+  # Q15 gets worn out by parties / gets fired up by parties         → EI (+)
+  - id: 15
+    textLeft: "社交聚会让我疲惫"
+    textRight: "社交聚会让我兴奋"
+    dimension: "EI"
+    direction: 1
+
+  # Q16 fits in / stands out                                        → SN (+)
+  #     MI-7：原译「融入群体 / 显得突出」两边加了原文没有的「群体」与「显得」，
+  #     褒贬不再对等（后者带炫耀色彩，会引出社会称许性作答）。
+  #     改为「融入大家 / 显得与众不同」，两端都只留「与他人不同的位置」这一层意思。
+  - id: 16
+    textLeft: "融入大家"
+    textRight: "显得与众不同"
+    dimension: "SN"
+    direction: 1
+
+  # Q17 keeps options open / commits                                → JP (−)
+  - id: 17
+    textLeft: "保留各种可能"
+    textRight: "确定下来"
+    dimension: "JP"
+    direction: -1
+
+  # Q18 wants to be good at fixing things / wants to be good at fixing people → FT (−)
+  - id: 18
+    textLeft: "希望擅长修理东西"
+    textRight: "希望擅长帮人解决问题"
+    dimension: "TF"
+    direction: -1
+
+  # Q19 talks more / listens more                                   → EI (−)
+  - id: 19
+    textLeft: "说得更多"
+    textRight: "听得更多"
+    dimension: "EI"
+    direction: -1
+
+  # Q20 when describing an event, will tell people what happened / ...what it meant → SN (+)
+  - id: 20
+    textLeft: "讲一件事时，会说发生了什么"
+    textRight: "讲一件事时，会说它意味着什么"
+    dimension: "SN"
+    direction: 1
+
+  # Q21 gets work done right away / procrastinates                  → JP (+)
+  - id: 21
+    textLeft: "立刻把事情做完"
+    textRight: "习惯拖到最后"
+    dimension: "JP"
+    direction: 1
+
+  # Q22 follows the heart / follows the head                        → FT (+)
+  - id: 22
+    textLeft: "听从内心"
+    textRight: "听从理智"
+    dimension: "TF"
+    direction: 1
+
+  # Q23 stays at home / goes out on the town                        → EI (+)
+  - id: 23
+    textLeft: "待在家里"
+    textRight: "出门去玩"
+    dimension: "EI"
+    direction: 1
+
+  # Q24 wants the big picture / wants the details                   → SN (−)
+  - id: 24
+    textLeft: "想要看到整体"
+    textRight: "想要看到细节"
+    dimension: "SN"
+    direction: -1
+
+  # Q25 improvises / prepares                                       → JP (−)
+  - id: 25
+    textLeft: "临场发挥"
+    textRight: "事先准备"
+    dimension: "JP"
+    direction: -1
+
+  # Q26 bases morality on justice / bases morality on compassion    → FT (−)
+  - id: 26
+    textLeft: "道德判断基于公正"
+    textRight: "道德判断基于同情心"
+    dimension: "TF"
+    direction: -1
+
+  # Q27 finds it difficult to yell very loudly / yelling to others when they are far away comes naturally → EI (+)
+  - id: 27
+    textLeft: "很难大声喊出来"
+    textRight: "隔着老远喊人很自然"
+    dimension: "EI"
+    direction: 1
+
+  # Q28 theoretical / empirical                                     → SN (−)
+  - id: 28
+    textLeft: "重理论"
+    textRight: "重实证"
+    dimension: "SN"
+    direction: -1
+
+  # Q29 works hard / plays hard                                     → JP (+)
+  - id: 29
+    textLeft: "工作起来很拼"
+    textRight: "玩起来很拼"
+    dimension: "JP"
+    direction: 1
+
+  # Q30 uncomfortable with emotions / values emotions                → FT (−)
+  - id: 30
+    textLeft: "面对情绪不太自在"
+    textRight: "很看重情绪"
+    dimension: "TF"
+    direction: -1
+
+  # Q31 likes to perform in front of other people / avoids public speaking → EI (−)
+  - id: 31
+    textLeft: "喜欢在人前表现"
+    textRight: "尽量避免当众讲话"
+    dimension: "EI"
+    direction: -1
+
+  # Q32 likes to know "who?", "what?", "when?" / likes to know "why?" → SN (+)
+  - id: 32
+    textLeft: "喜欢弄清“谁、什么、什么时候”"
+    textRight: "喜欢弄清“为什么”"
+    dimension: "SN"
+    direction: 1

@@ -1,0 +1,50 @@
+// ⚠️ 本文件由 scripts/gen-fallback-content.mjs 从后端 YAML 自动生成，请勿手改。
+//
+// 唯一真相在 backend/src/main/resources/ 下：
+//   content/questionnaire-quick.yml / content/types.yml / content/method.yml
+//   assessment-packages/<packageId>.yml（v2 内容包：题面 + 帮助 + 维度解释 + 报告文案）
+// 改内容请改后端 YAML，然后在前端目录执行 `npm run build`（prebuild 会重新生成）。
+// 手改这里会在下一次构建时被覆盖，并被 src/content/consistency.spec.ts 判红。
+
+import type { Attribution, MethodContent } from '@/domain/contentTypes'
+
+/** OEJTS 1.2 的署名信息 —— 落地页与关于页必须展示（CC BY 的硬性义务）。 */
+export const FALLBACK_ATTRIBUTION: Attribution = {
+  source: 'Open Extended Jungian Type Scales (OEJTS) 1.2',
+  author: 'Eric Jorgenson',
+  url: 'https://openpsychometrics.org/tests/OEJTS/',
+  license: 'CC BY-NC-SA 4.0',
+  licenseUrl: 'https://creativecommons.org/licenses/by-nc-sa/4.0/',
+}
+
+/** 方法说明页内容（`GET /api/v1/method` 的内置副本）。 */
+export const FALLBACK_METHOD: MethodContent = {
+  attribution: FALLBACK_ATTRIBUTION,
+  sections: [
+  {
+    title: '题库来源与许可',
+    body:
+      '本站的 32 道题目来自 Open Extended Jungian Type Scales（简称 OEJTS）1.2 版，作者 Eric Jorgenson，2015 年 3 月 3 日发布，原始发布站点为 openpsychometrics.org；官方的英文题项与计分公式都可以在该站提供的可打印 PDF 与开发文档里逐字核对。OEJTS 的题项以「知识共享 署名—非商业性使用—相同方式共享 4.0 国际许可协议」（CC BY-NC-SA 4.0）授权：必须署名原作者，不得用于商业用途，改编后的作品必须以同一许可协议发布。本站对英文题项做了中文本地化改写，左右两端的极向与计分符号未改动，中文译文同样以 CC BY-NC-SA 4.0 发布，因此你也可以自由复制、转发和再改编本站题库，只要保留上面的署名并以相同方式共享。本站不投放广告、不做付费内容、不做任何商业变现。另外需要说清楚两件事：OEJTS 不是 MBTI，两者没有隶属关系；MBTI 与 Myers-Briggs Type Indicator 是 The Myers-Briggs Company 的商标，本站与 The Myers-Briggs Company 及 Myers & Briggs Foundation 没有任何隶属、认可或关联关系，也从不自称是 MBTI 测试。这里要专门说明一处与原量表措辞不同的地方：第 9 题的两端在原英文量表里是 chaotic 与 organized，直译容易带上「杂乱无章 / 井井有条」这种明显的褒贬落差，会诱导作答；本站把它改写成「随性，有点乱 / 有条理，按规矩放」，这是措辞上的本地化处理，左端仍对应 chaotic 一侧、右端仍对应 organized 一侧，计分符号没有变。OEJTS 官方对该量表给出的说明是：come with no guarantees of reliability or accuracy of any kind（不提供任何形式的信度或准确性保证），本站沿用这一表述。',
+  },
+  {
+    title: '计分方法',
+    body:
+      '每道题是一对相反的描述，两端之间是 1 到 5 的五点量表：圈 1 表示你完全是左边的样子，圈 3 表示一半一半，圈 5 表示你完全是右边的样子。四个维度各由 8 道题计分，每题带一个正负号，每条公式还带一个常数项，官方原文是：内向—外向 IE = 30 − Q3 − Q7 − Q11 + Q15 − Q19 + Q23 + Q27 − Q31；实感—直觉 SN = 12 + Q4 + Q8 + Q12 + Q16 + Q20 − Q24 − Q28 + Q32；思考—情感 FT = 30 − Q2 + Q6 + Q10 − Q14 − Q18 + Q22 − Q26 − Q30；判断—知觉 JP = 18 + Q1 + Q5 − Q9 + Q13 − Q17 + Q21 − Q25 + Q29。每题的答案取值 1 到 5，代入后每个维度的原始分范围是 8 到 40，中点是 24。判定用的是「严格大于 24」，不是「大于等于 24」：IE 大于 24 为外向 E，否则为内向 I；SN 大于 24 为直觉 N，否则为实感 S；FT 大于 24 为思考 T，否则为情感 F；JP 大于 24 为知觉 P，否则为判断 J。四个字母拼起来就是你的类型。正因为中点归到后一侧，四维都恰好压在中点时结果是 ISFJ。本站没有改任何一个符号或常数，题库接口返回的 direction 与 scoring 就是上面这四条公式的直接展开，前端计分完全由接口数据驱动。计分在你的浏览器里完成，服务器只提供题目和规则，不会收到任何作答数据，也不保存任何结果。结果页还会给出每条维度的倾向强度与清晰度，做法是把原始分到中点 24 的距离换算成强度：距离越大，说明这条维度上的偏好越明确；贴近中点则说明偏好不明确，结果可能随状态波动。本站不输出任何人群百分位、类型占比或与他人比较的结论——这需要可核验的中国常模，而我们没有，编一个数字比不给更糟。',
+  },
+  {
+    title: '为什么 S–N 维度测不准',
+    body:
+      "四个维度的测量精度并不一样，S–N 是最弱的一环，原因有三层。第一层是 OEJTS 自己的数据：官方把 OEJTS 与三家在线竞品做过对照，用「区分自报类型的效应量」衡量出题质量，OEJTS 在 I–E 上是 2.06、F–T 是 1.63、J–P 是 1.30，而 S–N 只有 0.93，是四个维度里最低的，与竞品基本持平；官方开发文档也承认 S/N 和 J/P 是最难出题的维度，众包生成的题项「要么极其明显，要么根本就是错的」。第二层来自中文样本的信度：有研究报告了中文修订版 MBTI-M 的信度（蔡华俭等 2001 修订，何汉等 2024 转述），各维度内部一致性系数（Cronbach's α）为 E–I .87、S–N .70、T–F .79、J–P .84，间隔约三到四周的重测信度为 E–I .78、S–N .64、T–F .78、J–P .87；S–N 两项都垫底，α 恰好压在 .70 这条常用门槛线上。需要说明的是，这组数字来自 93 题的中文 MBTI-M，不是 OEJTS 本身，它不能用来说明 OEJTS 的信度水平，但它是目前能拿到的、最贴近中文用户的维度级信度证据，足以说明 S–N 是四个维度里最难测准的那个。第三层是文化语义：中文语境长期把「务实」「落地」当作褒义、把「想象」当作空想，也容易把「理论的」读成「不切实际的」，于是本来偏 N 的人会在社交称许性压力下往 S 一侧作答。三层原因叠在一起，S–N 的结果只能当作一个粗略提示：如果它贴近中点 24，请不要拿它当结论，重测一两次再决定要不要接受这个字母。",
+  },
+  {
+    title: '免责声明',
+    body:
+      '本站是一个个人自用的小工具，不是心理测量产品，不是诊断工具，也不是 MBTI 官方测试。OEJTS 官方明确声明该量表不提供任何形式的信度或准确性保证，本站同样不做任何准确性、适用性或稳定性的保证。本站不提供人群百分位、类型在人群中的占比、也不提供与其他人比较的结论，因为我们没有可核验的中国常模。请把结果当作一面用来看自己的镜子，而不是一张贴在身上的标签：人格是连续的，类型是人为的切分——四个字母只是把连续的倾向为了便于沟通而做的二分简化，靠近中点的维度本来就不稳定，隔几周重测得到不同字母是常见现象。本站不收集、不存储、不上传你的任何作答数据，你的答案从头到尾只留在你自己的浏览器里。若你在情绪、人际关系或职业选择上遇到真正的困难，请寻求有执业资质的心理咨询师或精神科医生的帮助，不要依赖任何在线测评。',
+  },
+  {
+    title: '致谢与参考文献',
+    body:
+      '这一节把本站用到的全部外部材料集中列出来，方便你自行核对，也方便日后再改编的人知道该署谁的名。一、量表本身：Open Extended Jungian Type Scales（OEJTS）1.2，作者 Eric Jorgenson，2015 年 3 月 3 日发布，发布站点为 Open-Source Psychometrics Project（openpsychometrics.org）；英文题项与计分公式见该站 OEJTS 1.2 开发文档与可打印 PDF（https://openpsychometrics.org/tests/OJTS/development/），许可为 CC BY-NC-SA 4.0（https://creativecommons.org/licenses/by-nc-sa/4.0/）。本站的 32 道中文题项是这份英文量表的本地化改写，依同一许可发布，署名义务见第一节。二、官方效度对比数据：OEJTS 与三家在线替代量表的对照结果来自该站的 comparison 页面（https://openpsychometrics.org/tests/OEJTS/comparison/），用于「为什么 S–N 维度测不准」那一节里的判断——各维度区分自报类型的效应量为 I–E 2.06、F–T 1.63、J–P 1.30、S–N 0.93。三、中文样本信度数据：本文引用的各维度内部一致性系数（E–I .87、S–N .70、T–F .79、J–P .84）与间隔约三到四周的重测信度（E–I .78、S–N .64、T–F .78、J–P .87）转述自何汉等（2024）对中国版 MBTI-M 信效度的报告，其原始量表为蔡华俭等（2001）修订的中文版 MBTI-M（93 题）。需要重复一遍：这组数字描述的是那份 93 题的中文 MBTI-M，不是 OEJTS 本身，本站引用它只是为了说明「S–N 在中文语境下同样是最弱的一维」，不能用来推断 OEJTS 的信度水平。四、许可协议全文：CC BY-NC-SA 4.0 的完整条款见 https://creativecommons.org/licenses/by-nc-sa/4.0/ 。五、商标归属：MBTI 与 Myers-Briggs Type Indicator 是 The Myers-Briggs Company 的商标，与本项目无任何隶属、认可或关联关系。除以上来源外，本站的题目中文措辞、16 型文案与方法说明均为本项目自行撰写；16 型类型的通行中文译名（如「调停者」「建筑师」「竞选者」）属于中文社区的通用叫法，在此一并说明。若你是上述任何材料的权利人并认为本站的使用方式不当，请通过仓库 issue 联系，本站会立即调整或下线。',
+  },
+  ],
+}

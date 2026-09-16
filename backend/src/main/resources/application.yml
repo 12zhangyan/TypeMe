@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: typeme
+  # 内容为只读 classpath 资源，不做任何持久化（ADR-2）
+  #
+  # 这里关掉 Boot 默认的静态资源映射，改由 WebConfig 注册唯一的 /** 处理器：
+  # 默认映射与服务端 SPA 回退都想占 /**，两者同时注册时谁生效取决于注册顺序，
+  # 关掉默认映射后行为是确定的（静态文件优先，无扩展名的前端路由回退 index.html）。
+  web:
+    resources:
+      add-mappings: false
+
+# Actuator：只暴露健康检查（技术方案 §3.1）
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+# /api/v1/meta 的站点级元信息
+typeme:
+  app-version: "1.0.0"
+  content-version: "2026-09-01"
+
+logging:
+  level:
+    com.typeme: INFO

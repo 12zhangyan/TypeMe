@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>TypeMe-SPA-Fixture</title>
+  </head>
+  <body>
+    <!--
+      这是测试夹具，不是真正的前端产物。
+      它只用来证明 WebConfig 的 SPA 路由回退确实把 /quiz、/result 这类前端路由
+      转发到了 index.html，而 /api/** 与 /actuator/** 不受影响。
+
+      ⚠️ 它**必须**放在 classpath:/spa-fixture/ 而不是 classpath:/static/（IM-3）：
+      早先放在 src/test/resources/static/index.html 时，target/test-classes 会盖住
+      target/classes，于是「后端产物里根本没有前端页面」这个真实缺陷被夹具完全掩盖，
+      /quiz 等路由在真实形态下 404 而测试全绿。
+      现在由 SpaRoutingTest 通过 spring.web.resources.static-locations 显式指到这里，
+      RealArtifactSpaRoutingTest 则**不带**这个设置，直接断言真实产物。
+    -->
+    <div id="app">TypeMe-SPA-Fixture</div>
+  </body>
+</html>

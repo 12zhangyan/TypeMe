@@ -1,0 +1,72 @@
+# 许可说明（LICENSE）
+
+本仓库包含三类内容，**许可各自不同**，请按用途分别适用。公开可见不等于授予复用许可。
+
+---
+
+## 1. 项目代码 —— 保留所有权利（All rights reserved）
+
+适用于：`frontend/`、`backend/src/`、`backend/pom.xml`、`scripts/`、根目录配置文件，
+以及上述文件编译、打包产生的任何衍生代码。
+
+Copyright (c) 2026 TypeMe 作者。保留所有权利。
+
+本仓库公开是为了可部署、可复核，**不代表**授予复制、修改、再分发或商业使用的许可。
+需要授权请联系仓库作者。
+
+> 如果你想允许他人复用代码，把本节替换成 MIT / Apache-2.0 的正式全文即可
+> （MIT 与下面的第 3 类内容不冲突，但第 3 类的约束仍然独立生效）。
+
+---
+
+## 2. IPIP 量表内容 —— 公有领域（Public Domain）
+
+适用于：内容包 `ipip50-zh1` 的题面与计分键（`backend/src/main/resources/assessment-packages/ipip50-zh1.yml`
+及其生成的前端内置副本）。
+
+- 来源：International Personality Item Pool (IPIP) — Goldberg's Big-Five Factor Markers
+- 作者：Lewis R. Goldberg / IPIP
+- 地址：<https://ipip.ori.org/newBigFive5broadKey.htm>
+- 许可：Public Domain（<https://ipip.ori.org/newPermission.htm>）
+
+IPIP 官方明确允许包括商业用途在内的自由使用，不要求署名。本仓库中的**简体中文题面是本项目
+自写的改写稿**（未经 IPIP 官方审校、未做信效度验证），该改写稿的版权按第 1 节处理。
+
+---
+
+## 3. OEJTS 内容 —— CC BY-NC-SA 4.0（强制）
+
+适用于：内容包 `oejts32-zh1-report2`、`oejts32-zh2-preview-r1` 的题面与说明
+（`backend/src/main/resources/assessment-packages/oejts32-*.yml` 及其生成的前端内置副本），
+以及项目中任何复述其题目文本的文档与截图。
+
+- 来源：Open Extended Jungian Type Scales (OEJTS) 1.2
+- 作者：Eric Jorgenson
+- 地址：<https://openpsychometrics.org/tests/OEJTS/>
+- 许可：**CC BY-NC-SA 4.0**（<https://creativecommons.org/licenses/by-nc-sa/4.0/>）
+
+**本仓库中的 OEJTS 中文题面是该作品的演绎作品，因此这部分内容同样按 CC BY-NC-SA 4.0 提供。
+使用这部分内容必须同时满足：**
+
+1. **署名**：保留上述来源、作者、许可名称与许可链接，并注明「中文题面为本项目的改写稿」；
+   界面上（首页页脚与方法页「来源与限制」）已按当前量表显示该署名。
+2. **非商业**：不得用于商业目的 —— 包括但不限于广告或流量变现、付费产品、企业内部测评、
+   招聘或晋升决策。
+3. **相同方式共享**：再分发或改编时必须沿用 CC BY-NC-SA 4.0，不得附加额外限制。
+
+> 实务含义：**整站不能直接商用**，除非先移除/替换全部 OEJTS 相关内容（只保留第 2 节的 IPIP 部分，
+> 第 1 节的代码仍需作者授权）。
+
+---
+
+## 4. 无关联声明
+
+本项目与 The Myers-Briggs Company、MBTI®、16Personalities、Open Psychometrics 等机构
+**没有任何关联、授权或背书**。MBTI 是 The Myers-Briggs Foundation 的注册商标。
+本站是非官方的自我了解工具，**不是心理诊断，也不能用于招聘或晋升**。
+
+## 5. 免责
+
+测评结果仅供自我了解与娱乐参考，不构成医疗、心理或职业建议。中文题面与解释文案未经
+信效度验证，也没有中国常模；结果只反映你在这份题目上的作答倾向。详见仓库 `README.md`
+与 `docs/2026-09-15/assessment-evidence/实施核验记录.md` 中的「边界」记录。

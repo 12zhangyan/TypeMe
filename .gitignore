@@ -1,0 +1,29 @@
+# ── 依赖与构建产物（不进仓库，按 README「打包与部署」重建）──────────
+node_modules/
+frontend/dist/
+backend/target/
+coverage/
+.vite/
+*.tsbuildinfo
+__pycache__/
+*.pyc
+
+# ── 本地环境与运行期文件 ──────────────────────────────────────────
+.env
+.env.*
+*.local
+
+# ── 编辑器 / 系统 ────────────────────────────────────────────────
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ── 刻意不发布的内容 ─────────────────────────────────────────────
+# 抓取的第三方页面与截图（版权 / 商标风险）、研究原始素材、工作备份。
+# 见 README「目录」与 LICENSE 的许可说明。
+_research/
+_osint/
+research/
+.baseline-backup/
+.work-backup/
