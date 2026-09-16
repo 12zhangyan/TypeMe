@@ -17,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.typeme.testsupport.ExcludeCrossModuleTestConfigs;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * IM-3：**不带夹具**地验证后端产物里真的有前端页面。
@@ -33,6 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * <p>若这条测试红了，先看 {@code frontend/dist} 是否存在；
  * 正常的构建顺序是：前端 {@code npm run build} → 后端 {@code mvn test}。
  */
+@ActiveProfiles("test")
+@ExcludeCrossModuleTestConfigs
 @SpringBootTest
 @AutoConfigureMockMvc
 class RealArtifactSpaRoutingTest {

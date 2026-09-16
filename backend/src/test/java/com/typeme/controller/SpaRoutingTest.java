@@ -17,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.typeme.testsupport.ExcludeCrossModuleTestConfigs;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * 接口契约（任务拆解 1.4）与 SPA 路由回退（ADR-5）的集成测试。
@@ -30,6 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * 早先夹具放在 {@code src/test/resources/static/} 时会盖住 {@code target/classes/static}，
  * 让「后端产物里没有前端页面」这个真实缺陷完全不可见。
  */
+@ActiveProfiles("test")
+@ExcludeCrossModuleTestConfigs
 @SpringBootTest
 @AutoConfigureMockMvc
 class SpaRoutingTest {

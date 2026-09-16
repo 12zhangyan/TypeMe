@@ -88,7 +88,7 @@ export const POLE_META: Readonly<Record<Dimension, PoleMeta>> = {
     hint: '独处回血，还是在人群中回血',
   },
   SN: {
-    name: '信息偏好',
+    name: '信息取向',
     negativePole: 'S',
     positivePole: 'N',
     negativeLabel: '感觉',
@@ -97,6 +97,12 @@ export const POLE_META: Readonly<Record<Dimension, PoleMeta>> = {
   },
   TF: {
     name: '决策依据',
+    // ⚠️ 这里只放**展示用的说明**。极向顺序（负 F / 正 T）是 §1.1 的计分约定：
+    // `scoringSpec` 的极点映射唯一出处用例钉着「负极为 I/S/F/J、正极为 E/N/T/P」，
+    // 且 `markDefinition` 判「落负极」用的就是这套。改动它会让极性判定整体翻转
+    // （IM-4「中点整体上移 1 → 极性方向全部反过来」等 7 条用例失败）。
+    // 注意：内容包 `typeme-jung48-zh-v1.json` 里 TF 写的是 neg=T/pos=F，与这套相反 ——
+    // 那是内容包的写法，**不是**用来改计分约定的依据；展示文案一律以本表为准。
     negativePole: 'F',
     positivePole: 'T',
     negativeLabel: '情感',

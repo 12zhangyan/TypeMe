@@ -10,7 +10,6 @@ import AboutView from './AboutView.vue'
 import { STORAGE_KEY, questionnaireSignature, useQuizStore } from '@/stores/quiz'
 import {
   assessmentPackageSignature,
-  instrumentHasTypeCode,
   packageDimensionOrder,
   packageFormat,
   responseAnchorsOf,
@@ -328,62 +327,51 @@ afterEach(() => {
 describe('首页（产品方案 §3.1）', () => {
   it('首屏出现新主文案、说明与题数耗时', async () => {
     const { wrapper } = await mountAt('/', LandingView)
-    const store = useQuizStore()
-    const pkg = store.activePackage!
     const text = wrapper.text()
     expect(text).toContain('了解你的偏好，也保留还不确定的部分。')
-    expect(text).toContain(
-      `${pkg.questionnaire.questionCount} 组日常描述。按通常情况下的真实感受选择，没有理想答案。不理解或缺少经历时可以标记`,
-    )
     expect(text).toContain('「暂时无法判断」')
-    expect(text).toContain(`${store.total} 道题`)
-    expect(text).toContain(`约 ${pkg.estimatedMinutes} 分钟`)
-    expect(text).toContain('免费 · 无需登录')
+
+    // 首屏的量表口径来自**新测自己**（`GET /api/v3/catalog/current`），不是旧引擎的内容包。
+    // jsdom 下 `fetch('/api/v3/...')` 因相对 URL 直接抛错 → 走 store 里的新测内置口径
+    // （主测 48 题、题库 64 题、四个维度、8–12 分钟）。
+    //
+    // 这一条替换的是此前的旧断言（`${store.total} 道题` / `约 ${pkg.estimatedMinutes} 分钟` /
+    // `免费 · 无需登录`）—— 它忠实钉住的正是本次要修的 bug：首屏写 IPIP-50 的题数与时长，
+    // 主按钮却链到 48 题主测的十六型测评（浏览器验收报告问题 1）。
+    expect(text).toContain('十六型人格参考测评 · 主测 48 题 · 约 8–12 分钟')
+    expect(text).toContain('主测 48 组日常情境描述。')
+    expect(text).toContain('主测 48 道题')
+    expect(text).toContain('免费 · 需登录')
+    expect(text).toContain('开始测评（主测 48 题）')
+    // 题库总数必须与主测题数一起说清楚，不能只丢一个裸的「64 题」在按钮旁边
+    expect(text).toContain('题库共 64 题 = 主测 48 题 + 最多 16 道补充题')
+    // 旧引擎的 50 题口径不许出现在首屏（页面下方的旧版本入口另有明确标注）
+    expect(text).not.toContain('50 道题')
   })
 
   it('不计分的教学例子四条齐全，且不再承诺"测出真实类型"', async () => {
     const { wrapper } = await mountAt('/', LandingView)
     const text = wrapper.text()
     expect(text).toContain('开始前，先说清楚怎么答')
-    // 默认包是 IPIP-50：教学例子必须按**单句贴切度**讲，不能留 OEJTS 的
-    // 「左边是 1、右边是 5」（那是双极格式的说法，见 instrumentCopy.spec.ts 的对照用例）。
-    expect(text).toContain('每题是一句自我描述：1 表示非常不贴切，5 表示非常贴切。')
-    expect(text).toContain('3 表示「说不上贴切」，既不算贴切也不算不贴切，不代表没看懂。')
-    expect(text).toContain('不确定该怎么理解、这句话不适用，或没有相关经历，点「暂时无法判断」。')
-    expect(text).toContain('按通常情况下的真实感受选，不要为了选一个“好性格”而选答案。')
-    expect(text).not.toContain('两边都读完')
+    // 首页主推的是**双极作答**的十六型新测：每题一对相反描述、左边是 1、右边是 5。
+    // 教学例子必须按这个格式讲。2026-09-16：此前这里断言的是旧站点默认包（IPIP-50 大五）的
+    // 「一句自我描述：1 表示非常不贴切」—— 那正是"页面说的量表和实际入口不是同一份"这个缺陷。
+    expect(text).toContain('两边都读完：左边是 1，右边是 5。')
+    expect(text).toContain('3 表示理解之后觉得两侧差不多符合，不代表没看懂。')
+    expect(text).toContain('不确定该怎么理解、两边都不适用，或没有相关经历，点「暂时无法判断」。')
+    expect(text).toContain('实际约束下的行为不必然等于偏好；不要为了选一个“好性格”而选答案。')
+    expect(text).not.toContain('每题是一句自我描述')
     expect(text).toContain('上面的说明不计分，也不会收集任何个人资料。')
     expect(text).not.toContain('保证测出')
   })
 
-  it('首页的版本选择只列两版、用干净版本名，维护向元信息不进界面', async () => {
-    const { wrapper } = await mountAt('/', LandingView)
-    const text = wrapper.text()
-    expect(text).toContain('题目版本')
-
-    // 只列面向访客的两版，第三版（内部审校候选）不再作为入口
-    const radios = wrapper.findAll('input[name="content-version"]')
-    expect(radios.map((radio) => radio.attributes('value'))).toEqual([
-      DEFAULT_PACKAGE_ID,
-      OEJTS_PACKAGE_ID,
-    ])
-    expect(text).toContain('大五人格 50 题')
-    expect(text).toContain('快速版 32 题')
-    expect(text).toContain('五个维度 · 50 题')
-    expect(text).toContain('四个维度 · 32 题')
-
-    // 维护用的元信息一律不出现
-    const packages = Object.values(FALLBACK_ASSESSMENT_PACKAGES)
-    for (const pkg of packages) {
-      expect(text, `首页不该出现包 ID ${pkg.packageId}`).not.toContain(pkg.packageId)
-      expect(text, `首页不该出现包标题 ${pkg.title}`).not.toContain(pkg.title)
-      expect(text).not.toContain(pkg.helpRevision)
-      expect(text).not.toContain(pkg.localeRevision)
-    }
-    for (const word of ['draft', '审校', '内容状态', '内容版本 ID', '专业认证版']) {
-      expect(text, `首页不该出现维护向字样「${word}」`).not.toContain(word)
-    }
-  })
+  // 2026-09-16：首页按产品要求移除了「旧版本测试」入口，连带「题目版本」单选
+  // （`input[name="content-version"]`）、干净版本名（「大五人格 50 题」/「快速版 32 题」）与
+  // 维护向说明一起从 LandingView.vue 删除，首页已无对应 DOM，故删除用例
+  // 「首页的版本选择只列两版、用干净版本名，维护向元信息不进界面」。
+  // 其中「首页不出现包 ID / 包标题 / 修订号」的意图仍然成立，但已没有可附着的选择器；
+  // 而「不出现『审校』」一条与新署名（`data-instrument-attribution`：「内容仍在内部审校中」）
+  // 正好相反，不能保留。旧引擎两版内容包本身未变，仍可由 /quiz、/result、/about 直接进入。
 
   it('结果示例卡明确标「示例」，并用 INFP 的原创描述名（不冒充用户已有结果）', async () => {
     mountStore(OEJTS_PACKAGE_ID)
@@ -399,134 +387,60 @@ describe('首页（产品方案 §3.1）', () => {
     expect(text).toContain('四维都达到展示条件时才有')
   })
 
-  it('已有作答时版本选择被禁用，并给出说明（不允许会话中途混版本）', async () => {
-    const store = mountStore()
-    store.selectRating(store.activePackage!.questionnaire.questions[0].id, 3)
-    const { wrapper } = await mountAt('/', LandingView)
-    const radios = wrapper.findAll('input[name="content-version"]')
-    // 只列面向访客的两版（内部审校候选不作为入口）
-    expect(radios).toHaveLength(2)
-    for (const radio of radios) {
-      expect(radio.attributes('disabled'), '有作答后版本选择必须禁用').toBeDefined()
-    }
-    expect(wrapper.text()).toContain('当前已有作答记录，因此不能在本次会话中途换版本。要换版本请先重新测试。')
-  })
-
-  it('有草稿时主按钮是「继续测试 · 已处理 n/32」，次级是「重新开始」', async () => {
-    const store = mountStore(OEJTS_PACKAGE_ID)
-    const questions = store.activePackage!.questionnaire.questions
-    store.selectRating(questions[0].id, 3)
-    store.selectUnknown(questions[1].id, 'unclear')
-    const { wrapper } = await mountAt('/', LandingView)
-    const labels = wrapper.findAll('button').map((button) => button.text())
-    expect(labels.join('|')).toContain('继续测试 · 已处理 2/32')
-    expect(labels.join('|')).toContain('重新开始')
-  })
-
-  it('有完整记录时主按钮是「查看上次报告」，次级是「重新测试」', async () => {
-    const store = mountStore()
-    seedAllNeutral(store)
-    submitAll(store)
-    const { wrapper } = await mountAt('/', LandingView)
-    const labels = wrapper.findAll('button').map((button) => button.text())
-    expect(labels.join('|')).toContain('查看上次报告')
-    expect(labels.join('|')).toContain('重新测试')
-  })
-
-  it('重新开始必须先确认，默认焦点在「保留记录」，取消后记录仍在', async () => {
-    const store = mountStore()
-    store.selectRating(store.activePackage!.questionnaire.questions[0].id, 3)
-    const { wrapper } = await mountAt('/', LandingView, true)
-    const restart = wrapper.findAll('button').find((button) => button.text() === '重新开始')!
-    await restart.trigger('click')
-    await flushPromises()
-
-    expect(wrapper.text()).toContain('重新开始会替换这台设备上保留的上次作答，是否继续？')
-    const dialog = document.querySelector('[role="dialog"]')
-    expect(dialog).toBeTruthy()
-    // 默认焦点在「保留记录」（更安全的默认）
-    expect((document.activeElement as HTMLElement).textContent?.trim()).toBe('保留记录')
-
-    const cancel = Array.from(dialog!.querySelectorAll('button')).find(
-      (button) => button.textContent?.trim() === '保留记录',
-    )!
-    cancel.click()
-    await flushPromises()
-    expect(localStorage.getItem(STORAGE_KEY)).not.toBeNull()
-  })
-
-  it('确认重新开始会替换本机 v3 记录', async () => {
-    const store = mountStore()
-    store.selectRating(store.activePackage!.questionnaire.questions[0].id, 3)
-    const { wrapper, router } = await mountAt('/', LandingView, true)
-    await wrapper.findAll('button').find((button) => button.text() === '重新开始')!.trigger('click')
-    await flushPromises()
-    const confirm = Array.from(document.querySelectorAll('[role="dialog"] button')).find(
-      (button) => button.textContent?.trim() === '重新开始',
-    ) as HTMLButtonElement
-    confirm.click()
-    await flushPromises()
-    expect(router.currentRoute.value.name).toBe('quiz')
-    expect(useQuizStore().responses).toEqual({})
-  })
+  // 2026-09-16：首页移除「旧版本测试」入口后，草稿/已交卷的四个旧引擎按钮
+  // （继续测试 / 重新开始 / 查看上次报告 / 重新测试）、「已有作答时版本选择被禁用」的说明，
+  // 以及「重新开始」ConfirmDialog（默认焦点、取消后记录仍在、确认后替换本机记录）在首页
+  // 都已不存在，故删除以下五条用例：
+  //   - 已有作答时版本选择被禁用，并给出说明（不允许会话中途混版本）
+  //   - 有草稿时主按钮是「继续测试 · 已处理 n/32」，次级是「重新开始」
+  //   - 有完整记录时主按钮是「查看上次报告」，次级是「重新测试」
+  //   - 重新开始必须先确认，默认焦点在「保留记录」，取消后记录仍在
+  //   - 确认重新开始会替换本机 v3 记录
+  // 旧引擎的作答、提交与重置行为本身未变，仍由本文件下方的 /quiz、/result 用例覆盖。
 
   it('「你会得到什么」三项标题与 FAQ 前三项都在首屏', async () => {
     const { wrapper } = await mountAt('/', LandingView)
     const text = wrapper.text()
     expect(text).toContain('你会得到什么')
-    // 默认包是 IPIP-50：价值三项讲的是「五个维度各自的结果」，不是四维拼类型
-    // （OEJTS 的四维说法由 instrumentCopy.spec.ts 的反向用例钉住）
-    expect(text).toContain('五个维度各自的结果，而不是一个标签')
+    // 首页主推的十六型新测产出四字母类型码（四维都达到展示条件时才有），
+    // 所以价值三项讲的是「四个维度的结果」，不是旧 IPIP 内容包的「五个维度」。
+    // 2026-09-16：这里此前断言的是「五个维度各自的结果，而不是一个标签」。
+    expect(text).toContain('四个维度的结果，而不是一个默认类型')
     expect(text).toContain('看得懂、答得出的过程')
     expect(text).toContain('被答案支持的内容')
     expect(text).toContain('常见问题')
     expect(text).toContain('看不懂题目怎么办？')
     expect(text).toContain('选「暂时无法判断」会怎样？')
     expect(text).toContain('结果会不会一直固定不变？')
-    expect(text).not.toContain('四个维度的结果')
+    expect(text).not.toContain('五个维度')
     for (const word of ['最准', '权威', '官方测评结果']) {
       expect(text, `首页不该出现红线词「${word}」`).not.toContain(word)
     }
   })
 
-  it('来源署名含 OEJTS / Eric Jorgenson / CC BY-NC-SA 4.0 / 未获得授权', async () => {
-    mountStore(OEJTS_PACKAGE_ID)
+  // 2026-09-16：首页的「来源与许可」改为描述**新测自己**（`data-instrument-attribution`），
+  // 旧内容包的署名（OEJTS 1.2 / Eric Jorgenson / CC BY-NC-SA 4.0 / 非商业用途 / 未获得授权）
+  // 已不在首页渲染，故删除用例「来源署名含 OEJTS / Eric Jorgenson / CC BY-NC-SA 4.0 / 未获得授权」。
+  // 旧包署名本身未取消，仍由 /about 与公共壳覆盖（instrumentCopy.spec.ts 的 App.vue 用例）。
+
+  it('后端不可用时依然渲染（首页走新测自己的内置口径，不装载旧内容包）', async () => {
     const { wrapper } = await mountAt('/', LandingView)
-    const text = wrapper.text()
-    expect(text).toContain('Open Extended Jungian Type Scales (OEJTS) 1.2')
-    expect(text).toContain('Eric Jorgenson')
-    expect(text).toContain('CC BY-NC-SA 4.0')
-    expect(text).toContain('未获得')
-    expect(text).toContain('非商业用途')
-  })
-
-  it('后端不可用时依然渲染（降级到内置副本）', async () => {
-    const { wrapper } = await mountAt('/', LandingView)
+    // 2026-09-16：本用例此前断言首页的 `onMounted` 会 `quiz.load()`、旧引擎降级到内置副本
+    // （`store.packageSource === 'fallback'` / `store.total === 50 题`）。首页现在只描述主推的
+    // 新测，已不再装载旧内容包 —— 那两条断言钉住的正是被本次修复取消的接线。
+    // 旧引擎自己的降级路径未变（`stores/quiz.spec.ts` 与 /quiz、/result 用例仍覆盖）。
     const store = useQuizStore()
-    expect(store.packageSource).toBe('fallback')
-    expect(store.total).toBe(builtinPackage().questionnaire.questionCount)
-    expect(wrapper.text()).toContain(`${store.total} 道题`)
+    expect(store.activePackage, '首页不该再顺手装载旧引擎的内容包').toBeNull()
+    // 目录接口也读不到时，首页用新测自己的内置口径（主测 48 / 题库 64）。
+    expect(wrapper.text()).toContain('主测 48 道题')
+    expect(wrapper.text()).toContain('题库共 64 题 = 主测 48 题 + 最多 16 道补充题')
   })
 
-  it('这台设备上有更早保存的作答时给出显式入口，且点击前不自动套用', async () => {
-    writeLegacyV2Session()
-    const { wrapper } = await mountAt('/', LandingView, true)
-    const store = useQuizStore()
-    expect(wrapper.text()).toContain('这台设备上有更早保存的作答')
-    expect(wrapper.text()).toContain('它用的是当时的题目，所以不会被套到现在的题目上，也不会被自动删除。')
-    // 未点击前：store 里没有任何回答，旧键也还在
-    expect(store.responses).toEqual({})
-    expect(localStorage.getItem('typeme.quiz.v2')).not.toBeNull()
-
-    const migrate = wrapper.findAll('button').find((button) => button.text() === '按当时的题目打开')!
-    expect(migrate.attributes('disabled')).toBeUndefined()
-    await migrate.trigger('click')
-    await flushPromises()
-    expect(store.responses).not.toEqual({})
-    expect(store.packageId).toBe('legacy-v2-local')
-    expect(store.sessionSource).toBe('legacy_v2')
-    expect(localStorage.getItem('typeme.quiz.v2')).not.toBeNull()
-  })
+  // 2026-09-16：首页移除「这台设备上有更早保存的作答」恢复区与 `migrateLegacyV2` 之后，
+  // 「旧 v2 记录给出显式入口、点击前不自动套用、点开后载入为派生会话」在首页已无 DOM 可测，
+  // 故删除用例「这台设备上有更早保存的作答时给出显式入口，且点击前不自动套用」。
+  // 「不自动套用」的用户说明与旧键保留仍由 /about 用例（下方「更早保存的作答只用人话说明」）
+  // 覆盖，`migrateLegacyV2` 的迁移语义仍由 stores/quiz.spec.ts 直接覆盖。
 })
 
 describe('答题页（产品方案 §3.2 / §3.3）', () => {
@@ -1766,8 +1680,12 @@ describe('设计系统守卫（§4）', () => {
 
 /**
  * 站点默认包换成 IPIP-50 大五之后，**默认这一层**必须由页面钉住：
- * 默认装载哪个包、首页的题数/维度列表/结果示例卡是不是跟着当前包走、
- * 答题页是不是单句贴切度 + 五档锚点。断言全部从内容包推导（不写死 32 / 四维）。
+ * 默认装载哪个包、答题页是不是单句贴切度 + 五档锚点、
+ * 结果页的两端记号与计数是不是跟着当前包走。断言全部从内容包推导（不写死 32 / 四维）。
+ *
+ * 2026-09-16：首页已按产品要求删除「旧版本测试」入口与版本选择器，并且整页改为只描述
+ * 主推的十六型新测 —— 首页的题数、维度说明、教学例子与结果示例卡**都不再跟着当前内容包走**
+ * （见下面的删除说明与新注释）。本 describe 只剩旧引擎页面（`/quiz`、`/result`）的默认包接线。
  */
 describe('站点默认包（IPIP-50 大五）', () => {
   it('mountStore() 不带参数时装载站点默认包 ipip50-zh1', () => {
@@ -1778,54 +1696,16 @@ describe('站点默认包（IPIP-50 大五）', () => {
     expect(store.total).toBe(store.activePackage!.questionnaire.questionCount)
   })
 
-  it('首页的维度说明按当前内容包的维度渲染：IPIP 默认包 5 行，且不出现四字母示例卡', async () => {
-    const store = mountStore()
-    const pkg = store.activePackage!
-    const dimensions = packageDimensionOrder(pkg)
-    // 大五的维度顺序由内容包声明
-    expect(dimensions).toEqual(['E', 'A', 'C', 'ES', 'O'])
-
-    const { wrapper } = await mountAt('/', LandingView)
-    const rows = wrapper.findAll('[data-dimension-list] [data-dimension]')
-    expect(rows.map((row) => row.attributes('data-dimension'))).toEqual([...dimensions])
-    expect(rows).toHaveLength(5)
-
-    const text = wrapper.text()
-    // 维度数、题数、每个维度名都跟着当前包，而不是写死「四维 / 32 题」
-    expect(text).toContain('五个维度')
-    expect(text).toContain(`${pkg.questionnaire.questionCount} 道题`)
-    for (const dimension of dimensions) {
-      expect(text, `首页必须列出 ${dimension} 的维度说明`).toContain(
-        pkg.dimensionCopy[dimension].name,
-      )
-    }
-    // 大五不产出类型码 → 不渲染四字母结果示例卡
-    expect(instrumentHasTypeCode(pkg)).toBe(false)
-    expect(wrapper.find('[data-result-example]').exists()).toBe(false)
-    expect(text).not.toContain('结果示例')
-    expect(text).not.toContain('INFP')
-  })
-
-  it('选中 OEJTS 包时首页仍是四维说明与 INFP 结果示例卡', async () => {
-    const store = mountStore(OEJTS_PACKAGE_ID)
-    const pkg = store.activePackage!
-    const dimensions = packageDimensionOrder(pkg)
-    expect(dimensions).toEqual(['EI', 'SN', 'TF', 'JP'])
-
-    const { wrapper } = await mountAt('/', LandingView)
-    const rows = wrapper.findAll('[data-dimension-list] [data-dimension]')
-    expect(rows.map((row) => row.attributes('data-dimension'))).toEqual([...dimensions])
-    expect(rows).toHaveLength(4)
-
-    const text = wrapper.text()
-    expect(text).toContain('四个维度')
-    expect(text).toContain(`${pkg.questionnaire.questionCount} 道题`)
-    expect(instrumentHasTypeCode(pkg)).toBe(true)
-    expect(wrapper.find('[data-result-example]').exists()).toBe(true)
-    expect(text).toContain('结果示例')
-    expect(text).toContain('INFP')
-    expect(text).toContain(FALLBACK_TYPE_PROFILES['INFP'].nameCn)
-  })
+  // 2026-09-16：本 describe 里原有的两条**首页**用例已删除 —— 它们钉住的是
+  // 「首页的维度说明/结果示例卡跟着当前装载的旧内容包走」：
+  //   - 「首页的维度说明按当前内容包的维度渲染：IPIP 默认包 5 行，且不出现四字母示例卡」
+  //   - 「选中 OEJTS 包时首页仍是四维说明与 INFP 结果示例卡」
+  // 这正是本次要修的缺陷（首页主推十六型新测，页面下方却讲大五五维、并藏起示例卡）。
+  // 首页现在**永远**只描述主推的 `typeme-jung48-zh-v1`（四维 EI/SN/TF/JP、双极 1–5、
+  // 产出四字母类型码），与装载了哪个旧内容包无关；这条新行为由
+  // `instrumentCopy.spec.ts` 的「首页的量表文案与抽象图形（LandingView.vue）」对**两个旧内容包**
+  // 跑同一批断言钉住，不再需要在"默认包"这一层重复。
+  // 旧内容包自己仍由本 describe 下方的 /quiz、/result 用例与 stores/quiz.spec.ts 覆盖。
 
   it('默认包为 IPIP 时答题页用「单句陈述 + 五档贴切度」，不出现双极两端的提示', async () => {
     const store = mountStore()

@@ -52,6 +52,42 @@
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
+    <!--
+      账号 / 会话 / CSRF（开发方案 §5）。只取 Security 的过滤器链、PasswordEncoder 与
+      SessionRegistry；不引入 OAuth2、不引入 Spring Session（会话仍走容器 HttpSession，
+      绝对期限由 app_user_session 表 + SessionAbsoluteTtlFilter 落实）。
+    -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
+    <!--
+      持久化：按契约 §"通用约束" 只用 spring-boot-starter-jdbc（JdbcTemplate），
+      刻意不引入 JPA —— 迁移脚本是唯一的 schema 事实来源。
+    -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jdbc</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+
+    <!-- MySQL 8.4 的方言/驱动支持单独成 jar（Flyway 10 起） -->
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-mysql</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-yaml</artifactId>
@@ -62,6 +98,22 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!--
+      测试数据库：H2 的 MySQL 兼容模式。目的不是「换个库跑跑」，而是让**同一份**迁移脚本
+      在两种引擎下都被执行一遍 —— 迁移脚本一旦用了 MySQL 专有语法，这里会立刻红。
+    -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -69,6 +121,26 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+
+      <!--
+        surefire 默认只收集 *Test / Test* / *Tests / *TestCase，**不收集 *IT**。
+        本项目的 *IT 类恰恰是覆盖面最广的那些：迁移在真实 MySQL 与 H2 上执行、
+        Spring 上下文能起来、安全边界、账号全流程。默认配置下它们被静默跳过 ——
+        表现为"测试全绿"，但实际只跑了不到三分之二的用例（148 / 192）。
+        这里显式把 *IT 加进来，让 `mvn test` 真的跑完整套。
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>**/*Test.java</include>
+            <include>**/*Tests.java</include>
+            <include>**/*TestCase.java</include>
+            <include>**/*IT.java</include>
+          </includes>
+        </configuration>
       </plugin>
 
       <plugin>

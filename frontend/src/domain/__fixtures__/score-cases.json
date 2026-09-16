@@ -1,0 +1,6532 @@
+{
+  "scoringVersion": "typeme-jung48-score-v1",
+  "packageId": "typeme-jung48-zh-v1",
+  "dynamicsVersion": "typeme-jung48-dynamics-v1",
+  "cases": [
+    {
+      "id": "CASE-01",
+      "title": "状态 REFERENCE｜四字母 ENFP｜候选 0 个｜服务端安排补充题 [无]｜未跳过｜覆盖达标",
+      "note": "四维都给出明确的一侧：钉住 TF/JP 的正负极方向（与旧 OEJTS 相反）",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 5
+        }
+      },
+      "clarification": {
+        "scheduled": [],
+        "skipped": false,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [],
+        "status": "REFERENCE",
+        "computedTypeCode": "ENFP",
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 12,
+            "nBase": 12,
+            "mBase": 0.5,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 12,
+            "mFinal": 0.5,
+            "position": 0.75,
+            "computedPole": "E",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 12,
+            "nBase": 12,
+            "mBase": 0.5,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 12,
+            "mFinal": 0.5,
+            "position": 0.75,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 8,
+            "nBase": 12,
+            "mBase": 0.3333333333333333,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 8,
+            "nFinal": 12,
+            "mFinal": 0.3333333333333333,
+            "position": 0.6666666666666666,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [],
+        "candidateCodes": [],
+        "candidateCosts": [],
+        "candidateDiffersOn": []
+      }
+    },
+    {
+      "id": "CASE-02",
+      "title": "状态 REFERENCE｜四字母 ENFP｜候选 0 个｜服务端安排补充题 [EI]｜用户跳过｜覆盖达标",
+      "note": "EI 主测倾向很轻但其余维明确：轻的一维不改变四字母，只影响候选",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "clarification": {
+        "scheduled": [
+          "EI"
+        ],
+        "skipped": true,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [
+          "EI"
+        ],
+        "status": "REFERENCE",
+        "computedTypeCode": "ENFP",
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 2,
+            "nBase": 12,
+            "mBase": 0.08333333333333333,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 2,
+            "nFinal": 12,
+            "mFinal": 0.08333333333333333,
+            "position": 0.5416666666666666,
+            "computedPole": "E",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 12,
+            "nBase": 12,
+            "mBase": 0.5,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 12,
+            "mFinal": 0.5,
+            "position": 0.75,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [],
+        "candidateCodes": [],
+        "candidateCosts": [],
+        "candidateDiffersOn": []
+      }
+    },
+    {
+      "id": "CASE-03",
+      "title": "状态 REFERENCE｜四字母 ENFP｜候选 0 个｜服务端安排补充题 [EI]｜未跳过｜覆盖达标",
+      "note": "补充题把主测方向翻转：最终方向必须按合并后的 S 判定",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-C1": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-C2": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-C3": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-C4": {
+          "kind": "rating",
+          "rating": 1
+        }
+      },
+      "clarification": {
+        "scheduled": [
+          "EI"
+        ],
+        "skipped": false,
+        "submitted": [
+          "EI-C1",
+          "EI-C2",
+          "EI-C3",
+          "EI-C4"
+        ]
+      },
+      "expect": {
+        "reviewScheduled": [
+          "EI"
+        ],
+        "status": "REFERENCE",
+        "computedTypeCode": "ENFP",
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 2,
+            "nBase": 12,
+            "mBase": 0.08333333333333333,
+            "SClar": 4,
+            "nClar": 4,
+            "mClar": 0.5,
+            "SFinal": 6,
+            "nFinal": 16,
+            "mFinal": 0.1875,
+            "position": 0.59375,
+            "computedPole": "E",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": true,
+            "clarificationRatingCount": 4
+          },
+          "SN": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 12,
+            "nBase": 12,
+            "mBase": 0.5,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 12,
+            "mFinal": 0.5,
+            "position": 0.75,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [],
+        "candidateCodes": [],
+        "candidateCosts": [],
+        "candidateDiffersOn": []
+      }
+    },
+    {
+      "id": "CASE-04",
+      "title": "状态 TIED｜无四字母｜候选 16 个｜服务端安排补充题 [EI,SN,TF,JP]｜用户跳过｜覆盖达标",
+      "note": "主测全部中立档：四维 S=0，不得默认给出一个类型",
+      "answers": {
+        "EI-01": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-02": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 3
+        }
+      },
+      "clarification": {
+        "scheduled": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "skipped": true,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "status": "TIED",
+        "computedTypeCode": null,
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 0,
+            "nBase": 12,
+            "mBase": 0,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 0,
+            "nFinal": 12,
+            "mFinal": 0,
+            "position": 0.5,
+            "computedPole": null,
+            "tiedSide": "tied",
+            "boundary": true,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 0,
+            "nBase": 12,
+            "mBase": 0,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 0,
+            "nFinal": 12,
+            "mFinal": 0,
+            "position": 0.5,
+            "computedPole": null,
+            "tiedSide": "tied",
+            "boundary": true,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 0,
+            "nBase": 12,
+            "mBase": 0,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 0,
+            "nFinal": 12,
+            "mFinal": 0,
+            "position": 0.5,
+            "computedPole": null,
+            "tiedSide": "tied",
+            "boundary": true,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 0,
+            "nBase": 12,
+            "mBase": 0,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 0,
+            "nFinal": 12,
+            "mFinal": 0,
+            "position": 0.5,
+            "computedPole": null,
+            "tiedSide": "tied",
+            "boundary": true,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "candidateCodes": [
+          "ISTJ",
+          "ISTP",
+          "ISFJ",
+          "ISFP",
+          "INTJ",
+          "INTP",
+          "INFJ",
+          "INFP",
+          "ESTJ",
+          "ESTP",
+          "ESFJ",
+          "ESFP",
+          "ENTJ",
+          "ENTP",
+          "ENFJ",
+          "ENFP"
+        ],
+        "candidateCosts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "candidateDiffersOn": [
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "CASE-05",
+      "title": "状态 REFERENCE｜四字母 ENFP｜候选 0 个｜服务端安排补充题 [无]｜未跳过｜覆盖达标",
+      "note": "每维恰好 9 个数字回答 + 3 个未知：覆盖达标，n 只数数字回答",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "unknown"
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "unknown"
+        },
+        "EI-12": {
+          "kind": "unknown"
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "unknown"
+        },
+        "SN-12": {
+          "kind": "unknown"
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "unknown"
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "unknown"
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "unknown"
+        },
+        "TF-11": {
+          "kind": "unknown"
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "unknown"
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "unknown"
+        },
+        "JP-12": {
+          "kind": "unknown"
+        }
+      },
+      "clarification": {
+        "scheduled": [],
+        "skipped": false,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [],
+        "status": "REFERENCE",
+        "computedTypeCode": "ENFP",
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 2,
+            "nBase": 9,
+            "mBase": 0.1111111111111111,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 2,
+            "nFinal": 9,
+            "mFinal": 0.1111111111111111,
+            "position": 0.5555555555555556,
+            "computedPole": "E",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 9,
+            "baseUnknownCount": 3,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 13,
+            "nBase": 9,
+            "mBase": 0.7222222222222222,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 13,
+            "nFinal": 9,
+            "mFinal": 0.7222222222222222,
+            "position": 0.8611111111111112,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 9,
+            "baseUnknownCount": 3,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 10,
+            "nBase": 9,
+            "mBase": 0.5555555555555556,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 9,
+            "mFinal": 0.5555555555555556,
+            "position": 0.7777777777777778,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 9,
+            "baseUnknownCount": 3,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 10,
+            "nBase": 9,
+            "mBase": 0.5555555555555556,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 9,
+            "mFinal": 0.5555555555555556,
+            "position": 0.7777777777777778,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 9,
+            "baseUnknownCount": 3,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 9,
+            "unknown": 3,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 9,
+            "unknown": 3,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 9,
+            "unknown": 3,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 9,
+            "unknown": 3,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [],
+        "candidateCodes": [],
+        "candidateCosts": [],
+        "candidateDiffersOn": []
+      }
+    },
+    {
+      "id": "CASE-06",
+      "title": "状态 NEEDS_REVIEW｜无四字母｜候选 0 个｜服务端安排补充题 [无]｜未跳过｜覆盖不足",
+      "note": "每维只有 8 个数字回答：即使没有未处理项也必须回退，不给报告",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "unknown"
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "unknown"
+        },
+        "EI-11": {
+          "kind": "unknown"
+        },
+        "EI-12": {
+          "kind": "unknown"
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-09": {
+          "kind": "unknown"
+        },
+        "SN-11": {
+          "kind": "unknown"
+        },
+        "SN-12": {
+          "kind": "unknown"
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-10": {
+          "kind": "unknown"
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "unknown"
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "unknown"
+        },
+        "TF-10": {
+          "kind": "unknown"
+        },
+        "TF-11": {
+          "kind": "unknown"
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "unknown"
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "unknown"
+        },
+        "JP-11": {
+          "kind": "unknown"
+        },
+        "JP-12": {
+          "kind": "unknown"
+        }
+      },
+      "clarification": {
+        "scheduled": [],
+        "skipped": false,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [],
+        "status": "NEEDS_REVIEW",
+        "computedTypeCode": null,
+        "coverageOk": false,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 4,
+            "nBase": 8,
+            "mBase": 0.25,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 4,
+            "nFinal": 8,
+            "mFinal": 0.25,
+            "position": 0.625,
+            "computedPole": "E",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": false,
+            "baseRatingCount": 8,
+            "baseUnknownCount": 4,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 12,
+            "nBase": 8,
+            "mBase": 0.75,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 8,
+            "mFinal": 0.75,
+            "position": 0.875,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": false,
+            "baseRatingCount": 8,
+            "baseUnknownCount": 4,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 4,
+            "nBase": 8,
+            "mBase": 0.25,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 4,
+            "nFinal": 8,
+            "mFinal": 0.25,
+            "position": 0.625,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": false,
+            "baseRatingCount": 8,
+            "baseUnknownCount": 4,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 4,
+            "nBase": 8,
+            "mBase": 0.25,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 4,
+            "nFinal": 8,
+            "mFinal": 0.25,
+            "position": 0.625,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": false,
+            "baseRatingCount": 8,
+            "baseUnknownCount": 4,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 8,
+            "unknown": 4,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 8,
+            "unknown": 4,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 8,
+            "unknown": 4,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 8,
+            "unknown": 4,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "tiedDimensions": [],
+        "candidateCodes": [],
+        "candidateCosts": [],
+        "candidateDiffersOn": []
+      }
+    },
+    {
+      "id": "CASE-07",
+      "title": "状态 NEEDS_REVIEW｜无四字母｜候选 0 个｜服务端安排补充题 [无]｜未跳过｜覆盖不足",
+      "note": "缺一道题没处理：未处理 ≠ 无法判断，必须回退",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "clarification": {
+        "scheduled": [],
+        "skipped": false,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [],
+        "status": "NEEDS_REVIEW",
+        "computedTypeCode": null,
+        "coverageOk": false,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 12,
+            "nBase": 12,
+            "mBase": 0.5,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 12,
+            "mFinal": 0.5,
+            "position": 0.75,
+            "computedPole": "E",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 12,
+            "nBase": 12,
+            "mBase": 0.5,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 12,
+            "mFinal": 0.5,
+            "position": 0.75,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 9,
+            "nBase": 11,
+            "mBase": 0.4090909090909091,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 9,
+            "nFinal": 11,
+            "mFinal": 0.4090909090909091,
+            "position": 0.7045454545454546,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": false,
+            "baseRatingCount": 11,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 1,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 11,
+            "unknown": 0,
+            "unprocessed": 1
+          }
+        },
+        "insufficientDimensions": [
+          "JP"
+        ],
+        "tiedDimensions": [],
+        "candidateCodes": [],
+        "candidateCosts": [],
+        "candidateDiffersOn": []
+      }
+    },
+    {
+      "id": "CASE-08",
+      "title": "状态 TIED｜无四字母｜候选 2 个｜服务端安排补充题 [EI]｜用户跳过｜覆盖达标",
+      "note": "单维真实平分 + 其余非零：平分维不参与类型判定",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "clarification": {
+        "scheduled": [
+          "EI"
+        ],
+        "skipped": true,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [
+          "EI"
+        ],
+        "status": "TIED",
+        "computedTypeCode": null,
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 0,
+            "nBase": 12,
+            "mBase": 0,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 0,
+            "nFinal": 12,
+            "mFinal": 0,
+            "position": 0.5,
+            "computedPole": null,
+            "tiedSide": "tied",
+            "boundary": true,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 8,
+            "nBase": 12,
+            "mBase": 0.3333333333333333,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 8,
+            "nFinal": 12,
+            "mFinal": 0.3333333333333333,
+            "position": 0.6666666666666666,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [
+          "EI"
+        ],
+        "candidateCodes": [
+          "INFP",
+          "ENFP"
+        ],
+        "candidateCosts": [
+          0,
+          0
+        ],
+        "candidateDiffersOn": [
+          [
+            "EI"
+          ],
+          [
+            "EI"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "CASE-09",
+      "title": "状态 REFERENCE｜四字母 ENFP｜候选 0 个｜服务端安排补充题 [EI]｜用户跳过｜覆盖达标",
+      "note": "n=12、|S|=2：落在触发阈值上，但不是边界阈值",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "clarification": {
+        "scheduled": [
+          "EI"
+        ],
+        "skipped": true,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [
+          "EI"
+        ],
+        "status": "REFERENCE",
+        "computedTypeCode": "ENFP",
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 2,
+            "nBase": 12,
+            "mBase": 0.08333333333333333,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 2,
+            "nFinal": 12,
+            "mFinal": 0.08333333333333333,
+            "position": 0.5416666666666666,
+            "computedPole": "E",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 12,
+            "nBase": 12,
+            "mBase": 0.5,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 12,
+            "mFinal": 0.5,
+            "position": 0.75,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [],
+        "candidateCodes": [],
+        "candidateCosts": [],
+        "candidateDiffersOn": []
+      }
+    },
+    {
+      "id": "CASE-10",
+      "title": "状态 TIED｜无四字母｜候选 2 个｜服务端安排补充题 [EI,JP]｜用户跳过｜覆盖达标",
+      "note": "平分维与边界维同时出现：平分优先，状态为 TIED",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "clarification": {
+        "scheduled": [
+          "EI",
+          "JP"
+        ],
+        "skipped": true,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [
+          "EI",
+          "JP"
+        ],
+        "status": "TIED",
+        "computedTypeCode": null,
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 0,
+            "nBase": 12,
+            "mBase": 0,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 0,
+            "nFinal": 12,
+            "mFinal": 0,
+            "position": 0.5,
+            "computedPole": null,
+            "tiedSide": "tied",
+            "boundary": true,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 8,
+            "nBase": 12,
+            "mBase": 0.3333333333333333,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 8,
+            "nFinal": 12,
+            "mFinal": 0.3333333333333333,
+            "position": 0.6666666666666666,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 2,
+            "nBase": 12,
+            "mBase": 0.08333333333333333,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 2,
+            "nFinal": 12,
+            "mFinal": 0.08333333333333333,
+            "position": 0.5416666666666666,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [
+          "EI"
+        ],
+        "candidateCodes": [
+          "INFP",
+          "ENFP"
+        ],
+        "candidateCosts": [
+          0,
+          0
+        ],
+        "candidateDiffersOn": [
+          [
+            "EI"
+          ],
+          [
+            "EI"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "CASE-11",
+      "title": "状态 TENTATIVE｜四字母 ENFP｜候选 2 个｜服务端安排补充题 [EI,SN,TF,JP]｜用户跳过｜覆盖达标",
+      "note": "四维倾向都极轻：候选数量应等于各维可选极点的笛卡尔积",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "clarification": {
+        "scheduled": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "skipped": true,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "status": "TENTATIVE",
+        "computedTypeCode": "ENFP",
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 2,
+            "nBase": 12,
+            "mBase": 0.08333333333333333,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 2,
+            "nFinal": 12,
+            "mFinal": 0.08333333333333333,
+            "position": 0.5416666666666666,
+            "computedPole": "E",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 1,
+            "nBase": 12,
+            "mBase": 0.041666666666666664,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 1,
+            "nFinal": 12,
+            "mFinal": 0.041666666666666664,
+            "position": 0.5208333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": true,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 2,
+            "nBase": 12,
+            "mBase": 0.08333333333333333,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 2,
+            "nFinal": 12,
+            "mFinal": 0.08333333333333333,
+            "position": 0.5416666666666666,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 2,
+            "nBase": 12,
+            "mBase": 0.08333333333333333,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 2,
+            "nFinal": 12,
+            "mFinal": 0.08333333333333333,
+            "position": 0.5416666666666666,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [],
+        "candidateCodes": [
+          "ENFP",
+          "ESFP"
+        ],
+        "candidateCosts": [
+          0,
+          1
+        ],
+        "candidateDiffersOn": [
+          [],
+          [
+            "SN"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "CASE-12",
+      "title": "状态 REFERENCE｜四字母 ENFP｜候选 0 个｜服务端安排补充题 [无]｜未跳过｜覆盖达标",
+      "note": "n=12、|S|=3：超过触发阈值，不安排补充题",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "clarification": {
+        "scheduled": [],
+        "skipped": false,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [],
+        "status": "REFERENCE",
+        "computedTypeCode": "ENFP",
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 3,
+            "nBase": 12,
+            "mBase": 0.125,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 3,
+            "nFinal": 12,
+            "mFinal": 0.125,
+            "position": 0.5625,
+            "computedPole": "E",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 12,
+            "nBase": 12,
+            "mBase": 0.5,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 12,
+            "mFinal": 0.5,
+            "position": 0.75,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [],
+        "candidateCodes": [],
+        "candidateCosts": [],
+        "candidateDiffersOn": []
+      }
+    },
+    {
+      "id": "CASE-13",
+      "title": "状态 REFERENCE｜四字母 ENFP｜候选 0 个｜服务端安排补充题 [EI]｜用户跳过｜覆盖达标",
+      "note": "n=9、|S|=1：T(9)=1 故触发；B(9)=0 故任何非零倾向都算轻",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "unknown"
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-11": {
+          "kind": "unknown"
+        },
+        "EI-12": {
+          "kind": "unknown"
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "clarification": {
+        "scheduled": [
+          "EI"
+        ],
+        "skipped": true,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [
+          "EI"
+        ],
+        "status": "REFERENCE",
+        "computedTypeCode": "ENFP",
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 1,
+            "nBase": 9,
+            "mBase": 0.05555555555555555,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 1,
+            "nFinal": 9,
+            "mFinal": 0.05555555555555555,
+            "position": 0.5277777777777778,
+            "computedPole": "E",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 9,
+            "baseUnknownCount": 3,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 12,
+            "nBase": 12,
+            "mBase": 0.5,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 12,
+            "mFinal": 0.5,
+            "position": 0.75,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 9,
+            "unknown": 3,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [],
+        "candidateCodes": [],
+        "candidateCosts": [],
+        "candidateDiffersOn": []
+      }
+    },
+    {
+      "id": "CASE-14",
+      "title": "状态 REFERENCE｜四字母 ENFP｜候选 0 个｜服务端安排补充题 [EI]｜用户跳过｜覆盖达标",
+      "note": "明确跳过补充题：只按主测计分，且不报错",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "clarification": {
+        "scheduled": [
+          "EI"
+        ],
+        "skipped": true,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [
+          "EI"
+        ],
+        "status": "REFERENCE",
+        "computedTypeCode": "ENFP",
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 2,
+            "nBase": 12,
+            "mBase": 0.08333333333333333,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 2,
+            "nFinal": 12,
+            "mFinal": 0.08333333333333333,
+            "position": 0.5416666666666666,
+            "computedPole": "E",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 12,
+            "nBase": 12,
+            "mBase": 0.5,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 12,
+            "mFinal": 0.5,
+            "position": 0.75,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [],
+        "candidateCodes": [],
+        "candidateCosts": [],
+        "candidateDiffersOn": []
+      }
+    },
+    {
+      "id": "CASE-15",
+      "title": "状态 TIED｜无四字母｜候选 2 个｜服务端安排补充题 [EI]｜未跳过｜覆盖达标",
+      "note": "补充题全部回答\"无法判断\"：最终 n 回到主测数字回答数",
+      "answers": {
+        "EI-01": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-02": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-C1": {
+          "kind": "unknown"
+        },
+        "EI-C2": {
+          "kind": "unknown"
+        },
+        "EI-C3": {
+          "kind": "unknown"
+        },
+        "EI-C4": {
+          "kind": "unknown"
+        }
+      },
+      "clarification": {
+        "scheduled": [
+          "EI"
+        ],
+        "skipped": false,
+        "submitted": [
+          "EI-C1",
+          "EI-C2",
+          "EI-C3",
+          "EI-C4"
+        ]
+      },
+      "expect": {
+        "reviewScheduled": [
+          "EI"
+        ],
+        "status": "TIED",
+        "computedTypeCode": null,
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 0,
+            "nBase": 12,
+            "mBase": 0,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 0,
+            "nFinal": 12,
+            "mFinal": 0,
+            "position": 0.5,
+            "computedPole": null,
+            "tiedSide": "tied",
+            "boundary": true,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 12,
+            "nBase": 12,
+            "mBase": 0.5,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 12,
+            "mFinal": 0.5,
+            "position": 0.75,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [
+          "EI"
+        ],
+        "candidateCodes": [
+          "INFP",
+          "ENFP"
+        ],
+        "candidateCosts": [
+          0,
+          0
+        ],
+        "candidateDiffersOn": [
+          [
+            "EI"
+          ],
+          [
+            "EI"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "CASE-16",
+      "title": "状态 TIED｜无四字母｜候选 16 个｜服务端安排补充题 [EI,SN,TF,JP]｜用户跳过｜覆盖达标",
+      "note": "四维都真实平分：证明 S 是代数和而不是逐题绝对值累加",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 5
+        }
+      },
+      "clarification": {
+        "scheduled": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "skipped": true,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "status": "TIED",
+        "computedTypeCode": null,
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 0,
+            "nBase": 12,
+            "mBase": 0,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 0,
+            "nFinal": 12,
+            "mFinal": 0,
+            "position": 0.5,
+            "computedPole": null,
+            "tiedSide": "tied",
+            "boundary": true,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 0,
+            "nBase": 12,
+            "mBase": 0,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 0,
+            "nFinal": 12,
+            "mFinal": 0,
+            "position": 0.5,
+            "computedPole": null,
+            "tiedSide": "tied",
+            "boundary": true,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 0,
+            "nBase": 12,
+            "mBase": 0,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 0,
+            "nFinal": 12,
+            "mFinal": 0,
+            "position": 0.5,
+            "computedPole": null,
+            "tiedSide": "tied",
+            "boundary": true,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 0,
+            "nBase": 12,
+            "mBase": 0,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 0,
+            "nFinal": 12,
+            "mFinal": 0,
+            "position": 0.5,
+            "computedPole": null,
+            "tiedSide": "tied",
+            "boundary": true,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "candidateCodes": [
+          "ISTJ",
+          "ISTP",
+          "ISFJ",
+          "ISFP",
+          "INTJ",
+          "INTP",
+          "INFJ",
+          "INFP",
+          "ESTJ",
+          "ESTP",
+          "ESFJ",
+          "ESFP",
+          "ENTJ",
+          "ENTP",
+          "ENFJ",
+          "ENFP"
+        ],
+        "candidateCosts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "candidateDiffersOn": [
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ],
+          [
+            "EI",
+            "SN",
+            "TF",
+            "JP"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "CASE-17",
+      "title": "状态 TENTATIVE｜四字母 ENFP｜候选 2 个｜服务端安排补充题 [EI,SN]｜用户跳过｜覆盖达标",
+      "note": "一维轻、一维明确：候选只发生在轻的那一维上",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "clarification": {
+        "scheduled": [
+          "EI",
+          "SN"
+        ],
+        "skipped": true,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [
+          "EI",
+          "SN"
+        ],
+        "status": "TENTATIVE",
+        "computedTypeCode": "ENFP",
+        "coverageOk": true,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 2,
+            "nBase": 12,
+            "mBase": 0.08333333333333333,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 2,
+            "nFinal": 12,
+            "mFinal": 0.08333333333333333,
+            "position": 0.5416666666666666,
+            "computedPole": "E",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 1,
+            "nBase": 12,
+            "mBase": 0.041666666666666664,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 1,
+            "nFinal": 12,
+            "mFinal": 0.041666666666666664,
+            "position": 0.5208333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": true,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": true,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 12,
+            "nBase": 12,
+            "mBase": 0.5,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 12,
+            "mFinal": 0.5,
+            "position": 0.75,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [],
+        "tiedDimensions": [],
+        "candidateCodes": [
+          "ENFP",
+          "ESFP"
+        ],
+        "candidateCosts": [
+          0,
+          1
+        ],
+        "candidateDiffersOn": [
+          [],
+          [
+            "SN"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "CASE-18",
+      "title": "状态 NEEDS_REVIEW｜无四字母｜候选 0 个｜服务端安排补充题 [无]｜未跳过｜覆盖不足",
+      "note": "只有 EI 不足 9 个数字回答：覆盖按维判定，其余维充足也要回退",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "unknown"
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "unknown"
+        },
+        "EI-11": {
+          "kind": "unknown"
+        },
+        "EI-12": {
+          "kind": "unknown"
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "clarification": {
+        "scheduled": [],
+        "skipped": false,
+        "submitted": []
+      },
+      "expect": {
+        "reviewScheduled": [],
+        "status": "NEEDS_REVIEW",
+        "computedTypeCode": null,
+        "coverageOk": false,
+        "dimensionOrder": [
+          "EI",
+          "SN",
+          "TF",
+          "JP"
+        ],
+        "dimensions": {
+          "EI": {
+            "SBase": 4,
+            "nBase": 8,
+            "mBase": 0.25,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 4,
+            "nFinal": 8,
+            "mFinal": 0.25,
+            "position": 0.625,
+            "computedPole": "E",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": false,
+            "baseRatingCount": 8,
+            "baseUnknownCount": 4,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "SN": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "N",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "TF": {
+            "SBase": 12,
+            "nBase": 12,
+            "mBase": 0.5,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 12,
+            "nFinal": 12,
+            "mFinal": 0.5,
+            "position": 0.75,
+            "computedPole": "F",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          },
+          "JP": {
+            "SBase": 10,
+            "nBase": 12,
+            "mBase": 0.4166666666666667,
+            "SClar": 0,
+            "nClar": 0,
+            "mClar": null,
+            "SFinal": 10,
+            "nFinal": 12,
+            "mFinal": 0.4166666666666667,
+            "position": 0.7083333333333334,
+            "computedPole": "P",
+            "tiedSide": "positive",
+            "boundary": false,
+            "coverageOk": true,
+            "baseRatingCount": 12,
+            "baseUnknownCount": 0,
+            "baseUnprocessedCount": 0,
+            "clarificationScheduled": false,
+            "clarificationApplied": false,
+            "clarificationRatingCount": 0
+          }
+        },
+        "coverage": {
+          "EI": {
+            "rating": 8,
+            "unknown": 4,
+            "unprocessed": 0
+          },
+          "SN": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "TF": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          },
+          "JP": {
+            "rating": 12,
+            "unknown": 0,
+            "unprocessed": 0
+          }
+        },
+        "insufficientDimensions": [
+          "EI"
+        ],
+        "tiedDimensions": [],
+        "candidateCodes": [],
+        "candidateCosts": [],
+        "candidateDiffersOn": []
+      }
+    }
+  ],
+  "typeProcesses": [
+    {
+      "typeCode": "ISTJ",
+      "dominant": "Si",
+      "auxiliary": "Te",
+      "tertiary": "Fi",
+      "inferior": "Ne"
+    },
+    {
+      "typeCode": "ISFJ",
+      "dominant": "Si",
+      "auxiliary": "Fe",
+      "tertiary": "Ti",
+      "inferior": "Ne"
+    },
+    {
+      "typeCode": "INFJ",
+      "dominant": "Ni",
+      "auxiliary": "Fe",
+      "tertiary": "Ti",
+      "inferior": "Se"
+    },
+    {
+      "typeCode": "INTJ",
+      "dominant": "Ni",
+      "auxiliary": "Te",
+      "tertiary": "Fi",
+      "inferior": "Se"
+    },
+    {
+      "typeCode": "ISTP",
+      "dominant": "Ti",
+      "auxiliary": "Se",
+      "tertiary": "Ni",
+      "inferior": "Fe"
+    },
+    {
+      "typeCode": "ISFP",
+      "dominant": "Fi",
+      "auxiliary": "Se",
+      "tertiary": "Ni",
+      "inferior": "Te"
+    },
+    {
+      "typeCode": "INFP",
+      "dominant": "Fi",
+      "auxiliary": "Ne",
+      "tertiary": "Si",
+      "inferior": "Te"
+    },
+    {
+      "typeCode": "INTP",
+      "dominant": "Ti",
+      "auxiliary": "Ne",
+      "tertiary": "Si",
+      "inferior": "Fe"
+    },
+    {
+      "typeCode": "ESTP",
+      "dominant": "Se",
+      "auxiliary": "Ti",
+      "tertiary": "Fe",
+      "inferior": "Ni"
+    },
+    {
+      "typeCode": "ESFP",
+      "dominant": "Se",
+      "auxiliary": "Fi",
+      "tertiary": "Te",
+      "inferior": "Ni"
+    },
+    {
+      "typeCode": "ENFP",
+      "dominant": "Ne",
+      "auxiliary": "Fi",
+      "tertiary": "Te",
+      "inferior": "Si"
+    },
+    {
+      "typeCode": "ENTP",
+      "dominant": "Ne",
+      "auxiliary": "Ti",
+      "tertiary": "Fe",
+      "inferior": "Si"
+    },
+    {
+      "typeCode": "ESTJ",
+      "dominant": "Te",
+      "auxiliary": "Si",
+      "tertiary": "Ne",
+      "inferior": "Fi"
+    },
+    {
+      "typeCode": "ESFJ",
+      "dominant": "Fe",
+      "auxiliary": "Si",
+      "tertiary": "Ne",
+      "inferior": "Ti"
+    },
+    {
+      "typeCode": "ENFJ",
+      "dominant": "Fe",
+      "auxiliary": "Ni",
+      "tertiary": "Se",
+      "inferior": "Ti"
+    },
+    {
+      "typeCode": "ENTJ",
+      "dominant": "Te",
+      "auxiliary": "Ni",
+      "tertiary": "Se",
+      "inferior": "Fi"
+    }
+  ]
+}

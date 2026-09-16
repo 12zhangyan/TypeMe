@@ -25,6 +25,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.typeme.testsupport.ExcludeCrossModuleTestConfigs;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * v2 内容包的**启动期行为**（字段规格 §1、§9；开发方案 §5.4）。
@@ -40,6 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * <p>⚠️ 本类**只读** {@code src/main/resources/assessment-packages/}：不写入、不改写、不删除，
  * 也不为了让断言通过而造占位文件。缺分支时用 {@link Assumptions} 明确跳过并打印实际状态。
  */
+@ActiveProfiles("test")
+@ExcludeCrossModuleTestConfigs
 @SpringBootTest
 @AutoConfigureMockMvc
 class AssessmentPackageLoadingTest {

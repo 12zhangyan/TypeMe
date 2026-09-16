@@ -220,7 +220,7 @@
    * 五档大小一致，不暗示某个答案更理想；选中态含边框 + 填充 + 勾选（§4.6）
    */
   .option-cell {
-    @apply relative flex min-h-[64px] flex-1 flex-col items-center justify-center gap-1.5 rounded-control border-2 bg-surface px-1 py-2 text-center transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+    @apply relative flex min-h-[64px] min-w-0 flex-1 flex-col items-center justify-center gap-1.5 rounded-control border-2 bg-surface px-0.5 py-2 text-center transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
     border-color: theme('colors.line.DEFAULT');
   }
 
@@ -247,7 +247,8 @@
   }
 
   .option-caption {
-    @apply text-[12px] leading-tight text-ink-soft md:text-[13px];
+    /* 320px 宽时五档每格约 54px：文案必须能逐字换行，否则五个格子会把页面撑出横向滚动 */
+    @apply w-full break-all text-[11px] leading-tight text-ink-soft tablet:break-normal tablet:text-[12.5px] desktop:text-[13px];
   }
 
   .option-cell[aria-checked='true'] .option-caption {

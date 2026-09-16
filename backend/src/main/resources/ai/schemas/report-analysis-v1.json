@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://typeme.local/ai/schemas/report-analysis-v1.json",
+  "title": "TypeMe 报告 AI 分析输出 v1",
+  "description": "契约 03 §3 的结构化输出。evidenceIds 的取值白名单由服务端按本次发送的证据集合动态构造，本 schema 只能约束形状与字面长度，白名单校验在 ReportAnalysisValidator 里完成。校验失败不自动重试。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "referenceType",
+    "summary",
+    "sections",
+    "boundaryNotes",
+    "actions",
+    "reflectionQuestions"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1"
+    },
+    "referenceType": {
+      "description": "必须精确等于后端 computedTypeCode；后端为 null 时必须为 null（TIED 报告允许 null）。",
+      "type": ["string", "null"],
+      "pattern": "^[EI][SN][TF][JP]$"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 400
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "title", "body", "evidenceIds"],
+        "properties": {
+          "key": {
+            "enum": ["overall", "communication", "studyWork", "growth", "boundary"]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20
+          },
+          "body": {
+            "type": "string",
+            "minLength": 80,
+            "maxLength": 1200
+          },
+          "evidenceIds": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1, "maxLength": 64 },
+            "maxItems": 8
+          }
+        }
+      }
+    },
+    "boundaryNotes": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {
+        "type": "string",
+        "minLength": 10,
+        "maxLength": 300
+      }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "steps", "evidenceIds"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30
+          },
+          "steps": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
+            "items": {
+              "type": "string",
+              "minLength": 5,
+              "maxLength": 120
+            }
+          },
+          "evidenceIds": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1, "maxLength": 64 },
+            "maxItems": 8
+          }
+        }
+      }
+    },
+    "reflectionQuestions": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+        "type": "string",
+        "minLength": 10,
+        "maxLength": 120
+      }
+    }
+  }
+}

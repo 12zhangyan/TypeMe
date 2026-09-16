@@ -1,0 +1,18 @@
+# 测试基础设施的自动注册。
+#
+# 1) H2RunIdListener：在任何 Spring 测试上下文启动之前，把"本次 JVM 的 H2 库名后缀"
+#    写进系统属性 typeme.test.h2.run-id；那些用 @ActiveProfiles("test") /
+#    @ActiveProfiles("ai-test") 的测试类在 properties 文件里通过
+#    ${typeme.test.h2.run-id:...} 引用它。
+#
+#    为什么要有这个后缀：测试用的内存库都带 DB_CLOSE_DELAY=-1，会活到 JVM 结束。
+#    库名固定时，同一次 Maven 会话里的**第二遍** `mvn test` 会看到第一遍留下的数据
+#    （Maven 默认让所有测试跑在同一个 JVM 里），表现为"第一次跑绿、紧接着再跑就红"。
+#
+# 2) AccountDatabaseContextCustomizerFactory：读测试类上的 @AccountTestDatabase 注解，
+#    把该类的数据源属性直接放进它的 MergedContextConfiguration。
+#    为什么不能用 @DynamicPropertySource 做这件事，见 @AccountTestDatabase 的注释。
+org.springframework.test.context.TestExecutionListener=\
+com.typeme.testsupport.H2RunIdListener
+org.springframework.test.context.ContextCustomizerFactory=\
+com.typeme.testsupport.AccountDatabaseContextCustomizerFactory

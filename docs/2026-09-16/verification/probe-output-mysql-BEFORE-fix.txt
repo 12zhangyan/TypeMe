@@ -1,0 +1,141 @@
+﻿########## PREP ##########
+   [mysql exit=0]
+
+########## -- [P1] duplicate username_normalized (same case) ##########
+   ERROR 1062 (23000) at line 1: Duplicate entry 'alice' for key 'app_user.uk_app_user_username'
+   [mysql exit=1]
+
+########## -- [P2] username differing only by case (probe utf8mb4_0900_ai_ci case-insensitivity) ##########
+   ERROR 1062 (23000) at line 1: Duplicate entry 'ALICE' for key 'app_user.uk_app_user_username'
+   [mysql exit=1]
+
+########## -- [P3] username with one trailing space (probe NO PAD collation) ##########
+   [mysql exit=0]
+
+########## -- [P4] illegal role ##########
+   ERROR 3819 (HY000) at line 1: Check constraint 'ck_app_user_role' is violated.
+   [mysql exit=1]
+
+########## -- [P5] lowercase legal role (probe whether ai_ci widens the CHECK whitelist) ##########
+   [mysql exit=0]
+
+########## -- [P6] CHECK enforced on the UPDATE path too? ##########
+   ERROR 3819 (HY000) at line 1: Check constraint 'ck_app_user_role' is violated.
+   [mysql exit=1]
+
+########## -- [P7] does omitting role pick up DEFAULT 'USER'? ##########
+   +---------------------+------+
+   | username_normalized | role |
+   +---------------------+------+
+   | dave                | USER |
+   +---------------------+------+
+   [mysql exit=0]
+
+########## -- [P8] clarification_skipped = 2 (illegal bit value) ##########
+   ERROR 3819 (HY000) at line 1: Check constraint 'ck_attempt_clarification_skipped' is violated.
+   [mysql exit=1]
+
+########## -- [P9] illegal type code 'XX' ##########
+   ERROR 3819 (HY000) at line 1: Check constraint 'ck_report_type_code' is violated.
+   [mysql exit=1]
+
+########## -- [P10] legal type code 'ISTJ' ##########
+   [mysql exit=0]
+
+########## -- [P11] TIED semantics: computed_type_code IS NULL ##########
+   [mysql exit=0]
+
+########## -- [P12] lowercase 'istj' (probe whether ai_ci makes the CHECK whitelist toothless) ##########
+   [mysql exit=0]
+
+########## -- [P13] 2-char value (does CHAR_LENGTH on a CHAR(4) column see the padding?) ##########
+   ERROR 3819 (HY000) at line 1: Check constraint 'ck_report_type_code' is violated.
+   [mysql exit=1]
+
+########## -- [P14] 4 chars but not whitelisted ('XXXX') ##########
+   ERROR 3819 (HY000) at line 1: Check constraint 'ck_report_type_code' is violated.
+   [mysql exit=1]
+
+########## -- [P15] second report for the same attempt_id -> UNIQUE must reject ##########
+   ERROR 1062 (23000) at line 1: Duplicate entry '22222222-2222-2222-2222-222222222222' for key 'assessment_report.uk_report_attempt'
+   [mysql exit=1]
+
+########## -- [P16] nonexistent user_id -> FK must reject ##########
+   ERROR 1452 (23000) at line 1: Cannot add or update a child row: a foreign key constraint fails (`typeme_dev`.`assessment_report`, CONSTRAINT `fk_report_user` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`))
+   [mysql exit=1]
+
+########## -- [P17] kind='RATING' with rating NULL (CHECK evaluates to UNKNOWN -> allowed?) ##########
+   [mysql exit=0]
+
+########## -- [P18] kind='RATING', rating=9 (out of range) ##########
+   ERROR 3819 (HY000) at line 1: Check constraint 'ck_answer_rating' is violated.
+   [mysql exit=1]
+
+########## -- [P19] kind='UNKNOWN' carrying a rating ##########
+   ERROR 3819 (HY000) at line 1: Check constraint 'ck_answer_rating' is violated.
+   [mysql exit=1]
+
+########## -- [P20] lowercase kind='rating' (probe ai_ci) ##########
+   [mysql exit=0]
+
+########## -- [P21] legal RATING ##########
+   [mysql exit=0]
+
+########## -- [P22] id = 'default' (legal) ##########
+   [mysql exit=0]
+
+########## -- [P23] id = 'other' (must be rejected by ck_ai_setting_singleton) ##########
+   ERROR 3819 (HY000) at line 1: Check constraint 'ck_ai_setting_singleton' is violated.
+   [mysql exit=1]
+
+########## -- [P24] id = 'DEFAULT' (probe ai_ci widening the singleton constraint) ##########
+   ERROR 1062 (23000) at line 1: Duplicate entry 'DEFAULT' for key 'typeme_ai_setting.PRIMARY'
+   [mysql exit=1]
+
+########## -- [P25] api_key_source='ENV' (uppercase, probe ai_ci) ##########
+   ERROR 3819 (HY000) at line 1: Check constraint 'ck_ai_setting_singleton' is violated.
+   [mysql exit=1]
+
+########## -- [P26] enabled=7 (illegal bit value) ##########
+   ERROR 3819 (HY000) at line 1: Check constraint 'ck_ai_setting_enabled' is violated.
+   [mysql exit=1]
+
+########## -- [P27] status='in_progress' lowercase (probe ai_ci) ##########
+   [mysql exit=0]
+
+########## -- [P28] status='BOGUS' ##########
+   ERROR 3819 (HY000) at line 1: Check constraint 'ck_idempotency_status' is violated.
+   [mysql exit=1]
+
+########## -- [P29] does CHAR_LENGTH see CHAR(4) padding? is comparison case-insensitive? ##########
+   +--------------+----------------+------------------+------------+------------+-------+--------+
+   | char4_len_ei | char4_len_istj | literal_len_istj | ci_in_list | cs_in_list | ci_eq | pad_eq |
+   +--------------+----------------+------------------+------------+------------+-------+--------+
+   |            2 |              4 |                4 |          1 |          1 |     1 |      0 |
+   +--------------+----------------+------------------+------------+------------+-------+--------+
+   [mysql exit=0]
+
+########## -- [P30] session collation recheck ##########
+   +-----------+---------+--------------------+------------+
+   | cs_client | cs_conn | coll_conn          | db         |
+   +-----------+---------+--------------------+------------+
+   | utf8mb4   | utf8mb4 | utf8mb4_0900_ai_ci | typeme_dev |
+   +-----------+---------+--------------------+------------+
+   [mysql exit=0]
+
+########## -- [P31] deleting app_user: assessment_attempt has no ON DELETE CASCADE, must block ##########
+   ERROR 1451 (23000) at line 1: Cannot delete or update a parent row: a foreign key constraint fails (`typeme_dev`.`assessment_attempt`, CONSTRAINT `fk_attempt_user` FOREIGN KEY (`user_id`) REFERENCES `app_user` (`id`))
+   [mysql exit=1]
+
+########## -- [P32] leftover row counts after all probes ##########
+   +-------------------+---+
+   | t                 | n |
+   +-------------------+---+
+   | app_user          | 4 |
+   | assessment_report | 3 |
+   | assessment_answer | 3 |
+   | typeme_ai_setting | 1 |
+   | api_idempotency   | 1 |
+   +-------------------+---+
+   [mysql exit=0]
+

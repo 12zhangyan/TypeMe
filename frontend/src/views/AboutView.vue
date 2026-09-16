@@ -1,84 +1,89 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useQuizStore } from '@/stores/quiz'
-import {
-  instrumentHasTypeCode,
-  packageDimensionOrder,
-  packageFormat,
-  responseAnchorsOf,
-} from '@/domain/assessmentPackage'
-import { ANSWER_CAPTIONS } from '@/domain/answers'
-import { DEFAULT_PACKAGE_ID, FALLBACK_ASSESSMENT_PACKAGES, FALLBACK_ATTRIBUTION } from '@/content/fallback'
+import { useInstrumentV3Store } from '@/stores/instrumentV3'
+import { POLE_META } from '@/domain/scoring'
+import { dimensionCountPhrase } from '@/utils/cnNumber'
 import PageContainer from '@/components/PageContainer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 
 /**
- * 方法与隐私 —— `docs/2026-09-15/...重构开发文档.md` §11.3。
+ * 方法与隐私 —— 描述的是**首页真正主推的那份测评**（`typeme-jung48-zh-v1`）。
  *
- * 结构固定为四部分（可查证的来源 + 容易理解的说明）：
- *   1 如何作答   2 如何理解结果   3 来源与限制   4 本地记录
+ * ## 2026-09-16：这一页此前整页写的是**旧引擎**的内容包
  *
- * 部署版不再向访客展示维护细节：内容包 ID、内容状态、修订号、本地键名、
- * 旧版记录的技术处置、接口/内置副本这类字眼都撤掉了（细节仍在控制台与仓库文档里）。
- * 留下的是用户真正需要知道的三件事：怎么答、怎么理解、东西存在哪。
+ * 首页的「方法与隐私」入口说的是「想知道分数怎么算、门槛是怎么定的、回答保存在哪」，
+ * 但本页过去由 `useQuizStore().activePackage` 驱动 —— 那是站点默认的 IPIP-50 大五。
+ * 于是访客点进来读到「五个维度」「大五量表」「每题给出一句自我描述…非常不贴切」，
+ * 没有一句在说他刚被邀请去答的那份量表（双极 1–5、四个维度、四字母参考组合）。
  *
- * 本页同时承担"本地记录管理"：说明保存了什么、保存在哪、保留范围，并提供
- * **清除本地记录**按钮（只删 TypeMe 自己的键，不执行 localStorage.clear()）。
+ * 现在整页唯一的口径来源是 `useInstrumentV3Store().facts`
+ * （`GET /api/v3/catalog/current`，读不到时用它自己的内置口径）：
+ * 量表名、主测/题库题数、补充题上限、预计时长与四个维度全部来自那里；
+ * 两端标记与一句话说明取 `POLE_META`，与 `LandingView.vue` 用的是同一份。
+ *
+ * ## 门槛：不再抄旧内容包的数字
+ *
+ * 旧版写死的「距中点 1–N 分」「|偏移| ≥ N 分」是**大五/OEJTS 的解释政策**，
+ * 新测根本不用那套尺度 —— 它的方向由「每题带符号的贡献之和」的符号决定，
+ * 「略偏」的门槛随该维可计分题数变化，数值属于量表自己的计分规则（评分政策），
+ * 每份报告的「这份报告是怎么来的」一节会连同规则版本一起打印出来。
+ * 访客在登录前读不到那条规则的数值，所以这里**只说规则的样子、不编一个数字**。
+ *
+ * ## 本地记录：仍然保留，但说清它是哪份问卷的记录
+ *
+ * 本页同时承担"本地记录管理"：`/quiz` 那套旧问卷的进度留在这台设备上，用户可以查看数量、
+ * 一并清除（只删 TypeMe 自己的键，不执行 `localStorage.clear()`）。这一段读的是
+ * `useQuizStore()` 的本地状态，与首页主推的新测评是两回事 —— 新测评（登录 + 账号）
+ * 的数据在哪，写在上面的「新测的数据怎么存」一节。
  */
 const quiz = useQuizStore()
+const instrument = useInstrumentV3Store()
 const showClear = ref(false)
 const cleared = ref(false)
 
-/** 署名一律取当前内容包；内容包还没装载时退回默认包（不清空署名义务）。 */
-const attribution = computed(
-  () =>
-    quiz.activePackage?.attribution ??
-    FALLBACK_ASSESSMENT_PACKAGES[DEFAULT_PACKAGE_ID]?.attribution ??
-    FALLBACK_ATTRIBUTION,
+/** 新测的对外口径（量表名 / 题数 / 时长 / 四个维度）—— 与首页同一个来源。 */
+const facts = computed(() => instrument.facts)
+/** 「四个维度」这类计数文案统一走工具函数，不在这里拼字符串。 */
+const dimensionPhrase = computed(() => dimensionCountPhrase(facts.value.dimensionCount))
+
+/**
+ * 会测到的维度：数量与顺序来自新测自己的口径，维度名取目录下发的名字，
+ * 两端字母与一句话说明取 `POLE_META`（与首页「会测到的N个维度」同一份写法）。
+ */
+const dimensions = computed(() =>
+  facts.value.dimensions.map((item) => {
+    const meta = POLE_META[item.dimension]
+    return {
+      dimension: item.dimension,
+      label: `${meta.negativePole} – ${meta.positivePole}`,
+      name: item.name,
+      hint: meta.hint,
+    }
+  }),
 )
+
+/* ── 本地记录（旧问卷的本地进度）─────────────────────────────────────────
+ * 这一段说的是 `/quiz` 那套在本机计分的旧问卷：题数只能问旧引擎自己的 store。
+ * 新测评不把作答留在这台设备上，所以这里不用 `facts` 的任何数字。
+ */
+const legacyTotal = computed(() => quiz.total)
 const savedCount = computed(() => quiz.processedCount)
 const hasSaved = computed(() => quiz.hasProgress)
 
-/* ── 当前量表（站点默认是 IPIP-50 大五，OEJTS-32 作为可选旧版本保留）─────────
- * 方法页过去整页写死 OEJTS：四字母、四维、S–N 最难测、CC BY-NC-SA。
- * 这些句子对大五来说是**错话**（大五没有类型码，而且 IPIP 属公有领域），
- * 所以每一处都改成由当前内容包 + 仪器档案推导。
- */
-const activePackage = computed(() => quiz.activePackage)
-const hasTypeCode = computed(() =>
-  activePackage.value ? instrumentHasTypeCode(activePackage.value) : false,
-)
-const dimensionCount = computed(() =>
-  activePackage.value ? packageDimensionOrder(activePackage.value).length : 5,
-)
-/** 署名一律取**当前内容包**的 attribution：OEJTS 是 CC BY-NC-SA，IPIP 是公有领域。 */
-const activeAttribution = attribution
-const answerFormat = computed(() =>
-  activePackage.value ? packageFormat(activePackage.value) : 'agreement',
-)
-const anchors = computed(() => {
-  const fromPackage = activePackage.value ? responseAnchorsOf(activePackage.value) : null
-  if (fromPackage) return fromPackage
-  return [1, 2, 3, 4, 5].map((value) => ANSWER_CAPTIONS[value])
-})
-const totalQuestions = computed(
-  () => quiz.total || activePackage.value?.questionnaire.questionCount || 0,
-)
-/** 「略偏」这一档的上界由内容包的解释政策决定（OEJTS 1–4；IPIP 1–5）。 */
-const slightBandMax = computed(() => {
-  const policy = activePackage.value?.interpretation
-  return policy ? Math.max(0, policy.typeMinDistance - 1) : 4
-})
-const markedDistance = computed(() => activePackage.value?.interpretation.markedDistance ?? 9)
-
 const sections = [
   { id: 'how', label: '如何作答' },
+  { id: 'dimensions', label: '会测到的维度' },
   { id: 'result', label: '如何理解结果' },
   { id: 'source', label: '来源与限制' },
+  { id: 'data', label: '新测数据怎么存' },
   { id: 'records', label: '本地记录' },
 ]
 
 onMounted(() => {
+  // 本页正文的量表口径来自新测自己（与首页同源）。
+  void instrument.load()
+  // 本地记录那一段读的是旧问卷的本地进度：内容包没装载就先装载，并识别更早的作答。
   if (!quiz.activePackage) void quiz.load()
   quiz.detectLegacy()
 })
@@ -108,7 +113,8 @@ function scrollTo(id: string) {
         题目从哪来，分数怎么算，哪些结论不该下
       </h1>
       <p class="mt-3 prose-cn">
-        这一页不打算说服你相信结果。它只把可查证的来源、可复算的算法，以及我们明确做不到的事情
+        这一页说的就是首页那份<strong class="font-medium text-ink">{{ facts.title }}</strong
+        >。它不打算说服你相信结果，只把可查证的来源、可复算的算法，以及我们明确做不到的事情
         写清楚，剩下的判断留给你。
       </p>
 
@@ -129,24 +135,27 @@ function scrollTo(id: string) {
     <!-- 1 如何作答 -->
     <section id="how" class="mt-10 scroll-mt-20">
       <h2 class="section-title">如何作答</h2>
+
+      <p class="mt-3 prose-cn" data-instrument-scope>
+        主测 {{ facts.baseQuestions }} 题，题库共 {{ facts.bankQuestions }} 题 = 主测
+        {{ facts.baseQuestions }} 题 + 最多 {{ facts.clarificationQuestions }} 道补充题，
+        预计 {{ facts.minutesLow }}–{{ facts.minutesHigh }} 分钟。补充题只在某一维两边差不多时出现，
+        也可以跳过。
+      </p>
+
       <ul class="mt-4 space-y-2.5 prose-cn">
         <li class="list-dot">
           想<strong class="font-medium text-ink">平常状态</strong>下的自己，不要想"应该成为什么样"。
           状态特别的日子（刚吵完架、刚熬夜）建议换个时间再测。
         </li>
-        <li class="list-dot">
-          <template v-if="answerFormat === 'agreement'">
-            每题给出一句<strong class="font-medium text-ink">自我描述</strong>，请按它对你平常状态的贴切程度选择：
-            {{ anchors.join('、') }}。左边永远对应 1（最不贴切），右边永远对应 5（最贴切），
-            两个端点的顺序不会因为美观而调换。
-          </template>
-          <template v-else>
-            每题给出一对相反的描述，位置是连续的：明显偏左、有些偏左、两边相近、有些偏右、明显偏右。
-            左边永远对应 1，右边永远对应 5，两个端点的顺序不会因为美观而调换。
-          </template>
+        <li class="list-dot" data-answer-format>
+          每题给出一对<strong class="font-medium text-ink">相反的描述</strong>：两边都读完，再选自己更靠近哪一边，
+          <strong class="font-medium text-ink">左边永远是 1，右边永远是 5</strong>。
+          五个位置是连续的：明显偏左、有些偏左、两边相近、有些偏右、明显偏右，
+          两个端点的顺序不会因为美观而调换。
         </li>
         <li class="list-dot">
-          中间那档（{{ anchors[2] }}）是<strong class="font-medium text-ink">真实答案</strong>，不是"没想好"。
+          中间那一档（3）是<strong class="font-medium text-ink">真实答案</strong>，不是"没想好"。
           但五个位置都不代表"更理想"，只代表更接近哪一侧。
         </li>
         <li class="list-dot">
@@ -161,139 +170,180 @@ function scrollTo(id: string) {
       </ul>
     </section>
 
-    <!-- 2 如何理解结果 -->
+    <!-- 2 会测到的维度 -->
+    <section id="dimensions" class="mt-10 scroll-mt-20">
+      <h2 class="section-title">会测到的{{ dimensionPhrase }}</h2>
+
+      <p class="mt-3 prose-cn">
+        主测的每一题都只属于一个维度，{{ dimensionPhrase }}各由同样多的题目计分。
+        每个维度都是一条连续分数，不是几个格子；两端标记与下面的一句话说明，就是这份量表自己的写法。
+      </p>
+
+      <dl data-dimension-list class="mt-4 grid gap-x-10 gap-y-4 tablet:grid-cols-2">
+        <div
+          v-for="item in dimensions"
+          :key="item.dimension"
+          :data-dimension="item.dimension"
+          class="flex gap-4 border-t border-line pt-3.5"
+        >
+          <dt class="w-[7.5rem] shrink-0">
+            <span class="font-display text-[15px] font-bold text-primary-600">{{ item.label }}</span>
+            <span class="mt-0.5 block text-[13px] text-ink-soft">{{ item.name }}</span>
+          </dt>
+          <dd class="prose-sm">{{ item.hint }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- 3 如何理解结果 -->
     <section id="result" class="mt-10 scroll-mt-20">
       <h2 class="section-title">如何理解结果</h2>
       <ul class="mt-4 space-y-2.5 prose-cn">
         <li class="list-dot">
           <strong class="font-medium text-ink">这是一次倾向，不是一个身份。</strong>
-          <template v-if="hasTypeCode">
-            {{ dimensionCount }} 个维度都是连续分数，四字母只是把连续分数切成四段之后的一种叫法。
-          </template>
-          <template v-else>
-            {{ dimensionCount }} 个维度都是连续分数。大五量表<strong class="font-medium text-ink"
-              >没有类型码</strong
-            >：它给出每个维度各自的方向，报告不会把几个字母拼成一个"类型"。
-          </template>
+          {{ dimensionPhrase }}都是连续分数，四字母只是把连续分数切成四段之后的一种叫法。
         </li>
         <li class="list-dot">
           <strong class="font-medium text-ink">允许"未定"。</strong>
           每个维度会分别给出四种状态：信息不足（缺有效数字答案，不计算分数）、本次两侧相近
           （没有主导侧）、本次略偏某侧（建议继续观察）、本次回答偏向某侧（可用于参考组合）。
-          <template v-if="hasTypeCode">
-            {{ dimensionCount }} 个维度都达到展示条件时才会拼出四字母，否则完整类型为空 ——
-            不会退回某个默认类型。
-          </template>
-          <template v-else>
-            {{ dimensionCount }} 个维度都达到展示条件时，报告才会给出完整的方向总结；否则只展示
-            达到条件的那些维度，其余维度保留未定 —— 不会用一个默认类型补齐。
-          </template>
+          {{ dimensionPhrase }}都达到展示条件时才会拼出四字母，否则完整类型为空 ——
+          不会退回某个默认类型。
         </li>
-        <li class="list-dot">
+        <li class="list-dot" data-threshold>
           <strong class="font-medium text-ink">越靠近中点，越不该当成确定结论。</strong>
-          距中点 1–{{ slightBandMax }} 分的维度只作观察方向；|偏移| ≥ {{ markedDistance }} 分才算"偏向"。
-          这份门槛是我们为了给出方向而定的一条规则，
-          <strong class="font-medium text-ink">不是统计置信阈值</strong>，也没有证据证明它提升测量准确率。
+          一维的结果不是数一数哪边更多：每题的答案先换算成一个带符号的数（1 与 5 是两端、3 是中间，
+          再按这题哪一端是负极决定正负号），同一维的有效作答加起来，方向看这个和的符号。
+          「略偏」也不是一条写死的分数线：它由这个和的大小、以及这一维实际可计分的题数一起决定
+          —— 这一维的有效作答多一些，这条线就跟着放宽一点（比例与取整细节都固定在规则里）。
+          具体数值属于这份量表自己的计分规则，写在每份报告的
+          「这份报告是怎么来的」一节里（连同这一维最少要有多少题可计分）。
+          <strong class="font-medium text-ink">这里不抄一个固定数字</strong>：题目或规则一改，
+          抄下来的数字就会变成假话。这条门槛是为了给出一个方向而定下的规则，
+          <strong class="font-medium text-ink">不是统计上的显著性判断</strong>，
+          也没有证据证明它提升了这份量表的判断质量。
         </li>
         <li class="list-dot">
-          <strong class="font-medium text-ink">不给人群百分位。</strong>
-          我们没有本土常模样本，所以不会说"你比多少人更外向"。位置与分数只表示偏离中点的程度，
-          不是你在人群里的位置。
+          <strong class="font-medium text-ink">不给人群比较。</strong>
+          我们没有本土常模样本，所以不会说"你比多少人更外向"，也不会给出类型占比；
+          位置与分数只表示偏离中点的程度，不是你在人群里的位置。
         </li>
-        <li v-if="hasTypeCode" class="list-dot">
-          <strong class="font-medium text-ink">S–N 维度本身就难测准。</strong>
-          与 I–E、F–T、J–P 相比，这一维在不同研究里的区分度一直偏低。如果它压线，当参考方向就好。
-        </li>
-        <li v-else class="list-dot">
-          <strong class="font-medium text-ink">大五的五个维度各自独立，不要当成五种"性格类型"。</strong>
-          它们描述的是可以分开看待的五个方面；某一维偏向哪一侧，不决定其余四维，也不构成一个整体标签。
+        <li class="list-dot">
+          <strong class="font-medium text-ink">压线不等于"没测出来"。</strong>
+          它说明本次作答在那一维两边差不多。这份量表在信度与效度上没有证据，我们也就无法告诉你
+          哪一维更稳：压线的维度只当观察方向，隔一段时间、换个状态再看一次。
         </li>
       </ul>
     </section>
 
-    <!-- 3 来源与限制 -->
+    <!-- 4 来源与限制 -->
     <section id="source" class="mt-10 scroll-mt-20">
       <h2 class="section-title">来源与限制</h2>
 
       <div class="mt-4 space-y-3 prose-cn">
         <p>
-          本测评当前使用的量表题目取自
-          <a
-            :href="activeAttribution.url"
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            class="link link-external"
-            >{{ activeAttribution.source }}</a
-          >，作者
-          <strong class="font-semibold text-ink">{{ activeAttribution.author }}</strong
-          >，依据
-          <a
-            :href="activeAttribution.licenseUrl"
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            class="link link-external"
-            >{{ activeAttribution.license }}</a
-          >
-          使用。
-          <template v-if="hasTypeCode">
-            本项目对其进行了中文本地化改写，改写后的中文题目同样以
-            {{ activeAttribution.license }} 发布。
-          </template>
-          <template v-else>
-            本项目自行撰写了简体中文题面，题号与正负键值严格照官方键值表，未改动任何一项的计分方向。
-          </template>
+          {{ facts.title }}的题目与报告文案由本项目自行撰写，
+          <strong class="font-semibold text-ink">没有照搬任何商业量表的题目</strong>，
+          也没有翻译或改编任何外部量表。本站<strong class="font-semibold text-ink">不隶属</strong>
+          任何商业人格测评机构，也不是任何机构的官方测评。
         </p>
-        <p v-if="hasTypeCode">
-          本项目<strong class="font-semibold text-ink">非商业用途</strong>，不含任何广告、付费或赞助；
-          也<strong class="font-semibold text-ink">未获得</strong> Myers &amp; Briggs Foundation、
-          The Myers-Briggs Company 或 CPP, Inc. 的任何授权或背书。这不是 MBTI 官方测评。
-        </p>
-        <p v-else>
-          IPIP 量表<strong class="font-semibold text-ink">属公有领域（public domain）</strong>，
-          官方声明允许包括商业用途在内的自由使用，不需要另行申请授权。本站的中文题面与各维文案由本项目
-          自行撰写，<strong class="font-semibold text-ink">未经 IPIP 官方校验</strong>；
-          IPIP 也明确说明其收录的各种语言译本均未经他们验证。本站与任何商业人格测评机构没有关系，
-          这不是 MBTI 官方测评，也不是任何机构的官方大五测评。
-        </p>
-        <p v-if="hasTypeCode" class="rounded-control bg-paper-soft px-4 py-3 text-[14px] leading-relaxed">
-          OEJTS 官方声明：<em class="not-italic text-ink-soft"
-            >“The OEJTS come with no guarantees of reliability or accuracy of any kind.”</em
-          >
-        </p>
-        <p v-else class="rounded-control bg-paper-soft px-4 py-3 text-[14px] leading-relaxed">
-          IPIP 官方说明：这些量表条目属于公有领域，可用于研究、教学与商业用途；但
-          <em class="not-italic text-ink-soft"
-            >IPIP 不为其收录的译本提供任何信度或效度验证</em
-          >。
+        <p class="rounded-control bg-paper-soft px-4 py-3 text-[14px] leading-relaxed">
+          这份量表的内容仍在内部核对中，题目与解释都会继续调整。它
+          <strong class="font-medium text-ink">没有信度或效度方面的证据</strong>：
+          我们拿不出任何材料来证明它"测得准"。这不是客气话，而是它此刻的真实状态。
         </p>
         <p>
-          <strong class="font-medium text-ink">中文题目未做信效度验证。</strong>
-          <template v-if="hasTypeCode">
-            译文的信度、效度没有经过中文样本检验；四字母的方向与正文内容经过人工核对，
-            但这不等于心理测量学意义上的验证。
-          </template>
-          <template v-else>
-            中文题面的可读性经过人工核对与逐题释义，但没有经过中文样本的信效度检验；
-            五个维度的方向与正文内容经过人工核对，但这不等于心理测量学意义上的验证。
-          </template>
+          <strong class="font-medium text-ink">三点限制值得说清。</strong>
+          一是样本：我们没有本土常模样本，所以不给人群比较、类型占比这类结论。
+          二是语言：中文题面由本项目自行撰写，可读性经过人工核对与逐题释义，
+          但没有经过中文样本的检验；人工核对不等于测量学意义上的验证。
+          三是用途：它是参考测评，不是心理诊断，不涉及心理疾病，
+          也不能用于招聘、晋升或任何筛选。
         </p>
       </div>
     </section>
 
-    <!-- 4 本地记录 -->
+    <!-- 5 数据怎么存（新测：账号 + 服务端） -->
+    <section id="data" class="mt-10 scroll-mt-20">
+      <h2 class="section-title">新测的数据怎么存</h2>
+      <p class="mt-3 prose-cn">
+        下面「本地记录」说的是本站更早那套在本机计分的问卷：它把进度留在这台设备上，不需要登录。
+        首页「开始测评」进的那份不一样 ——
+        <strong class="font-medium text-ink">登录后</strong>才会开始，因为它的目的是让你
+        <strong class="font-medium text-ink">换一台设备也能接着答、也能回看历次报告</strong>。
+      </p>
+
+      <dl class="mt-4 divide-y divide-line border-y border-line text-[14px]">
+        <div class="flex flex-col gap-1 py-3 tablet:flex-row tablet:gap-6">
+          <dt class="w-40 shrink-0 font-medium text-ink">存在哪里</dt>
+          <dd class="text-ink-soft">
+            存在本站自己的服务器上，只与你登录的账号关联。会话是服务器下发的 HttpOnly cookie，
+            网页读不到，也不会把任何登录凭据写进浏览器存储。
+          </dd>
+        </div>
+        <div class="flex flex-col gap-1 py-3 tablet:flex-row tablet:gap-6">
+          <dt class="w-40 shrink-0 font-medium text-ink">存了什么</dt>
+          <dd class="text-ink-soft">
+            你的逐题作答、答题进度、每次交卷时生成的报告内容，以及你自己填的「我的理解」。
+            <strong class="font-medium text-ink">不存</strong>密码原文、恢复码原文，也不记录原始答案到运行日志。
+          </dd>
+        </div>
+        <div class="flex flex-col gap-1 py-3 tablet:flex-row tablet:gap-6">
+          <dt class="w-40 shrink-0 font-medium text-ink">谁在算分</dt>
+          <dd class="text-ink-soft">
+            答题过程中页面上那个「目前的粗略倾向」是浏览器即时算给你看的，只为即时反馈；
+            <strong class="font-medium text-ink">最终报告一律在我们这边重新算一遍</strong>再生成，
+            并以那份结果为准。浏览器算出来的东西不会当成结论上传。
+          </dd>
+        </div>
+        <div class="flex flex-col gap-1 py-3 tablet:flex-row tablet:gap-6">
+          <dt class="w-40 shrink-0 font-medium text-ink">AI 分析</dt>
+          <dd class="text-ink-soft">
+            是<strong class="font-medium text-ink">可选的</strong>、需要你单独同意的额外功能，默认不开启，
+            不做也不影响报告本身。开启与否、用哪个主题，都由你在报告页上自己决定；
+            没有你的同意，不会把你的任何内容发出去。
+          </dd>
+        </div>
+        <div class="flex flex-col gap-1 py-3 tablet:flex-row tablet:gap-6">
+          <dt class="w-40 shrink-0 font-medium text-ink">怎么导出</dt>
+          <dd class="text-ink-soft">
+            在「账号与数据」页可以导出一份 JSON 文件，里面有账号基本资料、每次测评的作答、
+            报告内容与 AI 记录。拿到的是原始数据，你可以在别处留一份。
+          </dd>
+        </div>
+        <div class="flex flex-col gap-1 py-3 tablet:flex-row tablet:gap-6">
+          <dt class="w-40 shrink-0 font-medium text-ink">怎么删除</dt>
+          <dd class="text-ink-soft">
+            单份报告可以在报告列表里直接删（会连同它的答案与相关记录一起删除）；
+            整份账号可以在「账号与数据」页注销，注销后立即无法登录，后台异步清理。
+            删除是真实的物理删除，不是隐藏。
+          </dd>
+        </div>
+        <div class="flex flex-col gap-1 py-3 tablet:flex-row tablet:gap-6">
+          <dt class="w-40 shrink-0 font-medium text-ink">不是诊断</dt>
+          <dd class="text-ink-soft">
+            新测的结果是<strong class="font-medium text-ink">参考测评</strong>，
+            不是心理诊断，不能用于招聘、晋升或任何筛选，也不涉及心理疾病。
+            解释内容还在通过内部核对，措辞会继续调整；请把它当成一个话题，而不是一个判决。
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- 6 本地记录（旧问卷的本地进度；新测评不写这里） -->
     <section id="records" class="mt-10 scroll-mt-20">
       <h2 class="section-title">本地记录</h2>
 
       <p class="mt-3 prose-cn">
-        题目答案与计分在你的浏览器中处理。为了让你能接着上次继续，这台设备会保留最近一次作答，
-        你可以随时清除。
+        这一段说的是本站更早那套在本机计分的问卷（首页已不再提供它的入口）：题目答案与计分在你的浏览器中处理。为了让你能接着上次继续，这台设备会保留最近一次作答，
+        你可以随时清除。首页主推的那份新测评不在这台设备上留底，它的数据在哪见上面的「新测的数据怎么存」。
       </p>
 
       <dl class="mt-4 divide-y divide-line border-y border-line text-[14px]">
         <div class="flex flex-col gap-1 py-3 tablet:flex-row tablet:gap-6">
           <dt class="w-40 shrink-0 font-medium text-ink">保存了什么</dt>
           <dd class="text-ink-soft">
-            这次用到的 {{ totalQuestions }} 道题、你的 {{ totalQuestions }} 个选择、当前答到哪一题，
+            这次用到的 {{ legacyTotal }} 道题、你的 {{ legacyTotal }} 个选择、当前答到哪一题，
             以及开始与更新时间。
             <strong class="font-medium text-ink">没有</strong>姓名、账号、设备标识或 IP。
           </dd>
@@ -314,7 +364,7 @@ function scrollTo(id: string) {
           <dt class="w-40 shrink-0 font-medium text-ink">当前状态</dt>
           <dd class="text-ink-soft">
             <template v-if="hasSaved">
-              已处理 {{ savedCount }} / {{ quiz.total }} 题（数字 {{ quiz.ratingCount }} · 待判断
+              已处理 {{ savedCount }} / {{ legacyTotal }} 题（数字 {{ quiz.ratingCount }} · 待判断
               {{ quiz.unknownCount }}）
             </template>
             <template v-else-if="quiz.storageError">
@@ -333,7 +383,7 @@ function scrollTo(id: string) {
             ><template v-if="quiz.legacyV1"
               >一份更早的作答（{{ quiz.legacyV1.answeredCount }} 题）</template
             >。它们用的是当时的题目，所以不会被套到现在的题目上，也不会被自动删除；
-            可以在首页按当时的题目打开，或者在这里一并清除。
+            首页已经不再提供打开它们的入口，你只能在这里查看数量并一并清除。
           </dd>
         </div>
       </dl>
@@ -366,8 +416,13 @@ function scrollTo(id: string) {
       <ul class="mt-3 space-y-2 prose-sm">
         <li class="list-dot">不给「你在人群中排第几」——没有本土常模，给了就是编的。</li>
         <li class="list-dot">不做诊断、不涉及心理疾病，也不用于招聘、晋升或任何筛选。</li>
-        <li class="list-dot">不做账号、不做排行、不做对比榜单，不收集任何个人信息。</li>
-        <li class="list-dot">不设付费墙：结果页把该给的信息一次给完。</li>
+        <li class="list-dot">
+          不做公开排行，也不做「你比别人如何」的对比；没有常模，比了也是编的。
+        </li>
+        <li class="list-dot">
+          账号只服务两件事：换设备接着答、回看历次报告。不投放广告，不把作答交给任何第三方统计，
+          也不设付费墙：该给的信息在结果页一次给完。
+        </li>
       </ul>
     </section>
 

@@ -1,0 +1,163 @@
+<script setup lang="ts">
+import { computed, onMounted, ref, useId } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { refreshCsrfToken } from '@/api/v3'
+import PageContainer from '@/components/PageContainer.vue'
+
+/**
+ * 登录 —— 契约 `03-AI与前端契约-v1.md` §7.2（`/login` 公开；已登录访问则跳回 redirect）。
+ *
+ * 几个刻意的选择：
+ *   - 密码框永远是 `type="password"` + `autocomplete="current-password"`：
+ *     浏览器/密码管理器能不能正确填充，全靠这两个属性；
+ *   - 失败文案**不区分**"用户名不存在"与"密码错误"（服务端也不区分，避免账号枚举），
+ *     所以这里也不写"用户名不存在"这种话；
+ *   - 错误块里一定带上服务端的 `requestId`：用户报障时那是唯一能对上日志的线索。
+ */
+const auth = useAuthStore()
+const route = useRoute()
+const router = useRouter()
+
+const username = ref('')
+const password = ref('')
+const usernameId = `login-username-${useId()}`
+const passwordId = `login-password-${useId()}`
+const hintId = `login-hint-${useId()}`
+const error = computed(() => auth.lastError)
+
+/** 登录成功后回哪儿：只接受站内路径，挡掉 `//evil.example` 这类开放重定向。 */
+const redirectTarget = computed(() => {
+  const raw = route.query.redirect
+  if (typeof raw !== 'string') return '/account'
+  if (!raw.startsWith('/') || raw.startsWith('//')) return '/account'
+  return raw
+})
+
+const disabledReason = computed(() => {
+  if (auth.busy) return '正在登录，请稍等。'
+  if (!username.value.trim()) return '先填用户名。'
+  if (!password.value) return '先填密码。'
+  return null
+})
+
+onMounted(() => {
+  auth.clearError()
+  // 登录是写操作，需要 CSRF token：进页面就先取一份，别让用户点下去才等这次往返。
+  // 取不到也不提示：真正的失败理由由提交时的响应说了算。
+  void refreshCsrfToken()
+})
+
+async function onSubmit() {
+  if (disabledReason.value) return
+  try {
+    await auth.login(username.value.trim(), password.value)
+    await router.replace(redirectTarget.value)
+  } catch {
+    // 失败已经存进 auth.lastError（含 requestId），模板直接渲染
+  }
+}
+</script>
+
+<template>
+  <PageContainer page="article">
+    <header>
+      <p class="section-kicker">账号</p>
+      <h1 class="mt-2 font-display text-[26px] font-bold leading-tight text-ink tablet:text-[32px]">
+        登录
+      </h1>
+      <p class="mt-3 prose-cn">
+        登录后才能把测评记录和报告放在服务器上，换设备也能接着看。答案与报告只属于你自己。
+      </p>
+    </header>
+
+    <!-- 会话检查没成功（网络/服务端问题）时的低调提示：这**不是**登录失败 -->
+    <p
+      v-if="auth.sessionNotice"
+      class="notice-neutral mt-5 text-[13.5px] leading-relaxed"
+      role="status"
+      aria-live="polite"
+    >
+      {{ auth.sessionNotice }}
+    </p>
+
+    <form class="mt-6 max-w-[30rem]" novalidate @submit.prevent="onSubmit">
+      <div>
+        <label :for="usernameId" class="block text-[14.5px] font-medium text-ink">用户名</label>
+        <input
+          :id="usernameId"
+          v-model="username"
+          name="username"
+          type="text"
+          autocomplete="username"
+          autocapitalize="none"
+          autocorrect="off"
+          spellcheck="false"
+          class="mt-1.5 w-full min-w-0 rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[16px] text-ink"
+        />
+      </div>
+
+      <div class="mt-4">
+        <label :for="passwordId" class="block text-[14.5px] font-medium text-ink">密码</label>
+        <input
+          :id="passwordId"
+          v-model="password"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          class="mt-1.5 w-full min-w-0 rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[16px] text-ink"
+        />
+      </div>
+
+      <div
+        v-if="error"
+        class="notice-error mt-4"
+        role="alert"
+        aria-live="assertive"
+        data-login-error
+      >
+        <p class="text-[14.5px] font-medium leading-relaxed">{{ error.message }}</p>
+        <ul v-if="error.fields.length" class="mt-2 space-y-1 text-[13.5px] leading-relaxed">
+          <li v-for="field in error.fields" :key="field.field">
+            {{ field.label }}：{{ field.message }}
+          </li>
+        </ul>
+        <p v-if="error.serverMessage" class="mt-2 text-[13.5px] leading-relaxed">
+          服务器说明：{{ error.serverMessage }}
+        </p>
+        <p v-if="error.retryAfterSeconds" class="mt-2 text-[13.5px] leading-relaxed">
+          大约 {{ error.retryAfterSeconds }} 秒后再试就来得及。
+        </p>
+        <p v-if="error.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
+          报障编号：<code class="font-mono">{{ error.requestId }}</code>
+          <span class="block text-ink-faint">（反馈问题时把这个编号一起发过来，能直接查到这次请求。）</span>
+        </p>
+      </div>
+
+      <p v-if="disabledReason" :id="hintId" class="caption mt-3">
+        {{ disabledReason }}
+      </p>
+
+      <button
+        type="submit"
+        class="btn-primary btn-block mt-5"
+        :disabled="disabledReason !== null"
+        :aria-describedby="disabledReason ? hintId : undefined"
+      >
+        {{ auth.busy ? '正在登录…' : '登录' }}
+      </button>
+    </form>
+
+    <p class="mt-5 text-[14px] leading-relaxed text-ink-soft">
+      还没有账号？
+      <RouterLink to="/register" class="link">注册一个</RouterLink>
+      。忘记了密码？
+      <RouterLink to="/recover" class="link">用恢复码重置</RouterLink>
+      。
+    </p>
+
+    <p class="mt-6 fineprint max-w-[34rem]">
+      登录状态保存在服务器的 HttpOnly cookie 里，这个网站不会把任何登录凭据写进浏览器的本地存储。
+    </p>
+  </PageContainer>
+</template>

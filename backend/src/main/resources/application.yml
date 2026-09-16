@@ -1,5 +1,19 @@
 server:
   port: 8080
+  servlet:
+    session:
+      # 闲置 2 小时（开发方案 §5 / 契约 §2.3）。绝对上限 7 天**不在这里**：
+      # 容器管不了绝对期限，由 typeme.auth.session-absolute-ttl + SessionAbsoluteTtlFilter 落实。
+      timeout: 2h
+      cookie:
+        name: JSESSIONID
+        http-only: true
+        same-site: Lax
+        # 本地开发跑 http，Secure 必须关；生产由 application-prod.yml 覆盖为 true。
+        # 注意：Spring Boot 的 YAML 不支持在一个 key 里写 ${...} 引用另一个前缀不同的 key，
+        # 所以这里与 typeme.auth.cookie-secure 是同义冗余（两处都改才算改对，见 application-prod.yml）。
+        secure: false
+        path: /
 
 spring:
   application:
@@ -12,6 +26,27 @@ spring:
   web:
     resources:
       add-mappings: false
+
+  # 账号 / 会话 / 测评记录的持久化（开发方案 §4）。契约要求只用 spring-boot-starter-jdbc，
+  # 因此这里**刻意不出现** spring.jpa.*；schema 的唯一事实来源是 Flyway 迁移脚本。
+  datasource:
+    # ⚠️ 仅本地开发默认值（用户本机 MySQL 8.4 的 typeme_dev 库）。
+    # 生产必须用 TYPEME_DB_URL / TYPEME_DB_USER / TYPEME_DB_PASSWORD 覆盖，
+    # 禁止把真实生产凭据提交进本文件。
+    # Flyway 只作用于这里配置的这一个库：迁移脚本里没有、也不允许出现
+    # CREATE DATABASE / USE / DROP DATABASE 等跨库语句（同实例上还有其它业务库）。
+    url: ${TYPEME_DB_URL:jdbc:mysql://127.0.0.1:3306/typeme_dev?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=UTF-8}
+    username: ${TYPEME_DB_USER:root}
+    password: ${TYPEME_DB_PASSWORD:123456}
+    driver-class-name: ${TYPEME_DB_DRIVER:com.mysql.cj.jdbc.Driver}
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    # 生产库的迁移必须由发布流程显式授权（开发方案 §4），所以默认不自动"修复"已有库；
+    # baseline-on-migrate 也保持关闭：空库才能迁移，非空且无历史表的库必须人工介入。
+    baseline-on-migrate: false
+    validate-on-migrate: true
 
 # Actuator：只暴露健康检查（技术方案 §3.1）
 management:
@@ -27,6 +62,97 @@ management:
 typeme:
   app-version: "1.0.0"
   content-version: "2026-09-01"
+
+  # 账号与会话（开发方案 §5）。这里**不含任何 secret 值**。
+  auth:
+    # 绝对会话上限：过滤链每个已认证请求都校验 app_user_session.absolute_expires_at。
+    # 容器侧闲置超时见 server.servlet.session.timeout（2h）。
+    session-absolute-ttl: 7d
+    # app_user_session.last_seen_at 的写入节流：超过这个间隔才写一次，避免每请求一次 UPDATE。
+    session-last-seen-throttle: 60s
+    # 本地 http 为 false；生产（https）必须 true，见 application-prod.yml。
+    cookie-secure: false
+    cookie-same-site: Lax
+    # 只支持 Spring Security 自带的编码器实现，禁止自写算法。
+    password-encoder: pbkdf2
+    # PBKDF2WithHmacSHA256 迭代次数。数值愈大愈抗离线爆破，也愈慢；
+    # 生产按服务器成本核验后调整（开发方案 §5）。测试 profile 会覆盖成小值。
+    pbkdf2-iterations: 210000
+
+  # 限流（契约 §5.4）：固定窗口计数，登录同时按 ip 与 user 两个 key 计数。
+  ratelimit:
+    enabled: true
+    register:
+      window: 1h
+      ip-limit: 5
+    login:
+      window: 15m
+      ip-limit: 20
+      user-limit: 10
+    recover:
+      window: 1h
+      ip-limit: 10
+    ai:
+      window: 1h
+      ip-limit: 30
+      user-limit: 20
+
+  security:
+    # 只有在这里显式列出的代理地址，才会去解析 X-Forwarded-For 取真实来源 IP；
+    # 留空（默认）时一律用 request.getRemoteAddr()，这样客户端无法伪造头绕过限流。
+    trusted-proxies: ""
+    # 后台 AI 设置的 apiKey 加密密钥（Spring Security TextEncryptor 的 password）。
+    # **这里刻意留空**：留空时"读取设置"照常工作、"写入 apiKey"直接报 503，
+    # 避免为了让应用能启动而悄悄用一个硬编码密钥加密用户的生产 key。
+    # 生产必须通过 TYPEME_SETTINGS_SECRET 注入（>=16 字符，且与数据库同级的保密级别）。
+    settings-secret: ${TYPEME_SETTINGS_SECRET:}
+
+  # 管理员引导：仅当"系统里一个 ADMIN 都没有"时，把同名已存在账号提升为 ADMIN。
+  # 这是本地开发的一次性入口；生产不建议配置（或配置后立即清掉）。
+  admin:
+    bootstrap-username: ${TYPEME_ADMIN_BOOTSTRAP_USERNAME:typeme_admin}
+
+  # AI（DeepSeek）配置 —— 契约 03 §1 的**兜底值**。
+  #
+  # 取值优先级（由 AiRuntimeSettingsProvider 实现，每次调用读取 + 5s 内存缓存）：
+  #   1) 数据库单行设置表 typeme_ai_setting（管理员后台配置，改完无需重启即生效）；
+  #   2) 本文件的 typeme.ai.*（可被下面的环境变量覆盖）；
+  #   3) 环境变量 DEEPSEEK_API_KEY（仅 key 的兜底，apiKeySource='env'）。
+  #
+  # 这里**不含任何真实 secret**：本文件不得出现真实 key，也不得写进前端 VITE_*、日志或文档。
+  ai:
+    enabled: ${TYPEME_AI_ENABLED:false}
+    base-url: ${TYPEME_AI_BASE_URL:https://api.deepseek.com}
+    # 主名沿用官方约定 DEEPSEEK_API_KEY；TYPEME_AI_API_KEY 作为兼容别名（若已注入则优先）。
+    api-key: ${DEEPSEEK_API_KEY:${TYPEME_AI_API_KEY:}}
+    model: ${TYPEME_AI_MODEL:deepseek-flash}
+    prompt-version: ${TYPEME_AI_PROMPT_VERSION:typeme-ai-prompt-v2}
+    # 连接超时 5s；单次总 deadline 90s（部署超时（网关/Nginx）必须一起校验）。
+    connect-timeout: ${TYPEME_AI_CONNECT_TIMEOUT:5s}
+    request-deadline: ${TYPEME_AI_REQUEST_DEADLINE:90s}
+    # 输出上限：800–1200 汉字正文 + JSON 包装（契约 03 §1）。
+    max-tokens: ${TYPEME_AI_MAX_TOKENS:2600}
+    # thinking 关闭时有效（契约 §0：本场景用普通生成，不要推理链）。
+    temperature: ${TYPEME_AI_TEMPERATURE:0.4}
+    # 每用户每日新建分析次数；失败后主动重试次数/小时。
+    daily-limit-per-user: ${TYPEME_AI_DAILY_LIMIT:2}
+    retry-limit-per-hour: ${TYPEME_AI_RETRY_LIMIT:3}
+    # 全局每日预算：调用数 + token 数（两者都校验）。
+    global-daily-token-budget: ${TYPEME_AI_GLOBAL_TOKEN_BUDGET:200000}
+    global-daily-call-budget: ${TYPEME_AI_GLOBAL_CALL_BUDGET:200}
+    # worker：并发由数据库 lease 控制；扫描间隔 2s；lease 时长必须 > deadline。
+    worker-concurrency: ${TYPEME_AI_WORKER_CONCURRENCY:2}
+    # 人类可读的扫描间隔（契约 03 §1 的键），供设置页/文档读取。
+    worker-poll-interval: ${TYPEME_AI_WORKER_POLL_INTERVAL:2s}
+    # @Scheduled(fixedDelayString) 只接受长整数，所以真正喂给注解的是这个毫秒值（同义冗余，两处都要改）。
+    worker-poll-interval-ms: ${TYPEME_AI_WORKER_POLL_INTERVAL_MS:2000}
+    lease-duration: ${TYPEME_AI_LEASE_DURATION:120s}
+    # 价格（JSON，可选）：未配置时**不估算费用**，只记 token 与实际调用数，绝不编造金额。
+    # 例：{"inputCacheHitMicrosPerToken":0,"inputCacheMissMicrosPerToken":0,
+    #      "outputMicrosPerToken":0,"updatedAt":"2026-09-16"}
+    usage-prices: ${TYPEME_AI_USAGE_PRICES:}
+    # 仅开发/测试：mock 适配器返回确定性结果并带 mock=true 标记，UI 必须显示"演示数据"。
+    mock-mode: ${TYPEME_AI_MOCK_MODE:false}
 
 logging:
   level:

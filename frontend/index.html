@@ -8,17 +8,24 @@
     />
     <meta name="theme-color" content="#F7F6F2" />
     <meta name="robots" content="index, follow" />
+    <!--
+      静态 description / title 是**首屏一瞬、分享预览与爬虫**看到的文案：
+      JS 起来之后会被路由的 document.title 覆盖，但那之前与抓取时用的就是这里。
+      所以它必须描述**当前主入口**（登录版十六型测评），不能留旧只读量表（IPIP-50 大五）的文案 ——
+      否则出现"标题说大五、点进去是十六型"这种与实际不符的表述。
+      措辞约束与页面一致：不出现准确率/概率/百分位/诊断类说法。
+    -->
     <meta
       name="description"
-      content="TypeMe · 大五人格倾向自测（IPIP-50，公有领域量表）—— 50 个简短问题，约 6 分钟，免费无需登录。答案与计分只在你自己的浏览器里完成。"
+      content="TypeMe · 十六型人格参考测评 —— 登录后作答 48 道日常情境题，得到一个四字母参考类型与中文详细解读，并保留还不确定的部分。结果仅供自我了解与参考，不是心理诊断，也不隶属任何商业人格测评机构。"
     />
     <meta name="referrer" content="no-referrer" />
-    <title>TypeMe · 大五人格倾向自测（IPIP-50）</title>
+    <title>TypeMe · 十六型人格参考测评</title>
   </head>
   <body>
     <div id="app"></div>
     <noscript
-      >这个测评需要 JavaScript 才能运行。所有计算都在你的浏览器里完成，没有服务器参与。</noscript
+      >这个测评需要 JavaScript 才能运行。作答会保存在你的账号里，供你在其它设备上继续，也可以随时导出或删除。</noscript
     >
     <script type="module" src="/src/main.ts"></script>
   </body>

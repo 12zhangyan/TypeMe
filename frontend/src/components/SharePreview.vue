@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import type { ReportViewModel } from '@/domain/report'
+import { useQuizStore } from '@/stores/quiz'
+import { legacyInstrumentTagline } from '@/utils/instrumentNaming'
 import {
   copyText,
   deliverShareImage,
@@ -39,10 +41,16 @@ const closeButton = ref<HTMLButtonElement | null>(null)
 const manualText = ref<HTMLTextAreaElement | null>(null)
 const manualValue = computed(() => props.report.share.text)
 
-/** 系统分享面板的标题：随报告模型是否产出类型码而变（不再一律写"四维"）。 */
-const sharePanelTitle = computed(() =>
-  props.report.hasTypeCode ? 'TypeMe 四维人格倾向自测' : 'TypeMe 大五人格倾向自测',
-)
+const quiz = useQuizStore()
+
+/**
+ * 系统分享面板的标题 —— 例如「TypeMe 大五人格倾向自测」。
+ *
+ * 这一层是**旧引擎**的分享浮层（只由 `ResultView` 使用），所以量表名取当前内容包，
+ * 与页面署名同源；不写死「四维 / 大五」（OEJTS 是四维类型量表，IPIP-50 是五维大五）。
+ * 新测的分享出口在 `ReportV3View`，用的是报告自己的 `share` 字段，不经过这里。
+ */
+const sharePanelTitle = computed(() => `TypeMe ${legacyInstrumentTagline(quiz.activePackage)}`)
 
 const shareSupported = computed(() => {
   if (typeof navigator === 'undefined') return false

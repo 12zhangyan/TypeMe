@@ -1,0 +1,45 @@
+# 生产 profile 示例：全部值都来自环境变量/密钥管理，本文件不含任何真实凭据。
+# 启动方式：TYPEME_DB_URL=... TYPEME_DB_USER=... TYPEME_DB_PASSWORD=... java -jar app.jar --spring.profiles.active=prod
+spring:
+  datasource:
+    url: ${TYPEME_DB_URL}
+    username: ${TYPEME_DB_USER}
+    password: ${TYPEME_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+server:
+  servlet:
+    session:
+      cookie:
+        # 生产必须走 https：Secure 打开后浏览器只在加密连接上回传会话 Cookie。
+        secure: true
+        same-site: Lax
+        http-only: true
+
+typeme:
+  auth:
+    # 与 server.servlet.session.cookie.secure 同义冗余（YAML 里无法跨前缀引用，两处都要改）。
+    cookie-secure: true
+    cookie-same-site: Lax
+    session-absolute-ttl: 7d
+    pbkdf2-iterations: ${TYPEME_PBKDF2_ITERATIONS:210000}
+  security:
+    # 只在确实有反向代理时填写代理地址，否则客户端可伪造 X-Forwarded-For 绕过 IP 限流。
+    trusted-proxies: ${TYPEME_TRUSTED_PROXIES:}
+    # 生产必须注入：缺失时后台"写入 apiKey"会返回 503，而不会用弱密钥加密。
+    # 轮换该值会让已存的 apiKey 无法解密（属预期：需要在后台重新填写 key）。
+    settings-secret: ${TYPEME_SETTINGS_SECRET:}
+  admin:
+    # 生产留空：管理员由已有 ADMIN 在后台维护，不做自动提权。
+    bootstrap-username: ""
+  ai:
+    enabled: ${TYPEME_AI_ENABLED:false}
+    base-url: ${TYPEME_AI_BASE_URL:}
+    api-key: ${TYPEME_AI_API_KEY:}
+    # 与 application.yml 的主默认值保持一致。必须显式写出来而不是省略：
+    # 若是省略这一行，prod 会继承 application.yml 的值（也是 deepseek-flash），
+    # 但保留一个"看起来像是另一套默认值"的行会误导运维以为生产默认不同。
+    # 曾误写为 deepseek-chat —— 那不是本项目已验证过的模型名，
+    # 一旦运维不注入 TYPEME_AI_MODEL，AI 分析会带着一个不存在的模型名发出去。
+    model: ${TYPEME_AI_MODEL:deepseek-flash}
+    mock-mode: ${TYPEME_AI_MOCK_MODE:false}
