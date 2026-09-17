@@ -1,0 +1,17 @@
+{
+  "base": "http://127.0.0.1:5175",
+  "passed": 155,
+  "failures": [],
+  "skips": [],
+  "notes": [
+    "后端 AI 能力：enabled=True mock=True model=deepseek-flash promptVersion=typeme-ai-prompt-v2",
+    "主测共点击作答 47 次（每题选第 1 档）；脚本自身撞到 409 冲突 0 次",
+    "报告 id 形如 60c0f824…（UUID，不含个人信息）",
+    "打开报告页期间的 AI 请求：2 个，全部是读接口=True",
+    "提交后 AI 相关请求 4 次（含创建与轮询）",
+    "首页动画元素 1 个（首屏内 1 个），最长动画 14.0s"
+  ],
+  "aiEnabled": true,
+  "aiMock": true,
+  "generatedAt": "2026-09-17T16:58:49"
+}

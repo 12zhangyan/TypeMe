@@ -72,6 +72,20 @@ export interface RegisterResult {
 export interface ExportResult {
   blob: Blob
   filename: string
+  /**
+   * 这次导出里**没拿到**的段落（服务端 `degradedSections`）。
+   *
+   * <p>非空意味着文件不是完整备份。页面必须如实说明，不能再说"都在里面"——
+   * 账号页同时写着"注销会删除你的全部测评记录与报告……导出是唯一能把它们带走的办法"，
+   * 说成完整备份会让用户丢掉实际没导出成功的部分。
+   */
+  degradedSections: ExportDegradedSection[]
+}
+
+/** 服务端声明的一个降级段落。`section` 与 `reason` 都是给人看的短标签。 */
+export interface ExportDegradedSection {
+  section: string
+  reason: string
 }
 
 export interface DeletionResult {
@@ -188,6 +202,8 @@ const FIELD_LABELS: Record<string, string> = {
   nickname: '昵称',
   recoveryCode: '恢复码',
   confirm: '确认词',
+  // 注册页的免责声明同意项（2026-09-17）。后端回的是字段名，标签在这里补。
+  disclaimerAccepted: '免责声明同意',
 }
 
 /**
@@ -277,6 +293,16 @@ export function isRevisionConflict(error: unknown): boolean {
 /** 需要重新登录吗。 */
 export function isSessionExpired(error: unknown): boolean {
   return isV3ApiError(error) && error.code === UNAUTHENTICATED_CODE
+}
+
+/**
+ * 是「已登录但没权限」吗（契约 §7.1 `FORBIDDEN`，服务端由 `AccessDeniedHandler` 给出）。
+ *
+ * 单独一个判定函数，是因为它和"没登录"必须分开处理：前者要告诉用户"你登着，但这件事
+ * 不归你"，后者要把人送回登录页。把它们混起来会让有权限的人在会话抖动时被当成越权。
+ */
+export function isForbidden(error: unknown): boolean {
+  return isV3ApiError(error) && error.code === 'FORBIDDEN'
 }
 
 /**
@@ -574,6 +600,41 @@ function readStringList(value: unknown): string[] {
   return value.filter((item): item is string => typeof item === 'string' && item.length > 0)
 }
 
+/**
+ * 读一组恢复码。
+ *
+ * <p>`required` 的区别不是风格问题，而是**后果**不同：
+ *
+ * <ul>
+ *   <li><b>注册时</b>（`required = false`）：注册已经成功、账号已经建好。
+ *       这时因为"响应里没有码"把整个注册判成失败，用户会以为账号没建成，
+ *       然后去重试注册 —— 而用户名已被占用。所以注册流程选择"照样进下一步，
+ *       另用一条醒目提示说明这次没拿到码"（见 `RegisterView` 的 `codesMissing`）。</li>
+ *   <li><b>重新生成时</b>（`required = true`）：服务端在返回 201 之前**已经</b>
+ *       `revokeAllUsable` 并把版本号推高 —— 旧码此刻**已经全部作废**。
+ *       如果这里把缺失的字段读成"正常的空数组"，页面既不报错也不显示空态
+ *       （密码框还会被清空），用户看不出发生过任何事，也就不会去抄新码 ——
+ *       等于**在无提示的情况下丢掉了全部恢复码**。所以这里必须判失败。</li>
+ * </ul>
+ */
+function readRecoveryCodes(value: unknown, required: boolean): string[] {
+  const codes = readStringList(value)
+  if (required && codes.length === 0) {
+    throw new V3ApiError(
+      {
+        code: UNEXPECTED_RESPONSE_CODE,
+        message:
+          '服务器没有返回新的恢复码。请注意：生成动作可能已经生效，旧的恢复码可能已经作废，'
+          + '请重新生成一次并当场抄下来。',
+        requestId: null,
+        details: {},
+      },
+      { status: 200 },
+    )
+  }
+  return codes
+}
+
 /* ── CSRF ───────────────────────────────────────────────────────────────── */
 
 /** 主动刷新一份 token（进入登录页、退出之后调用；头名由服务端给）。 */
@@ -600,8 +661,20 @@ export async function registerAccount(input: {
   username: string
   password: string
   nickname?: string | null
+  /**
+   * 是否已同意注册页的免责声明（2026-09-17）。
+   *
+   * 必填而不是可选：后端在 `typeme.auth.disclaimer-required`（默认 true）下会拒绝
+   * 缺省或 false 的请求。把它写成必填，编译期就能拦住"忘记传"的新调用点，
+   * 而不是等线上用户注册时撞 400。
+   */
+  disclaimerAccepted: boolean
 }): Promise<RegisterResult> {
-  const body: Record<string, unknown> = { username: input.username, password: input.password }
+  const body: Record<string, unknown> = {
+    username: input.username,
+    password: input.password,
+    disclaimerAccepted: input.disclaimerAccepted,
+  }
   const nickname = input.nickname?.trim()
   if (nickname) body.nickname = nickname
   const response = await request('POST', '/auth/register', { body })
@@ -610,7 +683,9 @@ export async function registerAccount(input: {
   return {
     // 注册响应本身就是一份完整资料（契约 §7.2），字段与 /me 同名
     profile: readProfile(raw),
-    recoveryCodes: readStringList(record.recoveryCodes),
+    // 这里刻意**不**判失败：账号已经建好了，因为"响应里没带码"就把注册报成失败，
+    // 会让用户以为没注册成、然后去重试一个已被占用的用户名。页面另有 codesMissing 处理。
+    recoveryCodes: readRecoveryCodes(record.recoveryCodes, false),
     recoveryCodePolicyVersion: readText(record.recoveryCodePolicyVersion),
   }
 }
@@ -657,11 +732,16 @@ export async function changePassword(input: {
   await ignoreBody(response)
 }
 
-/** 重新生成恢复码：旧码全部作废，新码**只返回这一次**（契约 §7.2）。 */
+/**
+ * 重新生成恢复码：旧码全部作废，新码**只返回这一次**（契约 §7.2）。
+ *
+ * <p>响应里没有码时**抛错**而不是安静地返回空数组 —— 理由见 {@link readRecoveryCodes}：
+ * 那一刻旧码已经作废，静默通过等于让用户在毫无察觉的情况下失去全部恢复码。
+ */
 export async function regenerateRecoveryCodes(currentPassword: string): Promise<string[]> {
   const response = await request('POST', '/me/recovery-codes', { body: { currentPassword } })
   const raw = await readJson<unknown>(response, '/me/recovery-codes')
-  return readStringList(isRecord(raw) ? raw.recoveryCodes : null)
+  return readRecoveryCodes(isRecord(raw) ? raw.recoveryCodes : null, true)
 }
 
 /**
@@ -684,7 +764,40 @@ export async function exportAccountData(): Promise<ExportResult> {
       filename = raw
     }
   }
-  return { blob: await response.blob(), filename }
+
+  // 读一次文本，既用于挑出降级段落，又用它重建 blob（避免读两遍响应体）。
+  const text = await response.text()
+  return {
+    blob: new Blob([text], { type: 'application/json' }),
+    filename,
+    degradedSections: readDegradedSections(text),
+  }
+}
+
+/**
+ * 从导出正文里读出"这次没导出成功"的段落。
+ *
+ * <p>正文不是合法 JSON、或字段缺失时返回空数组：导出文件的完整性不该由客户端的
+ * 解析能力来决定，解析失败时保持"不额外警告"这一原有行为。
+ *
+ * <p>导出它是为了让这条判定能被直接测到 —— 它是"要不要告诉用户备份不完整"的**唯一**决策点。
+ */
+export function readDegradedSections(text: string): ExportDegradedSection[] {
+  try {
+    const parsed: unknown = JSON.parse(text)
+    if (!isRecord(parsed)) return []
+    const raw = parsed.degradedSections
+    if (!Array.isArray(raw)) return []
+    return raw
+      .filter(isRecord)
+      .map((item) => ({
+        section: readText(item.section) ?? '',
+        reason: readText(item.reason) ?? '',
+      }))
+      .filter((item) => item.section !== '')
+  } catch {
+    return []
+  }
 }
 
 /** 注销账号（202：请求已受理，后台异步清理）。 */

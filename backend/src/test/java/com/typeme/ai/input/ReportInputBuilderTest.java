@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -293,13 +294,31 @@ class ReportInputBuilderTest {
     }
 
     private ReportInputBuilder builder(String reportJson) {
+        return builder(reportJson, null, null);
+    }
+
+    /**
+     * 证据选取要真实的每个维度多道题才跑得起来，所以内容包与作答可替换。
+     *
+     * <p>{@code contentJson} / {@code answers} 传 {@code null} 表示用上面那份默认小夹具 ——
+     * <b>不能</b>在便捷重载里把默认值写死，否则调用方传了自定义夹具也会被默认值盖掉
+     * （写这组测试时就先踩了这个坑：证据池始终只有默认夹具的 2 条）。
+     */
+    private ReportInputBuilder builder(String reportJson, String contentJson, Map<String, Answer> answers) {
         AiReportSnapshot snapshot = new AiReportSnapshot(
                 REPORT_ID, USER_ID, null, null, REPORT_HASH,
                 "a1111111-1111-1111-1111-111111111111", null, "typeme-jung48-zh-v1",
-                contentJson(), answers(), reportJson);
+                contentJson == null ? contentJson() : contentJson,
+                answers == null ? answers() : answers,
+                reportJson);
         ReportSnapshotReader reader = reportId -> REPORT_ID.equals(reportId)
                 ? Optional.of(snapshot) : Optional.empty();
         return new ReportInputBuilder(reader, mapper);
+    }
+
+    private AiReportInput build(String reportJson, String contentJson, Map<String, Answer> answers) {
+        return builder(reportJson, contentJson, answers)
+                .build(REPORT_ID, USER_ID, AiTopic.OVERALL, "", PROMPT_V2, MODEL);
     }
 
     private JsonNode payload(AiReportInput input) {
@@ -354,6 +373,84 @@ class ReportInputBuilderTest {
                 """;
     }
 
+    /**
+     * 证据选取专用夹具：EI 是边界维度且有 12 道题（含 <b>三题中间档</b>），另外三维各一题。
+     *
+     * <p>为什么需要它：上面那份小夹具每个维度只有一道题，"挑哪几条证据"根本跑不起来 ——
+     * 这正是证据选取长期没有直接测试可依的原因。
+     */
+    private static String evidenceReportJson() {
+        return """
+                {"schemaVersion":1,"status":"TENTATIVE","computedTypeCode":"ENFP",
+                 "dimensions":[
+                   {"dimension":"EI","computedPole":"E","mFinal":0.08,"boundary":true,"nFinal":16},
+                   {"dimension":"SN","computedPole":"N","mFinal":0.58,"boundary":false,"nFinal":12},
+                   {"dimension":"TF","computedPole":"F","mFinal":0.42,"boundary":false,"nFinal":12},
+                   {"dimension":"JP","computedPole":"P","mFinal":0.33,"boundary":false,"nFinal":12}],
+                 "candidates":[{"typeCode":"ENFP","cost":0}],
+                 "tieNotice":null}
+                """;
+    }
+
+    /**
+     * 与 {@link #evidenceReportJson()} 配套：前 12 题属于 EI，最后三题各属一维。
+     *
+     * <p>每题都必须带 {@code dimension}：{@code ReportInputBuilder.contribution} 在缺该字段时
+     * 会**静默返回 0**，于是 rating=5 也会被写成"选了中间（两边差不多）"。
+     * 写这份夹具时正是漏了这个字段，导致中间档断言一度看起来"产品已经做对了"。
+     */
+    private static String evidenceContentJson() {
+        StringBuilder json = new StringBuilder("""
+                {"schemaVersion":3,"packageId":"typeme-jung48-zh-v1","questions":[
+                """);
+        for (int index = 1; index <= 12; index++) {
+            json.append("""
+                      {"id":"EI-%02d","dimension":"EI","scenario":"精力来源%d","leftPole":"I","rightPole":"E","order":%d},
+                    """.formatted(index, index, index));
+        }
+        json.append("""
+                  {"id":"SN-01","dimension":"SN","scenario":"看说明书","leftPole":"S","rightPole":"N","order":13},
+                  {"id":"TF-01","dimension":"TF","scenario":"做决定","leftPole":"T","rightPole":"F","order":14},
+                  {"id":"JP-01","dimension":"JP","scenario":"安排行程","leftPole":"J","rightPole":"P","order":15}
+                ]}
+                """);
+        return json.toString();
+    }
+
+    /**
+     * 作答：EI-01 很靠 E（|c|=2，最硬的同向）、EI-02 比较靠 E、EI-11 比较靠 I（最硬的反向）。
+     *
+     * <p>中间档刻意放在 {@code 3..10} 这个循环<b>之外</b>（EI-12）与循环之内另行覆盖的两题：
+     * 早期版本把中间档写进循环范围，被随后的 {@code put} 覆盖掉，导致"中间档只有一条"的假象 ——
+     * 夹具本身出错会让"产品缺不缺这条"根本测不准。
+     */
+    private static Map<String, Answer> evidenceAnswers() {
+        Map<String, Answer> answers = new LinkedHashMap<>();
+        for (int index = 3; index <= 10; index++) {
+            answers.put("EI-%02d".formatted(index), new Answer("EI-%02d".formatted(index), "RATING", 4));
+        }
+        answers.put("EI-01", new Answer("EI-01", "RATING", 5));
+        answers.put("EI-02", new Answer("EI-02", "RATING", 4));
+        answers.put("EI-05", new Answer("EI-05", "RATING", 3));
+        answers.put("EI-06", new Answer("EI-06", "RATING", 3));
+        answers.put("EI-11", new Answer("EI-11", "RATING", 2));
+        answers.put("EI-12", new Answer("EI-12", "RATING", 3));
+        answers.put("SN-01", new Answer("SN-01", "RATING", 4));
+        answers.put("TF-01", new Answer("TF-01", "RATING", 2));
+        answers.put("JP-01", new Answer("JP-01", "RATING", 4));
+        return answers;
+    }
+
+    private static List<String> ids(List<AiReportInput.Evidence> evidence) {
+        return evidence.stream().map(AiReportInput.Evidence::id).toList();
+    }
+
+    private static List<String> fieldNames(JsonNode node) {
+        List<String> names = new ArrayList<>();
+        node.fieldNames().forEachRemaining(names::add);
+        return names;
+    }
+
     /** 一份够用的过程层夹具：字段名与 JungReportBuilder 的输出一致。 */
     private static final String PROCESS_LAYER_JSON = """
             "dynamics":{"version":"typeme-jung48-dynamics-v1","typeCode":"ENFP",
@@ -386,6 +483,134 @@ class ReportInputBuilderTest {
               "communicationRules":[{"axis":"EI","title":"关于精力的给与取"}],
               "notes":{"developmentNote":"……","greyAreaNote":"……"}},
             """;
+
+    /* ── 2. 证据选取：边界维度必须带上"自己说两边差不多"的那一题 ────────── */
+
+    /**
+     * 提示词第 3 条要求：倾向较轻的维度要给出"另一侧也值得一起看"的**具体**读法。
+     * 这句话最硬的依据就是当事人自己选了中间档的那一题；证据里没有它，模型只能空口安慰。
+     *
+     * <p>这道题同时锁住"不许挤掉同向/反向证据"：EI 是边界维度，两条既有证据都必须还在。
+     */
+    @Test
+    @DisplayName("边界维度的证据必须包含至少一条『两边差不多』的作答")
+    void boundaryDimensionCarriesNeutralEvidence() {
+        JsonNode payload = payload(build(evidenceReportJson(), evidenceContentJson(), evidenceAnswers()));
+
+        List<String> ids = new ArrayList<>();
+        List<String> texts = new ArrayList<>();
+        for (JsonNode item : payload.path("evidence")) {
+            ids.add(item.path("id").asText());
+            texts.add(item.path("text").asText());
+        }
+
+        assertTrue(texts.stream().anyMatch(text -> text.contains("两边差不多")),
+                "至少要有一条片段如实写出『选择了中间（两边差不多）』；实际片段：" + texts);
+        assertTrue(ids.containsAll(List.of("EI:item:EI-01", "EI:item:EI-11")),
+                "同向与反向证据都必须在，不能被中间档挤掉；实际：" + ids);
+    }
+
+    /**
+     * 单题贡献必须真的按"用户选在哪一侧、第几档"算出来。
+     *
+     * <p>这条盯的是一个真实踩过的缺陷：{@code packageQuestions} 重建题目节点时**刻意不带**
+     * {@code dimension}（每维度已分组），而 {@code contribution} 当时从节点里读该字段，
+     * 读到 null 就静默返回 0 —— 于是**每道题都被算成"中间档"**，
+     * "最硬的同向/反向证据"永远挑不出来，证据退化成按 order 的前几条。
+     * 而且它一声不响：日志不报、测试不红，只有把片段文本打出来才看得见。
+     *
+     * <p>所以这里断言的是**用户可见的片段文本**，不是内部字段：
+     * 很靠右第 2 档必须写成"选了很靠右侧第 2 档"，而不是"选了中间（两边差不多）"。
+     */
+    @Test
+    @DisplayName("单题贡献不许因为缺字段而静默归零（位置文案必须真的分左右）")
+    void contributionIsNotSilentlyZero() {
+        List<String> texts = build(evidenceReportJson(), evidenceContentJson(), evidenceAnswers())
+                .evidence().stream().map(AiReportInput.Evidence::text).toList();
+
+        assertTrue(texts.stream().anyMatch(text -> text.contains("很靠右侧第 2 档")),
+                "EI-01 选的是最靠右一档，片段必须如实写出；实际：" + texts);
+        assertTrue(texts.stream().anyMatch(text -> text.contains("比较靠左侧第 1 档")),
+                "反向证据 EI-11 也必须写出它偏的是左侧；实际：" + texts);
+    }
+
+    /** 边界维度同时存在"真的中立"与"反向"时，两者都要在：后者是反证，前者是"另一侧值得看"的依据。 */
+    @Test
+    @DisplayName("『两边差不多』是补充而不是替换反向证据")
+    void neutralEvidenceDoesNotReplaceOppositeEvidence() {
+        List<AiReportInput.Evidence> evidence =
+                build(evidenceReportJson(), evidenceContentJson(), evidenceAnswers()).evidence();
+
+        assertTrue(evidence.stream().anyMatch(item -> "EI-11".equals(item.questionId())),
+                "反向证据（用户选了对侧）不能被中间档顶掉；实际：" + ids(evidence));
+        // 题目列表里 EI-05 / EI-06 / EI-12 都是中间档（c == 0），补哪一条都合格 ——
+        // 所以这里断言"性质"（存在一条贡献为 0 的作答），而不是写死某一道题号。
+        assertTrue(evidence.stream().anyMatch(item -> item.contribution() != null && item.contribution() == 0),
+                "必须补进一条『两边差不多』（贡献为 0）的作答；实际：" + ids(evidence));
+    }
+
+    /**
+     * 不设边界的维度**不**加中间档：那会挤掉真正有信息量的同向/反向证据。
+     *
+     * <p>只把这份报告里 EI 的 {@code boundary} 改成 false，其余不变 —— 验证的是"只对边界维度生效"
+     * 这条业务边界，不是某个实现的内部写法。
+     */
+    @Test
+    @DisplayName("非边界维度不额外补中间档（避免挤掉更有信息量的证据）")
+    void nonBoundaryDimensionDoesNotAddNeutralEvidence() {
+        String nonBoundary = evidenceReportJson().replace(
+                "\"dimension\":\"EI\",\"computedPole\":\"E\",\"mFinal\":0.08,\"boundary\":true",
+                "\"dimension\":\"EI\",\"computedPole\":\"E\",\"mFinal\":0.08,\"boundary\":false");
+
+        List<AiReportInput.Evidence> evidence =
+                build(nonBoundary, evidenceContentJson(), evidenceAnswers()).evidence();
+
+        assertFalse(evidence.stream().anyMatch(item -> "EI-12".equals(item.questionId())),
+                "EI 不是边界维度时不应刻意补中间档；实际：" + ids(evidence));
+    }
+
+    /* ── 3. 负载形状：tieNotice 的键必须还在 ───────────────────────────── */
+
+    /**
+     * 端到端负载断言：真正发给模型的那份 JSON 里，"证据"必须是**用户真实选的位置**。
+     *
+     * <p>前面几条测的是 {@code input.evidence()} 这个中间对象；这条直接把
+     * {@code input.payload()}（会被序列化成 user message 的东西）摊开看，
+     * 因为"证据文本写错了"这件事只有在最终负载上才算真的错。
+     * 它也是这个缺陷当初能长期绿着的原因：既有测试对 payload 里的 evidence
+     * 只断言过"不含完整题干"，从没断言过位置是否正确。
+     */
+    @Test
+    @DisplayName("发出去的 payload 里，证据写的是真实档位而不是统一的『中间档』")
+    void payloadEvidenceCarriesRealPositions() {
+        JsonNode payload = payload(build(evidenceReportJson(), evidenceContentJson(), evidenceAnswers()));
+
+        List<String> texts = new ArrayList<>();
+        for (JsonNode item : payload.path("evidence")) {
+            texts.add(item.path("text").asText());
+        }
+        assertFalse(texts.isEmpty(), "payload 里必须有证据片段");
+
+        assertTrue(texts.stream().anyMatch(text -> text.contains("很靠右侧第 2 档")),
+                "rating=5 的作答在 payload 里必须写成『很靠右侧第 2 档』；实际：" + texts);
+        assertTrue(texts.stream().anyMatch(text -> text.contains("比较靠左侧第 1 档")),
+                "反向作答必须写成『比较靠左侧第 1 档』；实际：" + texts);
+    }
+
+    /**
+     * 提示词把 {@code report.tieNotice} 写成常驻字段。若序列化时把 null 键整个吞掉，
+     * 模型就分不清"本次没有并列"与"服务端没给说明"，只能靠猜。
+     */
+    @Test
+    @DisplayName("没有并列说明时 tieNotice 仍以 null 出现（提示词把它写成常驻字段）")
+    void tieNoticeKeySurvivesAsNull() {
+        JsonNode report = payload(build(reportJson(true), "", PROMPT_V2, AiTopic.OVERALL)).path("report");
+
+        assertTrue(report.has("tieNotice"), "键必须在；实际 report 的键：" + fieldNames(report));
+        assertTrue(report.path("tieNotice").isNull(), "本次没有并列说明，值应为 null");
+    }
+
+    /* ── 4. 夹具自身的体检 ─────────────────────────────────────────────── */
 
     @Test
     @DisplayName("夹具自身可选：确认没有误用形状（防止上面的断言被夹具蒙混过关）")

@@ -1,0 +1,14 @@
+{
+  "base": "http://127.0.0.1:5174",
+  "aiEnabled": true,
+  "aiMock": false,
+  "passed": 30,
+  "failed": [],
+  "skipped": [],
+  "notes": [
+    "GET /ai/status → enabled=True mock=False",
+    "注意：这次 backend 不是 mock 模式，脚本会真的调用外部模型服务。",
+    "等待 AI 结果 15s",
+    "生成后额度文案：'今天还可以生成 1 次。'"
+  ]
+}

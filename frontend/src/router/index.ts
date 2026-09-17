@@ -9,6 +9,8 @@ import RecoverView from '@/views/RecoverView.vue'
 import AccountView from '@/views/AccountView.vue'
 import AssessView from '@/views/AssessView.vue'
 import ReportV3View from '@/views/ReportV3View.vue'
+import CompareView from '@/views/CompareView.vue'
+import AdminView from '@/views/AdminView.vue'
 import { useAuthStore } from '@/stores/auth'
 
 /**
@@ -64,6 +66,15 @@ export const router = createRouter({
       component: AccountView,
       meta: { title: '账号与数据 · TypeMe', requiresAuth: true },
     },
+    // 管理后台。**不在导航里露出**：这一页是否可用由服务端判定（非管理员得到
+    // 403 → 页面显示"你没有权限"），所以隐藏入口不是为了"安全靠隐蔽"，
+    // 而是不让每个普通用户在顶栏看到一个点进去必然没用的链接。
+    {
+      path: '/admin',
+      name: 'admin',
+      component: AdminView,
+      meta: { title: '管理后台 · TypeMe', requiresAuth: true },
+    },
 
     // ── 新测（契约 03 §7.2）───────────────────────────────────────────────
     // 需要登录：答案与报告都放在服务端，这样"换设备继续"与"回看历史报告"
@@ -85,6 +96,16 @@ export const router = createRouter({
       name: 'reports',
       component: ReportV3View,
       meta: { title: '历史报告 · TypeMe', requiresAuth: true },
+    },
+    // ⚠️ `/reports/compare` **必须**排在 `/reports/:reportId` 前面。
+    // vue-router 按声明顺序匹配，反过来的话 `/reports/compare` 会先命中详情路由，
+    // 于是把它当成一份 id 为 "compare" 的报告去请求（结果是一个"报告打不开"的 404 页面）。
+    // 服务端那边靠 Spring 的"字面量优先于模板变量"消歧，不依赖顺序 —— 两边机制不同。
+    {
+      path: '/reports/compare',
+      name: 'report-compare',
+      component: CompareView,
+      meta: { title: '复测比较 · TypeMe', requiresAuth: true },
     },
     {
       path: '/reports/:reportId',

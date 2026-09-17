@@ -79,6 +79,13 @@ typeme:
     # 生产按服务器成本核验后调整（开发方案 §5）。测试 profile 会覆盖成小值。
     pbkdf2-iterations: 210000
 
+    # 注册是否必须勾选「测评定位与数据处理说明」（2026-09-17 新增，见 RegisterRequest 注释）。
+    # 默认 true：账号一建立就开始把作答内容存到服务器，这件事必须先被告知并同意；
+    # 缺省即拒绝，并且回 VALIDATION_FAILED + disclaimerAccepted 字段，前端会渲染成中文标签。
+    # 设为 false 只用于灰度放量（旧客户端请求体没有该字段时不会突然 400）：
+    # 服务端只是不拦，前端仍然显示勾选项 —— 关闭开关**不会**假装用户同意过。
+    disclaimer-required: true
+
   # 限流（契约 §5.4）：固定窗口计数，登录同时按 ip 与 user 两个 key 计数。
   ratelimit:
     enabled: true

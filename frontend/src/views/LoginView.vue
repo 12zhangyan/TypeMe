@@ -4,6 +4,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { refreshCsrfToken } from '@/api/v3'
 import PageContainer from '@/components/PageContainer.vue'
+import AppIcon from '@/components/AppIcon.vue'
 
 /**
  * 登录 —— 契约 `03-AI与前端契约-v1.md` §7.2（`/login` 公开；已登录访问则跳回 redirect）。
@@ -66,7 +67,7 @@ async function onSubmit() {
       <h1 class="mt-2 font-display text-[26px] font-bold leading-tight text-ink tablet:text-[32px]">
         登录
       </h1>
-      <p class="mt-3 prose-cn">
+      <p class="mt-3 prose-cn max-w-prose">
         登录后才能把测评记录和报告放在服务器上，换设备也能接着看。答案与报告只属于你自己。
       </p>
     </header>
@@ -74,14 +75,15 @@ async function onSubmit() {
     <!-- 会话检查没成功（网络/服务端问题）时的低调提示：这**不是**登录失败 -->
     <p
       v-if="auth.sessionNotice"
-      class="notice-neutral mt-5 text-[13.5px] leading-relaxed"
+      class="notice-neutral mt-5 max-w-prose text-[14px] leading-relaxed"
       role="status"
       aria-live="polite"
     >
       {{ auth.sessionNotice }}
     </p>
 
-    <form class="mt-6 max-w-[30rem]" novalidate @submit.prevent="onSubmit">
+    <!-- 表单是这一页唯一的焦点元素，所以收进一张卡片，和页头的说明拉开层次 -->
+    <form class="card mt-6 max-w-[30rem]" novalidate @submit.prevent="onSubmit">
       <div>
         <label :for="usernameId" class="block text-[14.5px] font-medium text-ink">用户名</label>
         <input
@@ -116,7 +118,10 @@ async function onSubmit() {
         aria-live="assertive"
         data-login-error
       >
-        <p class="text-[14.5px] font-medium leading-relaxed">{{ error.message }}</p>
+        <p class="flex items-start gap-2 text-[14.5px] font-medium leading-relaxed">
+          <AppIcon name="alert" :size="17" class="mt-0.5" />
+          <span>{{ error.message }}</span>
+        </p>
         <ul v-if="error.fields.length" class="mt-2 space-y-1 text-[13.5px] leading-relaxed">
           <li v-for="field in error.fields" :key="field.field">
             {{ field.label }}：{{ field.message }}
@@ -148,7 +153,7 @@ async function onSubmit() {
       </button>
     </form>
 
-    <p class="mt-5 text-[14px] leading-relaxed text-ink-soft">
+    <p class="mt-5 prose-sm">
       还没有账号？
       <RouterLink to="/register" class="link">注册一个</RouterLink>
       。忘记了密码？
@@ -156,8 +161,11 @@ async function onSubmit() {
       。
     </p>
 
-    <p class="mt-6 fineprint max-w-[34rem]">
-      登录状态保存在服务器的 HttpOnly cookie 里，这个网站不会把任何登录凭据写进浏览器的本地存储。
+    <p class="mt-6 flex max-w-prose items-start gap-2 fineprint">
+      <AppIcon name="lock" :size="16" class="mt-0.5" />
+      <span>
+        登录状态保存在服务器的 HttpOnly cookie 里，这个网站不会把任何登录凭据写进浏览器的本地存储。
+      </span>
     </p>
   </PageContainer>
 </template>

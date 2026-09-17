@@ -93,6 +93,32 @@ class AssessmentCreationThroughRealSessionIT extends AccountIntegrationTestBase 
         assertThat(items.get(0).path("attemptId").asText())
                 .isEqualTo(created.path("attemptId").asText());
 
+        // 2026-09-17 新增的第三条接缝：**答题页真正要用的那个请求**。
+        // 建测评成功不等于能答题 —— 前端首页按钮跳进 /assess 之后发的是
+        // GET /attempts/{id}，它走 requireRow()（JdbcTemplate.queryForList →
+        // ColumnMapRowMapper），时间列在 H2 上是 java.sql.Timestamp。
+        // 当时那句直接强转在 MySQL 上通过、在 H2 上 500，而本类此前只建了测评就结束，
+        // 所以"注册成功 → 一进答题页就报「这份测评没能载入」"漏到了真实浏览器里。
+        var detail = mockMvc.perform(get("/api/v3/attempts/" + created.path("attemptId").asText())
+                        .session(account.session()))
+                .andReturn();
+        assertThat(detail.getResponse().getStatus())
+                .as("答题页必需的详情请求应返回 200，实际 %d，响应体：%s",
+                        detail.getResponse().getStatus(), detail.getResponse().getContentAsString())
+                .isEqualTo(200);
+        JsonNode detailBody = body(detail);
+        assertThat(detailBody.path("attemptId").asText()).isEqualTo(created.path("attemptId").asText());
+        assertThat(detailBody.path("startedAt").asText())
+                .as("时间字段必须是可序列化的 ISO-8601 字符串 —— 取回 Timestamp 时这里会变成空")
+                .startsWith("20");
+        assertThat(detailBody.path("updatedAt").asText()).startsWith("20");
+        assertThat(detailBody.path("packageContent").path("questions").isArray())
+                .as("详情必须带上题目快照（packageContent.questions），否则答题页无题可答")
+                .isTrue();
+        assertThat(detailBody.path("packageContent").path("questions").size())
+                .as("主测 48 题 + 最多 16 道补充题都应随详情下发")
+                .isGreaterThanOrEqualTo(48);
+
         // 换个用户不该看到别人的测评（owner 过滤真的按 id 生效）。
         RegisteredAccount other = register(uniqueUsername("seam_other"), "Seam-Other!2026");
         assertThat(other.status()).isEqualTo(201);

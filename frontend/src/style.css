@@ -3,21 +3,29 @@
 @tailwind utilities;
 
 /*
- * 全局基底 —— `docs/2026-09-15/...重构开发文档.md` §4.2 / §4.4
+ * 全局基底 —— TypeMe 视觉系统 v2（2026-09-18 视觉重构轮）
+ *
+ * 这一版新增的东西都围绕两件事：
+ *   ① 浅色阅读表面上的**层级**（标题力量、正文舒展、卡片不再一律同形）；
+ *   ② 首页主视觉与 AI 洞察区的**深海军蓝 + 光晕 + 轨迹**识别度。
  *
  * 刻意不做的事：
  *   - 不用 `overscroll-behavior: none` / `height: 100%` 锁死滚动：首页与结果页
  *     按正常文档流滚动，200% 缩放后内容仍可到达；
- *   - 不引入远程中文字体（会阻塞首屏），只用设备可用字体栈。
+ *   - 不引入远程中文字体（会阻塞首屏），只用设备可用字体栈；
+ *   - 不做持续的背景粒子/满屏霓虹：动效只用在状态表达与极缓慢的光晕漂移上，
+ *     `prefers-reduced-motion` 下全部停掉。
  */
 
 @layer base {
   :root {
-    /* 兼容动态视口单位：不支持的浏览器回落到 100vh（§4.4） */
+    /* 兼容动态视口单位：不支持的浏览器回落到 100vh */
     --app-vh: 100vh;
     /* 底部固定操作条的安全区留白（iPhone home indicator 等） */
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --action-bar-h: 76px;
+    /* 粘性顶栏高度：锚点跳转时要留出的偏移，避免标题被顶栏盖住 */
+    --header-h: 60px;
     color-scheme: light;
   }
 
@@ -33,6 +41,12 @@
     scroll-behavior: smooth;
   }
 
+  @media (min-width: 768px) {
+    :root {
+      --header-h: 64px;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
@@ -42,7 +56,7 @@
   body {
     @apply bg-paper text-ink antialiased;
     font-family: theme('fontFamily.sans');
-    /* 中文正文：手机 16px / 1.65，PC 16–17px / 1.7（§4.2） */
+    /* 中文正文：手机 16px / 1.65，PC 16–17px / 1.7 */
     font-size: 16px;
     line-height: 1.65;
   }
@@ -54,14 +68,19 @@
     }
   }
 
-  /* 老页面的深色浮层用 ink/70；这里保持墨蓝而非纯黑 */
   ::selection {
     @apply bg-primary-100 text-ink;
   }
 
-  /* 键盘用户：焦点环必须看得见（普通文字 4.5:1、控件边界 3:1 目标，见 §4.2） */
+  /* 键盘用户：焦点环必须看得见 */
   :focus-visible {
     @apply outline-none ring-2 ring-primary-600 ring-offset-2 ring-offset-paper;
+  }
+
+  /* 深色区域里的焦点环：浅色底会让 ring-offset 变成一块白斑 */
+  .deep-panel :focus-visible,
+  .on-deep :focus-visible {
+    @apply ring-glow-soft ring-offset-2 ring-offset-navy-800;
   }
 
   /* 跳到主内容（键盘/读屏用户第一个可聚焦元素） */
@@ -84,29 +103,42 @@
     text-wrap: pretty;
   }
 
-  h1,
-  h2,
-  h3 {
-    text-wrap: pretty;
+  /*
+   * 锚点跳转的落点补偿。报告页顶部是粘性导航，没有这段偏移时
+   * "结果概览 → 四个维度" 的锚点会把标题顶到导航底下（点完看起来没反应）。
+   */
+  :target,
+  [id][data-anchor] {
+    scroll-margin-top: calc(var(--header-h) + 16px);
+  }
+
+  /* 表单控件在深色区域里不能沿用白底默认样式 */
+  .deep-panel input,
+  .deep-panel textarea,
+  .deep-panel select {
+    color-scheme: dark;
   }
 }
 
 @layer components {
-  /* ── 按钮 ──────────────────────────────────────────────────────────────
-   * 主按钮：实心墨蓝、白字、12px 圆角；手机高 52px、PC 高 48px（§4.2）
-   * 触控目标最小 44×44（§4.4）
+  /* ══ 按钮 ═════════════════════════════════════════════════════════════
+   * 主按钮：实心蓝青、白字；手机高 52px、PC 高 48px。触控目标最小 44×44。
+   * v2 的变化：主按钮带一点同色投影（`.shadow-action`），让它真的像"主"按钮；
+   * 次按钮去掉白底改描边，和主按钮的层次拉开。
    */
   .btn,
   .btn-primary,
   .btn-secondary,
   .btn-ghost,
-  .btn-danger {
-    @apply inline-flex items-center justify-center gap-2 rounded-control px-5 text-[15px] font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed;
+  .btn-danger,
+  .btn-glow,
+  .btn-on-deep {
+    @apply inline-flex items-center justify-center gap-2 rounded-control px-5 text-[15px] font-semibold transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper disabled:cursor-not-allowed;
     min-height: 48px;
   }
 
   .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 disabled:bg-ink-faint/50 disabled:text-white;
+    @apply bg-primary-600 text-white shadow-action hover:bg-primary-700 active:bg-primary-800 disabled:bg-ink-faint/45 disabled:text-white disabled:shadow-none;
     min-height: 52px;
   }
 
@@ -117,7 +149,7 @@
   }
 
   .btn-secondary {
-    @apply border border-line bg-surface text-ink hover:border-primary-400 hover:text-primary-700 active:bg-paper-soft disabled:border-line-soft disabled:text-ink-faint disabled:hover:border-line-soft;
+    @apply border border-line-strong bg-surface text-ink hover:border-primary-400 hover:text-primary-700 active:bg-paper-soft disabled:border-line-soft disabled:text-ink-faint disabled:hover:border-line-soft disabled:hover:text-ink-faint;
   }
 
   .btn-ghost {
@@ -125,7 +157,21 @@
   }
 
   .btn-danger {
-    @apply bg-accent-700 text-white hover:bg-accent-600;
+    @apply bg-danger-700 text-white hover:bg-danger-600;
+  }
+
+  /* 深色区域（首页主视觉 / AI 洞察）里的次级按钮：
+     直接用 `.btn-secondary` 会在深底上变成一块刺眼的白。 */
+  .btn-on-deep {
+    @apply border border-white/25 bg-white/5 px-5 font-medium text-white hover:border-glow/60 hover:bg-white/10 hover:text-white;
+  }
+
+  /* 深色区域里的**主**按钮（目前只有「生成一段 AI 分析」）。
+     深蓝底上用蓝青实心按钮几乎没有轮廓，所以这里反过来：亮青底 + 深墨字。
+     这是整块 AI 区域里唯一的高饱和元素，视觉上只指向"唯一的下一步"。
+     禁用态用中性深灰，避免"看起来还能点"。 */
+  .btn-glow {
+    @apply bg-glow text-navy-900 hover:bg-glow-soft active:bg-glow-deep disabled:bg-ink-faint/50 disabled:text-white/70;
   }
 
   .btn-block {
@@ -138,16 +184,17 @@
     min-height: 44px;
   }
 
-  /* ── 表面 ──────────────────────────────────────────────────────────────
-   * §4.6：内容章节以「标题 + 细分割线 + 短列表」为主，
-   * 只在摘要 / 行动建议 / 来源提示处使用卡片，不连续堆叠同形矩形。
+  /* ══ 表面 ═════════════════════════════════════════════════════════════
+   * 内容章节以「标题 + 细分割线 + 短列表」为主，只在摘要 / 行动建议 /
+   * 状态提示处使用卡片，不连续堆叠同形矩形（v2 保持这条纪律，
+   * 但把卡片换成更轻的描边 + 极浅投影，让长报告读起来不闷）。
    */
   .card {
-    @apply rounded-question border border-line bg-surface px-5 py-5;
+    @apply rounded-question border border-line bg-surface px-5 py-5 shadow-card;
   }
 
   .card-tight {
-    @apply rounded-control border border-line bg-surface px-4 py-4;
+    @apply rounded-card border border-line bg-surface px-4 py-4 shadow-card;
   }
 
   /* 只靠一条细分割线分节，不套卡片 */
@@ -156,22 +203,95 @@
   }
 
   .section-title {
-    @apply text-[17px] font-semibold leading-snug text-ink md:text-[19px];
+    @apply text-[17px] font-semibold leading-snug text-ink md:text-[20px];
   }
 
   .section-kicker {
     @apply text-[13px] font-medium tracking-wide text-accent-500;
   }
 
-  /* ── 排版 ──────────────────────────────────────────────────────────────
-   * 正文 16px / 1.65（手机）、16.5px / 1.7（PC）；辅助说明 14px，署名最低 12px
+  /* 报告里每个章节前面的小标号（01 / 02 …）：给长文一个可数的结构 */
+  .section-index {
+    @apply font-display text-[13px] font-bold tabular-nums text-primary-600;
+  }
+
+  /* ══ 深色面板（首页主视觉 / AI 洞察区） ═══════════════════════════════
+   * 这是 v2 辨识度的主要来源，规则只有三条：
+   *   1. 底色是藏青渐变，不是纯黑（纯黑会让中文白字发灰）；
+   *   2. 光晕只做 2 层、透明度低、极缓慢漂移，不做霓虹描边；
+   *   3. 里面的文字对比度由 contrast.spec.ts 的深色组守住。
+   */
+  .deep-panel {
+    @apply relative isolate overflow-hidden bg-navy-800 text-navy-50;
+    background-image:
+      radial-gradient(120% 90% at 12% 0%, rgba(90, 215, 232, 0.16) 0%, rgba(90, 215, 232, 0) 58%),
+      radial-gradient(90% 80% at 100% 100%, rgba(43, 179, 201, 0.14) 0%, rgba(43, 179, 201, 0) 60%),
+      linear-gradient(160deg, #0b1a28 0%, #0e1f30 48%, #081320 100%);
+  }
+
+  /* 极细的坐标网格：给深色区域一点"结构感"，几乎看不见但能消除空旷 */
+  .deep-grid::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 -z-10 opacity-[0.35];
+    background-image:
+      linear-gradient(to right, rgba(182, 211, 230, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(182, 211, 230, 0.08) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: radial-gradient(110% 80% at 50% 0%, #000 15%, transparent 78%);
+    -webkit-mask-image: radial-gradient(110% 80% at 50% 0%, #000 15%, transparent 78%);
+  }
+
+  /* 深色区域里的分割线 / 卡片 */
+  .deep-hairline {
+    @apply border-white/10;
+  }
+
+  .deep-card {
+    @apply rounded-card border border-white/10 bg-white/[0.04] px-4 py-4 backdrop-blur-[2px];
+  }
+
+  /* ══ 小标签 ══════════════════════════════════════════════════════════
+   * 状态与属性用 chip 表达，不再靠"加粗一行字"。
+   * 每个 chip 都同时带底色 + 文字色，不依赖颜色单一维度（还有文字本身）。
+   */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-pill px-2.5 py-1 text-[12.5px] font-medium leading-none;
+  }
+
+  .chip-primary {
+    @apply bg-primary-50 text-primary-800;
+  }
+
+  .chip-accent {
+    @apply bg-accent-100 text-accent-700;
+  }
+
+  .chip-neutral {
+    @apply bg-paper-soft text-ink-soft;
+  }
+
+  .chip-success {
+    @apply bg-success-100 text-success-700;
+  }
+
+  .chip-danger {
+    @apply bg-danger-100 text-danger-700;
+  }
+
+  .chip-on-deep {
+    @apply border border-white/15 bg-white/[0.06] text-navy-50;
+  }
+
+  /* ══ 排版 ═════════════════════════════════════════════════════════════
+   * 正文 16px / 1.65（手机）、16.5px / 1.7（PC）；辅助说明 14px，
+   * 署名最低 12px。阅读型正文栏另有 max-width 约束，见 maxWidth.prose。
    */
   .prose-cn {
-    @apply text-[15.5px] leading-[1.7] text-ink-soft md:text-[16.5px] md:leading-[1.75];
+    @apply text-[15.5px] leading-[1.72] text-ink-soft md:text-[16.5px] md:leading-[1.78];
   }
 
   .prose-sm {
-    @apply text-[14px] leading-[1.65] text-ink-soft;
+    @apply text-[14px] leading-[1.68] text-ink-soft;
   }
 
   .caption {
@@ -182,7 +302,12 @@
     @apply text-[12px] leading-relaxed text-ink-faint;
   }
 
-  /* 中文列表：用杏橙小圆点，不用默认大圆点 */
+  /* 主视觉口号：字重与字距都比普通标题更"用力"，但仍然是中文可读的排版 */
+  .display-hero {
+    @apply font-display font-bold tracking-[-0.01em];
+  }
+
+  /* 中文列表：用琥珀小圆点，不用默认大圆点 */
   .list-dot {
     @apply relative pl-5;
   }
@@ -210,28 +335,37 @@
     @apply text-ink-soft underline decoration-line-strong decoration-1 underline-offset-2 transition-colors hover:text-primary-700;
   }
 
-  /* 外链要一眼看出是外链（§11.3） */
+  /* 外链要一眼看出是外链 */
   .link-external::after {
     content: ' ↗';
     @apply text-[0.85em] text-ink-faint;
   }
 
-  /* ── 答题选项 ──────────────────────────────────────────────────────────
-   * 五档大小一致，不暗示某个答案更理想；选中态含边框 + 填充 + 勾选（§4.6）
+  /* 深色区域里的链接 */
+  .link-on-deep {
+    @apply text-glow-soft underline decoration-glow/40 decoration-1 underline-offset-2 transition-colors hover:text-white hover:decoration-glow;
+  }
+
+  /* ══ 答题选项 ═════════════════════════════════════════════════════════
+   * 五档大小一致，不暗示某个答案更理想；选中态含边框 + 填充 + 勾选
+   * （选中不能只有颜色变化）。
+   *
+   * v2 调整：底色从"选中变蓝"改成"浅青填充 + 加粗边框 + 顶部刻度感"，
+   * 让"我选的是这一档"在一屏之外也看得出来；hover 只做轻微上浮。
    */
   .option-cell {
-    @apply relative flex min-h-[64px] min-w-0 flex-1 flex-col items-center justify-center gap-1.5 rounded-control border-2 bg-surface px-0.5 py-2 text-center transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+    @apply relative flex min-h-[68px] min-w-0 flex-1 flex-col items-center justify-center gap-1.5 rounded-card border-2 bg-surface px-0.5 py-2 text-center transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
     border-color: theme('colors.line.DEFAULT');
   }
 
   @media (hover: hover) {
     .option-cell:hover {
-      @apply border-primary-300 bg-primary-50;
+      @apply -translate-y-0.5 border-primary-300 bg-primary-50 shadow-lift;
     }
   }
 
   .option-cell[aria-checked='true'] {
-    @apply border-primary-600 bg-primary-50;
+    @apply border-primary-600 bg-primary-50 shadow-ring;
   }
 
   .option-cell:disabled {
@@ -255,12 +389,12 @@
     @apply font-semibold text-primary-700;
   }
 
-  /* 选中勾标：不放颜色也认得出（§4.4 选中态不能只有颜色变化） */
+  /* 选中勾标：不放颜色也认得出 */
   .option-check {
     @apply pointer-events-none absolute right-1.5 top-1.5 h-4 w-4 text-primary-600;
   }
 
-  /* ── 答题卡题号 ──────────────────────────────────────────────────────── */
+  /* ══ 答题卡题号 ═══════════════════════════════════════════════════════ */
   .qnum {
     @apply relative flex h-11 w-11 items-center justify-center rounded-[10px] border text-[14px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-surface md:h-10 md:w-10 md:text-[13px];
   }
@@ -273,7 +407,7 @@
     @apply border-primary-200 bg-primary-50 text-primary-700;
   }
 
-  /* 待判断：橙色系，与「已选倾向」的蓝色区分开，且不表示错误 */
+  /* 待判断：琥珀系，与「已选倾向」的蓝青区分开，且不表示错误 */
   .qnum-unknown {
     @apply border-accent-200 bg-accent-100 text-accent-700;
   }
@@ -282,15 +416,20 @@
     @apply border-primary-600 bg-primary-600 text-white;
   }
 
-  /* ── 提示条 ────────────────────────────────────────────────────────────
-   * 不确定性用普通提示（浅杏底、非红），不做警告色（§4.2）
+  /* ══ 提示条 ═══════════════════════════════════════════════════════════
+   * 四种语气必须长得不一样，否则"失败"会被读成"提示"：
+   *   uncertain（琥珀）  还说不准 / 只是略偏 / 补充题
+   *   info（蓝青）       中性说明
+   *   neutral（灰）      参考资料
+   *   error（红）        真的出错了
    */
   .notice,
   .notice-uncertain,
   .notice-info,
   .notice-neutral,
-  .notice-error {
-    @apply rounded-control border px-4 py-3.5;
+  .notice-error,
+  .notice-success {
+    @apply rounded-card border px-4 py-3.5;
   }
 
   .notice-uncertain {
@@ -306,12 +445,40 @@
   }
 
   .notice-error {
-    @apply border-accent-300 bg-accent-100 text-accent-700;
+    @apply border-danger-200 bg-danger-100 text-danger-700;
+  }
+
+  .notice-success {
+    @apply border-success-200 bg-success-100 text-success-700;
+  }
+
+  /* ══ 骨架屏（AI 生成中 / 报告载入中） ═════════════════════════════════
+   * 只表达"内容还没到"，不表达任何进度百分比。
+   */
+  .skeleton {
+    @apply rounded-control;
+    background-image: linear-gradient(
+      90deg,
+      rgba(13, 27, 42, 0.06) 0%,
+      rgba(13, 27, 42, 0.12) 40%,
+      rgba(13, 27, 42, 0.06) 80%
+    );
+    background-size: 220% 100%;
+    @apply animate-shimmer;
+  }
+
+  .skeleton-on-deep {
+    background-image: linear-gradient(
+      90deg,
+      rgba(182, 211, 230, 0.08) 0%,
+      rgba(182, 211, 230, 0.2) 40%,
+      rgba(182, 211, 230, 0.08) 80%
+    );
   }
 }
 
 @layer utilities {
-  /* 底部固定操作条：安全区留白 + 正文预留同等高度（§4.4） */
+  /* 底部固定操作条：安全区留白 + 正文预留同等高度 */
   .pad-action-bar {
     padding-bottom: calc(var(--action-bar-h) + var(--safe-bottom) + 16px);
   }
@@ -320,7 +487,7 @@
     padding-bottom: var(--safe-bottom);
   }
 
-  /* 抽屉最大高度用 dvh，回退 vh（§6.3） */
+  /* 抽屉最大高度用 dvh，回退 vh */
   .sheet-max-h {
     max-height: 75vh;
   }
@@ -330,9 +497,26 @@
       max-height: 75dvh;
     }
   }
+
+  /* 首页主视觉的满宽出血：容器有 max-width 时也要让深色区域铺到屏幕边 */
+  .bleed-x {
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    width: 100vw;
+    max-width: 100vw;
+  }
+
+  /* 长报告里的正文栏：限制行宽，中文一行不超过约 40 字 */
+  .measure {
+    max-width: 42rem;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
-/* 打印/截图与"减少动效"偏好：不因动画拖慢测评（§4.2） */
+/* 打印/截图与"减少动效"偏好：不因动画拖慢测评，也不残留动效 */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

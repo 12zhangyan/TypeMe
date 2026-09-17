@@ -35,7 +35,8 @@ public record TypemeProperties(
             boolean cookieSecure,
             String cookieSameSite,
             String passwordEncoder,
-            int pbkdf2Iterations
+            int pbkdf2Iterations,
+            boolean disclaimerRequired
     ) {
         public Auth {
             sessionAbsoluteTtl = sessionAbsoluteTtl == null ? Duration.ofDays(7) : sessionAbsoluteTtl;
@@ -48,7 +49,7 @@ public record TypemeProperties(
         }
 
         static Auth defaults() {
-            return new Auth(Duration.ofDays(7), Duration.ofSeconds(60), false, "Lax", "pbkdf2", 210_000);
+            return new Auth(Duration.ofDays(7), Duration.ofSeconds(60), false, "Lax", "pbkdf2", 210_000, true);
         }
     }
 

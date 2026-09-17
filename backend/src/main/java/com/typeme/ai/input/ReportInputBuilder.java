@@ -394,6 +394,7 @@ public class ReportInputBuilder {
         List<AiReportInput.Evidence> selected = new ArrayList<>();
 
         // 1) + 2)：每个边界/平分维度各取一条同向、一条反向。
+        List<String> orderedBoundaryDimensions = new ArrayList<>(dimensions.size());
         for (DimensionInput dimension : dimensions) {
             if (!dimension.boundary() && dimension.computedPole() != null) {
                 continue;
@@ -406,6 +407,28 @@ public class ReportInputBuilder {
             QuestionContribution opposite = strongestOpposite(items, dimension.computedPole());
             if (opposite != null) {
                 add(selected, used, opposite, dimension.dimension());
+            }
+            orderedBoundaryDimensions.add(dimension.dimension());
+        }
+
+        // 2b) 边界维度再补一条"用户自己选了中间档"的作答。
+        //
+        // 为什么必须有：提示词第 3 条要求"倾向较轻的维度要给出『另一侧也值得一起看』的**具体**读法"，
+        // 而当事人自己选"两边差不多"的那一题，正是这句话最硬的依据。
+        // 从前这条路走不通：同向取的是 |c| 最大、反向显式跳过 c == 0，
+        // 于是中间档**永远进不了证据**（describe() 早就能正确写出"选了中间（两边差不多）"，
+        // 只是没人选得中它）。边界维度最需要的恰恰是这条材料。
+        //
+        // 只对边界/平分维度补，不设边界的维度不补：那会挤掉真正有信息量的同向/反向证据。
+        // 名额不够时后面的维度自然取不到 —— 优先保住"每题一条"的对称，而不是让某一维吃掉全部名额。
+        for (String dimension : orderedBoundaryDimensions) {
+            List<QuestionContribution> items = byDimension.getOrDefault(dimension, List.of());
+            QuestionContribution neutral = items.stream()
+                    .filter(item -> item.c() == 0)
+                    .findFirst()
+                    .orElse(null);
+            if (neutral != null) {
+                add(selected, used, neutral, dimension);
             }
         }
 
@@ -459,7 +482,7 @@ public class ReportInputBuilder {
                 if (answer == null || !answer.rated()) {
                     continue;
                 }
-                int c = contribution(question, answer.rating());
+                int c = contribution(dimension, question.path("rightPole").asText(null), answer.rating());
                 pool.add(new QuestionContribution(questionId, dimension,
                         text(question.path("scenario")),
                         text(question.path("leftPole")), text(question.path("rightPole")),
@@ -505,11 +528,16 @@ public class ReportInputBuilder {
      *
      * <p>这里刻意**从极点重新推导方向**，而不是复用报告里的 S：S 是求和结果，
      * 无法还原单题贡献。极点取错会让整条证据链反向，所以结果用 `Math.clamp` 钉在 [−2, 2]。
+     *
+     * <p><b>维度必须由调用方传入</b>：本方法原先从题目节点上读 {@code dimension}，而
+     * {@link #packageQuestions} 重建节点时**刻意不带**该字段（每维度已经分组过），
+     * 于是它永远读到 null 并静默返回 0 —— 后果是每道题的位置都被算成"中间档"，
+     * 最硬的同向/反向证据根本挑不出来，证据退化成按 order 的前几条。
+     * 这类"缺字段即静默算 0"的写法不允许再出现：宁可让调用方显式给出，也不要猜。
      */
-    static int contribution(JsonNode question, int rating) {
-        String rightPole = text(question.path("rightPole"));
-        String dimension = text(question.path("dimension"));
-        if (rightPole == null || dimension == null || rating < 1 || rating > 5) {
+    static int contribution(String dimension, String rightPole, int rating) {
+        if (rightPole == null || rightPole.isBlank() || dimension == null || dimension.isBlank()
+                || rating < 1 || rating > 5) {
             return 0;
         }
         boolean rightIsPositive = isPositivePole(dimension, rightPole);

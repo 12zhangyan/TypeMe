@@ -3,7 +3,9 @@ import { computed, onMounted, ref, useId } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { refreshCsrfToken } from '@/api/v3'
+import { DISCLAIMER_TEXT } from '@/domain/disclaimerV3'
 import PageContainer from '@/components/PageContainer.vue'
+import AppIcon from '@/components/AppIcon.vue'
 
 /**
  * 注册 —— 契约 `02-数据模型与API-v1.md` §7.2（`POST /auth/register`）。
@@ -27,6 +29,11 @@ const username = ref('')
 const nickname = ref('')
 const password = ref('')
 const confirm = ref('')
+/**
+ * 免责声明同意（2026-09-17 新增）。默认**不勾**：默认勾上等于替用户同意，
+ * 那正是这条要求想避免的事。后端同样要求显式 true。
+ */
+const disclaimerAccepted = ref(false)
 
 /** 注册成功后的恢复码（只活在内存里，刷新就没了——这正是"只显示一次"的含义）。 */
 const recoveryCodes = ref<string[]>([])
@@ -40,6 +47,8 @@ const passwordId = `reg-password-${useId()}`
 const confirmId = `reg-confirm-${useId()}`
 const hintId = `reg-hint-${useId()}`
 const copiedId = `reg-copied-${useId()}`
+const disclaimerId = `reg-disclaimer-${useId()}`
+const disclaimerText = DISCLAIMER_TEXT
 
 const error = computed(() => auth.lastError)
 const done = computed(() => registered.value)
@@ -62,6 +71,9 @@ const localProblem = computed(() => {
   if (!/^[\x20-\x7E]+$/.test(password.value)) return '密码只能用英文、数字和键盘上的符号，暂不支持中文。'
   if (confirm.value !== password.value) return '两次输入的密码不一样。'
   if (nickname.value.trim().length > 32) return '昵称最多 32 个字。'
+  // 同意项放在最后校验：前面的格式问题更常发生，先让人把字打对。
+  // 服务端也校验这一条 —— 这里只是让用户少一次注定失败的往返。
+  if (!disclaimerAccepted.value) return '请先勾选并阅读下面的说明，再创建账号。'
   return null
 })
 
@@ -85,7 +97,12 @@ onMounted(() => {
 async function onSubmit() {
   if (disabledReason.value) return
   try {
-    const result = await auth.register(username.value.trim(), password.value, nickname.value.trim())
+    const result = await auth.register(
+      username.value.trim(),
+      password.value,
+      nickname.value.trim(),
+      disclaimerAccepted.value,
+    )
     recoveryCodes.value = result.recoveryCodes
     policyVersion.value = result.recoveryCodePolicyVersion
     registered.value = true
@@ -111,14 +128,17 @@ async function leave() {
       >
         账号建好了。这 8 个恢复码，请抄下来 —— 只显示这一次
       </h1>
-      <p class="mt-3 prose-cn">
+      <p class="mt-3 prose-cn max-w-prose">
         忘记密码时，用其中任意一个就能重置密码。每个码只能用一次，用完即作废。
         离开这一页之后就再也查不到这组码了；真丢了，只能登录后用密码重新生成一组。
       </p>
 
       <!-- 服务端没回恢复码：不装作成功，也不把用户留在一个空列表前面 -->
       <div v-if="codesMissing" class="notice-error mt-5 text-[14px] leading-relaxed" role="alert" aria-live="assertive">
-        <p class="font-medium">账号已经建好、也登录上了，但服务器这次没有返回恢复码。</p>
+        <p class="flex items-start gap-2 font-medium">
+          <AppIcon name="alert" :size="17" class="mt-0.5" />
+          <span>账号已经建好、也登录上了，但服务器这次没有返回恢复码。</span>
+        </p>
         <p class="mt-1">
           不要关掉这个页面就以为手里有码。请到「账号与数据」里输入密码重新生成一组，
           并当场抄下来。
@@ -126,24 +146,32 @@ async function leave() {
       </div>
 
       <div v-else class="notice-uncertain mt-5 text-[14px] leading-relaxed" role="note">
-        <p class="font-medium">现在请用纸笔或你自己的密码管理器记下来。</p>
+        <p class="flex items-start gap-2 font-medium">
+          <AppIcon name="shield" :size="17" class="mt-0.5" />
+          <span>现在请用纸笔或你自己的密码管理器记下来。</span>
+        </p>
         <p class="mt-1">
           页面不会自动把它们复制到剪贴板 —— 那样你很容易在下次粘贴时把它覆盖掉，而自己还不知道。
           也不要把它们截图发到聊天工具或群里：那等于把账号的另一把钥匙公开了。
         </p>
       </div>
 
-      <ol v-if="!codesMissing" class="mt-5 max-w-[30rem] space-y-2" data-recovery-codes>
+      <!-- 8 个码是一个整体：收在一张卡里、用细分隔线分开，避免八块相同的方框把页面压碎 -->
+      <ol
+        v-if="!codesMissing"
+        class="card mt-5 max-w-[30rem] divide-y divide-line-soft"
+        data-recovery-codes
+      >
         <li
           v-for="(code, index) in recoveryCodes"
           :key="code"
-          class="flex items-baseline gap-3 rounded-control border border-line bg-surface px-3 py-2.5"
+          class="flex items-baseline gap-3 py-2 first:pt-0 last:pb-0"
         >
-          <span class="w-5 shrink-0 text-right text-[13px] text-ink-faint">{{ index + 1 }}</span>
+          <span class="w-5 shrink-0 text-right text-[13px] text-ink-faint tabular">{{ index + 1 }}</span>
           <code class="min-w-0 break-all font-mono text-[15.5px] tracking-wide text-ink">{{ code }}</code>
         </li>
       </ol>
-      <p v-if="policyVersion && !codesMissing" class="mt-3 fineprint max-w-[34rem]">
+      <p v-if="policyVersion && !codesMissing" class="mt-3 fineprint max-w-prose">
         恢复码规则版本：<code class="font-mono">{{ policyVersion }}</code>
       </p>
 
@@ -184,12 +212,13 @@ async function leave() {
         >
           注册
         </h1>
-        <p class="mt-3 prose-cn">
+        <p class="mt-3 prose-cn max-w-prose">
           注册后测评进度和报告会存在服务器上，换设备也能接着看。只需要一个用户名和密码，不要邮箱、不要手机号。
         </p>
       </header>
 
-      <form class="mt-6 max-w-[30rem]" novalidate @submit.prevent="onSubmit">
+      <!-- 表单是这一页唯一的焦点元素，所以收进一张卡片，和页头的说明拉开层次 -->
+      <form class="card mt-6 max-w-[30rem]" novalidate @submit.prevent="onSubmit">
         <div>
           <label :for="usernameId" class="block text-[14.5px] font-medium text-ink">用户名</label>
           <input
@@ -252,6 +281,41 @@ async function leave() {
           />
         </div>
 
+        <div class="mt-5">
+          <!--
+            免责声明同意（2026-09-17）。三件事是刻意的：
+              1. 默认不勾 —— 默认勾上等于替用户同意；
+              2. 整句都包在一个 <label> 里（含两个链接）—— 点文字也能勾，读屏一次读完；
+              3. 两个链接指向 /about 里**已经写实的**那两节，不在这里另写一套说法。
+                 注意 /about 的锚点滚不动：`router/index.ts` 的 scrollBehavior 固定回顶部
+                 （hash 模式下 `#/about#source` 这种二级 hash 也解析不了）。所以只承诺
+                 "到关于页去读"，不写"直接跳到那一节"。
+          -->
+          <!-- 同意项是一整块需要读的文字：用下沉的浅底把它和上面的输入框分开，不要靠再加一层白卡 -->
+          <div class="rounded-card border border-line bg-surface-soft px-4 py-3.5">
+            <div class="flex items-start gap-2.5">
+              <input
+                :id="disclaimerId"
+                v-model="disclaimerAccepted"
+                name="disclaimer-accepted"
+                type="checkbox"
+                class="mt-1 h-5 w-5 shrink-0 rounded border-line-strong"
+                :aria-describedby="`${disclaimerId}-help`"
+              />
+              <label :for="disclaimerId" class="text-[14px] leading-relaxed text-ink">
+                {{ disclaimerText.before
+                }}<RouterLink to="/about" class="link">{{ disclaimerText.limitLink }}</RouterLink
+                >{{ disclaimerText.middle
+                }}<RouterLink to="/about" class="link">{{ disclaimerText.dataLink }}</RouterLink
+                >{{ disclaimerText.after }}
+              </label>
+            </div>
+            <p :id="`${disclaimerId}-help`" class="caption mt-1.5">
+              这一项必须勾选才能创建账号；不做职业、招聘、恋爱配对之类的判定，也不给人群比较结论。
+            </p>
+          </div>
+        </div>
+
         <div
           v-if="error"
           class="notice-error mt-4"
@@ -259,7 +323,10 @@ async function leave() {
           aria-live="assertive"
           data-register-error
         >
-          <p class="text-[14.5px] font-medium leading-relaxed">{{ error.message }}</p>
+          <p class="flex items-start gap-2 text-[14.5px] font-medium leading-relaxed">
+            <AppIcon name="alert" :size="17" class="mt-0.5" />
+            <span>{{ error.message }}</span>
+          </p>
           <ul v-if="error.fields.length" class="mt-2 space-y-1 text-[13.5px] leading-relaxed">
             <li v-for="field in error.fields" :key="field.field">
               {{ field.label }}：{{ field.message }}
@@ -289,11 +356,11 @@ async function leave() {
         </button>
       </form>
 
-      <p class="mt-5 text-[14px] leading-relaxed text-ink-soft">
+      <p class="mt-5 prose-sm">
         已经有账号了？<RouterLink to="/login" class="link">直接登录</RouterLink>。
       </p>
 
-      <p class="mt-6 fineprint max-w-[34rem]">
+      <p class="mt-6 fineprint max-w-prose">
         注册成功后会给一组恢复码，用来在忘记密码时重置，所以下一步别急着关掉页面。
       </p>
     </section>

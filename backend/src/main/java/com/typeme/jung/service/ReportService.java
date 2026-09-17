@@ -300,7 +300,7 @@ public class ReportService {
         return new JungDtos.SelfReflectionView(
                 (String) row.get("self_selected_type_code"),
                 (String) row.get("note"),
-                TimeSource.isoFromUtc((LocalDateTime) row.get("updated_at")));
+                TimeSource.isoFromUtc(TimeSource.utcFromJdbc(row.get("updated_at"))));
     }
 
     /* ── 删除 ───────────────────────────────────────────────────────────── */
@@ -354,7 +354,7 @@ public class ReportService {
             JungDtos.ReportSummary summary = new JungDtos.ReportSummary(
                     reportId,
                     (String) row.get("attempt_id"),
-                    TimeSource.isoFromUtc((LocalDateTime) row.get("created_at")),
+                    TimeSource.isoFromUtc(TimeSource.utcFromJdbc(row.get("created_at"))),
                     (String) row.get("status"),
                     (String) row.get("computed_type_code"),
                     null,

@@ -119,6 +119,7 @@ interface ServerOptions {
   detail?: () => Record<string, unknown>
   patch?: (callIndex: number) => { status: number; body: unknown }
   submit?: () => { status: number; body: unknown }
+  review?: () => { status: number; body: unknown }
 }
 
 let calls: Recorded[] = []
@@ -160,12 +161,16 @@ function installFetch(): void {
       return jsonResponse(result.body, result.status)
     }
     if (method === 'POST' && url.includes(`/attempts/${ATTEMPT_ID}/review`)) {
-      return jsonResponse({
-        status: 'BASE_IN_PROGRESS',
-        needsReview: false,
-        clarificationDimensions: [],
-        coverage: [],
-      })
+      return jsonResponse(
+        server.review
+          ? server.review().body
+          : {
+              status: 'BASE_IN_PROGRESS',
+              needsReview: false,
+              clarificationDimensions: [],
+              coverage: [],
+            },
+      )
     }
     if (method === 'POST' && url.includes(`/attempts/${ATTEMPT_ID}/submit`)) {
       const result = server.submit
@@ -213,6 +218,37 @@ async function mountAssess() {
 
 function patchCalls(): Recorded[] {
   return calls.filter((call) => call.method === 'PATCH')
+}
+
+/**
+ * 让 `GET /attempts/{id}` 回指定状态码再挂载（默认替身只会回 200）。
+ *
+ * <p>会话失效走的是 `UNAUTHENTICATED` 这个码，而它只能由 401 触发，
+ * 所以需要单独一条"详情请求失败"的替身。
+ */
+async function mountAssessWithStatus(status: number) {
+  vi.stubGlobal('fetch', (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input.toString()
+    const method = (init?.method ?? 'GET').toUpperCase()
+    if (method === 'GET' && url.includes(`/attempts/${ATTEMPT_ID}`)) {
+      return new Response(
+        JSON.stringify({ code: 'UNAUTHENTICATED', message: '请先登录。', requestId: 'req-x', details: {} }),
+        { status, headers: { 'content-type': 'application/json' } },
+      )
+    }
+    if (url.includes('/auth/csrf')) {
+      return jsonResponse({ token: 'csrf-token', headerName: 'X-XSRF-TOKEN', parameterName: '_csrf' })
+    }
+    return jsonResponse({}, 200)
+  }) as never)
+
+  const router = makeRouter()
+  await router.push(`/assess/${ATTEMPT_ID}`)
+  await router.isReady()
+  const wrapper = mount(AssessView, { global: { plugins: [router] } })
+  await flushPromises()
+  await flushPromises()
+  return { wrapper, router }
 }
 
 beforeEach(() => {
@@ -392,6 +428,52 @@ describe('答题页：409 冲突走"重新拉取"，不静默覆盖', () => {
     const body = patchCalls().at(-1)!.body as { expectedRevision: number }
     expect(body.expectedRevision).toBe(9)
   })
+
+  it('冲突横幅要说清丢的是哪一题、自己选了什么（否则用户没法核对）', async () => {
+    server.patch = () => ({
+      status: 409,
+      body: {
+        code: 'CONFLICT_REVISION',
+        message: '另一台设备已经更新了这份草稿。',
+        requestId: 'req-3',
+        details: { currentRevision: 12 },
+      },
+    })
+
+    const { wrapper } = await mountAssess()
+    // 第 2 题选第 5 档（"很像右边"），这一条会撞 409
+    await wrapper.findAll('[data-rating]')[4].trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[data-conflict-banner]').exists()).toBe(true)
+    const lost = wrapper.findAll('[data-lost-answer]')
+    expect(lost.length, '必须逐条列出被丢弃的作答').toBe(1)
+    // 只写"没写上去"是不够的：用户要知道是哪一题、自己选的是哪一档。
+    expect(lost[0].text()).toContain('很像右边')
+    expect(lost[0].text()).toMatch(/第 \d+ 题/)
+    // 内部 id 不许出现在界面上
+    expect(lost[0].text()).not.toContain('q2')
+  })
+
+  it('「这题我说不好」被丢弃时也如实列出，不显示成空白档位', async () => {
+    server.patch = () => ({
+      status: 409,
+      body: {
+        code: 'CONFLICT_REVISION',
+        message: '另一台设备已经更新了这份草稿。',
+        requestId: 'req-4',
+        details: { currentRevision: 3 },
+      },
+    })
+
+    const { wrapper } = await mountAssess()
+    await wrapper.find('[data-unknown]').trigger('click')
+    await flushPromises()
+
+    const lost = wrapper.findAll('[data-lost-answer]')
+    expect(lost.length).toBe(1)
+    expect(lost[0].text()).toContain('这题我说不好')
+  })
 })
 
 describe('答题页：覆盖不足时说明还差哪几维', () => {
@@ -433,12 +515,240 @@ describe('答题页：覆盖不足时说明还差哪几维', () => {
     expect(text).toContain('维度 SN')
     expect(text).toContain('维度 TF')
     expect(text).toContain('1 题没有作答')
-    expect(text).toContain('回到未答的题')
+    // 这里服务端说 SN/TF 各还有 1 题没作答，但本地这一轮**没有留下未答的主测题**
+    // （q1 选了档，q2–q4 都标了「说不好」）。原先按钮无条件写「回到未答的题」，
+    // 点下去却什么也不会发生 —— 那个文案本身就是个坑。
+    expect(text).toContain('回到题目继续调整')
+    expect(wrapper.find('[data-back-to-unanswered]').exists()).toBe(true)
+  })
+
+  it('点「回到题目继续调整」真的能回到题卡（不是一条死路）', async () => {
+    server.submit = () => ({
+      status: 200,
+      body: {
+        reportId: null,
+        attemptId: ATTEMPT_ID,
+        status: 'NEEDS_REVIEW',
+        computedTypeCode: null,
+        candidateCodes: [],
+        coverageOk: false,
+        coverage: [
+          { dimension: 'EI', baseRatingCount: 1, baseUnknownCount: 0, baseUnprocessedCount: 0, needsClarification: false, coverageOk: true },
+          { dimension: 'SN', baseRatingCount: 0, baseUnknownCount: 1, baseUnprocessedCount: 0, needsClarification: false, coverageOk: false },
+          { dimension: 'TF', baseRatingCount: 1, baseUnknownCount: 0, baseUnprocessedCount: 0, needsClarification: false, coverageOk: true },
+          { dimension: 'JP', baseRatingCount: 1, baseUnknownCount: 0, baseUnprocessedCount: 0, needsClarification: false, coverageOk: true },
+        ],
+      },
+    })
+
+    const { wrapper } = await mountAssess()
+    await wrapper.findAll('[data-rating]')[2].trigger('click')
+    await flushPromises()
+    for (let index = 0; index < 3; index += 1) {
+      await wrapper.find('[data-next]').trigger('click')
+      await flushPromises()
+      await wrapper.find('[data-unknown]').trigger('click')
+      await flushPromises()
+    }
+    await wrapper.find('[data-next]').trigger('click')
+    await flushPromises()
+    await flushPromises()
+
+    expect(wrapper.find('[data-needs-review]').exists()).toBe(true)
+
+    await wrapper.find('[data-back-to-unanswered]').trigger('click')
+    await flushPromises()
+
+    // 关键：必须回到题卡。原先 unansweredBaseIds 为空时这里静默返回，
+    // 页面仍停在 needs-review，用户只能刷新才出得来。
+    expect(wrapper.find('[data-needs-review]').exists()).toBe(false)
+    expect(wrapper.find('[data-question-card]').exists()).toBe(true)
+    // 覆盖不足的是 SN 维（本地未答的是别的情况），落点应是那一维的题
+    expect(wrapper.find('[data-question-card]').text()).toContain('情境 q3')
   })
 })
 
-describe('答题页：本地预览只是"粗略倾向"', () => {
-  it('预览区明确写出它不是结论', async () => {
+describe('答题页：补充题阶段必须留有出口', () => {
+  /** 主测四题全处理掉，并让 review 安排一道 EI 补充题，然后进入补充阶段。 */
+  async function enterClarification() {
+    const { wrapper } = await mountAssess()
+    server.review = () => ({
+      status: 200,
+      body: {
+        status: 'CLARIFICATION_IN_PROGRESS',
+        needsReview: false,
+        clarificationDimensions: ['EI'],
+        coverage: [],
+        insufficientDimensions: [],
+      },
+    })
+    for (let index = 0; index < 4; index += 1) {
+      await wrapper.findAll('[data-rating]')[2].trigger('click')
+      await flushPromises()
+      if (index < 3) {
+        await wrapper.find('[data-next]').trigger('click')
+        await flushPromises()
+      }
+    }
+    await wrapper.find('[data-next]').trigger('click')
+    await flushPromises()
+    await flushPromises()
+    return wrapper
+  }
+
+  it('点了「开始补充题」之后，仍能回到主测改答', async () => {
+    const wrapper = await enterClarification()
+    expect(wrapper.find('[data-clarify-offer]').exists()).toBe(true)
+
+    await wrapper.find('[data-start-clarification]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-question-card]').text()).toContain('情境 c1')
+
+    // 契约把「跳过补充题」写成用户可以选的动作，进入补充阶段后也必须留出口；
+    // 原先这一步没有任何回主测或跳过的入口，只能把补充题答完。
+    expect(wrapper.find('[data-back-to-base]').exists()).toBe(true)
+    await wrapper.find('[data-back-to-base]').trigger('click')
+    await flushPromises()
+
+    const card = wrapper.find('[data-question-card]')
+    expect(card.exists()).toBe(true)
+    // 回到主测第一题（base 阶段），而不是停在补充题
+    expect(card.text()).toContain('情境 q1')
+    expect(card.text()).not.toContain('情境 c1')
+  })
+
+  it('补充阶段也能跳过并直接交卷', async () => {
+    const wrapper = await enterClarification()
+    await wrapper.find('[data-start-clarification]').trigger('click')
+    await flushPromises()
+
+    await wrapper.find('[data-skip-clarification-in-progress]').trigger('click')
+    await flushPromises()
+
+    // 跳过就等于交卷：应该发出 submit，而不是继续要求答补充题
+    expect(calls.some((call) => call.method === 'POST' && call.url.includes('/submit'))).toBe(true)
+  })
+})
+
+describe('答题页：会话在作答过程中失效', () => {
+  it('载入时 401：给出「去登录」而不是一个必然失败的「重试」', async () => {
+    server.detail = () => ({
+      code: 'UNAUTHENTICATED',
+      message: '请先登录。',
+      requestId: 'req-x',
+      details: {},
+    })
+    // 让详情接口真的回 401（installFetch 默认给 200，这里用 patch 之外的方式更直接）
+    const { wrapper } = await mountAssessWithStatus(401)
+
+    const text = wrapper.text()
+    expect(text).toContain('登录状态已经失效')
+    // 关键：必须有去登录的入口。答题页在 App.vue 里隐藏了常规导航，
+    // 只给「重试」等于把用户卡在这一页。
+    expect(wrapper.find('[data-assess-login-link]').exists()).toBe(true)
+    expect(text).not.toContain('重试')
+  })
+})
+
+describe('答题页：保存失败不能被下一次成功掩盖', () => {
+  /**
+   * 关键场景：答 Q1 时保存失败（网络问题），继续答 Q2 时保存成功。
+   *
+   * <p>原先 `flush()` 每次只发当前这一条，且成功时**无条件**把 `saveState` 置回
+   * `'saved'` —— 于是 Q1 在服务端从未存在，界面却写着「已保存」，刷新后 Q1 回到未作答。
+   * 这是"未保存不得显示成已保存"最直接的违反。
+   */
+  it('第一条保存失败后再答一条：不许中途显示「已保存」，恢复时要把它补发上去', async () => {
+    // 前两次都失败：第一次是 Q1 的作答，第二次是点「下一题」时的位置写入。
+    // 这样 Q1 一直处于"没写上去"的状态，直到第三次（Q2 作答）才被一并补发。
+    let attempt = 0
+    server.patch = () => {
+      attempt += 1
+      if (attempt <= 2) {
+        return { status: 503, body: { code: 'INTERNAL', message: '服务暂时不可用。', requestId: 'req-1' } }
+      }
+      return {
+        status: 200,
+        body: { revision: 7 + attempt, status: 'BASE_IN_PROGRESS', clarificationDimensions: [] },
+      }
+    }
+
+    const { wrapper } = await mountAssess()
+    // Q1 选第 4 档 —— 这一条会失败
+    await wrapper.findAll('[data-rating]')[3].trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[data-save-state]').text()).toContain('未同步')
+    expect(wrapper.find('[data-save-failed]').exists()).toBe(true)
+
+    // 点「下一题」：这一次的位置写入也会失败，Q1 仍未写上去
+    await wrapper.find('[data-next]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-save-failed]').exists()).toBe(true)
+    expect(wrapper.find('[data-save-state]').text()).not.toBe('已保存')
+
+    // 到 Q2 作答 —— 这一次会成功，并把 Q1 一起补发上去
+    await wrapper.findAll('[data-rating]')[3].trigger('click')
+    await flushPromises()
+
+    // 断言一：这一次成功的请求**必须把 Q1 一起带上**。
+    // 否则 Q1 会永远留在本地，而界面（在修复前）已经显示「已保存」。
+    const lastBody = patchCalls().at(-1)!.body as {
+      responses: { questionId: string; rating: number | null }[]
+    }
+    const ids = lastBody.responses.map((item) => item.questionId)
+    expect(ids, '成功的这次保存要把之前失败的那条一起重发').toContain('q1')
+    expect(ids).toContain('q2')
+
+    // 断言二：补发成功之后才允许说「已保存」，并且不再显示未同步提示
+    expect(wrapper.find('[data-save-state]').text()).toContain('已保存')
+    expect(wrapper.find('[data-save-failed]').exists()).toBe(false)
+  })
+
+  it('「重试保存」能把未写上去的作答补上，补上之后状态回到「已保存」', async () => {
+    let attempt = 0
+    server.patch = () => {
+      attempt += 1
+      if (attempt === 1) {
+        return { status: 503, body: { code: 'INTERNAL', message: '服务暂时不可用。', requestId: 'req-2' } }
+      }
+      return {
+        status: 200,
+        body: { revision: 7 + attempt, status: 'BASE_IN_PROGRESS', clarificationDimensions: [] },
+      }
+    }
+
+    const { wrapper } = await mountAssess()
+    await wrapper.findAll('[data-rating]')[3].trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-save-failed]').exists()).toBe(true)
+
+    // 页面要给出重试入口 —— 原先这里只有一个死掉的文案，没有任何可操作项。
+    await wrapper.find('[data-retry-save]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[data-save-state]').text()).toContain('已保存')
+    expect(wrapper.find('[data-save-failed]').exists()).toBe(false)
+    // 重试必须真的发出请求（否则只是把文案改好看了）
+    expect(patchCalls().length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('保存失败提示里说清有几题没写上去', async () => {
+    server.patch = () => ({
+      status: 503,
+      body: { code: 'INTERNAL', message: '服务暂时不可用。', requestId: 'req-3' },
+    })
+
+    const { wrapper } = await mountAssess()
+    await wrapper.findAll('[data-rating]')[3].trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[data-save-state]').text()).toContain('1 题')
+    expect(wrapper.find('[data-save-failed]').text()).toContain('1 题')
+  })
+})
+
+describe('答题页：本地预览只是"粗略倾向"', () => {  it('预览区明确写出它不是结论', async () => {
     const { wrapper } = await mountAssess()
     await wrapper.findAll('[data-rating]')[4].trigger('click')
     await flushPromises()
@@ -495,5 +805,37 @@ describe('答题页：断点续答', () => {
     expect(wrapper.find('[data-save-state]').text()).toContain('已保存')
     const store = useAssessmentStore()
     expect(store.answeredCount).toBe(2)
+  })
+
+  it('服务端的指针停在已答过的题上时，刷新落到第一道未作答，而不是回退到那道题', async () => {
+    // 2026-09-17 真实浏览器抓到的缺陷：答题页 next() 写进服务端的 currentQuestionId
+    // 是**刚答完的那一题**（安全值）。如果恢复时把它当权威，答到第 47 题刷新就会
+    // 回到第 47 题——实测在 48 题的包上表现为"回到第 1 题"（q1 未答时更早）。
+    // 这里用 3 题的最小样例把同一条规则钉死：q1 已答、指针停在 q1、q2 未答 → 应落在 q2。
+    server.detail = () =>
+      attemptDetail({
+        currentQuestionId: 'q1',
+        answers: [{ questionId: 'q1', kind: 'RATING', rating: 2 }],
+      })
+
+    const { wrapper } = await mountAssess()
+    expect(wrapper.text()).toContain('情境 q2')
+    expect(wrapper.text()).not.toContain('情境 q3')
+  })
+
+  it('主测全部答完时，才回到服务端记下的那一题（用于回看）', async () => {
+    server.detail = () =>
+      attemptDetail({
+        currentQuestionId: 'q2',
+        answers: [
+          { questionId: 'q1', kind: 'RATING', rating: 2 },
+          { questionId: 'q2', kind: 'RATING', rating: 4 },
+          { questionId: 'q3', kind: 'RATING', rating: 3 },
+          { questionId: 'q4', kind: 'UNKNOWN', rating: null },
+        ],
+      })
+
+    const { wrapper } = await mountAssess()
+    expect(wrapper.text()).toContain('情境 q2')
   })
 })

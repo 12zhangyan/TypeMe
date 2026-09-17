@@ -64,6 +64,14 @@ public class AccountService {
      */
     public static final String RECOVERY_CODE_POLICY_VERSION = "typeme-recovery-code-v1";
 
+    /**
+     * 免责声明同意在请求体/错误体里的字段名。
+     *
+     * <p>与 `frontend/src/api/v3.ts` 的 `FIELD_LABELS` 对齐（那边把它渲染成「免责声明同意」）。
+     * 字段名写错不会报错、只会让用户看到一串英文，所以这里定义常量而不是散着写字符串。
+     */
+    public static final String DISCLAIMER_FIELD = "disclaimerAccepted";
+
     private final UserRepository users;
     private final RecoveryCodeRepository recoveryCodes;
     private final UserSessionRepository sessions;
@@ -108,7 +116,9 @@ public class AccountService {
      * "事务回滚了但浏览器已经拿到 cookie"的不一致。
      */
     @Transactional
-    public RegisterResponse register(String rawUsername, String rawPassword, String rawNickname) {
+    public RegisterResponse register(String rawUsername, String rawPassword, String rawNickname,
+                                     boolean disclaimerAccepted) {
+        requireDisclaimerIfConfigured(disclaimerAccepted);
         String display = rawUsername.trim();
         String normalized = UserRepository.normalize(display);
         String nickname = normalizeNickname(rawNickname);
@@ -126,6 +136,36 @@ public class AccountService {
         List<String> plainCodes = issueRecoveryCodes(userId, now);
         log.info("account registered");
         return new RegisterResponse(userId, display, nickname, plainCodes, RECOVERY_CODE_POLICY_VERSION);
+    }
+
+    /**
+     * 注册时的免责声明同意校验（2026-09-17 新增）。
+     *
+     * <p>为什么必须有：账号一建立，作答内容就开始存到服务器上。产品要求里有这条
+     * （`docs/任务拆解.md` L105「免责声明」），但历史实现里前端没有这一项、后端也不读
+     * 任何 `disclaimer*` 字段 —— 脚本发的键被静默忽略（见
+     * `docs/2026-09-16/verification/acceptance-evidence.md` §9.1）。
+     *
+     * <p>为什么默认**必填**：静默忽略一个表示"我同意"的字段，比拒绝注册更糟 ——
+     * 用户以为自己的同意被记录了，其实没有。所以缺省即拒绝，并且拒绝时回
+     * {@code VALIDATION_FAILED} + 字段名，前端会渲染成"免责声明同意：…"。
+     *
+     * <p>为什么留一个开关：这是一处对外的接口行为收紧（旧请求体 `{username, password}`
+     * 会开始返回 400）。开关默认 {@code true}（要同意），只有在需要灰度放量、
+     * 让旧客户端先跑一段时间时才显式配 `typeme.auth.disclaimer-required=false`。
+     * 关闭时服务端只是不拦，前端仍然会显示勾选项 —— 也就是说关闭开关不会假装用户同意过。
+     */
+    private void requireDisclaimerIfConfigured(boolean accepted) {
+        if (!properties.auth().disclaimerRequired()) {
+            return;
+        }
+        if (!accepted) {
+            throw ApiException.validation("注册前需要先阅读并同意测评定位与数据处理说明。",
+                    Map.of(DISCLAIMER_FIELD, "请先勾选「我已阅读并理解」再创建账号。"));
+        }
+        // 只记事件名：同意这是"发生过"的事实，不是需要追溯的个人数据。
+        // 用户名、IP 一律不进这条日志（SecurityLoggingDisciplineIT 会检查日志纪律）。
+        log.info("registration disclaimer accepted");
     }
 
     // ------------------------------------------------------------------ 登录 / 登出

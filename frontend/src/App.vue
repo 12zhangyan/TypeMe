@@ -83,18 +83,19 @@ const shellTagline = computed(() =>
 /** 答题页自己渲染完整的进度与操作区；这里不再重复导航，避免误触清空进度。 */
 const quizActive = computed(() => route.name === 'quiz' || route.name === 'assess' || route.name === 'assess-attempt')
 /**
- * 首页/关于页不显示"开始测评"，避免在使用其它入口时被误点到。
+ * 顶栏「开始测评」入口的唯一一份。
  *
  * 2026-09-16：这里原本还有一个指向 `/quiz` 的「旧版本测试」顶栏链接
- * （`showStartLink` 控制）。产品要求首页移除旧版本测试入口后，这个链接在
- * **每一个非首页的页面上**都还挂着，属于漏网的入口，已一并删除。
+ * （由 `showStartLink` 控制）。产品要求首页移除旧版本测试入口后，那个链接改指
+ * `/assess`，却与下面新测自己的入口**并排留下了两份**：顶栏于是出现两个一模一样、
+ * 指向同一路由的「开始测评」（`shellNav.spec.ts` 钉住这一条），
+ * 而且带高亮判断的那一份的判断永远为假 —— `/assess` 与 `/assess/:id` 属于
+ * `quizActive`，那时整个 `v-else` 分支都不渲染，导航里只剩"暂时离开"。
+ *
+ * 现在只保留一份（带高亮的那份），重复的那份与 `showStartLink` 一起删除；
+ * 非答题页的排除已经由 `quizActive` 分支承担，再加一层判断只会再造出同样的重复。
  * `/quiz` 路由本身保留，直接改 hash 仍可进入旧站。
  */
-const showStartLink = computed(() => {
-  if (route.name === 'quiz') return false
-  if (route.name === 'landing') return false
-  return true
-})
 
 /**
  * 新测导航是否可渲染。
@@ -166,6 +167,17 @@ function loadLatest() {
   // 载入后重新对齐当前页面的判断：处理完的留在结果页，没处理完的回答题页
   if (route.name === 'result' && !quiz.isProcessed) void router.replace({ name: 'quiz' })
 }
+
+/**
+ * 顶栏导航项的当前页样式。
+ *
+ * 2026-09-18 视觉重构：原先"当前页"只靠文字变成主色表示 —— 在一行灰字里
+ * 这个差别太弱，窄屏上几乎看不出停在哪儿。现在多一层浅主色底：
+ * 不改变布局高度，也不和主按钮抢注意力，但一眼能认出当前位置。
+ */
+function navPill(active: boolean): string {
+  return active ? 'bg-primary-50 text-primary-700' : ''
+}
 </script>
 
 <template>
@@ -173,8 +185,8 @@ function loadLatest() {
     <a class="skip-link" href="#main">跳到主要内容</a>
 
     <header
-      class="sticky top-0 z-30 border-b border-line bg-paper/90 backdrop-blur-sm"
-      :class="quizActive ? 'border-transparent bg-paper/95' : ''"
+      class="sticky top-0 z-30 border-b backdrop-blur-md"
+      :class="quizActive ? 'border-transparent bg-paper/95' : 'border-line bg-surface/85'"
     >
       <div
         class="mx-auto flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3 py-2.5 tablet:px-6 tablet:py-3 laptop:px-8"
@@ -183,12 +195,25 @@ function loadLatest() {
         <RouterLink
           to="/"
           class="flex items-baseline gap-2 rounded-control focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
-          :aria-label="quizActive ? '暂时离开答题，回到首页' : 'TypeMe 首页'"
+          aria-label="TypeMe 首页"
         >
-          <span class="font-display text-[19px] font-bold leading-none tracking-tight text-ink">
-            TypeMe
+          <span class="flex items-baseline gap-2">
+            <span
+              class="inline-block h-[9px] w-[9px] shrink-0 translate-y-[-1px] rounded-[3px] bg-primary-600"
+              aria-hidden="true"
+            />
+            <span class="font-display text-[19px] font-bold leading-none tracking-tight text-ink">
+              TypeMe
+            </span>
           </span>
-          <span class="text-[11.5px] text-ink-faint">{{ shellTagline }}</span>
+          <!--
+            品牌行的量表副标题。**窄屏（<360px）不显示**：它和导航一样会折行，
+            320px 上实测把顶栏撑到 139px —— 占 568px 首屏的 24.5%，而粘性顶栏是
+            常驻的。隐藏后顶栏固定为两行（品牌 + 三个导航入口），实测 88px；
+            量表口径在首页正文与页脚署名里仍然完整，没有信息丢失
+            （`scripts/browser-verify-narrow-layout.py` 会量这个高度）。
+          -->
+          <span class="hidden text-[11.5px] text-ink-faint min-[360px]:inline">{{ shellTagline }}</span>
         </RouterLink>
 
         <nav
@@ -199,33 +224,36 @@ function loadLatest() {
             <RouterLink to="/" class="btn-ghost btn-sm">暂时离开</RouterLink>
           </template>
           <template v-else>
-            <!-- 新测入口：主入口是 /assess（登录后跨设备继续）；旧引擎 /quiz 仍然保留，
-                 在首页以"旧版本"说明的形式出现，不在这里抢主位。 -->
+            <!--
+              新测入口：主入口是 /assess（登录后跨设备继续）。**只渲染一份** ——
+              这里曾经同时挂着两份指向 /assess 的「开始测评」，见文件上方那段注释。
+              旧引擎的 /quiz 路由仍然保留，直接改 hash 可进入，不占顶栏。
+            -->
             <RouterLink
               v-if="assessmentRoutesReady"
               to="/assess"
               class="btn-ghost btn-sm"
-              :class="route.name === 'assess' || route.name === 'assess-attempt' ? 'text-primary-700' : ''"
+              :class="navPill(route.name === 'assess' || route.name === 'assess-attempt')"
               >开始测评</RouterLink
             >
             <RouterLink
               v-if="assessmentRoutesReady && authRoutesReady && auth.isAuthenticated"
               to="/reports"
               class="btn-ghost btn-sm"
-              :class="route.name === 'reports' || route.name === 'report-detail' ? 'text-primary-700' : ''"
+              :class="navPill(route.name === 'reports' || route.name === 'report-detail')"
               >历史报告</RouterLink
             >
-            <RouterLink
-              v-if="showStartLink"
-              to="/assess"
-              class="btn-ghost btn-sm"
-              >开始测评</RouterLink
-            >
+            <!--
+              导航项写的是**目标**的名字，与当前停在哪一页无关。
+              原先这里是 `route.name === 'about' ? '方法与隐私' : '关于'` —— 反了：
+              停在关于页时显示"方法与隐私"，在别的页面上显示"关于"，
+              用户会以为还存在另一个页面（`shellNav.spec.ts` 钉住这一条）。
+            -->
             <RouterLink
               to="/about"
               class="btn-ghost btn-sm"
-              :class="route.name === 'about' ? 'text-primary-700' : ''"
-              >{{ route.name === 'about' ? '方法与隐私' : '关于' }}</RouterLink
+              :class="navPill(route.name === 'about')"
+              >关于</RouterLink
             >
 
             <!-- 账号入口：把"现在是登录状态"这件事直接写在导航里，不让用户自己猜。
@@ -234,7 +262,7 @@ function loadLatest() {
               <RouterLink
                 to="/account"
                 class="btn-ghost btn-sm"
-                :class="route.name === 'account' ? 'text-primary-700' : ''"
+                :class="navPill(route.name === 'account')"
                 :aria-label="`账号与数据（已登录：${auth.displayName}）`"
               >
                 <span class="hidden max-w-[10rem] truncate tablet:inline">{{ auth.displayName }}</span>
@@ -253,13 +281,13 @@ function loadLatest() {
               <RouterLink
                 to="/login"
                 class="btn-ghost btn-sm"
-                :class="route.name === 'login' ? 'text-primary-700' : ''"
+                :class="navPill(route.name === 'login')"
                 >登录</RouterLink
               >
               <RouterLink
                 to="/register"
                 class="btn-ghost btn-sm"
-                :class="route.name === 'register' ? 'text-primary-700' : ''"
+                :class="navPill(route.name === 'register')"
                 >注册</RouterLink
               >
             </template>
@@ -300,7 +328,13 @@ function loadLatest() {
     </main>
 
     <!-- 答题页不渲染页脚：一屏专注，也避免长页脚把移动端操作条顶开（§4.5） -->
-    <footer v-if="!quizActive" class="border-t border-line bg-paper-soft">
+    <footer v-if="!quizActive" class="relative border-t border-line bg-paper-soft">
+      <!-- 顶部一条主色细线：这一版页脚只是"读到结尾"的收束，不加装饰图形，
+           一条线就够把页脚和正文分开，且不会在长报告底部制造第二个视觉焦点。 -->
+      <span
+        class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-primary-600 via-glow to-transparent"
+        aria-hidden="true"
+      />
       <div
         class="mx-auto w-full max-w-shell-wide px-3 py-7 tablet:px-6 tablet:py-9 laptop:px-8"
       >

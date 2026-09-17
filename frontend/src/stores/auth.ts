@@ -180,12 +180,20 @@ export const useAuthStore = defineStore('auth', {
     /**
      * 注册。成功即已登录（契约 §7.2），同时拿到**只此一次**的恢复码。
      * store 只负责把恢复码交给页面，不缓存、不落盘、不写日志。
+     *
+     * `disclaimerAccepted` 是注册页那个勾选框的状态，**必须**由调用方显式给出：
+     * 后端会拒绝缺省或 false 的请求，默认值会让"忘记接上勾选框"变成静默失败。
      */
-    async register(username: string, password: string, nickname?: string): Promise<RegisterResult> {
+    async register(
+      username: string,
+      password: string,
+      nickname: string | undefined,
+      disclaimerAccepted: boolean,
+    ): Promise<RegisterResult> {
       this.busy = true
       this.lastError = null
       try {
-        const result = await registerAccount({ username, password, nickname })
+        const result = await registerAccount({ username, password, nickname, disclaimerAccepted })
         this.applyProfile(result.profile)
         clearCsrfToken()
         return result

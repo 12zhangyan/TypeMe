@@ -178,7 +178,11 @@ public abstract class AccountIntegrationTestBase {
         MvcResult result = mockMvc.perform(withCsrf(post("/api/v3/auth/register")
                         .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("username", username, "password", password))), csrf)).andReturn();
+                        .content(json(Map.of("username", username, "password", password,
+                                // 2026-09-17 起注册必须带免责声明同意（AccountService 复核）。
+                                // 帮助方法默认替用例同意，就像真实前端默认会带上勾选状态一样；
+                                // 不带的用例必须显式构造请求体，见 RegistrationAndLoginIT 的那条。
+                                "disclaimerAccepted", true))), csrf)).andReturn();
         JsonNode node = body(result);
         return new RegisteredAccount(result.getResponse().getStatus(), node, session);
     }

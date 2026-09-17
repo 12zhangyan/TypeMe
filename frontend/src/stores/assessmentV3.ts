@@ -50,13 +50,39 @@ import {
 
 export type SaveState = 'idle' | 'saving' | 'saved' | 'error' | 'conflict'
 
+/**
+ * 1–5 档 → 文案（1 基）。**全站唯一一份**：`AssessView` 与冲突提示都从这里取。
+ *
+ * <p>刻意不复用旧引擎的 `ANSWER_CAPTIONS`：那是「完全是左边 / 一半一半 / 完全是右边」，
+ * 描述的是位置；新测要的是"哪一侧更像你"的程度（很像 / 更像 / 差不多），
+ * 两者在"3 分"这一档上的含义不同。契约把文案写死成这五个词，就是为了避免
+ * 两代产品在同一个控件上说两套话；同理，同代里也不允许存在第二份。
+ */
+export const SCALE_CAPTIONS = ['很像左边', '更像左边', '两边差不多', '更像右边', '很像右边'] as const
+
 export interface ConflictState {
   /** 服务端当前 revision（来自 `details.currentRevision`；拿不到时为 null）。 */
   currentRevision: number | null
   /** 用户看到的一句话。 */
   message: string
-  /** 还没能写上去的题号（重新载入后可以对照查看）。 */
+  /** 还没能写上去的题号。 */
   pendingQuestionIds: string[]
+  /**
+   * 尚未写上去、且即将随"载入最新进度"一起被丢弃的作答内容。
+   *
+   * <p>**为什么必须有这一项**：`pendingQuestionIds` 只给题号，对用户没有意义 ——
+   * 他需要知道"是第几题、我选的是哪一档"，否则横幅只能说一句"刚才的改动没有写上去"，
+   * 而这句话既不能让他核对，也不能让他在载入之后把那题补回来。
+   * 字段的旧注释写着"（重新载入后可以对照查看）"，但那时的代码只写不读，这条路径从未存在。
+   */
+  lostAnswers: LostAnswer[]
+}
+
+/** 冲突中被丢弃的一条作答。 */
+export interface LostAnswer {
+  questionId: string
+  /** 1–5 的档位；`null` 表示这条是「这题我说不好」（一次作答，不计分）。 */
+  rating: number | null
 }
 
 interface AssessmentState {
@@ -72,6 +98,23 @@ interface AssessmentState {
   saveState: SaveState
   /** 已保存过一次（用于区分"从来没写过"和"写成功了"）。 */
   savedAtLeastOnce: boolean
+  /**
+   * 本地改了、但**还没被服务端确认**的作答（题号 → 当时要写上去的内容）。
+   *
+   * <p>**为什么必须有这一项**（2026-09-17 第 15 轮）：`flush()` 每次只发当前这一条，
+   * 失败时只把 `saveState` 置成 `'error'` 并把错误放进 `lastError`。于是——
+   *
+   * <ol>
+   *   <li>答 Q10 时 PATCH 超时 → 左栏显示「未同步（网络或登录已失效）」；</li>
+   *   <li>继续答 Q11，这次成功 → `saveState` 被**无条件**置回 `'saved'`；</li>
+   *   <li>Q10 在服务端从未存在，而界面写着「已保存」。刷新后 Q10 回到未作答。</li>
+   * </ol>
+   *
+   * <p>失败被后一次成功掩盖掉，是"未保存不得显示成已保存"最直接的违反。
+   * 有了这份集合：失败的那条会在下一次写入时**一并重发**（服务端是 upsert，
+   * 重复发同一条没有副作用），并且只要集合非空，状态就不允许回到 `'saved'`。
+   */
+  unconfirmed: Record<string, Answer>
   conflict: ConflictState | null
   loading: boolean
   lastError: ErrorDisplay | null
@@ -165,6 +208,7 @@ export const useAssessmentStore = defineStore('assessmentV3', {
     coverage: [],
     saveState: 'idle',
     savedAtLeastOnce: false,
+    unconfirmed: {},
     conflict: null,
     loading: false,
     lastError: null,
@@ -249,6 +293,24 @@ export const useAssessmentStore = defineStore('assessmentV3', {
       if (!pkg) return null
       return checkCoverage(pkg, new Map(Object.entries(state.answers)))
     },
+
+    /**
+     * 冲突中被丢弃的作答，逐条转成"第几题 · 选了什么"。
+     *
+     * <p>题号用**该题在本次测评里的序号**（与服务端 `Order` 一致、与页面上显示的一致），
+     * 而不是内部 id —— 内部 id 对用户没有意义，产品口径也不允许内部标识进入界面。
+     * 找不到题目（内容包缺失等）时退回题号本身，宁可少说也不要编。
+     */
+    lostAnswerLabels(state): string[] {
+      if (!state.conflict) return []
+      const questions = contentPackageOf(state.packageView)?.questions ?? []
+      return state.conflict.lostAnswers.map((lost) => {
+        const index = questions.findIndex((item) => item.id === lost.questionId)
+        const position = index >= 0 ? `第 ${index + 1} 题` : lost.questionId
+        const choice = lost.rating === null ? '这题我说不好（不计分）' : SCALE_CAPTIONS[lost.rating - 1]
+        return choice ? `${position} · ${choice}` : position
+      })
+    },
   },
 
   actions: {
@@ -297,6 +359,9 @@ export const useAssessmentStore = defineStore('assessmentV3', {
       this.answers = answers
       this.coverage = detail.coverage
       this.conflict = null
+      // 载入代表服务端状态：本地"还没写上去"的记录到此为止（它们要么已被服务端采纳，
+      // 要么就是用户在冲突提示里选择放弃的那些）。留着会让状态永远显示"未保存"。
+      this.unconfirmed = {}
       this.saveState = detail.answers.length > 0 ? 'saved' : 'idle'
       this.savedAtLeastOnce = detail.answers.length > 0
       this.lastError = null
@@ -342,15 +407,24 @@ export const useAssessmentStore = defineStore('assessmentV3', {
       // 冲突未解决前**绝不**再写：这正是"不要静默覆盖"的实现位置。
       if (this.conflict) return
       const responses: AnswerPatch[] = []
+      const included = new Set<string>()
       if (questionId) {
         const answer = this.answers[questionId]
         if (answer) {
-          responses.push(
-            answer.kind === 'rating'
-              ? { questionId, kind: 'rating', rating: answer.rating ?? null }
-              : { questionId, kind: 'unknown' },
-          )
+          responses.push(this.toPatch(questionId, answer))
+          included.add(questionId)
         }
+      }
+      // 把**之前没写上去**的也一并重发（服务端 upsert，重复发同一条没有副作用）。
+      // 不这样做的话，那一条会永远留在本地，而界面在下一次成功保存后显示「已保存」。
+      for (const [id, answer] of Object.entries(this.unconfirmed)) {
+        if (included.has(id)) continue
+        if (!this.answers[id]) {
+          // 本地已经把它清掉了（例如改了主测答案导致补充题被重置）：不必也不能重发
+          delete this.unconfirmed[id]
+          continue
+        }
+        responses.push(this.toPatch(id, answer))
       }
       if (responses.length === 0 && !this.currentQuestionId) return
 
@@ -377,23 +451,80 @@ export const useAssessmentStore = defineStore('assessmentV3', {
           }
           this.answers = kept
         }
-        this.saveState = 'saved'
-        this.savedAtLeastOnce = true
-        this.lastError = null
+        // 这一批都写成功了：把它们从未确认集合里摘掉。
+        for (const id of Object.keys(this.unconfirmed)) {
+          if (this.answers[id]) delete this.unconfirmed[id]
+        }
+        // **只有全部确认之后才允许说"已保存"**，否则失败的那条会被这一次成功掩盖。
+        const outstanding = this.listUnconfirmedIds()
+        if (outstanding.length === 0) {
+          this.saveState = 'saved'
+          this.savedAtLeastOnce = true
+          this.lastError = null
+        } else {
+          this.saveState = 'error'
+        }
       } catch (error) {
         if (isRevisionConflict(error)) {
+          // 先记下这一批（本次要写的 + 之前没写上去的），再清空集合 —— 顺序反了就会丢内容。
+          const lostIds = [...new Set([...(questionId ? [questionId] : []), ...Object.keys(this.unconfirmed)])]
+          const lost: LostAnswer[] = []
+          for (const id of lostIds) {
+            const answer = this.answers[id]
+            if (!answer) continue
+            // 'unknown'（这题我说不好）与"选了某一档"都要如实在横幅里区分开，
+            // 所以这里判 kind 而不是判 rating 是否存在。
+            lost.push({
+              questionId: id,
+              rating: answer.kind === 'rating' && typeof answer.rating === 'number' ? answer.rating : null,
+            })
+          }
+          // 冲突时清掉未确认集合：这些改动即将随"载入最新进度"被丢弃，
+          // 留着会让冲突解除后的第一次写入把它们当成"待重发"再推一次。
+          this.unconfirmed = {}
           this.saveState = 'conflict'
           this.conflict = {
             currentRevision: currentRevisionOf(error),
             message:
               '另一台设备改过这次的进度，所以这一条没有写上去。请先载入最新进度，再从最新版本继续作答。',
-            pendingQuestionIds: questionId ? [questionId] : [],
+            pendingQuestionIds: lost.map((item) => item.questionId),
+            lostAnswers: lost,
           }
           return
         }
+        // 失败的那几条留进未确认集合，等下一次写入（或用户点「重试保存」）一并重发。
+        const persisted: Record<string, Answer> = {}
+        for (const response of responses) {
+          const answer = this.answers[response.questionId]
+          if (answer) persisted[response.questionId] = answer
+        }
+        this.unconfirmed = persisted
         this.saveState = 'error'
         this.lastError = describeError(error)
       }
+    },
+
+    /** 已改但还没被服务端确认的题号（本地已经清掉的不算）。 */
+    listUnconfirmedIds(): string[] {
+      return Object.keys(this.unconfirmed).filter((id) => Boolean(this.answers[id]))
+    },
+
+    /**
+     * 重试把未确认的作答写上去（用户点「重试保存」，或下一次写入自动带上它们）。
+     *
+     * <p>它**不抛异常**：失败照常由 {@link flush} 记录成 `saveState`/`lastError`，
+     * 页面读状态即可。冲突态下直接返回（那种情况下要用户先载入最新进度）。
+     */
+    async retryUnconfirmed(): Promise<void> {
+      if (this.attemptId === null || this.conflict) return
+      await this.flush(null)
+    },
+
+    /** `Answer` → PATCH 的一条（rating 与 unknown 互斥，由服务端再校验一次）。 */
+    toPatch(questionId: string, answer: Answer): AnswerPatch {
+      return answer.kind === 'rating'
+        ? { questionId, kind: 'rating', rating: answer.rating ?? null }
+        : { questionId, kind: 'unknown' }
     },
 
     /**
@@ -406,7 +537,8 @@ export const useAssessmentStore = defineStore('assessmentV3', {
       const attemptId = this.attemptId
       if (!attemptId) return
       await this.load(attemptId)
-      this.saveState = this.savedAtLeastOnce ? 'saved' : 'idle'
+      this.saveState =
+        this.listUnconfirmedIds().length > 0 ? 'error' : this.savedAtLeastOnce ? 'saved' : 'idle'
     },
 
     /** 主测答完后调用：由服务端决定是否安排补充题。 */
