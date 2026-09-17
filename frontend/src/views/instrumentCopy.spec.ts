@@ -223,11 +223,16 @@ describe('首页的量表文案与抽象图形（LandingView.vue）', () => {
         expect(text, `${id} 首页串了旧内容包的维度名「${name}」`).not.toContain(name)
       }
 
-      // 首屏抽象图形画的也是新测自己的四个维度
+      // 首屏抽象图形画的也是新测自己的四个维度。
+      // 2026-09-18 视觉重构：图形从「四条横线轨道」换成「四条穿过中心的维度轴」
+      // （深色主视觉），所以断言改成按轴的数据钩子取 —— 它比"数一数有几个 <g>"
+      // 更贴近这条用例真正想守的东西（图形里的维度必须是新测自己的那四个）。
       const glyph = wrapper.find('svg[role="presentation"]')
-      const labels = glyph.findAll('g')
-      expect(labels.length, `${id} 首屏图形轨道数`).toBe(4)
-      expect(glyph.text(), `${id} 图形说明`).toContain('4 条轨道对应 4 个维度')
+      const axes = glyph.findAll('[data-hero-axis]')
+      expect(axes.map((axis) => axis.attributes('data-hero-axis')), `${id} 首屏图形轴`).toEqual(
+        expectedDimensions.map((item) => item.dimension),
+      )
+      expect(glyph.text(), `${id} 图形说明`).toContain('4 条轴对应 4 个维度')
       for (const name of newInstrumentNames) {
         expect(glyph.text(), `${id} 首屏图形缺维度 ${name}`).toContain(name)
       }

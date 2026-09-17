@@ -72,7 +72,8 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
         MvcResult result = mockMvc.perform(withCsrf(post("/api/v3/auth/register")
                         .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("username", username, "password", "TestPassw0rd!"))), csrf))
+                        .content(json(Map.of("username", username, "password", "TestPassw0rd!",
+                                "disclaimerAccepted", true))), csrf))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("no-store")))
                 .andReturn();
@@ -89,7 +90,8 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
             MvcResult result = mockMvc.perform(withCsrf(post("/api/v3/auth/register")
                             .session(session)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(json(Map.of("username", bad, "password", "TestPassw0rd!"))), csrf))
+                            .content(json(Map.of("username", bad, "password", "TestPassw0rd!",
+                                    "disclaimerAccepted", true))), csrf))
                     .andReturn();
             assertThat(result.getResponse().getStatus())
                     .as("用户名「%s」必须被拒", bad)
@@ -106,7 +108,8 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
         MvcResult result = mockMvc.perform(withCsrf(post("/api/v3/auth/register")
                         .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("username", uniqueUsername("shortpw"), "password", "1234567"))), csrf))
+                        .content(json(Map.of("username", uniqueUsername("shortpw"), "password", "1234567",
+                                "disclaimerAccepted", true))), csrf))
                 .andReturn();
         assertThat(result.getResponse().getStatus()).isEqualTo(400);
         assertThat(body(result).path("code").asText()).isEqualTo("VALIDATION_FAILED");
@@ -124,10 +127,56 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
                         .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of("username", username.toUpperCase(java.util.Locale.ROOT),
-                                "password", "TestPassw0rd!"))), csrf))
+                                "password", "TestPassw0rd!", "disclaimerAccepted", true))), csrf))
                 .andReturn();
         // 用户名大小写不敏感（规范化后唯一）：大写形式同样视为重复
         assertThat(result.getResponse().getStatus()).isEqualTo(409);
+    }
+
+    @Test
+    @DisplayName("未同意免责声明 → 400 VALIDATION_FAILED，且字段名可被前端翻成中文")
+    void registrationWithoutDisclaimerIsRejected() throws Exception {
+        // 2026-09-17 新增：此前前端没有这一项、后端也不读任何 disclaimer* 字段，
+        // 脚本发的键被静默忽略（acceptance-evidence.md §9.1）。这条钉住"缺省即拒绝"，
+        // 顺便钉住字段名 —— 名字写错不会报错，只会让用户看到一串英文。
+        String username = uniqueUsername("nodisclaimer");
+
+        for (Object missing : new Object[]{null, false}) {
+            MockHttpSession session = new MockHttpSession();
+            CsrfContext csrf = csrf(session);
+            Map<String, Object> payload = new java.util.HashMap<>();
+            payload.put("username", username);
+            payload.put("password", "TestPassw0rd!");
+            if (missing != null) {
+                payload.put("disclaimerAccepted", missing);
+            }
+
+            MvcResult result = mockMvc.perform(withCsrf(post("/api/v3/auth/register")
+                            .session(session)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(json(payload)), csrf))
+                    .andReturn();
+
+            assertThat(result.getResponse().getStatus())
+                    .as("disclaimerAccepted=%s 时必须拒绝注册", missing)
+                    .isEqualTo(400);
+            JsonNode error = body(result);
+            assertThat(error.path("code").asText()).isEqualTo("VALIDATION_FAILED");
+            assertThat(error.path("details").path("disclaimerAccepted").asText())
+                    .as("错误体必须带字段名，前端才能渲染成「免责声明同意：…」")
+                    .isNotBlank();
+        }
+
+        // 同意之后同一个用户名必须能注册成功（拒绝不是"这个用户名坏了"）
+        MockHttpSession session = new MockHttpSession();
+        CsrfContext csrf = csrf(session);
+        MvcResult ok = mockMvc.perform(withCsrf(post("/api/v3/auth/register")
+                        .session(session)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("username", username, "password", "TestPassw0rd!",
+                                "disclaimerAccepted", true))), csrf))
+                .andReturn();
+        assertThat(ok.getResponse().getStatus()).isEqualTo(201);
     }
 
     @Test

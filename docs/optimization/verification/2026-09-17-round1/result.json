@@ -1,0 +1,11 @@
+{
+  "passed": 12,
+  "failures": [],
+  "skips": [],
+  "notes": [
+    "320px 首屏（568px 高）顶栏高 88px，占首屏 15.5%",
+    "390px 首屏（844px 高）顶栏高 91px，占首屏 10.8%",
+    "1440px 首屏（900px 高）顶栏高 69px，占首屏 7.7%",
+    "后端就绪探测通过（/api/v1/meta → 200 JSON，contentVersion='2026-09-01'）；本轮主流程验收见 progress.md"
+  ]
+}

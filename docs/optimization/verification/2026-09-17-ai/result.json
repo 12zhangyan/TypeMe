@@ -1,0 +1,13 @@
+{
+  "base": "http://127.0.0.1:5174",
+  "aiEnabled": true,
+  "aiMock": true,
+  "passed": 31,
+  "failed": [],
+  "skipped": [],
+  "notes": [
+    "GET /ai/status → enabled=True mock=True",
+    "等待 AI 结果 3s",
+    "生成后额度文案：'今天还可以生成 1 次。'"
+  ]
+}

@@ -92,7 +92,7 @@ const rangeText = computed(() => {
     ><code>{{ formulas.map((item) => item.formula).join('\n') }}</code></pre>
 
     <p class="text-[12.5px] leading-relaxed text-ink-faint">
-      上面这 {{ formulas.length }} 条是从题库数据（每个维度的常数与逐题符号）**现算出来的**，不是手抄的；
+      上面这 {{ formulas.length }} 条是从题库数据（每个维度的常数与逐题符号）<strong class="font-medium text-ink-soft">现算出来的</strong>，不是手抄的；
       换个题库，公式、区间与中点都会跟着变。<template v-if="props.hasTypeCode"
         >判定用的是「大于中点」而不是「大于等于」，所以刚好落在中点时归到低分侧字母。</template
       ><template v-else

@@ -1624,12 +1624,14 @@ describe('设计系统守卫（§4）', () => {
     const maxWidth = config.default.theme.extend.maxWidth
     expect(maxWidth['shell-quiz']).toBe('70rem')
     expect(maxWidth['shell-result']).toBe('75rem')
-    expect(maxWidth['shell-wide']).toBe('75rem')
+    // 2026-09-18：首页多了「主视觉 + 真实报告结构预览」的宽屏并排，
+    // 75rem 在 1440 上会让右侧预览被压窄；放宽到 82rem。
+    expect(maxWidth['shell-wide']).toBe('82rem')
     expect(maxWidth['shell-article']).toBe('48rem')
     expect(maxWidth['prose-result']).toBe('47.5rem')
   })
 
-  it('新版语义色齐备（奶白 / 墨蓝 / 杏橙）', async () => {
+  it('新版语义色齐备（浅色阅读表面 / 深墨文字 / 蓝青主色 + 深海军蓝面板）', async () => {
     const config = await import('../../tailwind.config.js')
     const colors = config.default.theme.extend.colors as {
       paper: { DEFAULT: string }
@@ -1637,12 +1639,21 @@ describe('设计系统守卫（§4）', () => {
       primary: Record<string, string>
       accent: Record<string, string>
       line: { DEFAULT: string }
+      navy: Record<string, string>
+      glow: Record<string, string>
     }
-    expect(colors.paper.DEFAULT).toBe('#F7F6F2')
-    expect(colors.ink.DEFAULT).toBe('#1D2D3A')
-    expect(colors.primary[600]).toBe('#264E70')
-    expect(colors.accent[500]).toBe('#B85332')
-    expect(colors.line.DEFAULT).toBe('#DCDDD7')
+    // 2026-09-18 视觉重构：由「奶白 #F7F6F2 / 墨蓝 #1D2D3A / 灰蓝 #264E70 / 砖红 #B04E2E」
+    // 换成偏冷的浅色阅读表面 + 更深的藏青墨 + 蓝青主色 + 琥珀强调。
+    // 这里只钉"语义角色的色值就是这个"，可读性门槛由 contrast.spec.ts 按 WCAG 公式实测。
+    expect(colors.paper.DEFAULT).toBe('#F4F6F9')
+    expect(colors.ink.DEFAULT).toBe('#0D1B2A')
+    expect(colors.primary[600]).toBe('#14617A')
+    expect(colors.accent[500]).toBe('#8E5A0F')
+    expect(colors.line.DEFAULT).toBe('#DDE3EB')
+    // 深色区域（首页主视觉 / AI 洞察）用的 navy 与 glow：没有它们，
+    // 「深色面板」会退回成随便一个黑底，深色区的对比度断言也就失去意义。
+    expect(colors.navy[800]).toBe('#0B1A28')
+    expect(colors.glow.DEFAULT).toBe('#5AD7E8')
   })
 
   it('答题页在 laptop: 起是「左进度 + 右题卡」两栏，而不是单列窄条', () => {

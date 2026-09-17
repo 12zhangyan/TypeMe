@@ -5,6 +5,7 @@ import com.typeme.account.repository.AiSettingRecord;
 import com.typeme.account.repository.AiSettingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Service;
 
@@ -44,12 +45,15 @@ public class AiSettingsService {
     private final AiSettingRepository repository;
     private final TextEncryptor textEncryptor;
     private final TypemeProperties properties;
+    private final ObjectProvider<AiSettingsCacheInvalidator> cacheInvalidator;
 
     public AiSettingsService(AiSettingRepository repository, TextEncryptor textEncryptor,
-                             TypemeProperties properties) {
+                             TypemeProperties properties,
+                             ObjectProvider<AiSettingsCacheInvalidator> cacheInvalidator) {
         this.repository = repository;
         this.textEncryptor = textEncryptor;
         this.properties = properties;
+        this.cacheInvalidator = cacheInvalidator;
     }
 
     /**
@@ -195,6 +199,12 @@ public class AiSettingsService {
                 update.mockMode() == null ? current.mockMode() : update.mockMode(),
                 now, adminUserId);
         repository.save(record);
+        // 保存成功即通知读取侧丢弃缓存：否则"保存后立刻生成分析"会按上一版配置跑（最多 10 秒），
+        // 表现为"我明明关掉了演示模式，结果还是演示数据"。读不到实现也不算致命。
+        AiSettingsCacheInvalidator invalidator = cacheInvalidator.getIfAvailable();
+        if (invalidator != null) {
+            invalidator.invalidate();
+        }
         return adminView();
     }
 

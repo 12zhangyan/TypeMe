@@ -20,6 +20,7 @@
 | 作答 | 一对场景化描述 + 5 档位置，另有「这题我说不好」（与"未作答"是两件不同的事） |
 | 结果 | 四字母**参考**类型 + 八段中文解读；平分或倾向较轻时降级表述（见下） |
 | 账号 | 注册/登录、跨设备草稿、历史报告、恢复码找回、导出/删除数据、注销账号 |
+| 注册前置 | 注册时必须勾选「我已阅读并理解测评定位与作答数据怎么存」（2026-09-17 起；服务端校验，见 `typeme.auth.disclaimer-required`） |
 | AI 分析 | **可选**能力，默认关闭；基础报告与固定计分完全不依赖它 |
 
 ### 四种结果状态（这是新测最容易被做错的地方）
@@ -264,11 +265,35 @@ mvn.cmd test
 #   后端 242 条 0 失败 0 错误（1 条是刻意的 skip）。
 # 三条纪律：`npm test` 必须 **exit 0**（只有"用例全绿"不够，unhandled error 会让进程失败）；
 #          `npm run build` 不能用 build:only 代替；改内容后必须重跑两个 --check。
+#
+# 更新的基线（2026-09-17 持续优化第 14 轮，原始输出见 docs/optimization/progress.md）：
+#   前端 25 文件 / 769 条；后端子集 259 条（0 失败 1 跳过）；
+#   注意后端完整 `mvn.cmd test` 会包含两个会**建库/删库**的真实 MySQL 用例，
+#   未获授权时按下面的写法排除，并称结果为"相应子集通过"：
+#     mvn.cmd test '-Dtest=*,!AccountSqlDialectMySqlIT,!AiSqlDialectMySqlIT'
 
 # 浏览器验收（需先起着前端与后端；含视口矩阵、真实 50 题流程与真实导出图片）
 python scripts\browser-verify-ipip.py   # 默认大五入口（IPIP-50）
 python scripts\browser-verify.py        # OEJTS 旧版本路径（先把题目版本切到 oejts32-zh1-report2）
 # 产出：docs/2026-09-15/verification/{assessment-ipip50,assessment-v2}/*.png 与 REPORT.md
+
+# 新测（登录版十六型）的浏览器验收。都需要一个**可写的一次性后端**（建议内存 H2），
+# 脚本会真实注册账号、作答、交卷 —— 不要指向含真实用户数据的库。
+$env:TYPEME_BASE='http://127.0.0.1:5174'   # 指向转发到测试后端的 dev server
+python scripts\browser-verify-jung-flow.py       # 主流程 34 项：注册→作答→刷新恢复→交卷→报告→归属边界→视口
+python scripts\browser-verify-ai-analysis.py     # 报告页 AI 面板 31 项（后端需 TYPEME_AI_MOCK_MODE=true）
+#   该脚本也支持**真实模式**（mock=false）：此时会真的调用外部模型服务并产生费用，
+#   只应在明确授权下执行；脚本会改判"不得出现演示数据标注"，其余结构性断言对真实输出同样适用。
+python scripts\browser-verify-compare.py         # 复测比较 28 项（脚本自己做两份报告）
+python scripts\browser-verify-conflict.py        # 跨设备草稿冲突 22 项：两个独立浏览器上下文真的撞 409
+#   验证冲突横幅逐条列出「被丢弃的是第几题、自己选了什么」（不需要 AI，也不写 AI 配置）。
+python scripts\browser-verify-admin.py --phase1 --reset  # 管理后台 31 项，分两段：
+#   第一段注册普通账号并验「看不到入口/直接访问被拒」，然后以
+#   TYPEME_ADMIN_BOOTSTRAP_USERNAME=<第一段账号> 重启后端，再跑 --phase2 验管理员读写。
+#   （引导只在"系统里一个 ADMIN 都没有"时生效，所以第二段必须在同一个库上重启一次。）
+python scripts\browser-verify-narrow-layout.py   # 320/360/390/768/1440 × 首页/登录/注册/关于 的顶栏与溢出
+python scripts\browser-verify-optimization.py    # 顶栏导航、真实渲染对比度、横向溢出
+# 产出：docs/optimization/verification/<日期>-<主题>/*.png 与 REPORT.md
 ```
 
 ## 目录

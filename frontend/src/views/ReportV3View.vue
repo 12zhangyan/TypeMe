@@ -3,6 +3,9 @@ import { computed, onMounted, ref, useId, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import AiAnalysisPanel from '@/components/AiAnalysisPanel.vue'
+import DimensionMeter from '@/components/DimensionMeter.vue'
+import AppIcon from '@/components/AppIcon.vue'
 import { useReportStore } from '@/stores/reportV3'
 import { useInstrumentV3Store } from '@/stores/instrumentV3'
 import type { ReportViewModelV3 } from '@/domain/reportV3'
@@ -204,9 +207,14 @@ async function renderShareBlob(
   canvas.height = 1920
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('当前浏览器不支持 canvas 2d')
-  ctx.fillStyle = '#F7F6F2'
+  // 2026-09-18 视觉重构：分享图换成与页面同一套色值（浅色纸面 + 藏青墨 + 蓝青），
+  // 否则用户导出的图片会是一张"上一版设计"的图。
+  ctx.fillStyle = '#F4F6F9'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
-  ctx.fillStyle = '#1D2D3A'
+  // 顶部一条主色带：与页面深色概览面板形成同一个视觉签名
+  ctx.fillStyle = '#14617A'
+  ctx.fillRect(0, 0, canvas.width, 18)
+  ctx.fillStyle = '#0D1B2A'
   ctx.textAlign = 'center'
   ctx.font = '500 36px system-ui, sans-serif'
   ctx.fillText(imageTitle, 540, 300)
@@ -217,7 +225,7 @@ async function renderShareBlob(
   let y = 760
   if (boundaryLine) {
     ctx.font = '400 34px system-ui, sans-serif'
-    ctx.fillStyle = '#52616B'
+    ctx.fillStyle = '#48586A'
     wrapLines(ctx, boundaryLine, 900).forEach((line) => {
       ctx.fillText(line, 540, y)
       y += 48
@@ -225,13 +233,13 @@ async function renderShareBlob(
     y += 24
   }
   ctx.font = '400 32px system-ui, sans-serif'
-  ctx.fillStyle = '#52616B'
+  ctx.fillStyle = '#48586A'
   wrapLines(ctx, text, 900).forEach((line) => {
     ctx.fillText(line, 540, y)
     y += 46
   })
   ctx.font = '400 28px system-ui, sans-serif'
-  ctx.fillStyle = '#7C8892'
+  ctx.fillStyle = '#5B6B7F'
   ctx.fillText('参考测评，不是诊断 · 内容仍在内部审校中', 540, 1780)
 
   const blob = await new Promise<Blob | null>((resolve) => {
@@ -289,10 +297,61 @@ async function removeReport(): Promise<void> {
   notice.value = ok ? '报告已经删除（连同它的答案与 AI 记录）。' : '删除没能完成。'
 }
 
-/** 位置百分比（位置只表示"落在两端之间的哪里"，不表示好坏）。 */
-function positionPercent(position: number | null): number | null {
-  if (position === null) return null
-  return Math.round(position * 1000) / 10
+/**
+ * 概览面板右侧的那句状态说明。
+ *
+ * 它替代了旧版"每种状态一套标题"的做法：三种状态的**版式相同**，
+ * 差别只在有没有类型码、以及这句话 —— 平分不该因为"没测出类型"看起来更低一等。
+ * 三句话都刻意不含「本次参考类型 / 本次更接近」这类措辞：
+ * 那是 `share.headline` 的职责，两处都写就会互相矛盾。
+ */
+const overviewNote = computed(() => {
+  switch (view.value?.status) {
+    case 'REFERENCE':
+      return '四个维度都达到了展示条件'
+    case 'TENTATIVE':
+      return '有一维只是略偏，还不能当成确定的类型'
+    case 'TIED':
+      return '有维度两边证据一样多，因此不给主类型'
+    default:
+      return ''
+  }
+})
+
+/**
+ * 报告目录。
+ *
+ * 长报告最大的问题是"读完不知道读到哪、也没法跳" —— 这里按**当前这份报告实际
+ * 渲染出来的区块**生成目录（没有过程层就不列过程层那一节），每一条都能滚到对应位置。
+ *
+ * ⚠️ 点击用的是 `scrollIntoView` 而**不是** `<a href="#id">`：本站路由是 hash 模式，
+ * 浏览器会把 `#report-dynamics` 当成一次路由跳转，用户会落到一个不存在的路由上。
+ */
+const TOC = computed(() => {
+  const report = view.value
+  if (!report) return []
+  const items: { id: string; label: string }[] = [{ id: 'report-overview', label: '结果概览' }]
+  items.push({ id: 'report-dimensions', label: '四个维度' })
+  if (report.boundaryNotes.length > 0) items.push({ id: 'report-boundaries', label: '哪几维只是略偏' })
+  if (report.candidates.length > 0) items.push({ id: 'report-candidates', label: '还可以一起看的方向' })
+  if (report.typeSections.length > 0) items.push({ id: 'report-sections', label: '这一型的读法' })
+  if (report.nextActions.length > 0) items.push({ id: 'report-actions', label: '可以试试' })
+  if (report.dynamics) items.push({ id: 'report-dynamics', label: '四个精神活动过程' })
+  if (report.processPlan) items.push({ id: 'report-process-plan', label: '按这套结构可以做的事' })
+  items.push({ id: 'report-self', label: '你自己的理解' })
+  items.push({ id: 'report-share', label: '带走这份报告' })
+  items.push({ id: 'report-ai', label: 'AI 分析（可选）' })
+  items.push({ id: 'report-method', label: '这份报告是怎么来的' })
+  return items
+})
+
+/** 目录跳转：滚动 + 把焦点交给目标区块（键盘与读屏用户才不会"跳完不知道到哪了"）。 */
+function jumpToSection(id: string): void {
+  const target = document.getElementById(id)
+  if (!target) return
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1')
+  target.focus({ preventScroll: true })
 }
 </script>
 
@@ -307,6 +366,16 @@ function positionPercent(position: number | null): number | null {
         </h1>
         <p class="mt-3 prose-cn">
           按时间倒序排列。报告是提交那一刻的快照，之后改答不会改它 —— 想对比就再来一次。
+        </p>
+        <!--
+          复测比较的入口（2026-09-17 新增）。只在**至少两份**报告时才显示：
+          做成常驻链接的话，只有一份报告的用户点进去只会看到一句"还不满两份"，
+          那是把"这个功能现在对你没用"变成一个需要点击才发现的事实。
+        -->
+        <p v-if="reports.listDescending.length >= 2" class="mt-3">
+          <RouterLink to="/reports/compare" class="btn-secondary btn-sm" data-compare-entry>
+            把两次测评放在一起看
+          </RouterLink>
         </p>
       </header>
 
@@ -325,19 +394,24 @@ function positionPercent(position: number | null): number | null {
         <li
           v-for="item in reports.listDescending"
           :key="item.reportId"
-          class="rounded-question border border-line bg-surface px-4 py-4"
+          class="rounded-question border border-line bg-surface px-4 py-4 shadow-card transition-shadow hover:shadow-lift tablet:px-5"
           :data-report-row="item.reportId"
         >
-          <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-            <p class="text-[15.5px] font-semibold text-ink">
-              {{ item.computedTypeCode ?? '（没有单一类型）' }}
-              <span class="ml-2 rounded-full bg-paper-soft px-2.5 py-1 text-[12.5px] font-medium text-ink-soft">
-                {{ statusLabel(item.status) }}
-              </span>
-            </p>
+          <div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+            <div class="min-w-0">
+              <p class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                <span class="font-display text-[22px] font-bold leading-none tracking-[0.04em] text-ink">
+                  {{ item.computedTypeCode ?? '——' }}
+                </span>
+                <span class="chip" :class="item.status === 'REFERENCE' ? 'chip-primary' : item.status === 'NEEDS_REVIEW' ? 'chip-neutral' : 'chip-accent'">
+                  {{ statusLabel(item.status) }}
+                </span>
+              </p>
+              <p v-if="!item.computedTypeCode" class="mt-1.5 text-[13px] text-ink-faint">这一份没有单一类型</p>
+            </div>
             <p class="text-[13px] text-ink-faint">{{ formatTime(item.createdAt) }}</p>
           </div>
-          <p v-if="item.summaryLine" class="mt-2 text-[14px] leading-relaxed text-ink-soft">
+          <p v-if="item.summaryLine" class="mt-2.5 max-w-[46rem] text-[14px] leading-relaxed text-ink-soft">
             {{ item.summaryLine }}
           </p>
           <p v-if="item.selfSelectedTypeCode" class="mt-1 text-[13px] text-ink-faint">
@@ -404,439 +478,569 @@ function positionPercent(position: number | null): number | null {
     </div>
 
     <template v-else-if="view">
-      <!-- ══ 状态一：REFERENCE ══════════════════════════════════════════ -->
-      <article v-if="view.status === 'REFERENCE'" data-status="REFERENCE">
-        <header>
-          <p class="section-kicker">参考类型</p>
-          <h1 class="mt-2 font-display text-[28px] font-bold leading-tight text-ink tablet:text-[36px]">
-            {{ view.headline }}
-          </h1>
-          <p v-if="view.typeNameCn" class="mt-2 text-[17px] font-medium text-primary-700" data-type-name>
-            {{ view.typeNameCn }}
-          </p>
-          <p class="mt-3 prose-cn">{{ view.summary }}</p>
-        </header>
-      </article>
-
-      <!-- ══ 状态二：TENTATIVE ══════════════════════════════════════════ -->
-      <article v-else-if="view.status === 'TENTATIVE'" data-status="TENTATIVE">
-        <header>
-          <p class="section-kicker">倾向较轻</p>
-          <h1 class="mt-2 font-display text-[28px] font-bold leading-tight text-ink tablet:text-[36px]">
-            {{ view.headline }}
-          </h1>
-          <p v-if="view.typeNameCn" class="mt-2 text-[17px] font-medium text-primary-700" data-type-name>
-            {{ view.typeNameCn }}
-          </p>
-          <p class="notice-uncertain mt-4 text-[14px] leading-relaxed" data-tentative-notice>
-            这一侧只是略偏，还不足以当成确定的类型。下面每一维都写了两端的样子，
-            两个方向都值得一起读。
-          </p>
-          <p class="mt-3 prose-cn">{{ view.summary }}</p>
-        </header>
-      </article>
-
-      <!-- ══ 状态三：TIED ══════════════════════════════════════════════ -->
-      <article v-else data-status="TIED">
-        <header>
-          <p class="section-kicker">几个方向并列</p>
-          <h1 class="mt-2 font-display text-[28px] font-bold leading-tight text-ink tablet:text-[36px]" data-tied-title>
-            {{ view.headline }}
-          </h1>
-          <p class="notice-uncertain mt-4 text-[14px] leading-relaxed" data-tied-notice>
-            本次作答里，有维度两边的证据正好一样多，因此没有哪一个四字母类型更适合当主标题。
-            下面是几个都说得通的方向，请当成"一起看"，而不是"哪一个更准"。
-          </p>
-          <p class="mt-3 prose-cn">{{ view.summary }}</p>
-        </header>
-      </article>
-
-      <!-- ══ 四维得分条 ════════════════════════════════════════════════ -->
-      <section class="mt-8" aria-labelledby="report-dimensions">
-        <h2 id="report-dimensions" class="section-title">四个维度各自落在哪里</h2>
-        <p class="mt-1 text-[13.5px] leading-relaxed text-ink-soft">
-          位置点表示本次作答落在两端之间的哪个地方。靠哪一端都不是「更好」，
-          只是这一侧的解释更贴近本次的作答。
-        </p>
-        <div class="mt-4 space-y-3">
-          <article
-            v-for="row in view.dimensionRows"
-            :key="row.dimension"
-            class="rounded-question border border-line bg-surface px-4 py-4"
-            :aria-label="row.ariaLabel"
-            :data-dimension="row.dimension"
-          >
-            <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-              <h3 class="text-[16px] font-semibold text-ink">{{ row.name }}</h3>
-              <p class="text-[13px] text-ink-soft">
-                {{ row.negativeLabel }} {{ row.negativePole }} ↔ {{ row.positiveLabel }} {{ row.positivePole }}
-              </p>
-            </div>
-
-            <div class="mt-3">
-              <div class="flex items-baseline justify-between text-[12px] text-ink-faint">
-                <span class="font-display text-[15px] font-bold text-ink-soft">{{ row.negativePole }}</span>
-                <span class="text-[11.5px]">中点</span>
-                <span class="font-display text-[15px] font-bold text-ink-soft">{{ row.positivePole }}</span>
-              </div>
-              <div class="relative mt-1.5 h-2.5 w-full rounded-full bg-line-soft">
-                <div class="absolute inset-y-[-4px] left-1/2 w-px -translate-x-1/2 bg-ink/35" aria-hidden="true" />
-                <div
-                  v-if="positionPercent(row.position) !== null"
-                  class="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-primary-600 shadow-sm"
-                  :style="{ left: `${positionPercent(row.position)}%` }"
-                  aria-hidden="true"
-                  data-position-dot
-                />
-                <p v-else class="absolute inset-0 flex items-center justify-center text-[12px] text-ink-faint">
-                  本次不可计分
-                </p>
-              </div>
-            </div>
-
-            <p class="mt-3 text-[14.5px] font-medium text-ink">{{ row.statusNote }}</p>
-            <ul class="mt-2 space-y-1.5">
-              <li v-for="(detail, index) in row.details" :key="index" class="text-[13.5px] leading-relaxed text-ink-soft">
-                {{ detail }}
-              </li>
-            </ul>
-            <p class="mt-2 text-[12.5px] leading-relaxed text-ink-faint">
-              可计分 {{ row.nFinal }} 题（主测 {{ row.nBase }} · 补充 {{ row.nClar }}）
-              <template v-if="row.clarificationScheduled">
-                ·
-                {{ row.clarificationApplied ? '补充题已计入' : row.clarificationSkipped ? '补充题被你跳过了（只按主测绘）' : '补充题尚未计入' }}
-              </template>
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <!-- ══ 边界说明（TENTATIVE 必看） ═══════════════════════════════ -->
-      <section v-if="view.boundaryNotes.length > 0" class="mt-8" aria-labelledby="report-boundaries">
-        <h2 id="report-boundaries" class="section-title">哪几维只是略偏</h2>
-        <ul class="mt-3 space-y-2">
-          <li v-for="(note, index) in view.boundaryNotes" :key="index" class="notice-uncertain text-[14px] leading-relaxed">
-            {{ note }}
-          </li>
-        </ul>
-      </section>
-
-      <!-- ══ 候选类型 ═════════════════════════════════════════════════ -->
-      <section v-if="view.candidates.length > 0" class="mt-8" aria-labelledby="report-candidates">
-        <h2 id="report-candidates" class="section-title">还可以一起看的方向</h2>
-        <p class="mt-1 text-[13.5px] leading-relaxed text-ink-soft">
-          下面的「需要偏离 N 分证据」是规则换算：换一个字母需要偏离多少本次作答的证据量。
-          它不是概率、不是准确率、不是可能性，也不表示谁更准。
-        </p>
-        <p v-if="view.tieNotice" class="notice-neutral mt-3 text-[13.5px] leading-relaxed" data-tie-notice>
-          {{ view.tieNotice }}
-        </p>
-        <ul class="mt-3 space-y-2" data-candidate-list>
-          <li
-            v-for="candidate in view.candidates"
-            :key="candidate.typeCode"
-            class="rounded-control border border-line bg-surface px-4 py-3"
-            :data-candidate="candidate.typeCode"
-          >
-            <p class="text-[15px] font-semibold text-ink">
-              {{ candidate.typeCode }}
-              <span v-if="candidate.isComputedDirection" class="ml-2 text-[13px] font-normal text-primary-700">
-                （本次方向本身）
-              </span>
-              <span class="ml-2 text-[12.5px] font-normal text-ink-faint">需要偏离 {{ candidate.cost }} 分证据</span>
-            </p>
-            <p class="mt-1 text-[13.5px] leading-relaxed text-ink-soft" data-cost-text>
-              {{ candidate.costText }}
-            </p>
-            <p class="mt-1 text-[13px] leading-relaxed text-ink-faint" data-differs-text>
-              {{ candidate.differsText }}
-            </p>
-          </li>
-        </ul>
-      </section>
-
-      <!-- ══ 八段解读 ═════════════════════════════════════════════════ -->
-      <section v-if="view.typeSections.length > 0" class="mt-8" aria-labelledby="report-sections">
-        <h2 id="report-sections" class="section-title">这一型的读法</h2>
-        <div class="mt-4 space-y-4">
-          <article v-for="section in view.typeSections" :key="section.key" class="rounded-question border border-line bg-surface px-4 py-4">
-            <h3 class="text-[16px] font-semibold text-ink">{{ section.title }}</h3>
-            <p class="mt-2 text-[14.5px] leading-relaxed text-ink-soft">{{ section.body }}</p>
-          </article>
-        </div>
-      </section>
-
-      <!-- ══ 可以试试 ═════════════════════════════════════════════════ -->
-      <section v-if="view.nextActions.length > 0" class="mt-8" aria-labelledby="report-actions">
-        <h2 id="report-actions" class="section-title">可以试试</h2>
-        <div class="mt-4 space-y-3">
-          <article v-for="action in view.nextActions" :key="action.title" class="rounded-question border border-line bg-surface px-4 py-4">
-            <h3 class="text-[15.5px] font-semibold text-ink">{{ action.title }}</h3>
-            <ol class="mt-2 space-y-1.5">
-              <li v-for="(step, index) in action.steps" :key="index" class="list-line text-[13.5px] leading-relaxed text-ink-soft">
-                {{ step }}
-              </li>
-            </ol>
-          </article>
-        </div>
-      </section>
-
-      <!-- ══ 四个过程（由四字母**推导**，不是测量） ═══════════════════════ -->
       <!--
-        这一块的全部意义就是"不能让它被读成测量结果"，所以 `basis` 与
-        `notes.frameworkCaveat` **必须**是可见文字，而不是折叠起来的附注：
-        读者看到四个过程，最自然的误解就是"这是测出来的另外四个分数"。
+        正文与目录的布局：手机单列（目录在最上面一排 chip），laptop 起变成
+        「正文 + 右侧粘性目录」。用 `flex flex-col` 打底、`laptop:grid` 覆盖，
+        是为了让 `order-first`（手机把目录提到最前）与 `laptop:order-none`
+        （桌面回到"正文在左、目录在右"的源码顺序）能同时成立 —— 只用一个
+        grid 时 `order` 会连列位置一起改掉，目录会跑到左列去。
       -->
-      <section v-if="view.dynamics" class="mt-8" aria-labelledby="report-dynamics" data-dynamics>
-        <h2 id="report-dynamics" class="section-title">四个精神活动过程</h2>
-        <p class="mt-1 text-[13.5px] leading-relaxed text-ink-soft">
-          下面这四个过程是由四个字母（{{ view.dynamics.typeCode }}）按这套框架的规则
-          <strong class="font-medium text-ink">推导</strong>出来的，不是本次问卷另外测出来的结果。
-        </p>
-        <p class="notice-uncertain mt-3 text-[13.5px] leading-relaxed" data-dynamics-basis>
-          {{ view.dynamics.basis }}
-        </p>
-        <p class="notice-neutral mt-2 text-[13.5px] leading-relaxed" data-dynamics-caveat>
-          {{ view.dynamics.notes.frameworkCaveat }}
-        </p>
-        <p class="mt-3 text-[13.5px] leading-relaxed text-ink-soft" data-dynamics-rule>
-          {{ view.dynamics.rule }}
-        </p>
-        <p class="mt-2 text-[12.5px] leading-relaxed text-ink-faint">
-          推导规则版本：{{ view.dynamics.version }}
-        </p>
-
-        <div class="mt-4 space-y-3">
-          <article
-            v-for="process in view.dynamics.processes"
-            :key="process.slot"
-            class="rounded-question border border-line bg-surface px-4 py-4"
-            :data-process="process.process"
-          >
-            <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-              <h3 class="text-[16px] font-semibold text-ink">
-                {{ process.roleTitle }} · {{ process.nameCn }}
-                <span class="ml-2 font-display text-[15px] font-bold text-primary-700">{{ process.process }}</span>
-              </h3>
-              <p class="text-[12.5px] text-ink-faint">
-                {{ process.preferred ? '用起来最省力的一侧' : '还没有偏好的过程' }}
-                · 第 {{ process.order }} 位
-              </p>
-            </div>
-            <p class="mt-2 text-[14.5px] leading-relaxed text-ink">{{ process.what }}</p>
-            <p class="mt-1.5 text-[13.5px] leading-relaxed text-ink-soft">{{ process.reading }}</p>
-          </article>
-        </div>
-
-        <!-- 边界维度：换到另一侧，结构会怎么变（比"另一侧也值得读"具体得多） -->
-        <div v-if="view.dynamics.boundaryNotes.length > 0" class="mt-5" data-dynamics-boundaries>
-          <h3 class="text-[15.5px] font-semibold text-ink">这一维若落到另一侧，结构会这样变</h3>
-          <ul class="mt-2 space-y-2">
-            <li
-              v-for="note in view.dynamics.boundaryNotes"
-              :key="note.dimension"
-              class="notice-uncertain text-[13.5px] leading-relaxed"
-              :data-boundary-note="note.dimension"
-            >
-              {{ note.note }}
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- ══ 由过程结构派生的建议 ═══════════════════════════════════════ -->
-      <section
-        v-if="view.processPlan"
-        class="mt-8"
-        aria-labelledby="report-process-plan"
-        data-process-plan
+      <div
+        class="flex flex-col gap-6 laptop:grid laptop:grid-cols-[minmax(0,1fr)_14rem] laptop:items-start laptop:gap-10"
       >
-        <h2 id="report-process-plan" class="section-title">按这套结构可以做的事</h2>
-        <p class="mt-1 text-[13.5px] leading-relaxed text-ink-soft">
-          下面的建议都由上面那四个过程派生而来，同样不是另一次测量的结论。
-          四个过程没有高下：主导只是「用起来最省力」的那一个。
-        </p>
-
-        <!-- 三段发展任务 -->
-        <div class="mt-4 space-y-3" data-development-order>
+        <div class="min-w-0">
+          <!-- ══ 结果概览：整页的视觉焦点（深色面板） ══════════════════════
+            三种状态共用一块面板，靠 `:data-status` 区分 —— 状态之间的差别由
+            里面的**文案与有没有类型码**表达，而不是换一套版式：
+            平分时不该因为"没测出类型"就被降级成一张灰卡片。
+          -->
           <article
-            v-for="stage in view.processPlan.developmentOrder"
-            :key="stage.order"
-            class="rounded-question border border-line bg-surface px-4 py-4"
-            :data-development-stage="stage.order"
+            id="report-overview"
+            data-anchor
+            data-report-overview
+            class="deep-panel deep-grid scroll-mt-24 rounded-cover px-5 py-7 shadow-deep tablet:px-9 tablet:py-10"
+            :data-status="view.status"
           >
-            <h3 class="text-[16px] font-semibold text-ink">{{ stage.order }}. {{ stage.title }}</h3>
-            <p class="mt-2 text-[14px] leading-relaxed text-ink-soft">{{ stage.body }}</p>
-            <ul class="mt-2 space-y-2">
-              <li
-                v-for="item in stage.processes"
-                :key="item.process"
-                class="rounded-control bg-paper-soft px-3 py-2.5"
-                :data-development-process="item.process"
-              >
-                <p class="text-[13.5px] font-medium text-ink">{{ item.process }} · {{ item.nameCn }}</p>
-                <p class="mt-1 text-[13px] leading-relaxed text-ink-soft">{{ item.body }}</p>
-              </li>
-            </ul>
-          </article>
-        </div>
+            <p class="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span class="chip chip-on-deep">{{ statusLabel(view.status) }}</span>
+              <span class="text-[12.5px] text-navy-200" data-status-note>{{ overviewNote }}</span>
+            </p>
 
-        <!-- 四步决策法（顺序固定：感觉 → 直觉 → 思考 → 情感） -->
-        <div class="mt-6" data-decision-plan>
-          <h3 class="text-[16px] font-semibold text-ink">拿四个过程过一遍一个决定</h3>
-          <p class="mt-1 text-[13.5px] leading-relaxed text-ink-soft">
-            {{ view.processPlan.decisionIntro }}
-          </p>
-          <ol class="mt-3 space-y-3">
-            <li
-              v-for="step in view.processPlan.decisionSteps"
-              :key="step.order"
-              class="rounded-question border px-4 py-4"
-              :class="step.preferred ? 'border-line bg-surface' : 'border-line-strong bg-paper-soft'"
-              :data-decision-step="step.function"
-            >
-              <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                <h4 class="text-[15.5px] font-semibold text-ink">{{ step.order }}. {{ step.title }}</h4>
-                <p class="text-[12.5px]" :class="step.preferred ? 'text-ink-faint' : 'text-primary-700'">
-                  {{ step.slotTitle }} · {{ step.process }}
+            <div class="mt-5 flex flex-wrap items-end gap-x-8 gap-y-4">
+              <p
+                v-if="view.typeCode"
+                class="display-hero text-[64px] leading-[0.85] tracking-[0.06em] text-white tablet:text-[84px]"
+                data-type-code
+              >
+                {{ view.typeCode }}
+              </p>
+              <div class="min-w-0">
+                <h1
+                  class="display-hero text-[23px] leading-tight text-white tablet:text-[30px]"
+                  :data-tied-title="view.status === 'TIED' || null"
+                >
+                  {{ view.headline }}
+                </h1>
+                <p
+                  v-if="view.typeNameCn"
+                  class="mt-2 text-[17px] font-medium text-glow-soft"
+                  data-type-name
+                >
+                  {{ view.typeNameCn }}
                 </p>
               </div>
-              <!--
-                「用不上你偏好的功能」两步必须**显式**标出来：跳过决策步骤的人，
-                跳过的往往正是与自己不同的那两步，而这两步恰恰是最需要外部补上的。
-              -->
-              <p
-                v-if="!step.preferred"
-                class="mt-2 inline-block rounded-full bg-surface px-2.5 py-1 text-[12.5px] font-medium text-primary-700"
-                data-decision-unpreferred
-              >
-                这一步用不上你偏好的功能
-              </p>
-              <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft">{{ step.prompt }}</p>
-              <p class="mt-1.5 text-[13px] leading-relaxed text-ink-soft">{{ step.how }}</p>
-            </li>
-          </ol>
-          <p class="mt-2 text-[13px] leading-relaxed text-ink-soft">{{ view.processPlan.decisionNote }}</p>
-          <div class="notice-uncertain mt-3" data-hardest-note>
-            <p v-if="view.processPlan.hardestSteps.length > 0" class="text-[13.5px] font-medium text-ink">
-              最容易整段跳过的两步：{{ view.processPlan.hardestSteps.join('、') }}
+            </div>
+
+            <!--
+              略偏与平分必须当场说清楚 —— 这两处最容易被读成"结果很确定"。
+              文案与旧版逐字一致（单测钉着「略偏 / 两端」「没有哪一个四字母类型更适合当主标题」）。
+            -->
+            <p
+              v-if="view.status === 'TENTATIVE'"
+              class="notice-uncertain mt-5 text-[14px] leading-relaxed"
+              data-tentative-notice
+            >
+              这一侧只是略偏，还不足以当成确定的类型。下面每一维都写了两端的样子，
+              两个方向都值得一起读。
             </p>
-            <p class="mt-1 text-[13px] leading-relaxed">{{ view.processPlan.hardestStepsNote }}</p>
-          </div>
-        </div>
-
-        <!-- 互补的一侧（只覆盖 SN / TF 两轴） -->
-        <div class="mt-6" data-opposites>
-          <h3 class="text-[16px] font-semibold text-ink">和你不同的人，能补上什么</h3>
-          <div class="mt-3 grid gap-3 tablet:grid-cols-2">
-            <article
-              v-for="item in view.processPlan.opposites"
-              :key="item.axis"
-              class="rounded-question border border-line bg-surface px-4 py-4"
-              :data-opposite="item.axis"
+            <p
+              v-else-if="view.status === 'TIED'"
+              class="notice-uncertain mt-5 text-[14px] leading-relaxed"
+              data-tied-notice
             >
-              <h4 class="text-[15px] font-semibold text-ink">
-                {{ item.axisName }}：你偏 {{ item.yourPole }}，另一侧是 {{ item.needPole }}
-              </h4>
-              <p class="mt-2 text-[13.5px] leading-relaxed text-ink">{{ item.need }}</p>
-              <p class="mt-1.5 text-[13.5px] leading-relaxed text-ink-soft">{{ item.supply }}</p>
-            </article>
-          </div>
-        </div>
+              本次作答里，有维度两边的证据正好一样多，因此没有哪一个四字母类型更适合当主标题。
+              下面是几个都说得通的方向，请当成"一起看"，而不是"哪一个更准"。
+            </p>
 
-        <!-- 按自己那一侧给的沟通规则 -->
-        <div class="mt-6" data-communication-rules>
-          <h3 class="text-[16px] font-semibold text-ink">和另一侧的人说事时</h3>
-          <div class="mt-3 space-y-3">
-            <article
-              v-for="rule in view.processPlan.communicationRules"
-              :key="rule.axis"
-              class="rounded-question border border-line bg-surface px-4 py-4"
-              :data-communication-rule="rule.axis"
-            >
-              <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                <h4 class="text-[15px] font-semibold text-ink">{{ rule.title }}</h4>
-                <p class="text-[12.5px] text-ink-faint">{{ rule.axisName }} · 你偏 {{ rule.yourPole }}</p>
+            <p class="mt-5 max-w-[42rem] text-[15.5px] leading-[1.75] text-navy-100">{{ view.summary }}</p>
+          </article>
+
+          <!-- ══ 四维得分条 ════════════════════════════════════════════════ -->
+          <section class="mt-10 scroll-mt-24" id="report-dimensions" data-anchor aria-labelledby="report-dimensions-title">
+            <div class="flex items-baseline gap-3">
+              <span class="section-index" aria-hidden="true">01</span>
+              <h2 id="report-dimensions-title" class="section-title">四个维度各自落在哪里</h2>
+            </div>
+            <p class="mt-2 max-w-[42rem] text-[13.5px] leading-relaxed text-ink-soft">
+              位置点表示本次作答落在两端之间的哪个地方。靠哪一端都不是「更好」，
+              只是这一侧的解释更贴近本次的作答。
+            </p>
+            <div class="mt-4 space-y-3">
+              <DimensionMeter
+                v-for="(row, index) in view.dimensionRows"
+                :key="row.dimension"
+                :row="row"
+                :index="index"
+                show-details
+              />
+            </div>
+          </section>
+
+          <!-- ══ 边界说明（TENTATIVE 必看） ═══════════════════════════════ -->
+          <section
+            v-if="view.boundaryNotes.length > 0"
+            id="report-boundaries"
+            data-anchor
+            class="mt-10 scroll-mt-24"
+            aria-labelledby="report-boundaries"
+          >
+            <div class="flex items-baseline gap-3">
+              <span class="section-index" aria-hidden="true">02</span>
+              <h2 id="report-boundaries" class="section-title">哪几维只是略偏</h2>
+            </div>
+            <ul class="mt-3 space-y-2">
+              <li v-for="(note, index) in view.boundaryNotes" :key="index" class="notice-uncertain text-[14px] leading-relaxed">
+                {{ note }}
+              </li>
+            </ul>
+          </section>
+
+          <!-- ══ 候选类型 ═════════════════════════════════════════════════ -->
+          <section
+            v-if="view.candidates.length > 0"
+            id="report-candidates"
+            data-anchor
+            class="mt-10 scroll-mt-24"
+            aria-labelledby="report-candidates-title"
+          >
+            <div class="flex items-baseline gap-3">
+              <span class="section-index" aria-hidden="true">03</span>
+              <h2 id="report-candidates-title" class="section-title">还可以一起看的方向</h2>
+            </div>
+            <p class="mt-2 max-w-[42rem] text-[13.5px] leading-relaxed text-ink-soft">
+              下面的「需要偏离 N 分证据」是规则换算：换一个字母需要偏离多少本次作答的证据量。
+              它不是概率、不是准确率、不是可能性，也不表示谁更准。
+            </p>
+            <p v-if="view.tieNotice" class="notice-neutral mt-3 text-[13.5px] leading-relaxed" data-tie-notice>
+              {{ view.tieNotice }}
+            </p>
+            <ul class="mt-3 grid gap-3 tablet:grid-cols-2" data-candidate-list>
+              <li
+                v-for="candidate in view.candidates"
+                :key="candidate.typeCode"
+                class="rounded-card border border-line bg-surface px-4 py-3.5 shadow-card"
+                :data-candidate="candidate.typeCode"
+              >
+                <p class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <span class="font-display text-[19px] font-bold tracking-[0.05em] text-ink">{{ candidate.typeCode }}</span>
+                  <span v-if="candidate.isComputedDirection" class="chip chip-primary">本次方向本身</span>
+                  <span class="text-[12.5px] text-ink-faint">需要偏离 {{ candidate.cost }} 分证据</span>
+                </p>
+                <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft" data-cost-text>
+                  {{ candidate.costText }}
+                </p>
+                <p class="mt-1 text-[13px] leading-relaxed text-ink-faint" data-differs-text>
+                  {{ candidate.differsText }}
+                </p>
+              </li>
+            </ul>
+          </section>
+
+          <!-- ══ 八段解读 ═════════════════════════════════════════════════ -->
+          <section
+            v-if="view.typeSections.length > 0"
+            id="report-sections"
+            data-anchor
+            class="mt-10 scroll-mt-24"
+            aria-labelledby="report-sections-title"
+          >
+            <div class="flex items-baseline gap-3">
+              <span class="section-index" aria-hidden="true">04</span>
+              <h2 id="report-sections-title" class="section-title">这一型的读法</h2>
+            </div>
+            <div class="mt-4 divide-y divide-line border-y border-line">
+              <article v-for="(section, index) in view.typeSections" :key="section.key" class="py-4">
+                <h3 class="flex items-baseline gap-2.5 text-[16px] font-semibold text-ink">
+                  <span class="section-index" aria-hidden="true">{{ String(index + 1).padStart(2, '0') }}</span>
+                  {{ section.title }}
+                </h3>
+                <p class="mt-2 max-w-[46rem] text-[14.5px] leading-[1.72] text-ink-soft">{{ section.body }}</p>
+              </article>
+            </div>
+          </section>
+
+          <!-- ══ 可以试试 ═════════════════════════════════════════════════ -->
+          <section
+            v-if="view.nextActions.length > 0"
+            id="report-actions"
+            data-anchor
+            class="mt-10 scroll-mt-24"
+            aria-labelledby="report-actions-title"
+          >
+            <div class="flex items-baseline gap-3">
+              <span class="section-index" aria-hidden="true">05</span>
+              <h2 id="report-actions-title" class="section-title">可以试试</h2>
+            </div>
+            <div class="mt-4 grid gap-3 tablet:grid-cols-2">
+              <article
+                v-for="action in view.nextActions"
+                :key="action.title"
+                class="rounded-question border border-line bg-surface px-4 py-4 shadow-card"
+              >
+                <h3 class="flex items-start gap-2 text-[15.5px] font-semibold text-ink">
+                  <AppIcon name="steps" :size="17" class="mt-1 text-primary-600" />
+                  {{ action.title }}
+                </h3>
+                <ol class="mt-3 space-y-2">
+                  <li
+                    v-for="(step, index) in action.steps"
+                    :key="index"
+                    class="flex gap-2.5 text-[13.5px] leading-relaxed text-ink-soft"
+                  >
+                    <span class="mt-[3px] flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-50 text-[11px] font-semibold text-primary-700">
+                      {{ index + 1 }}
+                    </span>
+                    <span>{{ step }}</span>
+                  </li>
+                </ol>
+              </article>
+            </div>
+          </section>
+
+          <!-- ══ 四个过程（由四字母推导，不是测量） ═══════════════════════ -->
+          <!--
+            这一块的全部意义就是"不能让它被读成测量结果"，所以 `basis` 与
+            `notes.frameworkCaveat` **必须**是可见文字，而不是折叠起来的附注：
+            读者看到四个过程，最自然的误解就是"这是测出来的另外四个分数"。
+          -->
+          <section
+            v-if="view.dynamics"
+            id="report-dynamics"
+            data-anchor
+            class="mt-10 scroll-mt-24"
+            aria-labelledby="report-dynamics-title"
+            data-dynamics
+          >
+            <div class="flex flex-wrap items-baseline gap-x-3 gap-y-2">
+              <span class="section-index" aria-hidden="true">06</span>
+              <h2 id="report-dynamics-title" class="section-title">四个精神活动过程</h2>
+              <span class="chip chip-accent">由 {{ view.dynamics.typeCode }} 推导</span>
+            </div>
+            <p class="mt-2 max-w-[42rem] text-[13.5px] leading-relaxed text-ink-soft">
+              下面这四个过程是由四个字母（{{ view.dynamics.typeCode }}）按这套框架的规则
+              <strong class="font-medium text-ink">推导</strong>出来的，不是本次问卷另外测出来的结果。
+            </p>
+            <p class="notice-uncertain mt-3 text-[13.5px] leading-relaxed" data-dynamics-basis>
+              {{ view.dynamics.basis }}
+            </p>
+            <p class="notice-neutral mt-2 text-[13.5px] leading-relaxed" data-dynamics-caveat>
+              {{ view.dynamics.notes.frameworkCaveat }}
+            </p>
+            <p class="mt-3 text-[13.5px] leading-relaxed text-ink-soft" data-dynamics-rule>
+              {{ view.dynamics.rule }}
+            </p>
+            <p class="mt-2 text-[12.5px] leading-relaxed text-ink-faint">
+              推导规则版本：{{ view.dynamics.version }}
+            </p>
+
+            <div class="mt-4 grid gap-3 tablet:grid-cols-2">
+              <article
+                v-for="process in view.dynamics.processes"
+                :key="process.slot"
+                class="rounded-question border border-line bg-surface px-4 py-4 shadow-card"
+                :class="process.preferred ? 'border-primary-200' : ''"
+                :data-process="process.process"
+              >
+                <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                  <h3 class="flex items-baseline gap-2 text-[16px] font-semibold text-ink">
+                    <span
+                      class="font-display text-[15px] font-bold text-primary-700"
+                      aria-hidden="true"
+                      >{{ process.process }}</span
+                    >
+                    {{ process.roleTitle }} · {{ process.nameCn }}
+                  </h3>
+                  <span class="chip" :class="process.preferred ? 'chip-primary' : 'chip-neutral'">
+                    {{ process.preferred ? '用起来最省力的一侧' : '还没有偏好的过程' }} · 第 {{ process.order }} 位
+                  </span>
+                </div>
+                <p class="mt-2.5 text-[14.5px] leading-relaxed text-ink">{{ process.what }}</p>
+                <p class="mt-1.5 text-[13.5px] leading-relaxed text-ink-soft">{{ process.reading }}</p>
+              </article>
+            </div>
+
+            <!-- 边界维度：换到另一侧，结构会怎么变（比"另一侧也值得读"具体得多） -->
+            <div v-if="view.dynamics.boundaryNotes.length > 0" class="mt-5" data-dynamics-boundaries>
+              <h3 class="text-[15.5px] font-semibold text-ink">这一维若落到另一侧，结构会这样变</h3>
+              <ul class="mt-2 space-y-2">
+                <li
+                  v-for="note in view.dynamics.boundaryNotes"
+                  :key="note.dimension"
+                  class="notice-uncertain text-[13.5px] leading-relaxed"
+                  :data-boundary-note="note.dimension"
+                >
+                  {{ note.note }}
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- ══ 由过程结构派生的建议 ═══════════════════════════════════════ -->
+          <section
+            v-if="view.processPlan"
+            id="report-process-plan"
+            data-anchor
+            class="mt-10 scroll-mt-24"
+            aria-labelledby="report-process-plan-title"
+            data-process-plan
+          >
+            <div class="flex items-baseline gap-3">
+              <span class="section-index" aria-hidden="true">07</span>
+              <h2 id="report-process-plan-title" class="section-title">按这套结构可以做的事</h2>
+            </div>
+            <p class="mt-2 max-w-[42rem] text-[13.5px] leading-relaxed text-ink-soft">
+              下面的建议都由上面那四个过程派生而来，同样不是另一次测量的结论。
+              四个过程没有高下：主导只是「用起来最省力」的那一个。
+            </p>
+
+            <!-- 三段发展任务 -->
+            <div class="mt-4 space-y-3" data-development-order>
+              <article
+                v-for="stage in view.processPlan.developmentOrder"
+                :key="stage.order"
+                class="rounded-question border border-line bg-surface px-4 py-4 shadow-card"
+                :data-development-stage="stage.order"
+              >
+                <h3 class="flex items-baseline gap-2 text-[16px] font-semibold text-ink">
+                  <span class="section-index" aria-hidden="true">{{ String(stage.order).padStart(2, '0') }}</span>
+                  {{ stage.title }}
+                </h3>
+                <p class="mt-2 text-[14px] leading-relaxed text-ink-soft">{{ stage.body }}</p>
+                <ul class="mt-2.5 space-y-2">
+                  <li
+                    v-for="item in stage.processes"
+                    :key="item.process"
+                    class="rounded-control border border-line-soft bg-surface-soft px-3 py-2.5"
+                    :data-development-process="item.process"
+                  >
+                    <p class="text-[13.5px] font-medium text-ink">{{ item.process }} · {{ item.nameCn }}</p>
+                    <p class="mt-1 text-[13px] leading-relaxed text-ink-soft">{{ item.body }}</p>
+                  </li>
+                </ul>
+              </article>
+            </div>
+
+            <!-- 四步决策法（顺序固定：感觉 → 直觉 → 思考 → 情感） -->
+            <div class="mt-6" data-decision-plan>
+              <h3 class="text-[16px] font-semibold text-ink">拿四个过程过一遍一个决定</h3>
+              <p class="mt-1 text-[13.5px] leading-relaxed text-ink-soft">
+                {{ view.processPlan.decisionIntro }}
+              </p>
+              <ol class="mt-3 space-y-3">
+                <li
+                  v-for="step in view.processPlan.decisionSteps"
+                  :key="step.order"
+                  class="rounded-question border px-4 py-4 shadow-card"
+                  :class="step.preferred ? 'border-line bg-surface' : 'border-accent-200 bg-accent-50'"
+                  :data-decision-step="step.function"
+                >
+                  <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <h4 class="flex items-baseline gap-2 text-[15.5px] font-semibold text-ink">
+                      <span class="section-index" aria-hidden="true">{{ String(step.order).padStart(2, '0') }}</span>
+                      {{ step.title }}
+                    </h4>
+                    <span class="chip" :class="step.preferred ? 'chip-primary' : 'chip-accent'">
+                      {{ step.slotTitle }} · {{ step.process }}
+                    </span>
+                  </div>
+                  <!--
+                    「用不上你偏好的功能」两步必须**显式**标出来：跳过决策步骤的人，
+                    跳过的往往正是与自己不同的那两步，而这两步恰恰是最需要外部补上的。
+                  -->
+                  <p
+                    v-if="!step.preferred"
+                    class="mt-2.5 inline-block rounded-pill border border-accent-200 bg-surface px-2.5 py-1 text-[12.5px] font-medium text-accent-700"
+                    data-decision-unpreferred
+                  >
+                    这一步用不上你偏好的功能
+                  </p>
+                  <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft">{{ step.prompt }}</p>
+                  <p class="mt-1.5 text-[13px] leading-relaxed text-ink-soft">{{ step.how }}</p>
+                </li>
+              </ol>
+              <p class="mt-2 text-[13px] leading-relaxed text-ink-soft">{{ view.processPlan.decisionNote }}</p>
+              <div class="notice-uncertain mt-3" data-hardest-note>
+                <p v-if="view.processPlan.hardestSteps.length > 0" class="text-[13.5px] font-medium text-ink">
+                  最容易整段跳过的两步：{{ view.processPlan.hardestSteps.join('、') }}
+                </p>
+                <p class="mt-1 text-[13px] leading-relaxed">{{ view.processPlan.hardestStepsNote }}</p>
               </div>
-              <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft">{{ rule.body }}</p>
-            </article>
-          </div>
+            </div>
+
+            <!-- 互补的一侧（只覆盖 SN / TF 两轴） -->
+            <div class="mt-6" data-opposites>
+              <h3 class="text-[16px] font-semibold text-ink">和你不同的人，能补上什么</h3>
+              <div class="mt-3 grid gap-3 tablet:grid-cols-2">
+                <article
+                  v-for="item in view.processPlan.opposites"
+                  :key="item.axis"
+                  class="rounded-question border border-line bg-surface px-4 py-4"
+                  :data-opposite="item.axis"
+                >
+                  <h4 class="text-[15px] font-semibold text-ink">
+                    {{ item.axisName }}：你偏 {{ item.yourPole }}，另一侧是 {{ item.needPole }}
+                  </h4>
+                  <p class="mt-2 text-[13.5px] leading-relaxed text-ink">{{ item.need }}</p>
+                  <p class="mt-1.5 text-[13.5px] leading-relaxed text-ink-soft">{{ item.supply }}</p>
+                </article>
+              </div>
+            </div>
+
+            <!-- 按自己那一侧给的沟通规则 -->
+            <div class="mt-6" data-communication-rules>
+              <h3 class="text-[16px] font-semibold text-ink">和另一侧的人说事时</h3>
+              <div class="mt-3 space-y-3">
+                <article
+                  v-for="rule in view.processPlan.communicationRules"
+                  :key="rule.axis"
+                  class="rounded-question border border-line bg-surface px-4 py-4"
+                  :data-communication-rule="rule.axis"
+                >
+                  <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <h4 class="text-[15px] font-semibold text-ink">{{ rule.title }}</h4>
+                    <p class="text-[12.5px] text-ink-faint">{{ rule.axisName }} · 你偏 {{ rule.yourPole }}</p>
+                  </div>
+                  <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft">{{ rule.body }}</p>
+                </article>
+              </div>
+            </div>
+
+            <div class="mt-6 space-y-2" data-process-notes>
+              <p class="notice-neutral text-[13.5px] leading-relaxed" data-development-note>
+                {{ view.processPlan.notes.developmentNote }}
+              </p>
+              <p class="notice-neutral text-[13.5px] leading-relaxed" data-grey-area-note>
+                {{ view.processPlan.notes.greyAreaNote }}
+              </p>
+            </div>
+          </section>
+
+          <!-- ══ 自我理解（与问卷结果并列，不覆盖） ═════════════════════════ -->
+          <section
+            id="report-self"
+            data-anchor
+            class="mt-10 scroll-mt-24 rounded-question border border-line bg-surface px-4 py-5 shadow-card tablet:px-6"
+            aria-labelledby="report-self-title"
+          >
+            <div class="flex items-baseline gap-3">
+              <span class="section-index" aria-hidden="true">08</span>
+              <h2 id="report-self-title" class="section-title">你自己的理解</h2>
+            </div>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft">
+              问卷结果是问卷算出来的；这里是你自己的判断。两者分开显示，
+              <strong class="font-medium text-ink">谁都不会覆盖谁</strong>。
+            </p>
+            <div class="mt-4 grid gap-4 tablet:grid-cols-[10rem_minmax(0,1fr)]">
+              <div>
+                <label :for="typeId" class="block text-[14px] font-medium text-ink">你更认同哪一型</label>
+                <select
+                  :id="typeId"
+                  v-model="reflectionType"
+                  class="mt-1.5 min-h-[44px] w-full rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[15px] text-ink"
+                >
+                  <option value="">暂不确定</option>
+                  <option v-for="code in knownTypeCodes" :key="code" :value="code">{{ code }}</option>
+                </select>
+              </div>
+              <div>
+                <label :for="noteId" class="block text-[14px] font-medium text-ink">想补充的话（最多 300 字）</label>
+                <textarea
+                  :id="noteId"
+                  v-model="reflectionNote"
+                  rows="3"
+                  maxlength="300"
+                  class="mt-1.5 w-full rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[15px] text-ink"
+                />
+              </div>
+            </div>
+            <button type="button" class="btn-primary mt-3" data-save-reflection :disabled="reports.savingReflection" @click="saveReflection">
+              {{ reports.savingReflection ? '正在保存…' : '保存我的理解' }}
+            </button>
+            <p v-if="view.selfReflection.updatedAt" class="mt-2 text-[12.5px] text-ink-faint">
+              上次保存：{{ view.selfReflection.updatedAt }}
+            </p>
+          </section>
+
+          <!-- ══ 分享与导出 ═══════════════════════════════════════════════ -->
+          <section
+            id="report-share"
+            data-anchor
+            class="mt-10 scroll-mt-24 rounded-question border border-line bg-surface px-4 py-5 shadow-card tablet:px-6"
+            aria-labelledby="report-share-title"
+          >
+            <div class="flex items-baseline gap-3">
+              <span class="section-index" aria-hidden="true">09</span>
+              <h2 id="report-share-title" class="section-title">带走这份报告</h2>
+            </div>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft">
+              复制的文字、导出的图片、图片的替代文本都来自同一份报告快照，说的永远是同一件事。
+            </p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <button type="button" class="btn-primary" data-copy-share :disabled="copying" @click="copyShareText">
+                <AppIcon name="copy" :size="17" />
+                {{ copying ? '正在复制…' : '复制报告文字' }}
+              </button>
+              <button type="button" class="btn-secondary" data-download-share @click="downloadShareImage">
+                <AppIcon name="download" :size="17" />
+                导出分享图（{{ view.share.filename }}）
+              </button>
+            </div>
+            <!-- alt 与复制文字都展示出来，便于人工核对（图片的 alt 也用它） -->
+            <div class="mt-4 space-y-2">
+              <p class="text-[13px] text-ink-soft">
+                图片替代文本：<span class="text-ink">{{ view.share.alt }}</span>
+              </p>
+              <pre class="whitespace-pre-wrap rounded-card border border-line-soft bg-surface-soft px-3 py-2.5 text-[13px] leading-relaxed text-ink-soft" data-share-text>{{ view.share.text }}</pre>
+            </div>
+          </section>
         </div>
 
-        <div class="mt-6 space-y-2" data-process-notes>
-          <p class="notice-neutral text-[13.5px] leading-relaxed" data-development-note>
-            {{ view.processPlan.notes.developmentNote }}
-          </p>
-          <p class="notice-neutral text-[13.5px] leading-relaxed" data-grey-area-note>
-            {{ view.processPlan.notes.greyAreaNote }}
-          </p>
-        </div>
-      </section>
+        <!--
+          报告目录：手机在最上面一排可横向换行的 chip，laptop 起变成右侧粘性目录。
+          它列的是**这份报告实际渲染出来的区块**（没有过程层就不列那一节），
+          所以不会出现"点了没反应"的死链。
+        -->
+        <aside class="order-first laptop:order-none laptop:sticky laptop:top-6 laptop:self-start">
+          <nav
+            class="rounded-card border border-line bg-surface px-3 py-3 shadow-card laptop:px-3.5 laptop:py-4"
+            aria-label="报告目录"
+          >
+            <p class="section-kicker laptop:mb-2">报告目录</p>
+            <ul class="flex flex-wrap gap-1.5 laptop:flex-col laptop:gap-0.5">
+              <li v-for="item in TOC" :key="item.id">
+                <button
+                  type="button"
+                  class="inline-flex min-h-[44px] items-center rounded-control px-2.5 text-left text-[13px] text-ink-soft transition-colors hover:bg-primary-50 hover:text-primary-700 laptop:min-h-[36px] laptop:w-full"
+                  :data-toc="item.id"
+                  @click="jumpToSection(item.id)"
+                >
+                  {{ item.label }}
+                </button>
+              </li>
+            </ul>
+            <p class="mt-3 hidden border-t border-line-soft pt-3 text-[12px] leading-relaxed text-ink-faint laptop:block">
+              读完一层想回看时点这里。报告是一次提交的快照，之后改答不会改它。
+            </p>
+          </nav>
+        </aside>
+      </div>
 
-      <!-- ══ 自我理解（与问卷结果并列，不覆盖） ═════════════════════════ -->
-      <section class="mt-10 rounded-question border border-line bg-surface px-4 py-5" aria-labelledby="report-self">
-        <h2 id="report-self" class="section-title">你自己的理解（与上面的结果并列）</h2>
-        <p class="mt-1 text-[13.5px] leading-relaxed text-ink-soft">
-          问卷结果是问卷算出来的；这里是你自己的判断。两者分开显示，
-          <strong class="font-medium">谁都不会覆盖谁</strong>。
-        </p>
-        <div class="mt-4 grid gap-4 tablet:grid-cols-[10rem_minmax(0,1fr)]">
-          <div>
-            <label :for="typeId" class="block text-[14px] font-medium text-ink">你更认同哪一型</label>
-            <select
-              :id="typeId"
-              v-model="reflectionType"
-              class="mt-1.5 w-full rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[15px] text-ink"
-            >
-              <option value="">暂不确定</option>
-              <option v-for="code in knownTypeCodes" :key="code" :value="code">{{ code }}</option>
-            </select>
-          </div>
-          <div>
-            <label :for="noteId" class="block text-[14px] font-medium text-ink">想补充的话（最多 300 字）</label>
-            <textarea
-              :id="noteId"
-              v-model="reflectionNote"
-              rows="3"
-              maxlength="300"
-              class="mt-1.5 w-full rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[15px] text-ink"
-            />
-          </div>
-        </div>
-        <button type="button" class="btn-primary mt-3" data-save-reflection :disabled="reports.savingReflection" @click="saveReflection">
-          {{ reports.savingReflection ? '正在保存…' : '保存我的理解' }}
-        </button>
-        <p v-if="view.selfReflection.updatedAt" class="mt-2 text-[12.5px] text-ink-faint">
-          上次保存：{{ view.selfReflection.updatedAt }}
-        </p>
-      </section>
-
-      <!-- ══ 分享与导出 ═══════════════════════════════════════════════ -->
-      <section class="mt-8 rounded-question border border-line bg-surface px-4 py-5" aria-labelledby="report-share">
-        <h2 id="report-share" class="section-title">带走这份报告</h2>
-        <p class="mt-1 text-[13.5px] leading-relaxed text-ink-soft">
-          复制的文字、导出的图片、图片的替代文本都来自同一份报告快照，说的永远是同一件事。
-        </p>
-        <div class="mt-3 flex flex-wrap gap-2">
-          <button type="button" class="btn-primary" data-copy-share :disabled="copying" @click="copyShareText">
-            {{ copying ? '正在复制…' : '复制报告文字' }}
-          </button>
-          <button type="button" class="btn-secondary" data-download-share @click="downloadShareImage">
-            导出分享图（{{ view.share.filename }}）
-          </button>
-        </div>
-        <!-- alt 与复制文字都展示出来，便于人工核对（图片的 alt 也用它） -->
-        <div class="mt-3 space-y-2">
-          <p class="text-[13px] text-ink-soft">
-            图片替代文本：<span class="text-ink">{{ view.share.alt }}</span>
-          </p>
-          <pre class="whitespace-pre-wrap rounded-control bg-paper-soft px-3 py-2.5 text-[13px] leading-relaxed text-ink-soft" data-share-text>{{ view.share.text }}</pre>
-        </div>
-      </section>
+      <!-- ══ AI 分析（可选，独立于上面的固定报告） ═════════════════════ -->
+      <!--
+        位置是刻意的：放在「带走这份报告」之后、「这份报告是怎么来的」之前。
+        固定报告到此已经完整，AI 只是多一段视角 —— 放在最上面会让用户误以为
+        不生成 AI 就没有报告。`reportId` 为 null 时（列表页）不渲染。
+        它**不在**上面的两栏网格里：这是有意让 AI 洞察占满整个内容宽度，
+        与"报告正文是阅读栏、AI 是一块独立区域"的层次一致。
+      -->
+      <AiAnalysisPanel v-if="reportId" :report-id="reportId" />
 
       <!-- ══ 方法与删除 ═══════════════════════════════════════════════ -->
-      <section class="mt-8 section-rule" aria-labelledby="report-method">
-        <h2 id="report-method" class="section-title">这份报告是怎么来的</h2>
+      <section id="report-method" data-anchor class="mt-10 scroll-mt-24 section-rule" aria-labelledby="report-method-title">
+        <div class="flex items-baseline gap-3">
+          <span class="section-index" aria-hidden="true">10</span>
+          <h2 id="report-method-title" class="section-title">这份报告是怎么来的</h2>
+        </div>
         <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft">
           量表：<strong class="font-medium text-ink">{{ instrument.facts.title }}</strong>。下面这些
           版本号与指纹来自报告自己的 <code class="text-[12.5px]">methodology</code> 字段；量表名来自

@@ -1,5 +1,6 @@
 package com.typeme.ai.config;
 
+import com.typeme.account.service.AiSettingsCacheInvalidator;
 import com.typeme.ai.port.SecretCipher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 并降级（首次降级打一次 WARN，之后 DEBUG，避免刷日志）。
  */
 @Component
-public class AiRuntimeSettingsProvider implements AiSettingsStore {
+public class AiRuntimeSettingsProvider implements AiSettingsStore, AiSettingsCacheInvalidator {
 
     private static final Logger log = LoggerFactory.getLogger(AiRuntimeSettingsProvider.class);
 
@@ -87,7 +88,14 @@ public class AiRuntimeSettingsProvider implements AiSettingsStore {
         }
     }
 
-    /** 测试/管理用途：下次读取必须打库（不做任何写入）。 */
+    /**
+     * 让下一次读取必须打库。
+     *
+     * <p>两个调用方：后台保存设置后由 {@link com.typeme.account.service.AiSettingsService}
+     * 通过 {@link AiSettingsCacheInvalidator} 调用（否则"保存后立刻生成分析"会按上一版配置跑）；
+     * 以及测试。**不做任何写入**，幂等、可重复调用。
+     */
+    @Override
     public void invalidate() {
         cachedAt = Instant.EPOCH;
     }

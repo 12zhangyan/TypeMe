@@ -824,9 +824,23 @@ export async function deleteReport(reportId: string): Promise<void> {
   await v3IgnoreBody(await v3Request('DELETE', path))
 }
 
+/**
+ * 复测比较：`GET /reports/compare?ids=a,b`（契约 §7.2）。
+ *
+ * ⚠️ **路径与 `/reports/{id}` 有歧义风险**：`CompareView` 的路由是
+ * `/reports/compare`，与报告详情路由 `/reports/:reportId` 同形。前端路由靠**声明顺序**
+ * 消歧（`/reports/compare` 必须排在 `/reports/:reportId` 前面，见 `router/index.ts`）；
+ * 服务端靠 Spring 的"字面量路径优先于模板变量"消歧，不依赖声明顺序。
+ * 两边机制不同，所以改动任一侧的路由表都要同时想到另一侧。
+ *
+ * `ids.join(',')` 交给 `URLSearchParams` 编码（逗号会被编成 `%2C`），
+ * 服务端按 `@RequestParam List<String>` 拆分，两种写法都能解析。
+ */
 export async function compareReports(ids: string[], signal?: AbortSignal): Promise<CompareResult> {
-  if (ids.length === 0) {
-    throw unexpectedResponse('比较报告需要至少一个报告 ID。')
+  if (ids.length !== 2) {
+    // 服务端也要求恰好两份，但在这里先拦住能给出更清楚的理由：
+    // 契约 §7.2 明确"只有同一内容包版本才计算各维变化"，而"比较三份"没有定义。
+    throw unexpectedResponse('比较报告需要恰好两份。')
   }
   const path = withQuery('/reports/compare', { ids: ids.join(',') })
   const response = await v3Request('GET', path, signal ? { signal } : {})
