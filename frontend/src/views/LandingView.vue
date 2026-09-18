@@ -6,8 +6,10 @@ import { POLE_META } from '@/domain/scoring'
 import { FALLBACK_TYPE_PROFILES } from '@/content/fallback'
 import { UNKNOWN_REASON_LABEL } from '@/domain/answers'
 import { useInstrumentV3Store } from '@/stores/instrumentV3'
+import { useAssessmentStore } from '@/stores/assessmentV3'
 import type { Dimension } from '@/domain/jung/types'
 import PageContainer from '@/components/PageContainer.vue'
+import PlatformIntro from '@/components/PlatformIntro.vue'
 import DimensionGlyph from '@/components/DimensionGlyph.vue'
 import DimensionMeter from '@/components/DimensionMeter.vue'
 import TypeCardBody from '@/components/TypeCardBody.vue'
@@ -49,6 +51,7 @@ import { chineseNumeral } from '@/utils/cnNumber'
  * 读不到时用新测内置口径），旧内容包不参与首页渲染。
  */
 const instrument = useInstrumentV3Store()
+const assessment = useAssessmentStore()
 const router = useRouter()
 const auth = useAuthStore()
 
@@ -61,6 +64,51 @@ const auth = useAuthStore()
  */
 const reportsReady = computed(() => router.hasRoute('reports'))
 const authRoutesReady = computed(() => router.hasRoute('login'))
+
+/**
+ * 续答入口要用的那份草稿（服务端权威），没有就返回 null。
+ *
+ * <p>必须同时满足三件事，缺一个就退回普通的「开始测评」：
+ *   1. 登录着（未登录时列表接口只会 401，谈不上"你的草稿"）；
+ *   2. `loadDraftEntry` 真的读到了草稿；
+ *   3. 路由表里注册了 `assess-attempt`（首页在测试里会被单独挂载，
+ *      指向未注册路由的 `RouterLink` 会让用户点了没反应）。
+ */
+const resumeTarget = computed(() => {
+  if (!auth.isAuthenticated || !router.hasRoute('assess-attempt')) return null
+  return assessment.resumableDraft
+})
+
+/** 续答那行说明：已答数只在**读到了**那份草稿详情时出现。 */
+const resumeNote = computed(() => {
+  const draft = resumeTarget.value
+  if (!draft) return ''
+  const when = formatDraftTime(draft.updatedAt)
+  const progress = assessment.draftProgress
+  const parts: string[] = []
+  if (progress && progress.attemptId === draft.attemptId) {
+    parts.push(`已答 ${progress.answered}/${progress.baseTotal} 题（主测）`)
+  }
+  parts.push(`上次答到 ${when}`)
+  if (assessment.otherDraftCount > 0) {
+    parts.push(`另外还有 ${assessment.otherDraftCount} 份没答完`)
+  }
+  return `接着答不会重新开始：${parts.join(' · ')}。`
+})
+
+/**
+ * 草稿时间的人类写法。
+ *
+ * <p>`updatedAt` 是服务端给的 ISO-8601（UTC）。这里只做"把时间说清楚"这一件事：
+ * 拿不到或解析不了就**不显示时间**（而不是显示 `Invalid Date` 或者现在的时间）。
+ */
+function formatDraftTime(iso: string | null): string {
+  if (!iso) return '（时间未记录）'
+  const parsed = new Date(iso)
+  if (Number.isNaN(parsed.getTime())) return '（时间未记录）'
+  const pad = (value: number) => String(value).padStart(2, '0')
+  return `${parsed.getFullYear()} 年 ${parsed.getMonth() + 1} 月 ${parsed.getDate()} 日 ${pad(parsed.getHours())}:${pad(parsed.getMinutes())}`
+}
 
 /** 新测的对外口径 —— 整页唯一的量表口径。 */
 const instrumentFacts = computed(() => instrument.facts)
@@ -170,10 +218,9 @@ const REPORT_SECTIONS = computed(() => [
  * 不是设想中的能力。写"你将得到什么"时必须能一一对上，否则就是在承诺没实现的东西。
  */
 const AI_STRUCTURE = [
-  { key: 'summary', title: '一段核心摘要', body: '把四个维度放一起，先给一个整体印象。' },
-  { key: 'sections', title: '分主题解读', body: '按你选的主题（沟通 / 学习工作 / 成长等）展开几段。' },
-  { key: 'actions', title: '可以执行的做法', body: '带步骤的建议，而不是"多与人交流"这类空话。' },
-  { key: 'questions', title: '几个反思问题', body: '留给你自己回答的问题，帮你在报告之外继续想。' },
+  { key: 'summary', title: '一句话结论', body: '先说这次回答反映了什么，以及哪些地方还不确定。' },
+  { key: 'sections', title: '为什么这样说', body: '最多两条解释，用生活中的例子帮助理解。' },
+  { key: 'actions', title: '可以试一次', body: '一件小事：怎么做、何时试、留意什么。证据不足时不给针对性建议。' },
   { key: 'boundaries', title: '这段分析的边界', body: '模型自己说明它的推测在哪里可能不成立。' },
 ]
 
@@ -247,11 +294,22 @@ function scrollToPreview(): void {
 
 onMounted(() => {
   void instrument.load()
+  // 已登录时才问服务端"有没有没答完的测评"。未登录时**不发这个请求**（那只会拿到 401），
+  // 并且要清掉上一个人留下的草稿入口 —— 共用设备上换账号后不能看到别人的进度。
+  if (auth.isAuthenticated) {
+    void assessment.loadDraftEntry()
+  } else {
+    assessment.clearDraftEntry()
+  }
 })
 </script>
 
 <template>
   <PageContainer page="home">
+    <PlatformIntro />
+    <details class="mt-8" :open="!!resumeTarget" data-jung-introduction>
+      <summary class="cursor-pointer text-[16px] font-semibold text-ink">十六型测评：答题和报告示例</summary>
+      <div class="mt-5">
     <!-- ══ 主视觉：深色面板（不是满屏出血，而是一块有边界的"探索界面"） ══ -->
     <section
       class="deep-panel deep-grid rounded-cover px-5 py-7 shadow-deep tablet:px-10 tablet:py-12 laptop:px-14 laptop:py-16"
@@ -267,11 +325,11 @@ onMounted(() => {
             </span>
           </p>
 
-          <h1
+          <h2
             class="display-hero mt-5 text-[32px] leading-[1.18] text-white tablet:text-[42px] laptop:text-[50px]"
           >
             了解你的偏好，<br class="hidden tablet:inline" />也保留还不确定的部分。
-          </h1>
+          </h2>
 
           <p class="mt-5 max-w-[34rem] text-[15.5px] leading-[1.75] text-navy-100 tablet:text-[16.5px]">
             主测 {{ instrumentFacts.baseQuestions }} 组日常情境描述。按通常情况下的真实感受选择，
@@ -298,7 +356,23 @@ onMounted(() => {
           </ul>
 
           <div class="mt-7 flex flex-col gap-2.5 tablet:flex-row tablet:items-center">
+            <!--
+              主入口会在"服务端确实有一份没答完的测评"时变成「继续」。
+              这是首页对上面那句「登录后可以跨设备接着答」的兑现 —— 在此之前，
+              草稿虽然一直存在服务端，但除了浏览器地址栏没有任何回去的路（A51）。
+            -->
             <RouterLink
+              v-if="resumeTarget"
+              :to="{ name: 'assess-attempt', params: { attemptId: resumeTarget.attemptId } }"
+              class="btn-primary tablet:w-auto tablet:px-8"
+              data-primary-entry
+              data-resume-entry
+            >
+              继续上次没答完的测评
+              <AppIcon name="arrow-right" :size="18" />
+            </RouterLink>
+            <RouterLink
+              v-else
               to="/assess"
               class="btn-primary tablet:w-auto tablet:px-8"
               data-primary-entry
@@ -306,11 +380,32 @@ onMounted(() => {
               开始测评（主测 {{ instrumentFacts.baseQuestions }} 题）
               <AppIcon name="arrow-right" :size="18" />
             </RouterLink>
-            <button type="button" class="btn-on-deep" data-report-preview-entry @click="scrollToPreview">
+            <!-- 有草稿时，原来的两个次要入口让位给「重新开始」：继续才是此刻的主意图。 -->
+            <RouterLink
+              v-if="resumeTarget"
+              to="/assess"
+              class="btn-on-deep"
+              data-restart-entry
+            >
+              重新开始一次测评
+            </RouterLink>
+            <button v-else type="button" class="btn-on-deep" data-report-preview-entry @click="scrollToPreview">
               先看一份报告长什么样
               <AppIcon name="arrow-down" :size="17" />
             </button>
           </div>
+
+          <!--
+            续答的进度只写**真的读到的东西**：已答数来自那份草稿的详情，
+            时间来自列表接口。读不到进度时这一行只剩时间（绝不显示猜出来的题数）。
+          -->
+          <p
+            v-if="resumeTarget"
+            class="mt-3 text-[13px] leading-relaxed text-navy-100"
+            data-resume-note
+          >
+            {{ resumeNote }}
+          </p>
 
           <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
             <RouterLink
@@ -636,5 +731,7 @@ onMounted(() => {
         </div>
       </details>
     </section>
+      </div>
+    </details>
   </PageContainer>
 </template>

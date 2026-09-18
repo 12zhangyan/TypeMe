@@ -1,0 +1,1066 @@
+{
+  "checks": [
+    {
+      "label": "320: delivered hero loaded",
+      "passed": true
+    },
+    {
+      "label": "320: all 16 portrait options",
+      "passed": true
+    },
+    {
+      "label": "320/home: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/hero: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/gallery: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/INTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/INTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/INTJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/INTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "320/INTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/INTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/INTP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/INTP: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ENTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ENTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ENTJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/ENTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ENTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ENTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ENTP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/ENTP: target size",
+      "passed": true
+    },
+    {
+      "label": "320/INFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/INFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/INFJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/INFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "320/INFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/INFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/INFP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/INFP: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ENFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ENFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ENFJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/ENFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ENFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ENFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ENFP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/ENFP: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ISTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ISTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ISTJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/ISTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ISFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ISFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ISFJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/ISFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ESTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ESTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ESTJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/ESTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ESFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ESFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ESFJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/ESFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ISTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ISTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ISTP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/ISTP: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ISFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ISFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ISFP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/ISFP: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ESTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ESTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ESTP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/ESTP: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ESFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ESFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ESFP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "320/ESFP: target size",
+      "passed": true
+    },
+    {
+      "label": "320: gallery not a personal result",
+      "passed": true
+    },
+    {
+      "label": "320: CTA transfers focus",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: portrait uses stored result",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: decorative role explained",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320: tied report never receives arbitrary portrait",
+      "passed": true
+    },
+    {
+      "label": "320/jung-tied: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: portrait uses stored result",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: decorative role explained",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/login: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/login: all delivered images used",
+      "passed": true
+    },
+    {
+      "label": "320/register: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/register: all delivered images used",
+      "passed": true
+    },
+    {
+      "label": "320/recover: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/recover: all delivered images used",
+      "passed": true
+    },
+    {
+      "label": "320/instruments: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/instruments: all delivered images used",
+      "passed": true
+    },
+    {
+      "label": "390: delivered hero loaded",
+      "passed": true
+    },
+    {
+      "label": "390: all 16 portrait options",
+      "passed": true
+    },
+    {
+      "label": "390/home: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/hero: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/gallery: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/INTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/INTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/INTJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/INTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "390/INTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/INTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/INTP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/INTP: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ENTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ENTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ENTJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/ENTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ENTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ENTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ENTP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/ENTP: target size",
+      "passed": true
+    },
+    {
+      "label": "390/INFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/INFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/INFJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/INFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "390/INFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/INFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/INFP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/INFP: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ENFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ENFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ENFJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/ENFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ENFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ENFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ENFP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/ENFP: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ISTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ISTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ISTJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/ISTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ISFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ISFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ISFJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/ISFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ESTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ESTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ESTJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/ESTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ESFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ESFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ESFJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/ESFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ISTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ISTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ISTP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/ISTP: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ISFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ISFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ISFP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/ISFP: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ESTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ESTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ESTP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/ESTP: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ESFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ESFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ESFP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "390/ESFP: target size",
+      "passed": true
+    },
+    {
+      "label": "390: gallery not a personal result",
+      "passed": true
+    },
+    {
+      "label": "390: CTA transfers focus",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: portrait uses stored result",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: decorative role explained",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390: tied report never receives arbitrary portrait",
+      "passed": true
+    },
+    {
+      "label": "390/jung-tied: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: portrait uses stored result",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: decorative role explained",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/login: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/login: all delivered images used",
+      "passed": true
+    },
+    {
+      "label": "390/register: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/register: all delivered images used",
+      "passed": true
+    },
+    {
+      "label": "390/recover: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/recover: all delivered images used",
+      "passed": true
+    },
+    {
+      "label": "390/instruments: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/instruments: all delivered images used",
+      "passed": true
+    },
+    {
+      "label": "1440: delivered hero loaded",
+      "passed": true
+    },
+    {
+      "label": "1440: all 16 portrait options",
+      "passed": true
+    },
+    {
+      "label": "1440/home: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/hero: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/gallery: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/INTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/INTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/INTJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/INTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/INTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/INTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/INTP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/INTP: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ENTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ENTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ENTJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/ENTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ENTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ENTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ENTP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/ENTP: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/INFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/INFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/INFJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/INFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/INFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/INFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/INFP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/INFP: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ENFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ENFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ENFJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/ENFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ENFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ENFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ENFP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/ENFP: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ISTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ISTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ISTJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/ISTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ISFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ISFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ISFJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/ISFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ESTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ESTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ESTJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/ESTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ESFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ESFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ESFJ: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/ESFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ISTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ISTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ISTP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/ISTP: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ISFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ISFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ISFP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/ISFP: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ESTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ESTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ESTP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/ESTP: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ESFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ESFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ESFP: real portrait decoded without cropping",
+      "passed": true
+    },
+    {
+      "label": "1440/ESFP: target size",
+      "passed": true
+    },
+    {
+      "label": "1440: gallery not a personal result",
+      "passed": true
+    },
+    {
+      "label": "1440: CTA transfers focus",
+      "passed": true
+    },
+    {
+      "label": "1440: two cover cards side by side",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: portrait uses stored result",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: decorative role explained",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: tied report never receives arbitrary portrait",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-tied: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v1: portrait uses stored result",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v1: decorative role explained",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v1: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/login: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/login: all delivered images used",
+      "passed": true
+    },
+    {
+      "label": "1440/register: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/register: all delivered images used",
+      "passed": true
+    },
+    {
+      "label": "1440/recover: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/recover: all delivered images used",
+      "passed": true
+    },
+    {
+      "label": "1440/instruments: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/instruments: all delivered images used",
+      "passed": true
+    },
+    {
+      "label": "No uncaught JavaScript errors",
+      "passed": true
+    },
+    {
+      "label": "No missing-image requests",
+      "passed": true
+    },
+    {
+      "label": "All API requests mocked: []",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "image_errors": []
+}

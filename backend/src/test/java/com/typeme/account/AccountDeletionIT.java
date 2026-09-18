@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -156,6 +157,35 @@ class AccountDeletionIT extends AccountIntegrationTestBase {
 
     private Integer jdbcCount(String sql, Object... args) {
         return jdbcTemplate.queryForObject(sql, Integer.class, args);
+    }
+
+    @Test
+    @DisplayName("重复建注销任务返回同一份：不能把并发注销变成 500")
+    void repeatedDeletionRequestInsertIsIdempotent() {
+        String userId = java.util.UUID.randomUUID().toString();
+        java.time.Instant now = java.time.Instant.now();
+
+        String first = deletionJobs.insertPendingOrGetExisting(DeletionJobRepository.newId(), userId, now);
+        String second = deletionJobs.insertPendingOrGetExisting(DeletionJobRepository.newId(), userId, now);
+
+        assertThat(second)
+                .as("重复申请必须得到同一份任务；抛异常会变成 500，而用户的申请其实已经被受理")
+                .isEqualTo(first);
+        assertThat(deletionJobs.findByUserId(userId).orElseThrow().id()).isEqualTo(first);
+        assertThat(jdbcCount("SELECT COUNT(*) FROM account_deletion_job WHERE user_id = ?", userId)).isEqualTo(1);
+
+        // 判别力：绕开这层保护直接 INSERT 必须撞唯一约束 ——
+        // 否则上面那两条断言即使实现完全不处理冲突也会通过。
+        assertThatThrownBy(() -> jdbcTemplate.update(
+                "INSERT INTO account_deletion_job (id, user_id, status, requested_at, attempt_count)"
+                        + " VALUES (?, ?, 'PENDING', ?, 0)",
+                DeletionJobRepository.newId(), userId,
+                java.sql.Timestamp.from(java.time.Instant.now())))
+                .as("uk_deletion_job_user 必须真实存在，否则这条测试证明不了任何东西")
+                .isInstanceOf(org.springframework.dao.DuplicateKeyException.class);
+
+        // 共享库保持干净：这条测试造的用户没有对应的 app_user 行
+        jdbcTemplate.update("DELETE FROM account_deletion_job WHERE user_id = ?", userId);
     }
 
     @Test

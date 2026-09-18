@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -25,6 +26,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -56,17 +59,25 @@ public class JungPackageLoader {
 
     private static final Logger log = LoggerFactory.getLogger(JungPackageLoader.class);
 
-    /** 首版唯一交付的包。换内容必须换新 packageId（已发布内容不可原地修改）。 */
+    /**
+     * 默认内容包（新草稿绑定的版本）。
+     *
+     * <p>它**不随最新发布自动前移** —— 换默认版本意味着"新用户开始用另一套题"，
+     * 是一次需要显式决定并写进变更记录的发布动作。已发布的旧包继续留在
+     * {@code classpath:content/} 里供旧草稿与旧报告加载。
+     */
     public static final String CURRENT_PACKAGE_ID = "typeme-jung48-zh-v1";
 
-    /** 16 型基础报告内容版本。 */
+    /** 默认内容包引用的 16 型基础报告内容版本。 */
     public static final String CURRENT_TYPE_REPORT_VERSION = "typeme-type-report-zh-v1";
 
     /** 过程层（四个精神活动过程 + 派生建议）内容版本。 */
     public static final String CURRENT_PROCESS_COPY_VERSION = "typeme-process-copy-zh-v1";
 
-    private static final String CONTENT_LOCATION = "classpath:content/typeme-jung48-zh-v1.json";
-    private static final String TYPE_REPORT_LOCATION = "classpath:content/typeme-type-report-zh-v1.json";
+    /** 全部十六型内容包（按 packageId 分文件）。 */
+    private static final String CONTENT_PATTERN = "classpath:content/typeme-jung48-zh-*.json";
+    /** 全部 16 型报告文案版本。 */
+    private static final String TYPE_REPORT_PATTERN = "classpath:content/typeme-type-report-zh-*.json";
     private static final String PROCESS_COPY_LOCATION = "classpath:content/typeme-process-copy-zh-v1.json";
 
     /*
@@ -90,24 +101,50 @@ public class JungPackageLoader {
             "studyWork", "stress", "growth", "neighbors");
 
     private final ObjectMapper mapper = new ObjectMapper();
+    /**
+     * 全部已登记的内容包，按 packageId 索引。
+     *
+     * <p><b>为什么是一个 map 而不是"当前包"</b>：草稿与报告都绑定了自己的
+     * {@code package_id}，继续一份旧草稿必须按**它自己那一版**加载题目与政策。
+     * 只保留"当前包"时，发布新版就等于让所有旧草稿变成
+     * {@code PACKAGE_UNAVAILABLE}，历史报告也无法解释。
+     */
+    private final Map<String, JungPackage> packages;
+    /** 继续作答 / 新建草稿默认绑定的版本（**不随最新发布自动前移**，改它是一次显式决定）。 */
     private final JungPackage jungPackage;
+    private final Map<String, TypeReportContent> typeReportContents;
     private final TypeReportContent typeReportContent;
     private final JungProcessCopy processCopy;
-    private String declaredPackageSha256 = "";
-    private String recomputedPackageSha256 = "";
-    private String declaredTypeReportSha256 = "";
-    private String recomputedTypeReportSha256 = "";
-    private String declaredProcessCopySha256 = "";
-    private String recomputedProcessCopySha256 = "";
+    /** packageId → 文件里声明的指纹（与重算值分开保存，便于诊断"文件被手改"）。 */
+    private final Map<String, String> declaredPackageSha256 = new LinkedHashMap<>();
+    private final Map<String, String> recomputedPackageSha256 = new LinkedHashMap<>();
+    private final Map<String, String> declaredTypeReportSha256 = new LinkedHashMap<>();
+    private final Map<String, String> recomputedTypeReportSha256 = new LinkedHashMap<>();
+    private String processCopyDeclaredSha256 = "";
+    private String processCopyRecomputedSha256 = "";
 
     public JungPackageLoader(ResourceLoader resourceLoader) {
-        this.jungPackage = loadPackage(resourceLoader.getResource(CONTENT_LOCATION));
-        this.typeReportContent = loadTypeReports(resourceLoader.getResource(TYPE_REPORT_LOCATION));
+        this.packages = loadPackages(resourceLoader);
+        this.jungPackage = packages.get(CURRENT_PACKAGE_ID);
+        if (this.jungPackage == null) {
+            throw new JungContentException("默认内容包 " + CURRENT_PACKAGE_ID + " 未加载："
+                    + "classpath:content/ 下必须有这个 packageId 的文件。已加载："
+                    + String.join(", ", packages.keySet()));
+        }
+        this.typeReportContents = loadAllTypeReports(resourceLoader);
+        this.typeReportContent = typeReportContents.get(this.jungPackage.reportContentVersion());
+        if (this.typeReportContent == null) {
+            throw new JungContentException("默认内容包引用的报告版本未加载："
+                    + this.jungPackage.reportContentVersion() + "。已加载："
+                    + String.join(", ", typeReportContents.keySet()));
+        }
         this.processCopy = loadProcessCopy(resourceLoader.getResource(PROCESS_COPY_LOCATION));
-        log.info("新测内容包已加载：{}", jungPackage.summary());
-        if (jungPackage.contentStatus() == JungContentStatus.DRAFT_REVIEW_PENDING) {
-            log.warn("新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，"
-                    + "没有信度/效度证据，不得对外宣传为已验证。（packageId={}）", jungPackage.packageId());
+        for (JungPackage pkg : packages.values()) {
+            log.info("新测内容包已加载：{}", pkg.summary());
+            if (pkg.contentStatus() == JungContentStatus.DRAFT_REVIEW_PENDING) {
+                log.warn("新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，"
+                        + "没有信度/效度证据，不得对外宣传为已验证。（packageId={}）", pkg.packageId());
+            }
         }
     }
 
@@ -115,8 +152,28 @@ public class JungPackageLoader {
         return jungPackage;
     }
 
+    /** 全部可用内容包（顺序 = 文件名排序，稳定可复现）。 */
+    public List<JungPackage> packages() {
+        return List.copyOf(packages.values());
+    }
+
+    /**
+     * 按 packageId 取内容包；没有这个版本时返回 {@code null}（调用方决定是 404 还是 409）。
+     *
+     * <p>这是"按草稿固定版本加载"的唯一入口。**不要**在调用处退回 {@link #current()}：
+     * 那正是"拿新题面套旧答案"的成因。
+     */
+    public JungPackage find(String packageId) {
+        return packageId == null ? null : packages.get(packageId);
+    }
+
     public TypeReportContent currentTypeReports() {
         return typeReportContent;
+    }
+
+    /** 按报告版本取 16 型报告文案；没有这个版本时返回 {@code null}。 */
+    public TypeReportContent findTypeReports(String reportContentVersion) {
+        return reportContentVersion == null ? null : typeReportContents.get(reportContentVersion);
     }
 
     /**
@@ -130,6 +187,62 @@ public class JungPackageLoader {
 
     /* ── 内容包加载 ─────────────────────────────────────────────────────── */
 
+    /**
+     * 加载全部十六型内容包。
+     *
+     * <p>用模式匹配而不是写死一个文件名：发布新版本（v3、v4…）时只需要把 JSON 放进
+     * {@code classpath:content/}，加载与校验自动跟上，不需要再改 Java 常量。
+     * 文件名排序保证"哪个是默认包"之外的一切顺序都是确定的。
+     */
+    private Map<String, JungPackage> loadPackages(ResourceLoader resourceLoader) {
+        List<Resource> resources = listResources(resourceLoader, CONTENT_PATTERN, "内容包");
+        Map<String, JungPackage> loaded = new LinkedHashMap<>();
+        for (Resource resource : resources) {
+            JungPackage pkg = loadPackage(resource);
+            JungPackage previous = loaded.put(pkg.packageId(), pkg);
+            if (previous != null) {
+                throw new JungContentException("两个文件声明了同一个 packageId：" + pkg.packageId());
+            }
+        }
+        return Collections.unmodifiableMap(loaded);
+    }
+
+    /** 加载全部报告文案版本，按 {@code reportContentVersion} 索引。 */
+    private Map<String, TypeReportContent> loadAllTypeReports(ResourceLoader resourceLoader) {
+        List<Resource> resources = listResources(resourceLoader, TYPE_REPORT_PATTERN, "16 型报告文案");
+        Map<String, TypeReportContent> loaded = new LinkedHashMap<>();
+        for (Resource resource : resources) {
+            TypeReportContent content = loadTypeReports(resource);
+            TypeReportContent previous = loaded.put(content.reportContentVersion(), content);
+            if (previous != null) {
+                throw new JungContentException("两个报告文件声明了同一个版本：" + content.reportContentVersion());
+            }
+        }
+        return Collections.unmodifiableMap(loaded);
+    }
+
+    /**
+     * 按模式列出资源（文件名排序，顺序确定可复现）。
+     *
+     * <p>用 {@link PathMatchingResourcePatternResolver} 而不是 {@code ResourceLoader.getResources}：
+     * 前者是 Spring 里唯一能解析 {@code classpath:A/*.json} 这种**通配模式**的入口
+     * （后者只认单个资源路径，传模式进去会抛异常）。构造它需要 ResourceLoader 本身。
+     */
+    private static List<Resource> listResources(ResourceLoader resourceLoader, String pattern, String label) {
+        try {
+            Resource[] found = new PathMatchingResourcePatternResolver(resourceLoader).getResources(pattern);
+            if (found.length == 0) {
+                throw new JungContentException("classpath 下没有任何" + label + "：" + pattern);
+            }
+            List<Resource> resources = new ArrayList<>(List.of(found));
+            resources.sort(Comparator.comparing(resource -> String.valueOf(resource.getFilename())));
+            return resources;
+        } catch (IOException ex) {
+            throw new JungContentException("无法枚举" + label + "（" + pattern + "）", ex);
+        }
+    }
+
+    /** 见 {@link #loadPackages}：单个内容包的解析与校验。 */
     private JungPackage loadPackage(Resource resource) {
         JsonNode root = readJson(resource, "内容包");
         int schemaVersion = intField(root, "schemaVersion");
@@ -200,28 +313,39 @@ public class JungPackageLoader {
          * 这一条会把"内容与指纹不一致"变成启动失败，是 §2.4 校验清单第 10 条。
          */
         String declared = root.path("sha256").asText("");
-        this.declaredPackageSha256 = declared;
-        this.recomputedPackageSha256 = sha256;
+        this.declaredPackageSha256.put(candidate.packageId(), declared);
+        this.recomputedPackageSha256.put(candidate.packageId(), sha256);
         if (!declared.isBlank() && !declared.equalsIgnoreCase(sha256)) {
-            log.error("内容包 sha256 与内容不一致：文件写 {}，实际算出 {}。"
+            log.error("内容包 sha256 与内容不一致：packageId={} 文件写 {}，实际算出 {}。"
                     + "运行时仍会使用重算值（重算值才是可信的），但请运行 "
-                    + "node scripts/convert-jung-content.mjs 重新生成内容包。", declared, sha256);
+                    + "node scripts/gen-platform-content.mjs 重新生成内容包。",
+                    candidate.packageId(), declared, sha256);
         } else if (declared.isBlank()) {
-            log.warn("内容包缺少 sha256 字段（{}）：将只使用启动期计算值。", CURRENT_PACKAGE_ID);
+            log.warn("内容包缺少 sha256 字段（{}）：将只使用启动期计算值。", candidate.packageId());
         } else {
-            log.info("内容包指纹：{}…（与文件声明一致）", sha256.substring(0, 12));
+            log.info("内容包指纹：{}…（{}，与文件声明一致）", sha256.substring(0, 12), candidate.packageId());
         }
         return candidate.withSha256(sha256);
     }
 
-    /** 内容文件里声明的指纹；缺失时为空串。 */
+    /** 内容文件里声明的指纹（默认包）；缺失时为空串。 */
     public String declaredPackageSha256() {
-        return declaredPackageSha256;
+        return declaredPackageSha256.getOrDefault(CURRENT_PACKAGE_ID, "");
     }
 
-    /** 加载期按规范化算法重算的指纹（运行时实际使用的值）。 */
+    /** 加载期按规范化算法重算的指纹（默认包，运行时实际使用的值）。 */
     public String recomputedPackageSha256() {
-        return recomputedPackageSha256;
+        return recomputedPackageSha256.getOrDefault(CURRENT_PACKAGE_ID, "");
+    }
+
+    /** 内容文件里声明的指纹（指定包）；缺失时为空串。 */
+    public String declaredSha256Of(String packageId) {
+        return declaredPackageSha256.getOrDefault(packageId, "");
+    }
+
+    /** 加载期按规范化算法重算的指纹（指定包）。 */
+    public String recomputedSha256Of(String packageId) {
+        return recomputedPackageSha256.getOrDefault(packageId, "");
     }
 
     /**
@@ -234,12 +358,18 @@ public class JungPackageLoader {
         if (pkg.schemaVersion() != 3) {
             problems.add("schemaVersion 必须是 3，实际 " + pkg.schemaVersion());
         }
-        if (!CURRENT_PACKAGE_ID.equals(pkg.packageId())) {
-            problems.add("packageId 必须是 " + CURRENT_PACKAGE_ID + "，实际 " + pkg.packageId());
+        /*
+         * packageId 不再钉死成某一个常量（多版本共存），但仍必须是**本量表可识别的版本形**
+         * `typeme-jung48-zh-v<N>`：否则一个手滑写出来的 id 会让"按 package_id 解析"找不到它，
+         * 而错误会推迟到用户答题时才暴露。
+         */
+        if (pkg.packageId() == null || !pkg.packageId().matches("typeme-jung48-zh-v\\d+")) {
+            problems.add("packageId 必须形如 typeme-jung48-zh-v<N>，实际 " + pkg.packageId());
         }
-        if (!CURRENT_TYPE_REPORT_VERSION.equals(pkg.reportContentVersion())) {
-            problems.add("reportContentVersion 必须是 " + CURRENT_TYPE_REPORT_VERSION
-                    + "，实际 " + pkg.reportContentVersion());
+        if (pkg.reportContentVersion() == null
+                || !pkg.reportContentVersion().matches("typeme-type-report-zh-v\\d+")) {
+            problems.add("reportContentVersion 必须形如 typeme-type-report-zh-v<N>，实际 "
+                    + pkg.reportContentVersion());
         }
         if (pkg.scoringPolicy().minBaseRatingsPerDimension() < 1
                 || pkg.scoringPolicy().minBaseRatingsPerDimension() > 12) {
@@ -382,8 +512,8 @@ public class JungPackageLoader {
     private TypeReportContent loadTypeReports(Resource resource) {
         JsonNode root = readJson(resource, "类型报告内容");
         String version = textField(root, "reportContentVersion");
-        if (!CURRENT_TYPE_REPORT_VERSION.equals(version)) {
-            throw new JungContentException("类型报告版本必须是 " + CURRENT_TYPE_REPORT_VERSION + "，实际 " + version);
+        if (!version.matches("typeme-type-report-zh-v\\d+")) {
+            throw new JungContentException("类型报告版本必须形如 typeme-type-report-zh-v<N>，实际 " + version);
         }
         JungContentStatus status = JungContentStatus.of(textField(root, "contentStatus"));
 
@@ -436,7 +566,11 @@ public class JungPackageLoader {
                     textField(node, "tagline"),
                     textField(node, "summary"),
                     Map.copyOf(sections),
-                    List.copyOf(actions)));
+                    List.copyOf(actions),
+                    // 可读层字段是 v2 起新增的：v1 没有它们，读成 null 而不是空串，
+                    // 这样报告构造器能区分"这一版没有可读层"与"可读层写空了"。
+                    optionalText(node, "readableSummary"),
+                    optionalTextList(node, "readableFirstSteps")));
         }
 
         if (reports.size() != 16) {
@@ -450,24 +584,34 @@ public class JungPackageLoader {
         // 与内容包同理：类型报告也要核对文件里声明的指纹
         String declared = root.path("sha256").asText("");
         String actual = sha256OfTypeReports(version, status, reports);
-        this.declaredTypeReportSha256 = declared;
-        this.recomputedTypeReportSha256 = actual;
+        this.declaredTypeReportSha256.put(version, declared);
+        this.recomputedTypeReportSha256.put(version, actual);
         if (!declared.isBlank() && !declared.equalsIgnoreCase(actual)) {
-            log.error("16 型报告 sha256 与内容不一致：文件写 {}，实际算出 {}。"
-                    + "运行时仍使用重算值，但请运行 node scripts/convert-jung-content.mjs 重新生成。",
-                    declared, actual);
+            log.error("16 型报告 sha256 与内容不一致：版本 {} 文件写 {}，实际算出 {}。"
+                    + "运行时仍使用重算值，但请运行 node scripts/gen-platform-content.mjs 重新生成。",
+                    version, declared, actual);
         }
         return new TypeReportContent(version, status, Map.copyOf(reports));
     }
 
-    /** 类型报告文件里声明的指纹；缺失时为空串。 */
+    /** 默认类型报告文件里声明的指纹；缺失时为空串。 */
     public String declaredTypeReportSha256() {
-        return declaredTypeReportSha256;
+        return declaredTypeReportSha256.getOrDefault(CURRENT_TYPE_REPORT_VERSION, "");
     }
 
-    /** 类型报告的加载期重算指纹。 */
+    /** 默认类型报告的加载期重算指纹。 */
     public String recomputedTypeReportSha256() {
-        return recomputedTypeReportSha256;
+        return recomputedTypeReportSha256.getOrDefault(CURRENT_TYPE_REPORT_VERSION, "");
+    }
+
+    /** 指定报告版本声明的指纹。 */
+    public String declaredTypeReportSha256(String reportContentVersion) {
+        return declaredTypeReportSha256.getOrDefault(reportContentVersion, "");
+    }
+
+    /** 指定报告版本的重算指纹。 */
+    public String recomputedTypeReportSha256(String reportContentVersion) {
+        return recomputedTypeReportSha256.getOrDefault(reportContentVersion, "");
     }
 
     /**
@@ -492,6 +636,16 @@ public class JungPackageLoader {
                     node.put("nameCn", report.nameCn());
                     node.put("tagline", report.tagline());
                     node.put("summary", report.summary());
+                    // 可读层**只在内容里存在时**才参与指纹：v1 的报告文件没有这两个字段，
+                    // 无条件写进去会让 v1 的重算指纹与文件里声明的 sha256 不再一致，
+                    // 把一个"内容没改"的版本变成"校验每天失败"。
+                    if (report.readableSummary() != null) {
+                        node.put("readableSummary", report.readableSummary());
+                    }
+                    if (report.readableFirstSteps() != null && !report.readableFirstSteps().isEmpty()) {
+                        ArrayNode steps = node.putArray("readableFirstSteps");
+                        report.readableFirstSteps().forEach(steps::add);
+                    }
                     for (String key : TYPE_SECTION_ORDER) {
                         node.put(key, report.sections().getOrDefault(key, ""));
                     }
@@ -636,8 +790,8 @@ public class JungPackageLoader {
         String declared = root.path("sha256").asText("");
         String actual = sha256OfProcessCopy(version, status, processes, steps,
                 textField(root, "decisionIntro"), textField(root, "decisionNote"), offers, rules, notes);
-        this.declaredProcessCopySha256 = declared;
-        this.recomputedProcessCopySha256 = actual;
+        this.processCopyDeclaredSha256 = declared;
+        this.processCopyRecomputedSha256 = actual;
         if (!declared.isBlank() && !declared.equalsIgnoreCase(actual)) {
             log.error("过程层文案 sha256 与内容不一致：文件写 {}，实际算出 {}。"
                     + "运行时仍使用重算值，但请运行 node scripts/convert-jung-content.mjs 重新生成。",
@@ -652,12 +806,12 @@ public class JungPackageLoader {
 
     /** 过程层文案文件里声明的指纹；缺失时为空串。 */
     public String declaredProcessCopySha256() {
-        return declaredProcessCopySha256;
+        return processCopyDeclaredSha256;
     }
 
     /** 过程层文案的加载期重算指纹。 */
     public String recomputedProcessCopySha256() {
-        return recomputedProcessCopySha256;
+        return processCopyRecomputedSha256;
     }
 
     /**
@@ -905,6 +1059,42 @@ public class JungPackageLoader {
         return node.asInt();
     }
 
+    /**
+     * 可选文本字段：**不存在时返回 null，存在但为空则报错**。
+     *
+     * <p>不把"缺失"和"写空了"合并成一个空串：报告构造器要靠这个区别判断
+     * "这一版内容没有可读层"，而不是"可读层写了但没写内容"。
+     */
+    private static String optionalText(JsonNode parent, String field) {
+        JsonNode node = parent.get(field);
+        if (node == null || node.isNull()) {
+            return null;
+        }
+        if (!node.isTextual() || node.asText().isBlank()) {
+            throw new JungContentException("字段 " + field + " 存在但不是非空字符串");
+        }
+        return node.asText();
+    }
+
+    /** 可选字符串数组：缺失时返回空列表，元素必须都是非空字符串。 */
+    private static List<String> optionalTextList(JsonNode parent, String field) {
+        JsonNode node = parent.get(field);
+        if (node == null || node.isNull()) {
+            return List.of();
+        }
+        if (!node.isArray()) {
+            throw new JungContentException("字段 " + field + " 存在但不是数组");
+        }
+        List<String> values = new ArrayList<>();
+        for (JsonNode item : node) {
+            if (!item.isTextual() || item.asText().isBlank()) {
+                throw new JungContentException("字段 " + field + " 的数组元素必须是非空字符串");
+            }
+            values.add(item.asText());
+        }
+        return List.copyOf(values);
+    }
+
     /* ── 值类型 ─────────────────────────────────────────────────────────── */
 
     /** 16 型基础报告内容（不可变）。 */
@@ -936,7 +1126,11 @@ public class JungPackageLoader {
             String tagline,
             String summary,
             Map<String, String> sections,
-            List<Action> nextActions) {
+            List<Action> nextActions,
+            /** 首屏一句话（v2 起；v1 为 null）。不是本人结论，是"这一组倾向通常意味着什么"。 */
+            String readableSummary,
+            /** 首屏"可以观察的一件事"（v2 起；v1 为空列表）。 */
+            List<String> readableFirstSteps) {
 
         public String section(String key) {
             return sections.get(key);

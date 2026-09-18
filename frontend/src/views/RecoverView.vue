@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import EditorialScene from '@/components/EditorialScene.vue'
+import IllustrationFrame from '@/components/IllustrationFrame.vue'
 import { computed, onMounted, ref, useId } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { refreshCsrfToken } from '@/api/v3'
 import PageContainer from '@/components/PageContainer.vue'
@@ -17,7 +19,22 @@ import AppIcon from '@/components/AppIcon.vue'
  * 所以成功后不自动登录，而是把用户送回登录页 —— 这也是"新密码确实能用"的最短验证路径。
  */
 const auth = useAuthStore()
+const route = useRoute()
 const router = useRouter()
+
+/**
+ * 重置成功后回登录页时要带上的 `redirect`。
+ *
+ * <p>用户是从别的页面被送到这里的（"登录态失效，请重新登录" → 登录页 → "用恢复码重置"），
+ * 原来这里写死 `/account`，等于在重置密码之后把用户**从原来的目的地丢掉**：
+ * 他是从答题页来的，就再也回不到那道题（第 17 轮）。
+ */
+const loginRedirect = computed(() => {
+  const raw = route.query.redirect
+  if (typeof raw !== 'string') return '/account'
+  if (!raw.startsWith('/') || raw.startsWith('//')) return '/account'
+  return raw
+})
 
 const username = ref('')
 const recoveryCode = ref('')
@@ -65,13 +82,13 @@ async function onSubmit() {
 }
 
 function goLogin() {
-  void router.replace({ name: 'login', query: { redirect: '/account' } })
+  void router.replace({ name: 'login', query: { redirect: loginRedirect.value } })
 }
 </script>
 
 <template>
-  <PageContainer page="article">
-    <section v-if="succeeded" aria-labelledby="recover-done-heading">
+  <PageContainer page="article" class="auth-page">
+    <section v-if="succeeded" class="auth-complete" aria-labelledby="recover-done-heading">
       <header>
         <p class="section-kicker">账号</p>
         <h1
@@ -80,6 +97,7 @@ function goLogin() {
         >
           新密码已经生效
         </h1>
+        <IllustrationFrame name="welcome" class="auth-art auth-scene"><EditorialScene scene="welcome" /></IllustrationFrame>
       </header>
       <!-- 这一屏是"已完成"的确认，不是解释：所以用 notice-success，和上面的失败红块分得开 -->
       <div class="notice-success mt-5 max-w-prose text-[14.5px] leading-relaxed" role="status" aria-live="polite">
@@ -95,7 +113,7 @@ function goLogin() {
       <button type="button" class="btn-primary mt-5" @click="goLogin">去登录</button>
     </section>
 
-    <section v-else aria-labelledby="recover-heading">
+    <section v-else class="auth-body" aria-labelledby="recover-heading">
       <header>
         <p class="section-kicker">账号</p>
         <h1
@@ -108,6 +126,7 @@ function goLogin() {
           注册时那 8 个恢复码里，任意一个都可以用来设置新密码。用掉一个就少一个，
           而且成功之后其他设备上的登录都会退出。
         </p>
+        <IllustrationFrame name="welcome" class="auth-art auth-scene"><EditorialScene scene="welcome" /></IllustrationFrame>
       </header>
 
       <!-- 表单是这一页唯一的焦点元素，所以收进一张卡片，和页头的说明拉开层次 -->

@@ -28,9 +28,33 @@ interface ReportState {
   listTotal: number
   listLoading: boolean
   listError: ErrorDisplay | null
+  /**
+   * 删除失败的**独立**通道（2026-09-18 第 17 轮）。
+   *
+   * 以前删除失败被写进 `listError`，而列表区把它渲染成「记录没能载入：…」并整块替换掉列表 ——
+   * 用户看到的是"我连历史记录都读不到了"，而真实情况只是"这一份没删掉"。
+   * 两种失败的原因、影响面和可做的下一步都不一样，不能共用一条通道。
+   */
+  removeError: ErrorDisplay | null
+  /** 正在删的那一份（同一时刻只允许一个删除在途）。 */
+  removingId: string | null
   current: ReportDetail | null
   loading: boolean
+  loadRevision: number
   loadError: ErrorDisplay | null
+  /**
+   * 这份 `current` 是**按 attempt** 取回来的吗（而不是按 reportId）。
+   *
+   * <p>两种取法的 404 含义完全不同，所以页面必须能分辨（2026-09-18 第 17 轮）：
+   *   - 按 attempt 取（交卷后那条路）：404 = 这次尝试**还没有报告**（信息不足），
+   *     属预期内的状态，该说"还差什么、回去补答"；
+   *   - 按 reportId 取（`/reports/{id}`）：404 = **这份报告不在这里**（已被删除、
+   *     编号有误，或链接属于别的账号），跟"你有没有答完"毫无关系。
+   *
+   * <p>以前页面只有一套文案（"还没有报告可看 …回去把没处理的题补齐"），
+   * 于是删掉一份报告后按浏览器后退，用户会被告知"你还没做完"，并被送去重新测一次。
+   */
+  loadedByAttempt: boolean
   savingReflection: boolean
   reflectionNotice: string | null
 }
@@ -41,9 +65,13 @@ export const useReportStore = defineStore('reportV3', {
     listTotal: 0,
     listLoading: false,
     listError: null,
+    removeError: null,
+    removingId: null,
     current: null,
     loading: false,
+    loadRevision: 0,
     loadError: null,
+    loadedByAttempt: false,
     savingReflection: false,
     reflectionNotice: null,
   }),
@@ -96,6 +124,7 @@ export const useReportStore = defineStore('reportV3', {
     async loadList(): Promise<void> {
       this.listLoading = true
       this.listError = null
+      this.removeError = null
       try {
         const page = await fetchReports({ page: 0, size: 50 })
         this.list = page.items
@@ -108,30 +137,38 @@ export const useReportStore = defineStore('reportV3', {
     },
 
     async loadReport(reportId: string): Promise<void> {
+      const revision = ++this.loadRevision
       this.loading = true
       this.loadError = null
       this.current = null
+      this.loadedByAttempt = false
       try {
-        this.current = await fetchReportDetail(reportId)
+        const current = await fetchReportDetail(reportId)
+        if (revision !== this.loadRevision) return
+        this.current = current
         this.reflectionNotice = null
       } catch (error) {
+        if (revision !== this.loadRevision) return
         this.loadError = describeError(error)
       } finally {
-        this.loading = false
+        if (revision === this.loadRevision) this.loading = false
       }
     },
 
     /** 交卷后直接按 attempt 取报告，省掉"查列表再匹配"的竞态。 */
     async loadReportByAttempt(attemptId: string): Promise<void> {
+      const revision = ++this.loadRevision
       this.loading = true
       this.loadError = null
       this.current = null
+      this.loadedByAttempt = true
       try {
-        this.current = await fetchReportByAttempt(attemptId)
+        const current = await fetchReportByAttempt(attemptId)
+        if (revision === this.loadRevision) this.current = current
       } catch (error) {
-        this.loadError = describeError(error)
+        if (revision === this.loadRevision) this.loadError = describeError(error)
       } finally {
-        this.loading = false
+        if (revision === this.loadRevision) this.loading = false
       }
     },
 
@@ -166,20 +203,40 @@ export const useReportStore = defineStore('reportV3', {
       }
     },
 
-    /** 删除报告：顺带删掉它的 attempt、答案与 AI 记录（服务端一次性完成）。 */
+    /**
+     * 删除报告：顺带删掉它的 attempt、答案与 AI 记录（服务端一次性完成）。
+     *
+     * 三重防护（第 17 轮补齐）：
+     *   1. 同一时刻只允许一个删除在途 —— 双击确认以前会发两个 DELETE，第二个 404，
+     *      于是在报告**已经删掉**之后把提示翻成「删除没能完成」；
+     *   2. 失败写进 `removeError` 而不是 `listError`，列表不会被整块顶掉；
+     *   3. 删除成功才把这一份从列表里拿掉 —— 失败时列表保持原样，不留"看起来删了"的中间态。
+     */
     async remove(reportId: string): Promise<boolean> {
+      if (this.removingId !== null) return false
+      this.removingId = reportId
+      this.removeError = null
       try {
         await deleteReport(reportId)
         this.list = this.list.filter((item) => item.reportId !== reportId)
+        if (this.listTotal > 0) this.listTotal -= 1
         if (this.current && this.current.report['reportId'] === reportId) this.current = null
         return true
       } catch (error) {
-        this.listError = describeError(error)
+        this.removeError = describeError(error)
         return false
+      } finally {
+        this.removingId = null
       }
     },
 
+    clearRemoveError(): void {
+      this.removeError = null
+    },
+
     clearCurrent(): void {
+      this.loadRevision += 1
+      this.loading = false
       this.current = null
       this.loadError = null
       this.reflectionNotice = null

@@ -14,16 +14,20 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * 新测模块的异常映射。
+ * 新测与平台模块共用的异常映射。
  *
- * <p>`basePackages` 限定在本模块：账号模块有自己的统一错误处理，两边同时注册
- * `@RestControllerAdvice` 时若都覆盖 `Exception.class`，谁生效取决于注册顺序 ——
- * 那正是"同一个错误在不同接口返回不同形状"的经典来源。这里只声明本模块自己的包。
+ * <p>`basePackages` 限定在 `com.typeme.jung` 与 `com.typeme.platform`：账号模块有自己的
+ * 统一错误处理，两边同时注册 `@RestControllerAdvice` 时若都覆盖 `Exception.class`，
+ * 谁生效取决于注册顺序 —— 那正是"同一个错误在不同接口返回不同形状"的经典来源。
+ *
+ * <p>平台模块（`/api/v3/platform`）刻意**复用同一份映射**而不是自己写一份：错误形状
+ * 必须一致，否则前端的错误处理要按路径分叉；而两份实现迟早会在
+ * "500 要不要带 details"这种地方分叉。
  *
  * <p>错误形状与契约 §7.1 一致：`{code, message, requestId, details}`；
  * 500 不泄露堆栈，只留 requestId 供对账。
  */
-@RestControllerAdvice(basePackages = "com.typeme.jung")
+@RestControllerAdvice(basePackages = {"com.typeme.jung", "com.typeme.platform"})
 public class JungExceptionHandler {
 
     @ExceptionHandler(JungApiException.class)

@@ -48,12 +48,12 @@ function makeRouter(): Router {
 
 const REPORT_ID = 'r-11111111-1111-1111-1111-111111111111'
 
-async function mountPanel() {
+async function mountPanel(requiresReadable = false) {
   const router = makeRouter()
   await router.push(`/reports/${REPORT_ID}`)
   await router.isReady()
   const wrapper = mount(AiAnalysisPanel, {
-    props: { reportId: REPORT_ID },
+    props: { reportId: REPORT_ID, requiresReadable },
     global: { plugins: [router] },
   })
   await flushPromises()
@@ -116,12 +116,24 @@ describe('AI 分析面板', () => {
     retryAnalysis.mockReset()
   })
 
+  it('大五遇到旧提示词时禁用生成并解释原因，切换新版后可用', async () => {
+    const wrapper = await mountPanel(true)
+    expect(wrapper.get('[data-ai-start]').attributes('disabled')).toBeDefined()
+    expect(wrapper.get('[data-ai-unsupported]').text()).toContain('还不支持大五报告')
+    wrapper.unmount()
+    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v3' }))
+    const readable = await mountPanel(true)
+    expect(readable.get('[data-ai-start]').attributes('disabled')).toBeUndefined()
+    expect(readable.text()).toContain('最多两条解释')
+    readable.unmount()
+  })
+
   it('AI 没开：说清"基础报告不受影响"，且不显示生成按钮', async () => {
     fetchAiStatus.mockResolvedValue(status({ enabled: false }))
     const wrapper = await mountPanel()
 
     expect(wrapper.find('[data-ai-disabled]').exists()).toBe(true)
-    expect(wrapper.find('[data-ai-disabled]').text()).toContain('固定报告与四个维度都不受影响')
+    expect(wrapper.find('[data-ai-disabled]').text()).toContain('固定报告与各个维度都不受影响')
     // 关键：不给一个注定 503 的按钮
     expect(wrapper.find('[data-ai-start]').exists()).toBe(false)
   })
@@ -210,6 +222,22 @@ describe('AI 分析面板', () => {
     const start = wrapper.find('[data-ai-start]')
     expect((start.element as HTMLButtonElement).disabled).toBe(true)
     expect(start.text()).toContain('额度已用完')
+  })
+
+  it('次数算不清（-1）：不显示次数、也不说「额度已用完」，生成按钮照常可用（A53②）', async () => {
+    // 服务端读额度失败（或未登录）时给的是 -1。原来的行为是"按 used=0 算"，
+    // 页面会说"今天还可以生成 N 次" —— 一个服务端并不知道的数字。
+    fetchAiStatus.mockResolvedValue(status({ remainingToday: -1 }))
+    const wrapper = await mountPanel()
+
+    expect(wrapper.find('[data-ai-quota-empty]').exists()).toBe(false)
+    const quota = wrapper.find('[data-ai-quota]')
+    expect(quota.exists()).toBe(true)
+    expect(quota.text()).not.toMatch(/还可以生成\s*\d+\s*次/)
+    expect(quota.text()).toContain('这项能力已开启')
+    const start = wrapper.find('[data-ai-start]')
+    expect((start.element as HTMLButtonElement).disabled).toBe(false)
+    expect(start.text()).not.toContain('额度已用完')
   })
 
   it('离开页面时停掉轮询（不留后台请求）', async () => {

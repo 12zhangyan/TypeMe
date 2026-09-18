@@ -4,6 +4,9 @@ import com.typeme.jung.service.AttemptService;
 import com.typeme.jung.service.JungApiException;
 import com.typeme.jung.service.ReportService;
 import com.typeme.jung.content.JungPackageLoader;
+import com.typeme.platform.catalog.AssessmentCatalog;
+import com.typeme.platform.catalog.AssessmentRelease;
+import com.typeme.platform.catalog.InstrumentKind;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,11 +46,14 @@ public class JungController {
     private final JungPackageLoader loader;
     private final AttemptService attempts;
     private final ReportService reports;
+    private final AssessmentCatalog catalog;
 
-    public JungController(JungPackageLoader loader, AttemptService attempts, ReportService reports) {
+    public JungController(JungPackageLoader loader, AttemptService attempts, ReportService reports,
+                          AssessmentCatalog catalog) {
         this.loader = loader;
         this.attempts = attempts;
         this.reports = reports;
+        this.catalog = catalog;
     }
 
     /* ── 内容 ───────────────────────────────────────────────────────────── */
@@ -68,11 +75,37 @@ public class JungController {
 
     /* ── attempt ────────────────────────────────────────────────────────── */
 
+    /**
+     * 新建一次测评。`Idempotency-Key` 可选（契约 02 §6.1）：带上它时，
+     * 同一个键 + 同一份请求内容只会产生**一份**草稿 —— 请求超时后用户点重试
+     * 不该多出一份他自己看不见的草稿（A35）。
+     *
+     * <p>{@code instrument} 可选：不传时按 **jung48**（保持既有前端的调用方式不变）。
+     * 传了别的 slug 就走那一项测评的默认内容版本 —— 也就是说"新建哪种测评"由请求决定，
+     * 而"这份草稿用哪一版题目"由草稿自己锁定。
+     */
     @PostMapping("/attempts")
     public ResponseEntity<JungDtos.AttemptSummary> createAttempt(
+            @RequestHeader(name = "Idempotency-Key", required = false) String idempotencyKey,
             @RequestBody(required = false) JungDtos.CreateAttemptRequest request) {
         String userId = requireUser();
-        JungDtos.AttemptSummary summary = attempts.create(userId, request == null ? null : request.baseReportId());
+        String slug = request == null || request.instrument() == null || request.instrument().isBlank()
+                ? "jung48"
+                : request.instrument().trim();
+        AssessmentRelease release;
+        try {
+            release = catalog.defaultRelease(slug);
+        } catch (IllegalArgumentException ex) {
+            throw JungApiException.notFound("要开始的测评：" + slug);
+        }
+        if (release.kind() != InstrumentKind.JUNG) {
+            // 走 JungController 的新建入口却点名了另一族的量表，说明前端把两套路径接错了。
+            // 明确指路而不是"照建一份但后续全部不认识"。
+            throw JungApiException.invalid(
+                    "这项测评不能用这个入口开始：" + slug + "。请使用 /api/v3/platform/attempts。");
+        }
+        JungDtos.AttemptSummary summary = attempts.create(
+                userId, request == null ? null : request.baseReportId(), idempotencyKey, release);
         return ResponseEntity.status(HttpStatus.CREATED).body(summary);
     }
 
@@ -106,8 +139,15 @@ public class JungController {
             @PathVariable("id") String attemptId,
             @RequestBody(required = false) JungDtos.SubmitRequest request) {
         JungDtos.SubmitResponse response = reports.submit(requireUser(), attemptId, request);
-        // 覆盖不足时返回 200 + NEEDS_REVIEW：这不是错误，是需要用户回看几道题
-        return ResponseEntity.ok(response);
+        /*
+         * 契约 02 §7.2 给这一行的状态码是 **201 Created**（这次请求创建了报告资源），
+         * 只有"覆盖不足"才是 200 + NEEDS_REVIEW（那不是错误，是让用户回看几道题）。
+         * 之前两种情况都返回 200：客户端不看状态码也能跑，但契约与实现不一致会误导
+         * 下一个消费者（他们有权按 201 判断"报告真的建出来了"）。
+         */
+        return response.reportId() == null
+                ? ResponseEntity.ok(response)
+                : ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping("/attempts/{id}")

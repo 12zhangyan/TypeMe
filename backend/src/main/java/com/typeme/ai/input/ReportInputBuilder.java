@@ -69,6 +69,9 @@ public class ReportInputBuilder {
 
     private static final List<String> DIMENSIONS = List.of("EI", "SN", "TF", "JP");
 
+    /** 大五的维度码，只用于识别"这不是十六型报告"。 */
+    private static final List<String> BIG_FIVE_DIMENSIONS = List.of("E", "A", "C", "ES", "O");
+
     /** 过程层的 slot 归属：前两个是相对省力的（主导 / 辅助），后两个是尚未偏好的。 */
     private static final List<String> PREFERRED_SLOTS = List.of("dominant", "auxiliary");
 
@@ -116,6 +119,20 @@ public class ReportInputBuilder {
         }
 
         JsonNode report = readJson(snapshot.reportJson());
+        if (ReadableReportInput.PROMPT_VERSION.equals(promptVersion)) {
+            return ReadableReportInput.build(snapshot, report, topic, note, model, mapper);
+        }
+        // 量表判别必须**显式**做，不能靠"找不到 EI 维就抛异常"兜住。
+        //
+        // 大五报告也有一个 `dimensions` 数组，但维度是 E/A/C/ES/O，没有
+        // `computedPole`。不做判别的话，用户在大五报告上点"AI 解读"会拿到一个
+        // IllegalStateException → 500，而真正的事实是"这一版 AI 解读还不支持大五"
+        // （它的输入投影、提示词与输出契约都还是按四个二分维度写的）。
+        // 500 会让用户以为服务坏了并反复重试；明确的不支持说法才能让他停下来。
+        if (isBigFiveReport(report)) {
+            throw com.typeme.ai.config.AiException.unsupported(
+                    "AI 解读目前只支持十六型人格参考测评的报告；大五倾向测评的报告还没有对应的解读口径。");
+        }
         String computedTypeCode = blankToNull(snapshot.computedTypeCode(), text(report.path("computedTypeCode")));
         String status = blankToNull(snapshot.status(), text(report.path("status")));
 
@@ -179,6 +196,41 @@ public class ReportInputBuilder {
             }
         }
         return null;
+    }
+
+    /**
+     * 这份报告是不是大五的。
+     *
+     * <p>判据有两条，任一条成立即可，因为**两种报告形状都可能出现**：
+     * <ul>
+     *   <li>v2 外壳里有 {@code reportKind = big_five_profile}（新报告走这条）；</li>
+     *   <li>报告体里带了大五特有的维度码、而四个二分维度一个都没有
+     *       （没有外壳的早期快照走这条）。</li>
+     * </ul>
+     * 刻意**不用** {@code hasTypeCode == false} 单独当判据：那个字段只有外壳才有，
+     * 拿它判会漏掉旧快照，而漏掉的后果正好是走到下面 {@code dimensions(...)}
+     * 的异常分支上去（也就是这次要修的那个 500）。
+     */
+    private static boolean isBigFiveReport(JsonNode report) {
+        if ("big_five_profile".equals(text(report.path("reportKind")))) {
+            return true;
+        }
+        JsonNode dimensions = report.path("dimensions");
+        if (!dimensions.isArray() || dimensions.isEmpty()) {
+            return false;
+        }
+        boolean hasJungDimension = false;
+        boolean hasBigFiveDimension = false;
+        for (JsonNode row : dimensions) {
+            String code = text(row.path("dimension"));
+            if (DIMENSIONS.contains(code)) {
+                hasJungDimension = true;
+            }
+            if (BIG_FIVE_DIMENSIONS.contains(code)) {
+                hasBigFiveDimension = true;
+            }
+        }
+        return hasBigFiveDimension && !hasJungDimension;
     }
 
     private List<Map<String, Object>> candidates(JsonNode report) {
@@ -755,7 +807,13 @@ public class ReportInputBuilder {
     /** 落 {@code ai_consent.scope} 的结构化摘要：字段名列表 + 片段数 + 是否含用户文字。 */
     public String scopeSummary(AiReportInput input) {
         List<String> fields = new ArrayList<>(List.of(
-                "topic", "report.status", "report.referenceType", "report.dimensions", "report.candidates"));
+                "topic", "report.status", "report.referenceType", "report.dimensions"));
+        if (ReadableReportInput.PROMPT_VERSION.equals(input.promptVersion())) {
+            fields.add("report.instrument");
+        } else {
+            fields.add("report.candidates");
+            fields.add("report.processLayer");
+        }
         if (input.evidence() != null && !input.evidence().isEmpty()) {
             fields.add("evidence");
         }

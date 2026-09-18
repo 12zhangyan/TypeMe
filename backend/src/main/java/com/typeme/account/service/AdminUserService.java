@@ -39,17 +39,21 @@ public class AdminUserService {
     private final UserRepository users;
     private final JdbcTemplate jdbc;
     private final AccountService accountService;
+    private final com.typeme.ai.config.AiRuntimeSettingsProvider aiSettings;
+    private final com.typeme.ai.service.AiBudgetRepository budgets;
 
-    public AdminUserService(UserRepository users, JdbcTemplate jdbc, AccountService accountService) {
+    public AdminUserService(UserRepository users, JdbcTemplate jdbc, AccountService accountService, com.typeme.ai.config.AiRuntimeSettingsProvider aiSettings, com.typeme.ai.service.AiBudgetRepository budgets) {
         this.users = users;
         this.jdbc = jdbc;
         this.accountService = accountService;
+        this.aiSettings = aiSettings;
+        this.budgets = budgets;
     }
 
     /** 分页列出用户。{@code page} 从 0 开始（与内部 offset 语义一致，避免 off-by-one 反复出错）。 */
     public Map<String, Object> list(int page, int size) {
         int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
-        int safePage = Math.max(page, 0);
+        int safePage = Math.min(Math.max(page, 0), 100000);
         List<UserRecord> rows = users.page(safePage * safeSize, safeSize);
         List<Map<String, Object>> items = new ArrayList<>(rows.size());
         for (UserRecord user : rows) {
@@ -86,6 +90,13 @@ public class AdminUserService {
         return view(users.findById(target.id()).orElse(target));
     }
 
+    public Map<String, Object> updateAiDailyLimit(String targetUserId, Integer limit) {
+        if (limit == null || limit < 0 || limit > 10000) throw ApiException.validation("每日 AI 次数需为 0–10000。", Map.of("aiDailyLimit", "范围无效"));
+        UserRecord target = users.findById(targetUserId).filter(u -> !"DELETED".equals(u.status())).orElseThrow(ApiException::notFound);
+        users.updateAiDailyLimit(target.id(), limit);
+        return view(users.findById(target.id()).orElse(target));
+    }
+
     /** 禁用账号：置 DISABLED 并撤销其全部会话；不允许禁用自己。 */
     @Transactional
     public Map<String, Object> disable(String actingAdminId, String targetUserId) {
@@ -109,6 +120,17 @@ public class AdminUserService {
         item.put("status", user.status());
         item.put("createdAt", user.createdAt() == null ? null : user.createdAt().toString());
         item.put("reportCount", reportCount(user.id()));
+        item.put("aiDailyLimit", user.aiDailyLimit());
+        int limit = user.aiDailyLimit() == null ? aiSettings.settings().dailyLimitPerUser() : user.aiDailyLimit();
+        item.put("effectiveAiDailyLimit", limit);
+        var quotaDate = budgets.today();
+        int used = budgets.reservedCalls("user:" + user.id(), quotaDate);
+        item.put("aiUsedToday", used);
+        item.put("aiRemainingToday", Math.max(0, limit - used));
+        item.put("quotaDate", quotaDate.toString());
+        item.put("attemptCount", jdbc.queryForObject("SELECT COUNT(*) FROM assessment_attempt WHERE user_id = ?", Long.class, user.id()));
+        var lastSeen = jdbc.queryForObject("SELECT MAX(last_seen_at) FROM app_user_session WHERE user_id = ?", java.sql.Timestamp.class, user.id());
+        item.put("lastSeenAt", lastSeen == null ? null : lastSeen.toInstant().toString());
         // 刻意不含 password_hash / recovery_code_version / session 信息。
         return item;
     }

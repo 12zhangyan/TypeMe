@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
@@ -36,6 +36,13 @@ const listLoading = ref(false)
 const listError = ref<ErrorDisplay | null>(null)
 
 const result = ref<CompareResult | null>(null)
+/**
+ * 当前这份 `result` **是哪两份报告的**。
+ *
+ * 以前只存结果不存对象，表格里也没有任何报告标识，于是"换了下拉框但表格还是上一对"
+ * 这件事在页面上完全看不出来。现在结果与它的两份报告一起写入，表格上方直接写出比的是谁。
+ */
+const resultIds = ref<{ a: string; b: string } | null>(null)
 const comparing = ref(false)
 const compareError = ref<ErrorDisplay | null>(null)
 
@@ -133,29 +140,61 @@ async function runCompare(): Promise<void> {
   if (!canCompare.value) return
   generation += 1
   const myGeneration = generation
+  const pair = { a: idA.value, b: idB.value }
   comparing.value = true
   compareError.value = null
   try {
-    const data = await compareReports([idA.value, idB.value])
+    const data = await compareReports([pair.a, pair.b])
     if (myGeneration !== generation) return
     result.value = data
+    // 结果与"它是谁的"一起落盘：只写 result 不写 resultIds 就会重新长出"表格对不上选择"。
+    resultIds.value = pair
   } catch (error) {
     if (myGeneration !== generation) return
     result.value = null
+    resultIds.value = null
     compareError.value = describeError(error)
   } finally {
     if (myGeneration === generation) comparing.value = false
   }
 }
 
+/**
+ * 选择一变就**立刻**丢掉旧结果（2026-09-18 第 17 轮修复）。
+ *
+ * 修之前 `select()` 只 `router.replace`，而 `maybeAutoCompare()` 只在 `onMounted` 调一次，
+ * 文档里那句"真正的比较交给 watch 触发"并不存在那个 watch。后果：在对比页换掉任一份之后，
+ * URL 变了、表格却还是**上一对**报告的内容，而表头只有"先看的那份 / 再看的那份"，
+ * 页面上没有任何线索能让用户察觉自己正在读一份错的对比 —— 这正是"历史切换内容不一致"。
+ *
+ * 现在的顺序是：先作废在途响应（`generation`）→ 清空旧表格 → 再发起新的比较。
+ * 于是任何时刻页面上的表格要么是"正在比较"，要么就是当前所选那一对的。
+ */
+watch([idA, idB], () => {
+  generation += 1
+  result.value = null
+  resultIds.value = null
+  compareError.value = null
+  comparing.value = false
+  if (canCompare.value) void runCompare()
+})
+
 /** URL 里已经带齐两份时自动比较：从报告页点"与另一份比较"过来应直接看到结果。 */
 function maybeAutoCompare(): void {
   if (canCompare.value) void runCompare()
 }
 
+/** 报告在列表里的识别文案（下拉框与结果区用同一份，避免两处说法不一致）。 */
+function reportOptionLabel(reportId: string): string {
+  const item = list.value.find((candidate) => candidate.reportId === reportId)
+  if (!item) return '（这份已不在记录列表里）'
+  return `${formatTime(item.createdAt)} · ${item.computedTypeCode ?? '（没有单一类型）'} · ${statusLabel(item.status)}`
+}
+
 onMounted(async () => {
   await loadList()
-  maybeAutoCompare()
+  // 载入列表期间用户可能已经改过选择（watch 已经比过了），那就不要再发一次。
+  if (result.value === null && !comparing.value) maybeAutoCompare()
 })
 </script>
 
@@ -211,8 +250,7 @@ onMounted(async () => {
           >
             <option value="">请选择</option>
             <option v-for="item in sortedList" :key="item.reportId" :value="item.reportId">
-              {{ formatTime(item.createdAt) }} · {{ item.computedTypeCode ?? '（没有单一类型）' }} ·
-              {{ statusLabel(item.status) }}
+              {{ reportOptionLabel(item.reportId) }}
             </option>
           </select>
         </div>
@@ -228,8 +266,7 @@ onMounted(async () => {
           >
             <option value="">请选择</option>
             <option v-for="item in sortedList" :key="item.reportId" :value="item.reportId">
-              {{ formatTime(item.createdAt) }} · {{ item.computedTypeCode ?? '（没有单一类型）' }} ·
-              {{ statusLabel(item.status) }}
+              {{ reportOptionLabel(item.reportId) }}
             </option>
           </select>
         </div>
@@ -267,6 +304,17 @@ onMounted(async () => {
           <AppIcon name="compare" :size="18" class="text-primary-600" />
           两份报告的四个维度
         </h2>
+
+        <!--
+          表格上方写出"这一页比的到底是哪两份"：两份报告在下拉框里是同一种格式的时间+类型，
+          只靠表头的"先看的那份 / 再看的那份"无法核对。切换选择时这块文字与表格一起更新，
+          所以"表格对不上选择"这件事在页面上是可见的，而不是要用户自己发现。
+        -->
+        <p v-if="resultIds" class="caption mt-2 max-w-prose" data-compare-subject>
+          这次比的是：<span class="font-medium text-ink">先看的那份</span>
+          {{ reportOptionLabel(resultIds.a) }}；<span class="font-medium text-ink">再看的那份</span>
+          {{ reportOptionLabel(resultIds.b) }}。
+        </p>
 
         <!--
           版本不同 → 服务端不算变化。这件事必须在最上面说，不能让用户从

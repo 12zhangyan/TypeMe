@@ -4,6 +4,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import ReportV3View from './ReportV3View.vue'
+import { useReportStore } from '@/stores/reportV3'
 import { buildReportView } from '@/domain/reportV3'
 
 /**
@@ -469,9 +470,13 @@ const TIED = reportJson({
 
 interface ReportApiOptions {
   detail?: () => { status: number; body: unknown }
+  /** 按 attempt 取报告（`GET /attempts/{id}/report`）：交卷后那条路的 404 含义不同。 */
+  attemptReport?: () => { status: number; body: unknown }
   list?: () => { status: number; body: unknown }
   reflection?: () => { status: number; body: unknown }
   onReflectionPut?: (body: unknown) => void
+  /** 删除报告的替身：返回一个 Response，或一个（可以一直挂着的）Promise。 */
+  onDelete?: () => Response | Promise<Response> | { status: number; body: unknown }
 }
 
 let calls: { method: string; url: string; body: unknown }[] = []
@@ -508,7 +513,26 @@ function installFetch(): void {
       )
     }
     if (method === 'DELETE' && url.includes('/reports/')) {
+      if (api.onDelete) {
+        const result = await api.onDelete()
+        if (result instanceof Response) return result
+        return jsonResponse(result.body, result.status)
+      }
       return new Response(null, { status: 204 })
+    }
+    if (method === 'GET' && /\/attempts\/[^/?]+\/report$/.test(url)) {
+      const result = api.attemptReport
+        ? api.attemptReport()
+        : {
+            status: 404,
+            body: {
+              code: 'NOT_FOUND',
+              message: '这次测评还没有报告。',
+              requestId: 'req-a',
+              details: {},
+            },
+          }
+      return jsonResponse(result.body, result.status)
     }
     if (method === 'GET' && url.includes('/reports/')) {
       const result = api.detail ? api.detail() : { status: 200, body: { report: REFERENCE } }
@@ -683,27 +707,65 @@ describe('报告页：TIED', () => {
   })
 })
 
-describe('报告页：NEEDS_REVIEW（没有报告可看）', () => {
-  it('服务端说这份尝试还没有报告时，明确说"没有报告可看"并给回去补答的入口', async () => {
+describe('报告页：404 的两种含义必须分开', () => {
+  /**
+   * `/reports/{id}` 的 404 **不是**"你还没做完"。
+   * 这条路径只能按 reportId 取报告，所以 404 的含义是"这份报告不在这里"
+   * （已被删除、编号有误，或链接属于别的账号）。
+   * 以前这里会说"这次测评还没有报告可看 …回去把没处理的题补齐"，
+   * 于是删掉一份报告后按浏览器后退，用户会被告知"你还没做完"并被送去重测一次。
+   */
+  it('按 reportId 打不开（404）：说的是"报告不在这里"，不是"你还没做完"', async () => {
     api.detail = () => ({
       status: 404,
       body: {
         code: 'NOT_FOUND',
-        message: '这次测评还没有报告。',
+        message: '没找到这个内容，可能已经被删掉了。',
         requestId: 'req-3',
         details: {},
       },
     })
     const { wrapper } = await mountReport(`/reports/${REPORT_ID}`)
 
-    // 详情拿不到时必须换成"还差什么 / 回去补答"，而不是渲染一份空报告
-    expect(wrapper.find('[data-status="NEEDS_REVIEW"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('还没有报告可看')
-    expect(wrapper.text()).toContain('回去把没处理的题补齐')
-    const link = wrapper.findAll('a').find((node) => node.text().includes('补'))!
-    expect(link.attributes('href')).toBe('/assess')
+    expect(wrapper.find('[data-report-not-found]').exists()).toBe(true)
+    const text = wrapper.text()
+    expect(text).toContain('这份报告打不开了')
+    expect(text).toContain('已经被删除')
+    expect(text).toContain('属于另一个账号')
+    // 不能再让用户以为是自己没答完
+    expect(text).not.toContain('还没有报告可看')
+    expect(text).not.toContain('回去把没处理的题补齐')
+    // 下一步是"回历史报告"，重新做一次只是次要选项
+    expect(wrapper.find('a[href="/reports"]').exists()).toBe(true)
   })
 
+  it('按 attempt 取不到（信息不足）：仍然说"还没有报告可看"并给回去补答的入口', async () => {
+    api.detail = () => ({
+      status: 404,
+      body: {
+        code: 'NOT_FOUND',
+        message: '这次测评还没有报告。',
+        requestId: 'req-4',
+        details: {},
+      },
+    })
+    const { wrapper } = await mountReport(`/reports/${REPORT_ID}`)
+    const store = useReportStore()
+    // 走"按 attempt 取报告"这条路（`AssessView` 交卷后的路径）
+    await store.loadReportByAttempt(ATTEMPT_ID)
+    await flushPromises()
+
+    expect(store.loadedByAttempt).toBe(true)
+    expect(store.notFound).toBe(true)
+    // 这条路上 404 = 预期内的状态（信息不足），文案与下一步都要是"回去补答"
+    const text = wrapper.text()
+    expect(text).toContain('还没有报告可看')
+    expect(text).toContain('回去把没处理的题补齐')
+    expect(text).not.toContain('属于另一个账号')
+  })
+})
+
+describe('报告页：报告形状不符合契约', () => {
   it('报告形状不符合契约时明确说读不出来，不用默认值补齐', async () => {
     api.detail = () => ({
       status: 200,
@@ -1012,6 +1074,112 @@ describe('报告页：历史列表', () => {
     expect(wrapper.text()).toContain('记录没能载入')
     expect(wrapper.findAll('button').some((button) => button.text() === '重试')).toBe(true)
     expect(wrapper.text()).not.toContain('还没有完成的测评')
+  })
+
+  /**
+   * 删除失败以前被写进"列表载入失败"那条通道，于是整块列表被替换成
+   * 「记录没能载入：…」—— 用户会以为自己的历史记录都读不到了，
+   * 而真相只是"这一份没删掉"。这两件事的原因、影响面和下一步都不一样。
+   */
+  it('删除失败时：只说这一份没删掉，列表不会被「记录没能载入」顶掉', async () => {
+    api.list = () => ({
+      status: 200,
+      body: {
+        items: [
+          {
+            reportId: 'report-new',
+            attemptId: 'a2',
+            createdAt: '2026-09-16T08:00:00Z',
+            status: 'REFERENCE',
+            computedTypeCode: 'ENFP',
+            selfSelectedTypeCode: null,
+            summaryLine: '最近的那次。',
+            packageId: 'typeme-jung48-zh-v1',
+            scoringVersion: 'typeme-jung48-score-v1',
+          },
+        ],
+        page: 0,
+        size: 50,
+        total: 1,
+      },
+    })
+    api.onDelete = () => ({
+      status: 500,
+      body: { code: 'INTERNAL', message: '服务器出错了。', requestId: 'req-77', details: {} },
+    })
+
+    const { wrapper } = await mountReport('/reports')
+    await wrapper.find('[data-delete-report="report-new"]').trigger('click')
+    await flushPromises()
+    await wrapper.findAll('button').find((button) => button.text() === '删除记录')!.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[data-report-remove-error]').exists()).toBe(true)
+    expect(wrapper.find('[data-report-remove-error]').text()).toContain('服务器出错了')
+    // 列表必须原样留着：这一份还在，用户还能再试一次
+    expect(wrapper.find('[data-report-list]').exists()).toBe(true)
+    expect(wrapper.findAll('[data-report-row]')).toHaveLength(1)
+    // 也不许把它说成"记录没能载入"
+    expect(wrapper.text()).not.toContain('记录没能载入')
+  })
+
+  /**
+   * 双击确认曾经会发出两个 DELETE：第二个撞 404，于是在数据**已经删掉**之后
+   * 把结果翻成"删除没能完成"。在途期间必须只有一个请求，而且界面要如实显示"正在删除"。
+   */
+  it('删除在途时：只有一个 DELETE，确认键禁用并显示「正在删除…」', async () => {
+    api.list = () => ({
+      status: 200,
+      body: {
+        items: [
+          {
+            reportId: 'report-new',
+            attemptId: 'a2',
+            createdAt: '2026-09-16T08:00:00Z',
+            status: 'REFERENCE',
+            computedTypeCode: 'ENFP',
+            selfSelectedTypeCode: null,
+            summaryLine: '最近的那次。',
+            packageId: 'typeme-jung48-zh-v1',
+            scoringVersion: 'typeme-jung48-score-v1',
+          },
+        ],
+        page: 0,
+        size: 50,
+        total: 1,
+      },
+    })
+    let release: (() => void) | null = null
+    api.onDelete = () =>
+      new Promise<Response>((resolve) => {
+        release = () => resolve(new Response(null, { status: 204 }))
+      })
+
+    const { wrapper } = await mountReport('/reports')
+    await wrapper.find('[data-delete-report="report-new"]').trigger('click')
+    await flushPromises()
+    await wrapper.findAll('button').find((button) => button.text() === '删除记录')!.trigger('click')
+    await flushPromises()
+
+    // 请求还在路上：弹窗不关、确认键禁用且如实说明在做什么
+    expect(wrapper.text()).toContain('删除这条记录会同时删掉它的答案与相关记录')
+    const busy = wrapper.findAll('button').find((button) => button.text() === '正在删除…')
+    expect(busy).toBeTruthy()
+    expect((busy!.element as HTMLButtonElement).disabled).toBe(true)
+
+    // 再点一次（模拟双击的第二下）
+    await busy!.trigger('click')
+    await flushPromises()
+    expect(calls.filter((call) => call.method === 'DELETE')).toHaveLength(1)
+    // 还没成功，这一行就不该消失
+    expect(wrapper.findAll('[data-report-row]')).toHaveLength(1)
+
+    release!()
+    await flushPromises()
+    expect(calls.filter((call) => call.method === 'DELETE')).toHaveLength(1)
+    expect(wrapper.findAll('[data-report-row]')).toHaveLength(0)
+    expect(wrapper.text()).toContain('报告已经删除')
+    expect(wrapper.find('[data-report-remove-error]').exists()).toBe(false)
   })
 })
 

@@ -68,4 +68,27 @@ public class JungApiException extends RuntimeException {
         return new JungApiException("PACKAGE_NOT_SEEDED", 503,
                 "本次测评的内容尚未就绪（内容包 " + packageId + " 未登记），请稍后再试或联系管理员。");
     }
+
+    /**
+     * 同一个 `Idempotency-Key` 被用在**不同的请求**上（契约 02 §6.1）。
+     *
+     * <p>这不是"重试"，而是客户端把同一个键配上了另一份请求内容。**绝不能**当成重试
+     * 返回上一次的结果：那会让用户以为"选了 A 却得到了 B 的结果"，而且是静默的。
+     * 唯一安全的处置是明确拒绝。
+     */
+    public static JungApiException idempotencyKeyReused() {
+        return new JungApiException("IDEMPOTENCY_KEY_REUSED", 409,
+                "这次请求与之前用同一个幂等键发出的请求内容不同，为避免拿到不属于它的结果，这次没有执行。请重新发起。");
+    }
+
+    /**
+     * 同一个幂等键的**上一次请求正在处理中**（同一个键的并发请求）。
+     *
+     * <p>刻意不在这里"猜结果"：不返回上一次的资源（可能还没创建出来），也不重复创建
+     * （那正是幂等要防的事）。让客户端稍后重试，那时会命中已完成的那一次并拿到同一个资源。
+     */
+    public static JungApiException idempotencyInProgress() {
+        return new JungApiException("IDEMPOTENCY_IN_PROGRESS", 409,
+                "上一次同样的请求还在处理中，稍等一下再试即可（不会因此多出一份草稿）。");
+    }
 }

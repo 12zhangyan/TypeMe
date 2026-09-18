@@ -41,7 +41,7 @@ class AiSettingsSecretMissingIT extends AccountIntegrationTestBase {
     void writingApiKeyWithoutSecretIsRefused() throws Exception {
         String adminUsername = uniqueUsername("nosecretadmin");
         RegisteredAccount admin = register(adminUsername, "TestPassw0rd!");
-        new TestAccounts(mockMvc, objectMapper, userRepository).promoteToAdmin(adminUsername);
+        new TestAccounts(mockMvc, objectMapper, userRepository, invitationJdbc).promoteToAdmin(adminUsername);
 
         MockHttpSession session = new MockHttpSession();
         CsrfContext csrf = csrf(session);

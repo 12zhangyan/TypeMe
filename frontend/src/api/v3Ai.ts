@@ -58,7 +58,7 @@ export const AI_CONSENT_POLICY_VERSION = 'typeme-ai-consent-v1'
  * 发送范围的版本。**必须与后端一致** —— 它进 `request_hash`，
  * 写错会让同一份报告在升级前后被当成两个范围（见契约 §4 那段说明）。
  */
-export const AI_SCOPE_VERSION = 'typeme-ai-scope-v2'
+export const AI_SCOPE_VERSION = 'typeme-ai-scope-v3'
 
 /* ── 解析工具 ───────────────────────────────────────────────────────────── */
 
@@ -114,6 +114,7 @@ export interface AnalysisResultView {
  */
 export function parseAnalysisResult(raw: unknown): AnalysisResultView | null {
   if (!isRecord(raw)) return null
+  if (raw['schemaVersion'] === 'analysis-readable-v2') return parseReadableAnalysis(raw)
   const problems: string[] = []
 
   // schemaVersion 只做**提示**，不做拒绝：未知版本意味着前端比后端旧，
@@ -169,6 +170,38 @@ export function parseAnalysisResult(raw: unknown): AnalysisResultView | null {
 
 /* ── 任务 ───────────────────────────────────────────────────────────────── */
 
+/** 新契约整份校验；旧分析继续走原解析器。 */
+function parseReadableAnalysis(raw: Record<string, unknown>): AnalysisResultView | null {
+  const text = (value: unknown, max: number): value is string =>
+    typeof value === 'string' && value.trim().length > 0 && value.length <= max
+  const ids = (value: unknown): boolean => Array.isArray(value) && value.length > 0 && value.length <= 8 &&
+    value.every(id => text(id, 100)) && new Set(value).size === value.length
+  const exact = (value: Record<string, unknown>, keys: string[]): boolean =>
+    Object.keys(value).length === keys.length && keys.every(key => Object.prototype.hasOwnProperty.call(value, key))
+  if (!exact(raw, ['schemaVersion', 'referenceType', 'summary', 'observations', 'suggestedAction', 'limitations'])) return null
+  if (raw.referenceType !== null && (typeof raw.referenceType !== 'string' || !/^[EI][SN][TF][JP]$/.test(raw.referenceType))) return null
+  if (!text(raw.summary, 200) || !Array.isArray(raw.observations) || raw.observations.length > 2) return null
+  if (!Array.isArray(raw.limitations) || raw.limitations.length < 1 || raw.limitations.length > 4 ||
+      !raw.limitations.every(value => text(value, 160))) return null
+  const sections: AnalysisSection[] = []
+  for (const [index, item] of raw.observations.entries()) {
+    if (!isRecord(item) || !exact(item, ['plainText', 'example', 'evidenceIds']) ||
+        !text(item.plainText, 180) || (item.example !== null && !text(item.example, 120)) || !ids(item.evidenceIds)) return null
+    sections.push({ key: `observation-${index}`, title: '为什么这样说',
+      body: item.plainText + (item.example ? `\n${item.example}` : '') })
+  }
+  const actions: AnalysisAction[] = []
+  const action = raw.suggestedAction
+  if (action !== null) {
+    if (!isRecord(action) || !exact(action, ['what', 'when', 'observe', 'evidenceIds']) ||
+        !text(action.what, 120) || !text(action.when, 120) || !text(action.observe, 120) || !ids(action.evidenceIds)) return null
+    actions.push({ title: '可以试一次', steps: [action.what, action.when, action.observe] })
+  }
+  return { schemaVersion: 'analysis-readable-v2', referenceType: raw.referenceType as string | null,
+    summary: raw.summary, sections, boundaryNotes: raw.limitations as string[], actions,
+    reflectionQuestions: [], problems: [] }
+}
+
 /**
  * 任务状态。`QUEUED` / `RUNNING` 是"还在跑"，`SUCCEEDED` 是终态，
  * `FAILED` / `UNKNOWN` 可重试（契约 §2 的 retry 只接受这两种）。
@@ -215,7 +248,6 @@ function readJob(raw: unknown): AnalysisJob {
   }
   const status = parseStatus(raw['status'])
   const parsed = status === 'SUCCEEDED' ? parseAnalysisResult(raw['result']) : null
-  const hasRawResult = status === 'SUCCEEDED' && isRecord(raw['result'])
   return {
     jobId,
     reportId: readText(raw['reportId']) ?? '',
@@ -230,7 +262,12 @@ function readJob(raw: unknown): AnalysisJob {
     finishedAt: readText(raw['finishedAt']),
     result: parsed,
     resultProblems:
-      hasRawResult && parsed === null
+      // 判据只能是"服务端说成功、但页面读不出内容"。
+      // 以前还额外要求 `result` 得是个对象（`hasRawResult`），于是"成功 + result 缺失/非对象"
+      // 会走成**零提示的空成功**：面板渲染 `data-ai-result` 却没有正文也没有说明。
+      // 那种响应在当前后端产生不了（校验器拒绝非对象），但"只有后端恰好不这么干才不出问题"
+      // 不是一条能依赖的性质 —— 少一个条件比多一个条件更安全。
+      status === 'SUCCEEDED' && parsed === null
         ? ['这份分析的输出没能被当前页面解析出来（可能是旧版本的输出格式）。']
         : (parsed?.problems ?? []),
     mock: raw['mock'] === true,
@@ -253,7 +290,8 @@ export interface AiStatus {
 /**
  * `GET /ai/status`。
  *
- * 未登录时也返回 200（服务端刻意允许），`remainingToday` 是 -1 或 0 表示"登录后才算得清"。
+ * 未登录时也返回 200（服务端刻意允许），`remainingToday = -1` 表示"算不清"
+ * （未登录，或服务端读额度失败）——前端据此**不显示次数**，而不是显示 0 次。
  * 这里不做登录判断，交给调用方。
  */
 export async function fetchAiStatus(signal?: AbortSignal): Promise<AiStatus> {
@@ -266,7 +304,11 @@ export async function fetchAiStatus(signal?: AbortSignal): Promise<AiStatus> {
     model: readText(record['model']) ?? '',
     dailyLimitPerUser:
       typeof record['dailyLimitPerUser'] === 'number' ? record['dailyLimitPerUser'] : 0,
-    remainingToday: typeof record['remainingToday'] === 'number' ? record['remainingToday'] : 0,
+    /*
+     * 字段缺失时按 **-1（算不清）** 而不是 0：0 在界面上的意思是"今天用完了"，
+     * 那是替服务端下一个它没下过的结论；-1 只会让页面不显示次数（A53②）。
+     */
+    remainingToday: typeof record['remainingToday'] === 'number' ? record['remainingToday'] : -1,
     apiKeySource: readText(record['apiKeySource']) ?? 'none',
     promptVersion: readText(record['promptVersion']),
   }
@@ -292,11 +334,12 @@ export async function createAnalysis(input: {
   note?: string
   idempotencyKey: string
   signal?: AbortSignal
+  scopeVersion?: string
 }): Promise<CreateAnalysisResult> {
   const body: Record<string, unknown> = {
     consent: {
       policyVersion: AI_CONSENT_POLICY_VERSION,
-      scopeVersion: AI_SCOPE_VERSION,
+      scopeVersion: input.scopeVersion ?? AI_SCOPE_VERSION,
     },
     topic: input.topic,
   }

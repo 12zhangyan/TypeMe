@@ -114,10 +114,10 @@ typeme:
     # 生产必须通过 TYPEME_SETTINGS_SECRET 注入（>=16 字符，且与数据库同级的保密级别）。
     settings-secret: ${TYPEME_SETTINGS_SECRET:}
 
-  # 管理员引导：仅当"系统里一个 ADMIN 都没有"时，把同名已存在账号提升为 ADMIN。
-  # 这是本地开发的一次性入口；生产不建议配置（或配置后立即清掉）。
+  # 首次部署提供初始密码才创建管理员；已有管理员时不重设密码、不提升已有同名用户。
   admin:
     bootstrap-username: ${TYPEME_ADMIN_BOOTSTRAP_USERNAME:typeme_admin}
+    bootstrap-password: ${TYPEME_ADMIN_BOOTSTRAP_PASSWORD:}
 
   # AI（DeepSeek）配置 —— 契约 03 §1 的**兜底值**。
   #
@@ -133,11 +133,11 @@ typeme:
     # 主名沿用官方约定 DEEPSEEK_API_KEY；TYPEME_AI_API_KEY 作为兼容别名（若已注入则优先）。
     api-key: ${DEEPSEEK_API_KEY:${TYPEME_AI_API_KEY:}}
     model: ${TYPEME_AI_MODEL:deepseek-flash}
-    prompt-version: ${TYPEME_AI_PROMPT_VERSION:typeme-ai-prompt-v2}
+    prompt-version: ${TYPEME_AI_PROMPT_VERSION:typeme-ai-prompt-v3}
     # 连接超时 5s；单次总 deadline 90s（部署超时（网关/Nginx）必须一起校验）。
     connect-timeout: ${TYPEME_AI_CONNECT_TIMEOUT:5s}
     request-deadline: ${TYPEME_AI_REQUEST_DEADLINE:90s}
-    # 输出上限：800–1200 汉字正文 + JSON 包装（契约 03 §1）。
+    # 保留旧任务的输出预算；v3 正文编辑目标为 250–450 字，不凑字数。
     max-tokens: ${TYPEME_AI_MAX_TOKENS:2600}
     # thinking 关闭时有效（契约 §0：本场景用普通生成，不要推理链）。
     temperature: ${TYPEME_AI_TEMPERATURE:0.4}

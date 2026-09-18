@@ -3,17 +3,19 @@ import {
   createAttempt,
   currentRevisionOf,
   fetchAttemptDetail,
+  fetchAttempts,
   patchAnswers,
   reviewAttempt,
   submitAttempt,
   type AnswerPatch,
   type AttemptDetail,
+  type AttemptSummary,
   type CoverageView,
   type PackageView,
   type ReviewResult,
   type SubmitResult,
 } from '@/api/v3Assessment'
-import { describeError, isV3ApiError, type ErrorDisplay } from '@/api/v3'
+import { describeError, isV3ApiError, newIdempotencyKey, type ErrorDisplay } from '@/api/v3'
 import { isRevisionConflict } from '@/api/v3'
 import { checkCoverage, score, type ScoringResult } from '@/domain/jung/scoring'
 import {
@@ -115,6 +117,19 @@ interface AssessmentState {
    * 重复发同一条没有副作用），并且只要集合非空，状态就不允许回到 `'saved'`。
    */
   unconfirmed: Record<string, Answer>
+  /**
+   * 有且只有一个 PATCH 在途（2026-09-18 第 17 轮）。
+   *
+   * <p>为什么必须有这个闸门：`select()` 每点一次就 `await flush()`，而 `flush` 之间没有任何
+   * 串行化。网络稍慢时连点两个档位（或双击、或键盘快速 1→2）就会发出两个 PATCH，
+   * 两个都带着**同一个** `expectedRevision`：服务端是严格 CAS，第二个必然 409 ——
+   * 于是屏幕上弹出「另一台设备改过这次的进度」，并把**用户自己刚点的那一题**列为
+   * 「本机改动没有写上去」，逼他重新载入、重新答一遍。根本没有第二台设备。
+   *
+   * <p>有了闸门以后，在途期间新点的答案只记进 `unconfirmed`，当前这轮结束时会被自动带上，
+   * 所以「点得快」既不会假冲突、也不会丢答案。
+   */
+  flushing: boolean
   conflict: ConflictState | null
   loading: boolean
   lastError: ErrorDisplay | null
@@ -124,6 +139,36 @@ interface AssessmentState {
   insufficientDimensions: Dimension[]
   /** 建 attempt 的幂等键：一次点击复用一个，断网重试不会产生两份草稿。 */
   createKey: string | null
+  /**
+   * 这次测评已经生成的报告编号（服务端 `attempt.reportId`）。
+   *
+   * <p>契约里 `attempt` 与 `submit` 的响应都带它，以前前端从来不读 —— 后果是
+   * 「交卷成功但响应丢在路上」时，用户重试只得到一句「这份测评已经提交」，
+   * 刷新页面也回不到那份**已经生成**的报告。有了它，页面就能把用户直接送过去。
+   */
+  reportId: string | null
+
+  /* ── 首页「继续上次没答完的测评」（A51）────────────────────────────────── */
+
+  /**
+   * 服务端上还没提交的草稿列表（`GET /attempts?status=draft`）。
+   *
+   * <p>为什么要有它：草稿一直是**服务端权威保存**的，但直到第 18 轮为止前端没有任何地方
+   * 读过这个列表 —— 于是"换台设备接着答"这句承诺在界面上根本无法兑现，
+   * 用户中途离开后除了原浏览器的地址栏之外再也回不到那份草稿。
+   */
+  drafts: AttemptSummary[]
+  draftsLoading: boolean
+  draftsError: ErrorDisplay | null
+  /**
+   * 最近那份草稿的作答进度。
+   *
+   * <p>单独存"已答几题"而不是从 `revision` 猜：`revision` 是**写入次数**
+   * （一次 Patch 可能带多题，还可能因为澄清安排而增加），拿它当题数会在界面上
+   * 显示一个既不是题数也不可解释的数字。这里只在**真的读到了那份草稿**时才填，
+   * 读不到就整个不显示（不编造进度）。
+   */
+  draftProgress: { attemptId: string; answered: number; baseTotal: number } | null
 }
 
 /** 服务端 `kind` 与前端域模型的小写口径对齐。 */
@@ -195,6 +240,21 @@ function contentPackageOf(view: PackageView | null): ContentPackage | null {
   return view ? toContentPackage(view) : null
 }
 
+/**
+ * 一条 `AnswerPatch` 的可比较签名。
+ *
+ * <p>用途：比对"本地此刻要写的值"与"服务端现在存的值"是不是同一件事。
+ * `JSON.stringify` 直接比对象不可靠（键序），所以显式列出三个字段。
+ */
+function patchSignature(patch: AnswerPatch): string {
+  return `${patch.questionId}\u0000${patch.kind}\u0000${patch.rating ?? ''}`
+}
+
+/** 两条 patch 是不是同一个值（用于判断"在途期间这一题有没有又被改过"）。 */
+function samePatch(left: AnswerPatch, right: AnswerPatch): boolean {
+  return patchSignature(left) === patchSignature(right)
+}
+
 export const useAssessmentStore = defineStore('assessmentV3', {
   state: (): AssessmentState => ({
     attemptId: null,
@@ -209,12 +269,18 @@ export const useAssessmentStore = defineStore('assessmentV3', {
     saveState: 'idle',
     savedAtLeastOnce: false,
     unconfirmed: {},
+    flushing: false,
     conflict: null,
     loading: false,
     lastError: null,
     review: null,
     insufficientDimensions: [],
     createKey: null,
+    reportId: null,
+    drafts: [],
+    draftsLoading: false,
+    draftsError: null,
+    draftProgress: null,
   }),
 
   getters: {
@@ -311,6 +377,20 @@ export const useAssessmentStore = defineStore('assessmentV3', {
         return choice ? `${position} · ${choice}` : position
       })
     },
+    /**
+     * 首页要展示的那份"没答完的测评"。
+     *
+     * <p>服务端按 `updated_at` 倒序返回，所以第一份就是"最近动过的"。
+     * 这里只做一次防御性过滤：`status=draft` 的查询本身已经排除了已提交的。
+     */
+    resumableDraft(state): AttemptSummary | null {
+      return state.drafts.find((draft) => draft.status !== 'SUBMITTED') ?? null
+    },
+
+    /** 除最近那份之外，还剩几份没答完的（用于"还有 N 份"这句话；0 时首页不提）。 */
+    otherDraftCount(state): number {
+      return Math.max(0, state.drafts.filter((draft) => draft.status !== 'SUBMITTED').length - 1)
+    },
   },
 
   actions: {
@@ -333,19 +413,82 @@ export const useAssessmentStore = defineStore('assessmentV3', {
      * 新建一次测评。
      *
      * 幂等键在 store 里保留到成功为止：用户点两下、或断网重试，都只会得到一份草稿。
+     * **键必须在这里生成并保存**，不能交给 API 客户端每次现取（`createAttempt` 的默认实现
+     * 每次调用都会新生成一个键）：那样"重试"就变成了"再建一份"，而草稿在 2026-09-18 之前
+     * 没有任何列表入口，多出来的那份用户根本看不见（A35 / A51）。
      */
     async create(baseReportId?: string | null): Promise<AttemptDetail> {
-      const summary = await createAttempt({ baseReportId: baseReportId ?? null })
+      this.createKey = this.createKey ?? newIdempotencyKey()
+      // 键一旦用出去就不再更换：失败时用户重试必须命中同一份草稿（服务端会重放）。
+      const key = this.createKey
+      const summary = await createAttempt({ baseReportId: baseReportId ?? null, idempotencyKey: key })
       const detail = await fetchAttemptDetail(summary.attemptId)
       this.applyDetail(detail)
       this.createKey = null
       return detail
     },
 
+    /**
+     * 读服务端上"还没答完的测评"（首页的续答入口，A51）。
+     *
+     * <p><b>刻意只读</b>：这里**不**调用 {@link load}（那会把详情写进答题状态）。
+     * 首页和答题页可以同时存在于同一个 store 里（用户在答题页保存到一半回首页看一眼），
+     * 若这里覆盖 `answers` / `revision`，回来时页面上的"已保存"就与实际不符了。
+     *
+     * <p>进度只信**真的读到的那份草稿**：详情取不到就把进度整个留空、
+     * 只显示"上次答到什么时候"，绝不显示一个猜出来的题数。
+     */
+    async loadDraftEntry(): Promise<void> {
+      this.draftsLoading = true
+      this.draftsError = null
+      try {
+        const page = await fetchAttempts({ status: 'draft', size: 20 })
+        this.drafts = page.items
+        const top = this.drafts.find((draft) => draft.status !== 'SUBMITTED') ?? null
+        this.draftProgress = null
+        if (top) {
+          try {
+            const detail = await fetchAttemptDetail(top.attemptId)
+            const baseIds = new Set(
+              (detail.packageView?.questions ?? [])
+                .filter((question) => question.stage === 'base')
+                .map((question) => question.id),
+            )
+            if (baseIds.size > 0) {
+              this.draftProgress = {
+                attemptId: top.attemptId,
+                answered: detail.answers.filter((answer) => baseIds.has(answer.questionId)).length,
+                baseTotal: baseIds.size,
+              }
+            }
+          } catch {
+            this.draftProgress = null
+          }
+        }
+      } catch (error) {
+        // 读不到就当作"没有草稿可续"，但把原因记下来 —— 首页据此决定是否提示
+        // （绝不因此说"你没有未完成的测评"，那是在替服务端撒谎）。
+        this.drafts = []
+        this.draftProgress = null
+        this.draftsError = describeError(error)
+      } finally {
+        this.draftsLoading = false
+      }
+    },
+
+    /** 退出登录 / 换账号：别人的草稿绝不能留在界面上（与后台入口探针同一个道理）。 */
+    clearDraftEntry(): void {
+      this.drafts = []
+      this.draftProgress = null
+      this.draftsError = null
+      this.draftsLoading = false
+    },
+
     applyDetail(detail: AttemptDetail): void {
       this.attemptId = detail.attemptId
       this.status = detail.status
       this.revision = detail.revision
+      this.reportId = detail.reportId
       this.currentQuestionId = detail.currentQuestionId
       this.clarificationDimensions = [...detail.clarificationDimensions]
       this.clarificationSkipped = detail.clarificationSkipped
@@ -385,48 +528,72 @@ export const useAssessmentStore = defineStore('assessmentV3', {
           ? { questionId, kind: 'rating', rating: rating as number }
           : { questionId, kind: 'unknown' }
       this.answers = { ...this.answers, [questionId]: answer }
-      await this.flush(questionId)
+      // 先把"还没被服务端确认"这件事记下来，再尝试写入：这样即使写入发生在别的 pass 里、
+      // 甚至这一轮结束时才被带上，状态机也不会把它当成"已经保存过"。
+      this.unconfirmed = { ...this.unconfirmed, [questionId]: answer }
+      await this.flush()
     },
 
     /** 记录"当前在第几题"（不带答案变更；服务端允许 responses 为空 + currentQuestionId）。 */
     async rememberPosition(questionId: string): Promise<void> {
       this.currentQuestionId = questionId
       if (this.conflict) return
-      await this.flush(null)
+      await this.flush()
     },
 
     /**
-     * 把**本地新增**的作答写上去。
+     * 把**本地新增**的作答写上去；同一时刻**只有一个** PATCH 在途。
      *
-     * 只发这一条：`PATCH` 支持批量，但逐条发能让"某一条非法被整批拒绝"的影响范围最小，
-     * 也让 409 之后"哪几条没写上去"是确定的。服务端是 upsert 语义，重复发同一条没有副作用。
+     * <p>为什么要串行化（2026-09-18 第 17 轮）：见 {@link AssessmentState.flushing}。
+     * 简单的做法是"在途就直接返回"——因为这次改动已经记进了 `unconfirmed`，
+     * 当前这一轮结束时会被自动带上（见下面的多轮循环），所以它不会被丢掉。
+     *
+     * <p>为什么要多轮：一份 PATCH 只需要一次往返就能覆盖所有未确认的作答，
+     * 但在途期间用户还能继续点题（这正是"快速操作"的常态）。每轮结束后再看一眼
+     * `unconfirmed`，非空就再发一轮。轮数上限 3 只是防呆；正常情况下第 2 轮就清空了。
+     *
+     * <p>它**不接受"要写哪一题"这个参数**了（第 17 轮）：唯一可靠的输入是
+     * `unconfirmed`（"本地改了但服务端还没确认"），而要写哪一题本来就必须从那里读出来，
+     * 传参只会多出一条可能与集合不一致的路径。
      */
-    async flush(questionId: string | null): Promise<void> {
+    async flush(): Promise<void> {
       const attemptId = this.attemptId
       if (!attemptId) return
       // 冲突未解决前**绝不**再写：这正是"不要静默覆盖"的实现位置。
       if (this.conflict) return
-      const responses: AnswerPatch[] = []
-      const included = new Set<string>()
-      if (questionId) {
-        const answer = this.answers[questionId]
-        if (answer) {
-          responses.push(this.toPatch(questionId, answer))
-          included.add(questionId)
+      if (this.flushing) return
+      this.flushing = true
+      try {
+        for (let round = 0; round < 3; round += 1) {
+          const wrote = await this.sendPending()
+          if (!wrote) break
+          if (this.conflict) break
+          if (this.listUnconfirmedIds().length === 0) break
         }
+      } finally {
+        this.flushing = false
       }
-      // 把**之前没写上去**的也一并重发（服务端 upsert，重复发同一条没有副作用）。
-      // 不这样做的话，那一条会永远留在本地，而界面在下一次成功保存后显示「已保存」。
-      for (const [id, answer] of Object.entries(this.unconfirmed)) {
-        if (included.has(id)) continue
-        if (!this.answers[id]) {
+    },
+
+    /**
+     * 一轮写入：把当前所有未确认的作答 + 服务端记住的当前题号发一次 PATCH。
+     *
+     * @return 这一轮是否成功写入了（没有任何要写的东西时返回 false）
+     */
+    async sendPending(): Promise<boolean> {
+      const attemptId = this.attemptId
+      if (!attemptId || this.conflict) return false
+      const responses: AnswerPatch[] = []
+      for (const id of Object.keys(this.unconfirmed)) {
+        const answer = this.answers[id]
+        if (!answer) {
           // 本地已经把它清掉了（例如改了主测答案导致补充题被重置）：不必也不能重发
           delete this.unconfirmed[id]
           continue
         }
         responses.push(this.toPatch(id, answer))
       }
-      if (responses.length === 0 && !this.currentQuestionId) return
+      if (responses.length === 0 && !this.currentQuestionId) return false
 
       this.saveState = 'saving'
       try {
@@ -451,9 +618,18 @@ export const useAssessmentStore = defineStore('assessmentV3', {
           }
           this.answers = kept
         }
-        // 这一批都写成功了：把它们从未确认集合里摘掉。
-        for (const id of Object.keys(this.unconfirmed)) {
-          if (this.answers[id]) delete this.unconfirmed[id]
+        // 只摘掉**这一批真的发出去、且发出去之后没有又被改过**的那些。
+        // 在途期间用户又把同一题改了的话，本地与服务端此刻并不一致，
+        // 那一条必须留在集合里等下一轮 —— 否则界面会显示"已保存"而服务端存的是旧值。
+        for (const response of responses) {
+          const current = this.answers[response.questionId]
+          if (!current) {
+            delete this.unconfirmed[response.questionId]
+            continue
+          }
+          if (samePatch(this.toPatch(response.questionId, current), response)) {
+            delete this.unconfirmed[response.questionId]
+          }
         }
         // **只有全部确认之后才允许说"已保存"**，否则失败的那条会被这一次成功掩盖。
         const outstanding = this.listUnconfirmedIds()
@@ -462,46 +638,104 @@ export const useAssessmentStore = defineStore('assessmentV3', {
           this.savedAtLeastOnce = true
           this.lastError = null
         } else {
-          this.saveState = 'error'
+          this.saveState = 'saving'
         }
+        return true
       } catch (error) {
-        if (isRevisionConflict(error)) {
-          // 先记下这一批（本次要写的 + 之前没写上去的），再清空集合 —— 顺序反了就会丢内容。
-          const lostIds = [...new Set([...(questionId ? [questionId] : []), ...Object.keys(this.unconfirmed)])]
-          const lost: LostAnswer[] = []
-          for (const id of lostIds) {
-            const answer = this.answers[id]
-            if (!answer) continue
-            // 'unknown'（这题我说不好）与"选了某一档"都要如实在横幅里区分开，
-            // 所以这里判 kind 而不是判 rating 是否存在。
-            lost.push({
-              questionId: id,
-              rating: answer.kind === 'rating' && typeof answer.rating === 'number' ? answer.rating : null,
-            })
-          }
-          // 冲突时清掉未确认集合：这些改动即将随"载入最新进度"被丢弃，
-          // 留着会让冲突解除后的第一次写入把它们当成"待重发"再推一次。
-          this.unconfirmed = {}
-          this.saveState = 'conflict'
-          this.conflict = {
-            currentRevision: currentRevisionOf(error),
-            message:
-              '另一台设备改过这次的进度，所以这一条没有写上去。请先载入最新进度，再从最新版本继续作答。',
-            pendingQuestionIds: lost.map((item) => item.questionId),
-            lostAnswers: lost,
-          }
-          return
-        }
-        // 失败的那几条留进未确认集合，等下一次写入（或用户点「重试保存」）一并重发。
-        const persisted: Record<string, Answer> = {}
-        for (const response of responses) {
-          const answer = this.answers[response.questionId]
-          if (answer) persisted[response.questionId] = answer
-        }
-        this.unconfirmed = persisted
-        this.saveState = 'error'
-        this.lastError = describeError(error)
+        await this.handleWriteFailure(error, responses)
+        return false
       }
+    },
+
+    /** 写入失败（含 409）时的状态收敛。 */
+    async handleWriteFailure(error: unknown, responses: AnswerPatch[]): Promise<void> {
+      if (isRevisionConflict(error)) {
+        // 409 有两种完全不同的成因，必须分开处理（第 17 轮）：
+        //   (a) 真的是另一台设备改了进度；
+        //   (b) **自己**上一次 PATCH 其实写成功了，但响应丢在路上（超时/断网），
+        //       本地 revision 因此落后——用户点「重试保存」就必然撞 409。
+        // 判据不是猜的：重新读一次服务端的作答，逐条比对。全部一致就说明
+        // 服务端已经是我们要的样子，那就是 (b)，不该弹"另一台设备"的横幅。
+        if (await this.reconcileAfterConflict()) return
+
+        // 先记下这一批（本次要写的 + 之前没写上去的），再清空集合 —— 顺序反了就会丢内容。
+        const lostIds = [...new Set([...responses.map((item) => item.questionId), ...Object.keys(this.unconfirmed)])]
+        const lost: LostAnswer[] = []
+        for (const id of lostIds) {
+          const answer = this.answers[id]
+          if (!answer) continue
+          // 'unknown'（这题我说不好）与"选了某一档"都要如实在横幅里区分开，
+          // 所以这里判 kind 而不是判 rating 是否存在。
+          lost.push({
+            questionId: id,
+            rating: answer.kind === 'rating' && typeof answer.rating === 'number' ? answer.rating : null,
+          })
+        }
+        // 冲突时清掉未确认集合：这些改动即将随"载入最新进度"被丢弃，
+        // 留着会让冲突解除后的第一次写入把它们当成"待重发"再推一次。
+        this.unconfirmed = {}
+        this.saveState = 'conflict'
+        this.conflict = {
+          currentRevision: currentRevisionOf(error),
+          message:
+            '另一台设备改过这次的进度，所以这一条没有写上去。请先载入最新进度，再从最新版本继续作答。',
+          pendingQuestionIds: lost.map((item) => item.questionId),
+          lostAnswers: lost,
+        }
+        return
+      }
+      // 失败的那几条留进未确认集合，等下一次写入（或用户点「重试保存」）一并重发。
+      const persisted: Record<string, Answer> = { ...this.unconfirmed }
+      for (const response of responses) {
+        const answer = this.answers[response.questionId]
+        if (answer) persisted[response.questionId] = answer
+      }
+      this.unconfirmed = persisted
+      this.saveState = 'error'
+      this.lastError = describeError(error)
+    },
+
+    /**
+     * 409 之后分辨"其实是自己那次写入落地了"还是"真的有人改了"。
+     *
+     * <p>判据是服务端的实际内容，不是猜测：把这次没确认成功的每一条与服务端当前存的比对，
+     * 全都一致 → 服务端已经是我们想要的样子（典型的超时重试），直接按"已保存"收敛；
+     * 有任何一条不一致 → 真的冲突，交给横幅 + 「载入最新进度」由用户决定。
+     *
+     * @return true 表示已按"写入成功"收敛，不需要再显示冲突
+     */
+    async reconcileAfterConflict(): Promise<boolean> {
+      const attemptId = this.attemptId
+      if (!attemptId) return false
+      const pendingIds = this.listUnconfirmedIds()
+      if (pendingIds.length === 0) return false
+      let detail: AttemptDetail
+      try {
+        detail = await fetchAttemptDetail(attemptId)
+      } catch {
+        // 读不到服务端状态就不能替用户做判断：老老实实按冲突处理。
+        return false
+      }
+      const serverSignatures = new Map<string, string>()
+      for (const answer of detail.answers) {
+        const converted = toAnswer(answer.kind, answer.rating)
+        if (!converted) continue
+        serverSignatures.set(
+          answer.questionId,
+          patchSignature({ ...this.toPatch(answer.questionId, converted), questionId: answer.questionId }),
+        )
+      }
+      const stillDifferent = pendingIds.filter((id) => {
+        const local = this.answers[id]
+        if (!local) return false
+        return serverSignatures.get(id) !== patchSignature(this.toPatch(id, local))
+      })
+      if (stillDifferent.length > 0) return false
+      // 服务端已经是我们要的样子：采纳它的 revision 与作答（这会一并清掉冲突与未确认集合）。
+      this.applyDetail(detail)
+      this.saveState = 'saved'
+      this.savedAtLeastOnce = true
+      return true
     },
 
     /** 已改但还没被服务端确认的题号（本地已经清掉的不算）。 */
@@ -517,7 +751,7 @@ export const useAssessmentStore = defineStore('assessmentV3', {
      */
     async retryUnconfirmed(): Promise<void> {
       if (this.attemptId === null || this.conflict) return
-      await this.flush(null)
+      await this.flush()
     },
 
     /** `Answer` → PATCH 的一条（rating 与 unknown 互斥，由服务端再校验一次）。 */
@@ -572,8 +806,32 @@ export const useAssessmentStore = defineStore('assessmentV3', {
       if (result.coverage.length > 0) this.coverage = result.coverage
       this.insufficientDimensions = [...result.insufficientDimensions]
       this.clarificationSkipped = options.clarificationSkipped
+      this.reportId = result.reportId
       this.saveState = 'saved'
       return result
+    },
+
+    /**
+     * 交卷失败之后问一次服务端：**这次测评是不是其实已经交上去了？**
+     *
+     * <p>「交卷成功但响应丢在路上」是重复提交里最容易卡住用户的一种：他重试只会得到
+     * 409「这份测评已经提交」，而报告其实已经生成。前端以前从来不读 `attempt.reportId`，
+     * 于是刷新页面也回不到那份报告，用户唯一能做的只有"再测一次"。
+     *
+     * <p>这里**不改任何错误状态**（不写 `lastError`、不改 `saveState`）：
+     * 它只是替调用方问一句，避免把"提交失败"的提示覆盖掉。
+     */
+    async probeSubmission(): Promise<{ submitted: boolean; reportId: string | null }> {
+      const attemptId = this.attemptId
+      if (!attemptId) return { submitted: false, reportId: this.reportId }
+      try {
+        const detail = await fetchAttemptDetail(attemptId)
+        this.status = detail.status
+        this.reportId = detail.reportId
+        return { submitted: detail.status === 'SUBMITTED', reportId: detail.reportId }
+      } catch {
+        return { submitted: false, reportId: null }
+      }
     },
 
     /** 用户明确跳过补充题：如实记下来（跳过 ≠ 未答）。 */

@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "TypeMe 前端 —— 32 题四维人格倾向测评（纯前端计分，题目 CC BY-NC-SA 4.0）",
+  "description": "TypeMe 前端 —— 多量表测评平台：十六型人格参考测评（服务端计分，48 主测题）与大五人格倾向测评（IPIP-50，五维各自计分）",
   "license": "CC-BY-NC-SA-4.0",
   "scripts": {
     "gen:content": "node ../scripts/gen-fallback-content.mjs",

@@ -3,7 +3,7 @@ import { computed, onMounted, ref, useId } from 'vue'
 import { RouterLink } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
-import { describeError, isForbidden, type ErrorDisplay } from '@/api/v3'
+import { describeError, isForbidden, isSessionExpired, type ErrorDisplay } from '@/api/v3'
 import {
   fetchAdminAiSettings,
   fetchAdminUsers,
@@ -35,7 +35,7 @@ import {
  *    其它情况是"没问到"—— 三态分开，不把后端抖动说成"你没有权限"。
  */
 
-type Access = 'checking' | 'granted' | 'denied' | 'unavailable'
+type Access = 'checking' | 'granted' | 'denied' | 'unavailable' | 'needs-login'
 
 const access = ref<Access>('checking')
 const accessError = ref<ErrorDisplay | null>(null)
@@ -283,8 +283,13 @@ async function load(): Promise<void> {
     void loadUsers()
   } catch (error) {
     accessError.value = describeError(error)
-    // 只有服务端明确说"没权限"才是 denied；其它情况是"没问到"。
-    access.value = isForbidden(error) ? 'denied' : 'unavailable'
+    // 三态必须分开：只有服务端明确说"没权限"才是 denied；**登录态失效**（401）
+    // 要说"重新登录"，不能混进"没问到后端"里 —— 那会让人以为后端挂了。
+    access.value = isForbidden(error)
+      ? 'denied'
+      : isSessionExpired(error)
+        ? 'needs-login'
+        : 'unavailable'
   }
 }
 
@@ -315,6 +320,7 @@ onMounted(load)
       <h1 class="display-hero mt-4 text-[24px] leading-tight text-white tablet:text-[30px]">
         AI 分析设置
       </h1>
+      <RouterLink to="/admin/members" class="btn-primary mt-4 inline-flex">成员、报告与邀请码 →</RouterLink>
       <p class="mt-3 max-w-prose text-[15px] leading-[1.75] text-navy-100 tablet:text-[16.5px]">
         这里改的是<strong class="font-semibold text-white">服务端当前生效</strong>的运行参数。保存后立刻生效，不需要重启 ——
         正在排队的分析会按新参数继续。
@@ -345,10 +351,41 @@ onMounted(load)
         需要权限的话，请让已有的管理员在后台把你的账号角色改成 ADMIN；
         如果系统里还没有任何管理员，可以用部署配置
         <code class="font-mono text-[13px]">typeme.admin.bootstrap-username</code>
-        指定一个已注册账号，重启后它会被提升（系统中已有管理员时这项自动失效）。
+        并通过环境变量 TYPEME_ADMIN_BOOTSTRAP_PASSWORD 设置初始密码；首次启动时自动创建管理员（已有管理员时不再创建）。
       </p>
       <div class="mt-4 flex flex-wrap gap-2">
         <RouterLink to="/account" class="btn-secondary btn-sm">回到账号页</RouterLink>
+      </div>
+    </div>
+
+    <!-- ── 登录态已失效（401）─────────────────────────────────────── -->
+    <!--
+      这一支是第 18 轮补的：401 以前会落进下面的「没问到」，
+      于是一个登录过期的管理员看到的是「可能只是后端暂时没响应」——
+      他会去重启后端、查日志，而真正要做的事只是重新登录一次。
+    -->
+    <div v-else-if="access === 'needs-login'" class="notice-neutral mt-6 max-w-prose" data-admin-needs-login role="alert">
+      <p class="flex items-start gap-2 text-[15px] font-medium text-ink">
+        <AppIcon name="lock" :size="18" class="mt-0.5" />
+        <span>登录状态已经失效，需要重新登录。</span>
+      </p>
+      <p class="mt-2 text-[14px] leading-relaxed text-ink-soft">
+        服务端说这次请求没有有效的登录态（可能是会话超时、在别处退出，或换了账号）。
+        这和"没有管理员权限"、和"后端没响应"都不是一回事，重新登录即可。
+      </p>
+      <p v-if="accessError?.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
+        报障编号：<code class="font-mono">{{ accessError.requestId }}</code>
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <!--
+          用**路径**而不是路由名：指向未注册路由的命名链接会让 vue-router 在渲染期
+          直接抛错（整块界面消失），而这一页在测试里是单独挂载的。
+          路径写法的代价最多是一条 "No match found" 警告。
+        -->
+        <RouterLink :to="{ path: '/login', query: { redirect: '/admin' } }" class="btn-primary btn-sm">
+          登录后回到这里
+        </RouterLink>
+        <button type="button" class="btn-secondary btn-sm" @click="load">我已经登录了，重新加载</button>
       </div>
     </div>
 
@@ -359,7 +396,9 @@ onMounted(load)
         <span>没能确认你的权限：{{ accessError?.message }}</span>
       </p>
       <p class="mt-2 text-[13.5px] leading-relaxed">
-        这不代表你没有权限，可能只是后端暂时没响应。请不要据此去改权限配置。
+        服务端这次没有给出可用的答复（网络、超时或服务异常）。这不代表你没有权限 ——
+        权限不足会单独提示「只对管理员开放」，登录失效也会单独提示。
+        请不要据此去改权限配置。
       </p>
       <p v-if="accessError?.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
         报障编号：<code class="font-mono">{{ accessError.requestId }}</code>

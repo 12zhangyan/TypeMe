@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useAdminProbe } from '@/composables/useAdminProbe'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
+import FormErrorNotice from '@/components/FormErrorNotice.vue'
 
 /**
  * 账号与数据 —— 契约 `02-数据模型与API-v1.md` §7.2（`/api/v3/me/**`）。
@@ -349,18 +350,12 @@ function goHome() {
             最多 32 个字，会显示在页面上。留空是不允许的，不想显示昵称就保持现在的。
           </p>
 
-          <div v-if="error && errorSection === 'nickname'" class="notice-error mt-3" role="alert" aria-live="assertive">
-            <p class="flex items-start gap-2 text-[14.5px] font-medium leading-relaxed">
-              <AppIcon name="alert" :size="17" class="mt-0.5" />
-              <span>{{ error.message }}</span>
-            </p>
-            <ul v-if="error.fields.length" class="mt-2 space-y-1 text-[13.5px] leading-relaxed">
-              <li v-for="field in error.fields" :key="field.field">{{ field.label }}：{{ field.message }}</li>
-            </ul>
-            <p v-if="error.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
-              报障编号：<code class="font-mono">{{ error.requestId }}</code>
-            </p>
-          </div>
+          <FormErrorNotice
+            v-if="error && errorSection === 'nickname'"
+            :error="error"
+            class="mt-3"
+            data-account-error-nickname
+          />
           <!-- 这里是"已确认保存"，用成功色；它和上面的失败红块必须一眼分得开 -->
           <p
             v-if="nicknameSaved"
@@ -430,18 +425,12 @@ function goHome() {
             />
           </div>
 
-          <div v-if="error && errorSection === 'password'" class="notice-error mt-3" role="alert" aria-live="assertive">
-            <p class="flex items-start gap-2 text-[14.5px] font-medium leading-relaxed">
-              <AppIcon name="alert" :size="17" class="mt-0.5" />
-              <span>{{ error.message }}</span>
-            </p>
-            <ul v-if="error.fields.length" class="mt-2 space-y-1 text-[13.5px] leading-relaxed">
-              <li v-for="field in error.fields" :key="field.field">{{ field.label }}：{{ field.message }}</li>
-            </ul>
-            <p v-if="error.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
-              报障编号：<code class="font-mono">{{ error.requestId }}</code>
-            </p>
-          </div>
+          <FormErrorNotice
+            v-if="error && errorSection === 'password'"
+            :error="error"
+            class="mt-3"
+            data-account-error-password
+          />
           <p
             v-if="passwordChanged"
             class="notice-success mt-3 flex items-start gap-2 text-[14px] leading-relaxed"
@@ -453,9 +442,15 @@ function goHome() {
           </p>
 
           <p v-if="passwordProblem" :id="passwordHintId" class="caption mt-3">{{ passwordProblem }}</p>
+          <!--
+            A39（第 19 轮）：这里原本是 `btn-primary`，而这一页的另外五个区块全是次级按钮 ——
+            等于用一个主色按钮暗示"改密码是这一页最该做的事"，可它是**平权的六个设置区块**之一
+            （改昵称、改密码、换恢复码、导出数据、注销账号），顺序上第一块还是"昵称"。
+            主色应该表示"这一页的推荐动作"，这里没有；所以统一为次级，靠区块标题建立层级。
+          -->
           <button
             type="submit"
-            class="btn-primary mt-3"
+            class="btn-secondary mt-3"
             :disabled="passwordProblem !== null"
             :aria-describedby="passwordProblem ? passwordHintId : undefined"
           >
@@ -489,15 +484,12 @@ function goHome() {
             class="mt-1.5 w-full min-w-0 rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[16px] text-ink"
           />
 
-          <div v-if="error && errorSection === 'codes'" class="notice-error mt-3" role="alert" aria-live="assertive">
-            <p class="flex items-start gap-2 text-[14.5px] font-medium leading-relaxed">
-              <AppIcon name="alert" :size="17" class="mt-0.5" />
-              <span>{{ error.message }}</span>
-            </p>
-            <p v-if="error.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
-              报障编号：<code class="font-mono">{{ error.requestId }}</code>
-            </p>
-          </div>
+          <FormErrorNotice
+            v-if="error && errorSection === 'codes'"
+            :error="error"
+            class="mt-3"
+            data-account-error-codes
+          />
 
           <p v-if="codesProblem" :id="codesHintId" class="caption mt-3">{{ codesProblem }}</p>
           <button
@@ -568,15 +560,12 @@ function goHome() {
           那些本来就不该离开服务器。
         </p>
 
-        <div v-if="error && errorSection === 'export'" class="notice-error mt-3 max-w-prose" role="alert" aria-live="assertive">
-          <p class="flex items-start gap-2 text-[14.5px] font-medium leading-relaxed">
-            <AppIcon name="alert" :size="17" class="mt-0.5" />
-            <span>{{ error.message }}</span>
-          </p>
-          <p v-if="error.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
-            报障编号：<code class="font-mono">{{ error.requestId }}</code>
-          </p>
-        </div>
+        <FormErrorNotice
+          v-if="error && errorSection === 'export'"
+          :error="error"
+          class="mt-3 max-w-prose"
+          data-account-error-export
+        />
         <!-- 导出成功 = 已确认，用成功色；这句正在被 spec 钉住（"都在里面"） -->
         <p
           v-if="exportMessage"
@@ -670,18 +659,12 @@ function goHome() {
           </p>
         </div>
 
-        <div v-if="error && errorSection === 'delete'" class="notice-error mt-3 max-w-prose" role="alert" aria-live="assertive">
-          <p class="flex items-start gap-2 text-[14.5px] font-medium leading-relaxed">
-            <AppIcon name="alert" :size="17" class="mt-0.5" />
-            <span>{{ error.message }}</span>
-          </p>
-          <ul v-if="error.fields.length" class="mt-2 space-y-1 text-[13.5px] leading-relaxed">
-            <li v-for="field in error.fields" :key="field.field">{{ field.label }}：{{ field.message }}</li>
-          </ul>
-          <p v-if="error.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
-            报障编号：<code class="font-mono">{{ error.requestId }}</code>
-          </p>
-        </div>
+        <FormErrorNotice
+          v-if="error && errorSection === 'delete'"
+          :error="error"
+          class="mt-3 max-w-prose"
+          data-account-error-delete
+        />
 
         <button
           v-if="!deletePanelOpen"

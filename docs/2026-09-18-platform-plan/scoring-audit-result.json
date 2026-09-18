@@ -1,0 +1,99 @@
+{
+  "packageId": "typeme-jung48-zh-v1",
+  "sha256": "939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0",
+  "contentStatus": "draft_review_pending",
+  "mirrorChecks": 320,
+  "thresholdCases": [
+    {
+      "n": 12,
+      "S": 1,
+      "m": 0.041666666666666664,
+      "originalDesignTrigger": true,
+      "implementedTrigger": true,
+      "boundary": true,
+      "status": "TENTATIVE"
+    },
+    {
+      "n": 12,
+      "S": 2,
+      "m": 0.08333333333333333,
+      "originalDesignTrigger": true,
+      "implementedTrigger": true,
+      "boundary": false,
+      "status": "REFERENCE"
+    },
+    {
+      "n": 12,
+      "S": 3,
+      "m": 0.125,
+      "originalDesignTrigger": true,
+      "implementedTrigger": false,
+      "boundary": false,
+      "status": "REFERENCE"
+    },
+    {
+      "n": 12,
+      "S": 4,
+      "m": 0.16666666666666666,
+      "originalDesignTrigger": true,
+      "implementedTrigger": false,
+      "boundary": false,
+      "status": "REFERENCE"
+    },
+    {
+      "n": 9,
+      "S": 1,
+      "m": 0.05555555555555555,
+      "originalDesignTrigger": true,
+      "implementedTrigger": true,
+      "boundary": false,
+      "status": "REFERENCE"
+    }
+  ],
+  "semanticKeyProbe": {
+    "id": "JP-02",
+    "textLeft": "先定下一套做法，往下推进",
+    "leftPole": "P",
+    "stronglyLeftContribution": 2,
+    "computedPole": "P",
+    "note": "Semantic mismatch requires human content review; no production package changed."
+  },
+  "incompleteCoverage": {
+    "frontendScheduled": [],
+    "perDimensionNeeds": {
+      "EI": {
+        "dimension": "EI",
+        "baseRatingCount": 12,
+        "baseUnknownCount": 0,
+        "baseUnprocessedCount": 0,
+        "needsClarification": true,
+        "coverageOk": true
+      },
+      "SN": {
+        "dimension": "SN",
+        "baseRatingCount": 12,
+        "baseUnknownCount": 0,
+        "baseUnprocessedCount": 0,
+        "needsClarification": true,
+        "coverageOk": true
+      },
+      "TF": {
+        "dimension": "TF",
+        "baseRatingCount": 12,
+        "baseUnknownCount": 0,
+        "baseUnprocessedCount": 0,
+        "needsClarification": true,
+        "coverageOk": true
+      },
+      "JP": {
+        "dimension": "JP",
+        "baseRatingCount": 11,
+        "baseUnknownCount": 0,
+        "baseUnprocessedCount": 1,
+        "needsClarification": true,
+        "coverageOk": false
+      }
+    },
+    "javaSourceObservation": "JungScorer.score adds locally eligible dimensions before the global coverage gate; reviewClarification returns empty. No Java differential execution in this script."
+  }
+}

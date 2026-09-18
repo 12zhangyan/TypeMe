@@ -1,0 +1,276 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.typeme:typeme-backend >----------------------
+[INFO] Building typeme-backend 1.0.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ typeme-backend ---
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] Copying 25 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:copy-resources (copy-frontend-dist) @ typeme-backend ---
+[INFO] Copying 3 resources from ..\frontend\dist to target\classes\static
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ typeme-backend ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 174 source files with javac [debug parameters release 21] to target\classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ typeme-backend ---
+[INFO] Copying 6 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ typeme-backend ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 57 source files with javac [debug parameters release 21] to target\test-classes
+[INFO] /D:/develop/develop/code/TypeMe/backend/src/test/java/com/typeme/jung/service/JungReportSchemaTest.java: D:\develop\develop\code\TypeMe\backend\src\test\java\com\typeme\jung\service\JungReportSchemaTest.javaʹ�û򸲸����ѹ�ʱ�� API��
+[INFO] /D:/develop/develop/code/TypeMe/backend/src/test/java/com/typeme/jung/service/JungReportSchemaTest.java: �й���ϸ��Ϣ, ��ʹ�� -Xlint:deprecation ���±��롣
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.2.5:test (default-test) @ typeme-backend ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.typeme.ai.AnalysisFlowTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-09-18T13:44:40.403+08:00  INFO 6024 --- [typeme] [           main] com.typeme.ai.AnalysisFlowTest           : Starting AnalysisFlowTest using Java 21.0.12.1 with PID 6024 (started by 22518 in D:\develop\develop\code\TypeMe\backend)
+2026-09-18T13:44:40.406+08:00  INFO 6024 --- [typeme] [           main] com.typeme.ai.AnalysisFlowTest           : The following 1 profile is active: "ai-test"
+2026-09-18T13:44:43.317+08:00  INFO 6024 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-18T13:44:43.693+08:00  INFO 6024 --- [typeme] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:typeme_ai_test_d2ba4554d7e7 user=SA
+2026-09-18T13:44:43.696+08:00  INFO 6024 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-18T13:44:43.783+08:00  INFO 6024 --- [typeme] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:typeme_ai_test_d2ba4554d7e7 (H2 2.2)
+2026-09-18T13:44:43.802+08:00  WARN 6024 --- [typeme] [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.2.224 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.220.
+2026-09-18T13:44:43.858+08:00  INFO 6024 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-09-18T13:44:43.864+08:00  INFO 6024 --- [typeme] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.041s)
+2026-09-18T13:44:43.875+08:00  INFO 6024 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-09-18T13:44:43.932+08:00  INFO 6024 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-09-18T13:44:43.955+08:00  INFO 6024 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - account and session"
+2026-09-18T13:44:43.995+08:00  INFO 6024 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - assessment content and attempt"
+2026-09-18T13:44:44.018+08:00  INFO 6024 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - report and self reflection"
+2026-09-18T13:44:44.051+08:00  INFO 6024 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - ai analysis"
+2026-09-18T13:44:44.074+08:00  INFO 6024 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - idempotency and deletion"
+2026-09-18T13:44:44.090+08:00  INFO 6024 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - admin and ai settings"
+2026-09-18T13:44:44.102+08:00  INFO 6024 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - ai job user note"
+2026-09-18T13:44:44.125+08:00  INFO 6024 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - widen credential hash"
+2026-09-18T13:44:44.137+08:00  INFO 6024 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 8 migrations to schema "public", now at version v8 (execution time 00:00.100s)
+2026-09-18T13:44:45.241+08:00  INFO 6024 --- [typeme] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-09-18T13:44:46.973+08:00  INFO 6024 --- [typeme] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-09-18T13:44:47.219+08:00  INFO 6024 --- [typeme] [           main] com.typeme.ai.AnalysisFlowTest           : Started AnalysisFlowTest in 7.318 seconds (process running for 8.906)
+2026-09-18T13:44:47.490+08:00  INFO 6024 --- [typeme] [           main] c.t.ai.config.AiRuntimeSettingsProvider  : AI �����Ѽ��أ�enabled=true, model=deepseek-flash, apiKeySource=env, mockMode=true, baseUrl=https://api.deepseek.com
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (D:\develop\maven\mavenpom\net\bytebuddy\byte-buddy-agent\1.14.19\byte-buddy-agent-1.14.19.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+2026-09-18T13:44:51.678+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:51.679+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:51.681+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T13:44:52.104+08:00  INFO 6024 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� d5eac5bc-9d84-44ea-9d3c-954a74c22f52 ��ɣ�model=deepseek-flash, tokens=2300, elapsedMs=0
+2026-09-18T13:44:52.227+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:52.228+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:52.228+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:52.326+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:52.326+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:52.327+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T13:44:52.399+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:52.399+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:52.399+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:52.430+08:00  INFO 6024 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� c54a1f75-80ba-4889-8de7-0cecd0014992 ���� 429��3 ����Զ�����һ�Ρ�
+2026-09-18T13:44:52.478+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:52.479+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:52.479+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:52.524+08:00  INFO 6024 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� 9496c34f-dc3c-43ac-b7d4-e369787486de ��ɣ�model=deepseek-flash, tokens=2300, elapsedMs=0
+2026-09-18T13:44:52.569+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:52.570+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:52.570+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:52.600+08:00  WARN 6024 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : lease �ָ��������Ŷ� 0 ������δ����������� UNKNOWN 1 �����ѷ��������δ֪����
+2026-09-18T13:44:52.643+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:52.643+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:52.644+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T13:44:52.706+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:52.706+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:52.707+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:52.734+08:00  INFO 6024 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� 100fda91-103e-4adb-842d-6bbb947d3ad6 �����������sent=false�����˺���ע��/ͣ�ã��������
+2026-09-18T13:44:52.764+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:52.764+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:52.765+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T13:44:52.829+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:52.829+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:52.829+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:52.893+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:52.895+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:52.895+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:52.934+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:52.934+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:52.934+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:52.975+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:52.975+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:52.975+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:53.038+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.038+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.038+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:53.106+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.106+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.106+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:53.141+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.141+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.142+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T13:44:53.192+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.192+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.193+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T13:44:53.247+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.247+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.247+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:53.306+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.307+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.307+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:53.334+08:00  WARN 6024 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : lease �ָ��������Ŷ� 1 ������δ����������� UNKNOWN 0 �����ѷ��������δ֪����
+2026-09-18T13:44:53.347+08:00  INFO 6024 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� 3e95fd72-fe32-456c-82eb-a9dedecfdb8d ��ɣ�model=deepseek-flash, tokens=2300, elapsedMs=0
+2026-09-18T13:44:53.381+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.382+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.382+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:53.452+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.452+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.453+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T13:44:53.533+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.533+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.534+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T13:44:53.659+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.659+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.660+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T13:44:53.694+08:00  INFO 6024 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� baf23727-5798-49e7-9564-a0464b0b7c47 ��ɣ�model=deepseek-flash, tokens=2300, elapsedMs=0
+2026-09-18T13:44:53.781+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.782+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.783+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:53.848+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.848+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.848+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:53.909+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.910+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.910+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:53.983+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:53.983+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:53.983+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T13:44:54.078+08:00  INFO 6024 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� f571d084-f140-4691-884d-32037e56a02c ��ɣ�model=deepseek-flash, tokens=2300, elapsedMs=0
+2026-09-18T13:44:54.122+08:00  INFO 6024 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T13:44:54.122+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T13:44:54.122+08:00  INFO 6024 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+[INFO] Tests run: 28, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 14.97 s -- in com.typeme.ai.AnalysisFlowTest
+[INFO] Running com.typeme.ai.input.ReadableAnalysisTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.051 s -- in com.typeme.ai.input.ReadableAnalysisTest
+[INFO] Running com.typeme.ipip.scoring.BigFiveScoringTest
+2026-09-18T13:44:54.292+08:00  INFO 6024 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : �������ݰ�ָ�ƣ�47a09253ce7a����typeme-bigfive50-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:54.296+08:00  INFO 6024 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : �������ݰ��Ѽ��أ�{packageId=typeme-bigfive50-zh-v1, instrumentId=ipip50, scoringVersion=ipip-bfm50-1.0, reportContentVersion=typeme-bigfive-report-zh-v1, contentStatus=draft_review_pending, sha256=47a09253ce7a9ed914f731aa9917ab14f2a3291fb0411fe470fa10a061beda59, itemCount=50, itemsPerDimension={E=10, A=10, C=10, ES=10, O=10}}
+2026-09-18T13:44:54.297+08:00  WARN 6024 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : ������Ŀ����͵���У״̬�ǡ�draft_review_pending������������δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ�Ҳ���������볣ģ�ȶԡ���packageId=typeme-bigfive50-zh-v1��
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.114 s -- in com.typeme.ipip.scoring.BigFiveScoringTest
+[INFO] Running com.typeme.jung.service.JungReportSchemaTest
+2026-09-18T13:44:54.411+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:54.425+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:54.489+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.490+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:54.490+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.490+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:54.549+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:54.557+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:54.575+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.576+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:54.576+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.576+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:54.589+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:54.594+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:54.607+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.608+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:54.608+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.608+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:54.622+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:54.628+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:54.643+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.643+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:54.643+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.643+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:54.656+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:54.662+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:54.680+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.680+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:54.681+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.681+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:54.727+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:54.732+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:54.745+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.745+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:54.745+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.745+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:54.760+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:54.766+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:54.783+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.783+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:54.784+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.785+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:54.803+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:54.810+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:54.829+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.831+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:54.832+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.833+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:54.862+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:54.866+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:54.880+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.881+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:54.881+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.881+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:54.898+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:54.904+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:54.919+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.919+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:54.919+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.919+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:54.942+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:54.951+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:54.970+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.971+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:54.972+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:54.973+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:54.986+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:54.991+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:55.008+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:55.009+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:55.009+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:55.009+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:55.025+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:55.031+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:55.044+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:55.044+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:55.044+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:55.044+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:55.066+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:55.071+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:55.087+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:55.087+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:55.087+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:55.088+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T13:44:55.105+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T13:44:55.110+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T13:44:55.124+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:55.124+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T13:44:55.124+08:00  INFO 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T13:44:55.124+08:00  WARN 6024 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.765 s -- in com.typeme.jung.service.JungReportSchemaTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 60, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  33.575 s
+[INFO] Finished at: 2026-09-18T13:44:55+08:00
+[INFO] ------------------------------------------------------------------------

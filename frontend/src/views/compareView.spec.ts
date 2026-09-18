@@ -217,4 +217,96 @@ describe('复测比较页', () => {
     expect(wrapper.find('[data-compare-error]').exists()).toBe(true)
     expect(wrapper.find('[data-compare-result]').exists()).toBe(false)
   })
+
+  /**
+   * 「换了下拉框，表格还是上一对」是这一页最坏的一种错：表格本身看起来完全正常，
+   * 表头只写「先看的那份 / 再看的那份」，没有任何东西能让用户察觉自己读的是旧对比。
+   */
+  it('换掉其中一份之后：旧表格立刻消失，不会留着上一对的对比继续显示', async () => {
+    fetchReports.mockResolvedValue({
+      items: [
+        summary(),
+        summary({ reportId: 'r2', computedTypeCode: 'INFP' }),
+        summary({ reportId: 'r3', computedTypeCode: 'ISTJ' }),
+      ],
+      page: 0,
+      size: 100,
+      total: 3,
+    })
+    const pairResult = (typeCode: string, changed: boolean) => ({
+      reports: [summary(), summary({ reportId: typeCode })],
+      differences: [
+        { dimension: 'EI', fromPole: 'E', toPole: changed ? 'I' : 'E', fromMFinal: 0.42, toMFinal: 0.35, changed },
+      ],
+      samePackage: true,
+      notes: [],
+    })
+    compareReports.mockResolvedValueOnce(pairResult('r2', true))
+
+    const { wrapper } = await mountCompare({ a: 'r1', b: 'r2' })
+    await flushPromises()
+    expect(wrapper.find('[data-compare-row="EI"]').text()).toContain('方向不同')
+    // 表格上方必须写出比的是哪两份 —— 否则用户无法核对选择与内容是否一致
+    expect(wrapper.find('[data-compare-subject]').text()).toContain('INFP')
+
+    // 换第二份：新的比较还在路上
+    let resolveSecond: (value: unknown) => void = () => {}
+    compareReports.mockReturnValueOnce(new Promise((resolve) => { resolveSecond = resolve }))
+    await wrapper.find('[data-compare-select-b]').setValue('r3')
+    await flushPromises()
+
+    expect(compareReports).toHaveBeenLastCalledWith(['r1', 'r3'])
+    // 换选之后旧表格必须立刻消失，不能继续显示上一对的对比
+    expect(wrapper.find('[data-compare-result]').exists()).toBe(false)
+    // 旧那一对的行也不该留在 DOM 里（表头「方向是否不同」含这几个字，所以按行断言）
+    expect(wrapper.find('[data-compare-row="EI"]').exists()).toBe(false)
+
+    resolveSecond(pairResult('r3', false))
+    await flushPromises()
+    expect(wrapper.find('[data-compare-result]').exists()).toBe(true)
+    expect(wrapper.find('[data-compare-row="EI"]').text()).toContain('方向一致')
+    expect(wrapper.find('[data-compare-subject]').text()).toContain('ISTJ')
+  })
+
+  it('换选后旧请求晚到：不会把已经作废的那一对结果写回页面', async () => {
+    fetchReports.mockResolvedValue({
+      items: [summary(), summary({ reportId: 'r2' }), summary({ reportId: 'r3' })],
+      page: 0,
+      size: 100,
+      total: 3,
+    })
+    let resolveOld: (value: unknown) => void = () => {}
+    compareReports.mockReturnValueOnce(new Promise((resolve) => { resolveOld = resolve }))
+
+    const { wrapper } = await mountCompare({ a: 'r1', b: 'r2' })
+    await flushPromises()
+    expect(compareReports).toHaveBeenCalledTimes(1)
+
+    compareReports.mockResolvedValueOnce({
+      reports: [summary(), summary({ reportId: 'r3' })],
+      differences: [
+        { dimension: 'SN', fromPole: 'N', toPole: 'S', fromMFinal: 0.4, toMFinal: 0.2, changed: true },
+      ],
+      samePackage: true,
+      notes: [],
+    })
+    await wrapper.find('[data-compare-select-b]').setValue('r3')
+    await flushPromises()
+    expect(wrapper.find('[data-compare-row="SN"]').text()).toContain('方向不同')
+
+    // 第一对（r1,r2）的响应现在才回来，它已经过期了
+    resolveOld({
+      reports: [summary(), summary({ reportId: 'r2' })],
+      differences: [
+        { dimension: 'EI', fromPole: 'E', toPole: 'I', fromMFinal: 0.1, toMFinal: 0.9, changed: true },
+      ],
+      samePackage: true,
+      notes: [],
+    })
+    await flushPromises()
+
+    // 迟到的旧响应不能覆盖当前选择的对比
+    expect(wrapper.find('[data-compare-row="EI"]').exists()).toBe(false)
+    expect(wrapper.find('[data-compare-row="SN"]').exists()).toBe(true)
+  })
 })

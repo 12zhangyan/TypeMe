@@ -1,0 +1,281 @@
+[
+  {
+    "name": "assessment-bigfive.png",
+    "size": [
+      1774,
+      887
+    ],
+    "mode": "RGB",
+    "alpha_range": null,
+    "transparent_fraction": 0,
+    "bytes": 2597501
+  },
+  {
+    "name": "assessment-jung.png",
+    "size": [
+      1774,
+      887
+    ],
+    "mode": "RGB",
+    "alpha_range": null,
+    "transparent_fraction": 0,
+    "bytes": 2793498
+  },
+  {
+    "name": "ENFJ.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.605,
+    "bytes": 1324940
+  },
+  {
+    "name": "ENFP.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.691,
+    "bytes": 1054169
+  },
+  {
+    "name": "ENTJ.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.567,
+    "bytes": 1493547
+  },
+  {
+    "name": "ENTP.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.521,
+    "bytes": 1539694
+  },
+  {
+    "name": "ESFJ.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.64,
+    "bytes": 1193831
+  },
+  {
+    "name": "ESFP.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.701,
+    "bytes": 1023217
+  },
+  {
+    "name": "ESTJ.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.514,
+    "bytes": 1575596
+  },
+  {
+    "name": "ESTP.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.651,
+    "bytes": 1188784
+  },
+  {
+    "name": "home-hero.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGB",
+    "alpha_range": null,
+    "transparent_fraction": 0,
+    "bytes": 2672497
+  },
+  {
+    "name": "INFJ.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.651,
+    "bytes": 1155446
+  },
+  {
+    "name": "INFP.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.541,
+    "bytes": 1468420
+  },
+  {
+    "name": "INTJ.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.634,
+    "bytes": 1229526
+  },
+  {
+    "name": "INTP.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.564,
+    "bytes": 1406942
+  },
+  {
+    "name": "ISFJ.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.449,
+    "bytes": 1836507
+  },
+  {
+    "name": "ISFP.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.721,
+    "bytes": 941800
+  },
+  {
+    "name": "ISTJ.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.454,
+    "bytes": 1724332
+  },
+  {
+    "name": "ISTP.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.551,
+    "bytes": 1485388
+  },
+  {
+    "name": "reflection.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGB",
+    "alpha_range": null,
+    "transparent_fraction": 0,
+    "bytes": 2458539
+  },
+  {
+    "name": "welcome.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGB",
+    "alpha_range": null,
+    "transparent_fraction": 0,
+    "bytes": 2294083
+  }
+]

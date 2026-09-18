@@ -114,4 +114,62 @@ describe('账号页 · 管理后台入口', () => {
     await flushPromises()
     expect(wrapper.find('[data-admin-entry]').exists()).toBe(true)
   })
+
+  /**
+   * 会话失效（401）同样属于"没问到"，不是"这个账号不是管理员"。
+   *
+   * <p>把它缓存成 false 的后果：用户在同一个页面里重新登录之后，后台入口仍然不出现 ——
+   * 不刷新整页就永远看不到，而本文件的注释一直写着"失败不缓存"。
+   * 注意这条与上面的网络失败不同：401 会让 `auth` 变成未登录，然后**重新登录**，
+   * 这才是真实序列。
+   */
+  it('401 之后重新登录：入口能重新拿到（会话失效不能被缓存成"不是管理员"）', async () => {
+    fetchAdminAiSettings.mockRejectedValue(
+      new V3ApiError(
+        { code: 'UNAUTHENTICATED', message: '请先登录。', requestId: 'rq-1', details: {} },
+        { status: 401 },
+      ),
+    )
+    const wrapper = await mountAccount()
+    await flushPromises()
+    expect(wrapper.find('[data-admin-entry]').exists()).toBe(false)
+
+    fetchAdminAiSettings.mockResolvedValue({ enabled: true, mockMode: true })
+    const { refresh } = await import('@/composables/useAdminProbe').then((mod) => mod.useAdminProbe())
+    await refresh()
+    await flushPromises()
+    expect(wrapper.find('[data-admin-entry]').exists()).toBe(true)
+  })
+
+  /**
+   * 共用一个浏览器换账号时，探针缓存属于**上一个账号**。
+   *
+   * <p>`cached` 是模块级的：管理员登录后缓存 `true`，退出、换成普通用户登录，
+   * 入口仍然显示 —— 虽然点进去会 403，但"这个入口存在"本身就已经告诉普通用户
+   * 这台站有后台（本组件开头的注释写明普通用户根本不该知道）。
+   */
+  it('换账号（先管理员后普通用户）：上一个账号的探测结论必须作废', async () => {
+    fetchAdminAiSettings.mockResolvedValue({ enabled: true, mockMode: true })
+    await mountAccount()
+    await flushPromises()
+    expect(fetchAdminAiSettings).toHaveBeenCalledTimes(1)
+
+    // 管理员退出：所有"变成未登录"的路径都走 applyAnonymous
+    useAuthStore().applyAnonymous()
+
+    // 普通用户登录（同一页，不刷新）：服务端会回 403
+    fetchAdminAiSettings.mockRejectedValue(forbidden())
+    useAuthStore().applyProfile({
+      userId: 'u2',
+      username: 'normal',
+      nickname: null,
+      createdAt: '2026-09-18T00:00:00Z',
+      passwordChangedAt: null,
+    })
+
+    const { refresh } = await import('@/composables/useAdminProbe').then((mod) => mod.useAdminProbe())
+    const isAdmin = await refresh()
+    expect(isAdmin, '不能把上一个账号的"是管理员"留给下一个登录的人').toBe(false)
+    expect(fetchAdminAiSettings, '身份变了必须重新问一次，而不是复用缓存').toHaveBeenCalledTimes(2)
+  })
 })

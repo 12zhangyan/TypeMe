@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useQuizStore } from '@/stores/quiz'
 import { useAuthStore } from '@/stores/auth'
@@ -77,7 +77,7 @@ const legacyScope = computed(() => isLegacyEngineRoute(route.name))
 
 /** 副标题：旧引擎页面按当前内容包生成；新站页面用新测自己的量表名。 */
 const shellTagline = computed(() =>
-  legacyScope.value ? legacyInstrumentTagline(quiz.activePackage) : instrument.facts.title,
+  legacyScope.value ? legacyInstrumentTagline(quiz.activePackage) : '多种测评，帮助你理解自己',
 )
 
 /** 答题页自己渲染完整的进度与操作区；这里不再重复导航，避免误触清空进度。 */
@@ -104,6 +104,17 @@ const quizActive = computed(() => route.name === 'quiz' || route.name === 'asses
  * 渲染指向未注册路由的链接只会让 vue-router 报一堆警告、用户看到一个点了没反应的入口。
  */
 const assessmentRoutesReady = computed(() => router.hasRoute('assess') && router.hasRoute('reports'))
+
+/**
+ * 「开始测评」指向哪一页。
+ *
+ * 多量表之后它不能直接指向 `/assess`：那一页现在先问"哪一项"。
+ * 但**文案与数量都不能变**（`shellNav.spec.ts` 钉住"指向某一路径的入口恰好一个、
+ * 文案是「开始测评」"）—— 顶栏不是放量表清单的地方，它是入口。
+ * 所以这里优先指向 `instruments`（发现页：有哪些测评），
+ * 未注册该路由时（测试里只注册部分路由）退回 `assess`，避免渲染死链。
+ */
+const startRouteName = computed(() => (router.hasRoute('instruments') ? 'instruments' : 'assess'))
 
 function loadMeta() {
   if (metaLoaded) return
@@ -139,6 +150,24 @@ onBeforeUnmount(() => {
   unbindStorage?.()
   unbindStorage = null
 })
+
+/**
+ * 会话在**停留期间**失效时，把用户送回登录页。
+ *
+ * 路由守卫只在"导航到某个页面"时检查登录态。用户不导航、只是点一下"再试一次"或者
+ * 等轮询回来时，401 不会触发任何导航 —— 于是页面停在原地，每个请求都 401，
+ * 顶栏却还写着"已登录 / 退出"（见 `api/v3.ts` 里 `onSessionExpired` 的说明）。
+ * 这里补上那一步：`auth` 由桥接清成匿名后，只要当前页是需要登录的，就带 `redirect` 去登录页，
+ * 登录完能回到原处。`guestOnly` 页面（登录页自己）不动，否则会自己踢自己。
+ */
+watch(
+  () => auth.isAuthenticated,
+  async (nowAuthenticated, wasAuthenticated) => {
+    if (nowAuthenticated || !wasAuthenticated) return
+    if (route.meta.requiresAuth !== true) return
+    await router.replace({ name: 'login', query: { redirect: route.fullPath } })
+  },
+)
 
 /**
  * 退出登录。
@@ -185,21 +214,30 @@ function navPill(active: boolean): string {
     <a class="skip-link" href="#main">跳到主要内容</a>
 
     <header
-      class="sticky top-0 z-30 border-b backdrop-blur-md"
+      class="site-header sticky top-0 z-30 border-b backdrop-blur-md"
       :class="quizActive ? 'border-transparent bg-paper/95' : 'border-line bg-surface/85'"
     >
       <div
         class="mx-auto flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3 py-2.5 tablet:px-6 tablet:py-3 laptop:px-8"
         :class="quizActive ? 'max-w-shell-quiz' : 'max-w-shell-wide'"
       >
+        <!--
+          品牌链接的命中区必须够大（A54）：它原来只有文字行高那么高
+          —— 实测 320px 下 92x19、390/1440 下 203x22，是顶栏里唯一一个
+          矮于 24px 的可点目标（导航项走 `.btn-sm`，是 44px）。
+          这里给它 `min-h-6`（24px，WCAG 2.5.8 的最小目标尺寸）。
+          刻意保留原来的 `items-baseline`：多出来的 5px 留在盒子底部，
+          文字与圆点的位置一个像素都不动（换成 items-center 实测会把副标题的
+          行内盒重新排一遍，宽度从 203 变成 195）。
+        -->
         <RouterLink
           to="/"
-          class="flex items-baseline gap-2 rounded-control focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+          class="brand-link flex min-h-6 items-baseline gap-2 rounded-control focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
           aria-label="TypeMe 首页"
         >
           <span class="flex items-baseline gap-2">
             <span
-              class="inline-block h-[9px] w-[9px] shrink-0 translate-y-[-1px] rounded-[3px] bg-primary-600"
+              class="brand-mark inline-block h-[9px] w-[9px] shrink-0 translate-y-[-1px] rounded-[3px] bg-primary-600"
               aria-hidden="true"
             />
             <span class="font-display text-[19px] font-bold leading-none tracking-tight text-ink">
@@ -213,7 +251,7 @@ function navPill(active: boolean): string {
             量表口径在首页正文与页脚署名里仍然完整，没有信息丢失
             （`scripts/browser-verify-narrow-layout.py` 会量这个高度）。
           -->
-          <span class="hidden text-[11.5px] text-ink-faint min-[360px]:inline">{{ shellTagline }}</span>
+          <span class="brand-caption hidden text-[11.5px] text-ink-faint laptop:inline">{{ shellTagline }}</span>
         </RouterLink>
 
         <nav
@@ -231,9 +269,9 @@ function navPill(active: boolean): string {
             -->
             <RouterLink
               v-if="assessmentRoutesReady"
-              to="/assess"
+              :to="{ name: startRouteName }"
               class="btn-ghost btn-sm"
-              :class="navPill(route.name === 'assess' || route.name === 'assess-attempt')"
+              :class="navPill(startRouteName === 'instruments' ? route.name === 'instruments' : route.name === 'assess' || route.name === 'assess-attempt')"
               >开始测评</RouterLink
             >
             <RouterLink
@@ -328,9 +366,8 @@ function navPill(active: boolean): string {
     </main>
 
     <!-- 答题页不渲染页脚：一屏专注，也避免长页脚把移动端操作条顶开（§4.5） -->
-    <footer v-if="!quizActive" class="relative border-t border-line bg-paper-soft">
-      <!-- 顶部一条主色细线：这一版页脚只是"读到结尾"的收束，不加装饰图形，
-           一条线就够把页脚和正文分开，且不会在长报告底部制造第二个视觉焦点。 -->
+    <footer v-if="!quizActive" class="site-footer relative border-t border-line bg-paper-soft">
+      <!-- 页脚以品牌字标收尾，量表与数据处理说明保留在下方。 -->
       <span
         class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-primary-600 via-glow to-transparent"
         aria-hidden="true"
@@ -338,6 +375,7 @@ function navPill(active: boolean): string {
       <div
         class="mx-auto w-full max-w-shell-wide px-3 py-7 tablet:px-6 tablet:py-9 laptop:px-8"
       >
+        <div class="footer-wordmark" aria-hidden="true">TypeMe<span>向内探索，<br />向外生长。</span></div>
         <div class="flex flex-col gap-5 laptop:flex-row laptop:justify-between laptop:gap-10">
           <div class="max-w-prose space-y-2">
             <p class="text-[13.5px] font-semibold text-ink">TypeMe · {{ shellTagline }}</p>
@@ -370,9 +408,9 @@ function navPill(active: boolean): string {
               是浏览器验收报告里的问题 2。
             -->
             <p v-else class="fineprint" data-new-instrument-attribution>
-              {{ instrument.facts.title }}的题目与报告文案为本项目自行撰写；本站
+              十六型题目与报告文案为本项目自写参考稿；大五使用 IPIP 公有领域题目，中文为项目改写稿。本站
               <strong class="font-medium text-ink-soft">不隶属</strong>
-              任何商业人格测评机构，也不是任何机构的官方测评。报告由本站服务端按同一套规则重新计算生成。
+              任何商业人格测评机构，也不是任何机构的官方测评。各量表独立计分，历史报告保留生成时的结果。
             </p>
           </div>
           <nav class="flex flex-wrap items-start gap-x-5 gap-y-2 text-[13.5px]">

@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, useId, watch } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import FormErrorNotice from '@/components/FormErrorNotice.vue'
 import AiAnalysisPanel from '@/components/AiAnalysisPanel.vue'
 import DimensionMeter from '@/components/DimensionMeter.vue'
 import AppIcon from '@/components/AppIcon.vue'
+import PersonalityPortrait from '@/components/PersonalityPortrait.vue'
+
 import { useReportStore } from '@/stores/reportV3'
 import { useInstrumentV3Store } from '@/stores/instrumentV3'
 import type { ReportViewModelV3 } from '@/domain/reportV3'
 import { isLegalTypeCode } from '@/domain/jung/types'
+
+const mobileTocOpen = ref(false)
 
 /**
  * 报告页（新测）—— 契约 `03-AI与前端契约-v1.md` §7.2 / §7.3。
@@ -41,6 +46,7 @@ import { isLegalTypeCode } from '@/domain/jung/types'
  */
 
 const route = useRoute()
+const router = useRouter()
 const reports = useReportStore()
 const instrument = useInstrumentV3Store()
 
@@ -54,6 +60,14 @@ const noteId = `report-self-note-${useId()}`
 
 const reportId = computed(() => (typeof route.params.reportId === 'string' ? route.params.reportId : null))
 const view = computed<ReportViewModelV3 | null>(() => reports.view)
+
+// 旧收藏链接也按报告实际种类分流，不能把大五交给四维解析器。
+watch(() => reports.current, (current) => {
+  const report = current?.report
+  if (reportId.value && (report?.reportKind === 'big_five_profile' || report?.status === 'PROFILE')) {
+    void router.replace({ name: 'big-five-report', params: { reportId: reportId.value } })
+  }
+})
 
 /** 报告形状不符合契约：**不降级**成"看起来还行的报告"。 */
 const shapeError = computed(() => reports.shapeError)
@@ -142,10 +156,17 @@ function formatTime(value: string | null): string {
 
 const deleteTarget = ref<string | null>(null)
 
-async function removeFromList(reportId2: string): Promise<void> {
+/**
+ * 删除这类动作的结果与"列表能不能读"是两件事，提示也分开（2026-09-18 第 17 轮）。
+ *
+ * 以前删除失败会写进 `listError`，列表区把它渲染成「记录没能载入：…」并整块替换掉列表 ——
+ * 用户会以为自己的历史记录都读不到了；而真相只是"这一份没删掉"。
+ * 现在失败落在 `reports.removeError`（下面单独一块 alert），列表保持原样。
+ */
+async function removeFromList(target: string): Promise<void> {
+  const ok = await reports.remove(target)
   deleteTarget.value = null
-  const ok = await reports.remove(reportId2)
-  notice.value = ok ? '报告已经删除（连同它的答案与 AI 记录）。' : '删除没能完成。'
+  notice.value = ok ? '报告已经删除（连同它的答案与 AI 记录）。' : null
 }
 
 async function copyShareText(): Promise<void> {
@@ -290,11 +311,14 @@ async function saveReflection(): Promise<void> {
 }
 
 async function removeReport(): Promise<void> {
-  confirmDelete.value = false
   const target = view.value?.reportId ?? reportId.value
-  if (!target) return
+  if (!target) {
+    confirmDelete.value = false
+    return
+  }
   const ok = await reports.remove(target)
-  notice.value = ok ? '报告已经删除（连同它的答案与 AI 记录）。' : '删除没能完成。'
+  confirmDelete.value = false
+  notice.value = ok ? '报告已经删除（连同它的答案与 AI 记录）。' : null
 }
 
 /**
@@ -419,8 +443,14 @@ function jumpToSection(id: string): void {
           </p>
           <div class="mt-3 flex flex-wrap gap-2">
             <RouterLink :to="`/reports/${item.reportId}`" class="btn-secondary btn-sm">打开报告</RouterLink>
-            <button type="button" class="btn-ghost btn-sm" :data-delete-report="item.reportId" @click="deleteTarget = item.reportId">
-              删除
+            <button
+              type="button"
+              class="btn-ghost btn-sm"
+              :data-delete-report="item.reportId"
+              :disabled="reports.removingId !== null"
+              @click="deleteTarget = item.reportId"
+            >
+              {{ reports.removingId === item.reportId ? '正在删除…' : '删除' }}
             </button>
           </div>
         </li>
@@ -429,32 +459,60 @@ function jumpToSection(id: string): void {
 
     <template v-else>
     <!--
-      「这份尝试还**没有**报告」和「报告存在但打不开」是两件不同的事，必须先分开：
-      前者是**预期内的状态**（答题没答完 / 信息不足，服务端没有生成报告），
-      正确处置是告诉用户还差什么、给一条回去补答的路；
-      后者才是故障（网络、权限、服务端错误），要给报障编号。
-      如果把两者都说成"打开失败"，用户会以为系统坏了，而不是自己还没答完。
+      404 的两种含义必须分开说（2026-09-18 第 17 轮）：
+        - 按 attempt 取（交卷那条路）→ 这次尝试**还没有报告**（信息不足），是预期内的状态，
+          该说清还差什么、给一条回去补答的路；
+        - 按 reportId 取（`/reports/{id}`，也就是这一页实际走的路）→ **这份报告不在这里**：
+          它可能已被删除、编号有误，或者链接属于别的账号。这跟"你有没有答完"毫无关系。
+      以前两种情况共用一套文案，于是删掉一份报告后按浏览器后退，用户会被告知
+      "你还没做完"，并被送去重新测一次 —— 这既不是事实，也丢掉了真正的下一步。
     -->
-    <div v-if="reports.notFound" class="card" data-status="NEEDS_REVIEW">
-      <p class="section-kicker">信息不足</p>
-      <h1 class="mt-2 font-display text-[24px] font-bold leading-tight text-ink tablet:text-[30px]">
-        这次测评还没有报告可看
-      </h1>
-      <p class="mt-3 prose-cn">
-        报告不是每题一答就开始生成的：有维度没达到最少有效作答数时，我们宁可不出报告，
-        也不出一份看起来完整、实际上靠默认值拼出来的结论。
-      </p>
-      <ul class="mt-4 space-y-2 prose-cn">
-        <li class="list-dot">可能有题目还没处理（既没有选，也没有标「这题我说不好」）。</li>
-        <li class="list-dot">也可能某个维度的有效作答太少，或者补充题被跳过了。</li>
-        <li class="list-dot">
-          回到答题页时会直接告诉你是哪几个维度、还差几题 —— 不写"信息不足"四个字了事。
-        </li>
-      </ul>
-      <div class="mt-5 flex flex-wrap items-center gap-3">
-        <RouterLink to="/assess" class="btn-primary">回去把没处理的题补齐</RouterLink>
-        <RouterLink to="/reports" class="btn-secondary">回到历史报告</RouterLink>
-      </div>
+    <div v-if="reports.notFound" class="card" data-status="NEEDS_REVIEW" data-report-not-found>
+      <template v-if="reports.loadedByAttempt">
+        <p class="section-kicker">信息不足</p>
+        <h1 class="mt-2 font-display text-[24px] font-bold leading-tight text-ink tablet:text-[30px]">
+          这次测评还没有报告可看
+        </h1>
+        <p class="mt-3 prose-cn">
+          报告不是每题一答就开始生成的：有维度没达到最少有效作答数时，我们宁可不出报告，
+          也不出一份看起来完整、实际上靠默认值拼出来的结论。
+        </p>
+        <ul class="mt-4 space-y-2 prose-cn">
+          <li class="list-dot">可能有题目还没处理（既没有选，也没有标「这题我说不好」）。</li>
+          <li class="list-dot">也可能某个维度的有效作答太少，或者补充题被跳过了。</li>
+          <li class="list-dot">
+            回到答题页时会直接告诉你是哪几个维度、还差几题 —— 不写"信息不足"四个字了事。
+          </li>
+        </ul>
+        <div class="mt-5 flex flex-wrap items-center gap-3">
+          <RouterLink to="/assess" class="btn-primary">回去把没处理的题补齐</RouterLink>
+          <RouterLink to="/reports" class="btn-secondary">回到历史报告</RouterLink>
+        </div>
+      </template>
+
+      <template v-else>
+        <p class="section-kicker">报告不在这里</p>
+        <h1 class="mt-2 font-display text-[24px] font-bold leading-tight text-ink tablet:text-[30px]">
+          这份报告打不开了
+        </h1>
+        <p class="mt-3 prose-cn">
+          服务端说没有这份报告。常见的原因有三个，都不是"系统坏了"：
+        </p>
+        <ul class="mt-4 space-y-2 prose-cn">
+          <li class="list-dot">它已经被删除了（删除是立刻生效的，链接会失效）。</li>
+          <li class="list-dot">这个链接属于另一个账号 —— 报告只对生成它的账号可见。</li>
+          <li class="list-dot">链接里的编号不完整或被改动过。</li>
+        </ul>
+        <p class="mt-3 prose-cn text-[13.5px] text-ink-soft">
+          如果这份报告是刚刚生成的，可以
+          <button type="button" class="link" @click="reports.loadReport(reportId ?? '')">再读一次</button>；
+          已经交卷的测评不会因为打不开这一页而消失。
+        </p>
+        <div class="mt-5 flex flex-wrap items-center gap-3">
+          <RouterLink to="/reports" class="btn-primary">回到历史报告</RouterLink>
+          <RouterLink to="/assess" class="btn-secondary">重新做一次测评</RouterLink>
+        </div>
+      </template>
     </div>
 
     <!-- 载入失败（真的出错了，不是"还没做完"） -->
@@ -501,6 +559,7 @@ function jumpToSection(id: string): void {
             class="deep-panel deep-grid scroll-mt-24 rounded-cover px-5 py-7 shadow-deep tablet:px-9 tablet:py-10"
             :data-status="view.status"
           >
+            <p class="mb-7 border-b border-navy-400 pb-4 text-[10px] tracking-[0.2em] text-navy-100">TYPEME / 个人探索档案</p>
             <p class="flex flex-wrap items-center gap-x-2 gap-y-1">
               <span class="chip chip-on-deep">{{ statusLabel(view.status) }}</span>
               <span class="text-[12.5px] text-navy-200" data-status-note>{{ overviewNote }}</span>
@@ -553,6 +612,9 @@ function jumpToSection(id: string): void {
             </p>
 
             <p class="mt-5 max-w-[42rem] text-[15.5px] leading-[1.75] text-navy-100">{{ view.summary }}</p>
+            <figure v-if="view.typeCode" class="report-character-study" data-report-character>
+              <PersonalityPortrait :code="view.typeCode" /><figcaption><span>类型生活速写</span><p>一种理解自己的角度，<br>不是你必须活成的样子。</p><small>角色为原创插画，不是额外测量。</small></figcaption>
+            </figure>
           </article>
 
           <!-- ══ 四维得分条 ════════════════════════════════════════════════ -->
@@ -649,13 +711,13 @@ function jumpToSection(id: string): void {
               <h2 id="report-sections-title" class="section-title">这一型的读法</h2>
             </div>
             <div class="mt-4 divide-y divide-line border-y border-line">
-              <article v-for="(section, index) in view.typeSections" :key="section.key" class="py-4">
-                <h3 class="flex items-baseline gap-2.5 text-[16px] font-semibold text-ink">
+              <details v-for="(section, index) in view.typeSections" :key="section.key" class="py-4">
+                <summary class="cursor-pointer text-[16px] font-semibold text-ink">
                   <span class="section-index" aria-hidden="true">{{ String(index + 1).padStart(2, '0') }}</span>
                   {{ section.title }}
-                </h3>
+                </summary>
                 <p class="mt-2 max-w-[46rem] text-[14.5px] leading-[1.72] text-ink-soft">{{ section.body }}</p>
-              </article>
+              </details>
             </div>
           </section>
 
@@ -697,6 +759,8 @@ function jumpToSection(id: string): void {
             </div>
           </section>
 
+          <details v-if="view.dynamics || view.processPlan" class="mt-10 rounded-card border border-line p-4">
+            <summary class="cursor-pointer font-semibold">进阶阅读：由类型推导的理论说明（不是额外测量）</summary>
           <!-- ══ 四个过程（由四字母推导，不是测量） ═══════════════════════ -->
           <!--
             这一块的全部意义就是"不能让它被读成测量结果"，所以 `basis` 与
@@ -915,6 +979,8 @@ function jumpToSection(id: string): void {
             </div>
           </section>
 
+          </details>
+
           <!-- ══ 自我理解（与问卷结果并列，不覆盖） ═════════════════════════ -->
           <section
             id="report-self"
@@ -1005,8 +1071,12 @@ function jumpToSection(id: string): void {
             class="rounded-card border border-line bg-surface px-3 py-3 shadow-card laptop:px-3.5 laptop:py-4"
             aria-label="报告目录"
           >
-            <p class="section-kicker laptop:mb-2">报告目录</p>
-            <ul class="flex flex-wrap gap-1.5 laptop:flex-col laptop:gap-0.5">
+            <p class="section-kicker hidden laptop:mb-2 laptop:block">报告目录</p>
+            <button type="button" class="flex min-h-[44px] w-full items-center justify-between text-[14px] font-medium laptop:hidden"
+              :aria-expanded="mobileTocOpen" aria-controls="report-navigation" @click="mobileTocOpen = !mobileTocOpen">
+              查看报告目录 <span aria-hidden="true">{{ mobileTocOpen ? '−' : '+' }}</span>
+            </button>
+            <ul id="report-navigation" class="flex-wrap gap-1.5 laptop:flex laptop:flex-col laptop:gap-0.5" :class="mobileTocOpen ? 'flex' : 'hidden'">
               <li v-for="item in TOC" :key="item.id">
                 <button
                   type="button"
@@ -1033,7 +1103,13 @@ function jumpToSection(id: string): void {
         它**不在**上面的两栏网格里：这是有意让 AI 洞察占满整个内容宽度，
         与"报告正文是阅读栏、AI 是一块独立区域"的层次一致。
       -->
-      <AiAnalysisPanel v-if="reportId" :report-id="reportId" />
+      <!--
+        `:key` 是必须的，不是保险：面板内部是一个 App 级单例 store（`aiAnalysisV3`），
+        它的 `jobs` 曾经会跨越报告边界（B 的首屏渲染出 A 的分析）。
+        加上 key 之后换报告必定重新挂载 → `onMounted` 重新按新 reportId 加载。
+        面板自己也 `watch(reportId)`，这里只是让常见路径更直接。
+      -->
+      <AiAnalysisPanel v-if="reportId" :key="reportId" :report-id="reportId" />
 
       <!-- ══ 方法与删除 ═══════════════════════════════════════════════ -->
       <section id="report-method" data-anchor class="mt-10 scroll-mt-24 section-rule" aria-labelledby="report-method-title">
@@ -1106,6 +1182,22 @@ function jumpToSection(id: string): void {
     <p v-else class="text-[15px] text-ink-soft">没有指定报告。可以到 <RouterLink to="/reports" class="link">历史报告</RouterLink>里挑一份。</p>
     </template>
 
+    <!--
+      删除失败**不能**借用"记录没能载入"那块来表达：那会让用户以为整个历史都读不到了。
+      这里只说"这一份没删掉、它还在"，并明确指出下一步。
+      位置放在页面底部：删除入口在报告详情页与列表里各有一个，这里对两者都可见。
+    -->
+    <FormErrorNotice
+      v-if="reports.removeError"
+      :error="reports.removeError"
+      class="mt-6 max-w-prose"
+      data-report-remove-error
+    />
+    <p v-if="reports.removeError" class="caption mt-2">
+      这一份还在你的记录里，可以稍后再删一次。
+      <button type="button" class="link" @click="reports.clearRemoveError()">知道了</button>
+    </p>
+
     <p v-if="notice" class="notice-neutral mt-6 whitespace-pre-wrap text-[13.5px] leading-relaxed" role="status" aria-live="polite" data-notice>
       {{ notice }}
     </p>
@@ -1117,6 +1209,8 @@ function jumpToSection(id: string): void {
       confirm-label="删除报告"
       cancel-label="保留"
       danger
+      :busy="reports.removingId !== null"
+      busy-label="正在删除…"
       @confirm="removeReport"
       @cancel="confirmDelete = false"
     />
@@ -1128,6 +1222,8 @@ function jumpToSection(id: string): void {
       confirm-label="删除记录"
       cancel-label="保留"
       danger
+      :busy="reports.removingId !== null"
+      busy-label="正在删除…"
       @confirm="deleteTarget && removeFromList(deleteTarget)"
       @cancel="deleteTarget = null"
     />

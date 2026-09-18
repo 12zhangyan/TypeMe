@@ -76,11 +76,11 @@ npm.cmd test
 npm.cmd run build
 
 # backend 目录，先确认 JDK 21 和测试数据源隔离
-# 当前两类真实 MySQL 测试会自动建库/删库，未获授权时明确排除。
-mvn.cmd test '-Dtest=*,!AccountSqlDialectMySqlIT,!AiSqlDialectMySqlIT'
+# 当前三类真实 MySQL 测试会自动建库/删库，未获授权时明确排除。
+mvn.cmd test '-Dtest=*,!AccountSqlDialectMySqlIT,!AiSqlDialectMySqlIT,!ConcurrencyMySqlIT'
 ```
 
-- 排除上述两类后的结果只能称为相应子集通过。测试新增或配置变化时重新检查数据库副作用；执行完整 `mvn.cmd test` 前必须确认真实 MySQL 测试的授权与目标。
+- 排除上述三类后的结果只能称为相应子集通过。测试新增或配置变化时重新检查数据库副作用；执行完整 `mvn.cmd test` 前必须确认真实 MySQL 测试的授权与目标。
 - 测试优先纯逻辑、mock 与一次性内存 H2；H2 通过不等于真实 MySQL 方言、事务、锁和并发验证通过。
 - 开发前端使用 `npm.cmd run dev -- --host 127.0.0.1`；API 代理通过 `VITE_DEV_API_TARGET` 配置。后端启动可能自动执行 Flyway、内容登记和后台任务，未经数据库写入授权不得直接启动到现有库。
 - Maven 只复制已有 `frontend/dist`，不替你构建前端。验证整站 jar 前先构建前端，再打包并核对静态资源，避免旧 bundle 混入；`build:only`、`-DskipTests` 不是完整测试证据。

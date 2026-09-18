@@ -41,6 +41,9 @@ class JungPackageRegistrarTest {
     @Autowired
     private JungPackageRegistrar registrar;
 
+    @Autowired
+    private com.typeme.ipip.content.BigFivePackageLoader bigFiveLoader;
+
     @Test
     @DisplayName("启动后 assessment_package 里必须有当前内容包那一行")
     void packageRowExistsAfterStartup() {
@@ -99,5 +102,44 @@ class JungPackageRegistrarTest {
 
         assertThat(rows).hasSize(1);
         assertThat(rows.get(0).get("published_at")).isNotNull();
+    }
+
+    @Test
+    @DisplayName("启动时把**全部**已加载内容包落库：十六型每一版 + 大五每一版")
+    void allLoadedPackagesAreRegistered() {
+        // 只登记"当前版"的话，绑定旧版的草稿在重启后会因为外键或按 package_id 解析不到
+        // 而变成不可继续 —— 而"按草稿自己的版本继续作答"正是多量表改造的核心。
+        for (JungPackage pkg : loader.packages()) {
+            Integer rows = jdbc.queryForObject(
+                    "SELECT COUNT(*) FROM assessment_package WHERE package_id = ?",
+                    Integer.class, pkg.packageId());
+            assertThat(rows).as("十六型内容包 %s 应已落库", pkg.packageId()).isEqualTo(1);
+        }
+        for (com.typeme.ipip.content.BigFivePackage pkg : bigFiveLoader.packages()) {
+            Map<String, Object> row = jdbc.queryForMap(
+                    "SELECT instrument_id, scoring_version, report_content_version, content_status, "
+                            + "content_json, sha256 FROM assessment_package WHERE package_id = ?",
+                    pkg.packageId());
+            assertThat(row.get("instrument_id")).isEqualTo(pkg.instrumentId());
+            assertThat(row.get("scoring_version")).isEqualTo(pkg.scoringVersion());
+            assertThat(row.get("report_content_version")).isEqualTo(pkg.reportContentVersion());
+            assertThat(row.get("content_status")).isEqualTo(pkg.contentStatus());
+            // 大五的 sha256 列必须等于对落库 content_json 重算的结果 ——
+            // 与十六型同一条自洽性要求，否则"内容指纹"只是装饰。
+            assertThat(String.valueOf(row.get("sha256")))
+                    .as("大五落库内容的指纹必须自洽")
+                    .isEqualTo(sha256OfCanonical(String.valueOf(row.get("content_json"))));
+        }
+    }
+
+    /** 独立算一遍规范形 JSON 的 sha256（不复用加载器的私有实现）。 */
+    private static String sha256OfCanonical(String canonicalJson) {
+        try {
+            byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(canonicalJson.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return java.util.HexFormat.of().formatHex(digest);
+        } catch (java.security.NoSuchAlgorithmException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 }

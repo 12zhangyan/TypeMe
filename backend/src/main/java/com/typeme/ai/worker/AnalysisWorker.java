@@ -232,7 +232,7 @@ public class AnalysisWorker {
         // 外部 HTTP 调用：**无事务**。
         DeepSeekResponse response = client.complete(DeepSeekRequest.of(
                 row.modelRequested(),
-                SystemPrompt.of(settings.promptVersion()),
+                SystemPrompt.of(row.promptVersion()),
                 inputBuilder.userMessage(input),
                 settings.maxTokens(),
                 settings.temperature()));
@@ -244,6 +244,11 @@ public class AnalysisWorker {
         // 校验并写回（写回必须在事务 3 里带 status='RUNNING' 条件）。
         ReportAnalysisValidator.MapResult result = validator.validate(
                 response, input.computedTypeCode(), input.evidenceIds(), settings.maxTokens());
+        String expectedSchema = com.typeme.ai.input.ReadableReportInput.PROMPT_VERSION.equals(row.promptVersion())
+                ? com.typeme.ai.input.ReadableReportInput.SCHEMA_VERSION : "1";
+        if (!expectedSchema.equals(result.node().path("schemaVersion").asText())) {
+            throw AnalysisValidationException.invalidJson("分析输出版本与本次任务不一致。");
+        }
 
         // 又一道"晚到结果"的闸门：写回前确认 job 没被取消、报告还在。
         AnalysisJobRepository.JobRow latest = jobs.findById(jobId).orElse(null);
@@ -391,7 +396,7 @@ public class AnalysisWorker {
             // 兜底用当前默认版本（与 AiProperties 的默认值保持一致）；v1 文件仍在仓库里，
             // 历史任务按自己入库的 promptVersion 解析，不会被这里影响。
             String version = promptVersion == null || promptVersion.isBlank()
-                    ? "typeme-ai-prompt-v2" : promptVersion;
+                    ? com.typeme.ai.input.ReadableReportInput.PROMPT_VERSION : promptVersion;
             if (version.equals(cachedVersion) && cachedContent != null) {
                 return cachedContent;
             }

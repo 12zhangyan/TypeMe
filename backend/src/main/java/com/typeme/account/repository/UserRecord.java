@@ -20,7 +20,8 @@ public record UserRecord(
         Instant createdAt,
         Instant passwordChangedAt,
         int recoveryCodeVersion,
-        Instant deletionRequestedAt
+        Instant deletionRequestedAt,
+        Integer aiDailyLimit
 ) {
 
     /** 账号状态字面量（与契约 §2.1 的取值一致）。 */
