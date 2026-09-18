@@ -54,7 +54,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @SpringBootTest(classes = TypeMeApplication.class,
         properties = {
         "typeme.auth.pbkdf2-iterations=1000",
+        "typeme.ai.api-key=",
+        "typeme.ai.enabled=false",
+        "typeme.ai.mock-mode=true",
         "typeme.admin.bootstrap-username=",
+        "typeme.admin.bootstrap-password=",
         "typeme.security.settings-secret=test-settings-secret-0123456789",
         // 限流在功能测试里放宽：这些用例关心的是"认证/CSRF/隔离"的正确性，
         // 而不是限流本身（限流有专门的一条用例，用严格配置独立起一份上下文）。
@@ -128,6 +132,9 @@ public abstract class AccountIntegrationTestBase {
     protected MockMvc mockMvc;
 
     @Autowired
+    protected org.springframework.jdbc.core.JdbcTemplate invitationJdbc;
+
+    @Autowired
     protected ObjectMapper objectMapper;
 
     @Autowired
@@ -182,7 +189,7 @@ public abstract class AccountIntegrationTestBase {
                                 // 2026-09-17 起注册必须带免责声明同意（AccountService 复核）。
                                 // 帮助方法默认替用例同意，就像真实前端默认会带上勾选状态一样；
                                 // 不带的用例必须显式构造请求体，见 RegistrationAndLoginIT 的那条。
-                                "disclaimerAccepted", true))), csrf)).andReturn();
+                                "disclaimerAccepted", true, "invitationCode", TestInvitations.create(invitationJdbc)))), csrf)).andReturn();
         JsonNode node = body(result);
         return new RegisteredAccount(result.getResponse().getStatus(), node, session);
     }

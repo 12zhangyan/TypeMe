@@ -6,6 +6,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.typeme.ai.config.AiException;
 import com.typeme.ai.port.ReportSnapshotReader;
 import com.typeme.ai.port.ReportSnapshotReader.AiReportSnapshot;
 import com.typeme.ai.port.ReportSnapshotReader.AiReportSnapshot.Answer;
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -288,6 +290,64 @@ class ReportInputBuilderTest {
     }
 
     /* ── 夹具与工具 ───────────────────────────────────────────────────── */
+
+    /**
+     * 大五报告不能进 AI 输入：必须抛"不支持"，而不是"缺维度"的 IllegalStateException。
+     *
+     * <p>为什么这条测试重要：大五报告的形状（{@code dimensions} 里是 E/A/C/ES/O、没有
+     * {@code computedPole}）会让 {@code dimensions(...)} 直接抛 IllegalStateException，
+     * 在 HTTP 上呈现为 500。500 让用户以为服务坏了并反复重试，而事实是"这个能力还没覆盖
+     * 到这类报告"。两种"报告里没有 EI 维"的原因必须分开：契约破坏是 500，量表不支持是 400。
+     */
+    @Test
+    @DisplayName("大五报告：明确报不支持（UNSUPPORTED_INSTRUMENT），不是当成契约破坏")
+    void bigFiveReportIsRejectedAsUnsupported() {
+        for (String bigFiveReport : List.of(bigFiveReportJsonWithKind(), bigFiveReportJsonWithoutKind())) {
+            AiException thrown = assertThrows(AiException.class,
+                    () -> build(bigFiveReport, "", PROMPT_V2, AiTopic.OVERALL));
+            assertEquals("UNSUPPORTED_INSTRUMENT", thrown.code());
+            assertEquals(400, thrown.httpStatus(),
+                    "不支持的含义是「这类报告还没有解读口径」，不是服务端故障");
+        }
+    }
+
+    /** 十六型报告仍然正常构造（防止上面的判别把正常路径一起拦掉）。 */
+    @Test
+    @DisplayName("十六型报告不受影响：仍然能构造出四维摘要")
+    void jungReportStillBuilds() {
+        AiReportInput input = build(reportJson(false), "", PROMPT_V2, AiTopic.OVERALL);
+        JsonNode dimensions = payload(input).path("report").path("dimensions");
+        assertEquals(4, dimensions.size());
+    }
+
+    /** 带 v2 外壳的形态：`reportKind` 在报告体里。 */
+    private static String bigFiveReportJsonWithKind() {
+        return """
+                {"schemaVersion":2,"reportKind":"big_five_profile","hasTypeCode":false,
+                 "profileTitle":"大五倾向测评","status":"PROFILE",
+                 "dimensions":[
+                   {"dimension":"E","rawScore":34,"distance":4,"hasResult":true},
+                   {"dimension":"A","rawScore":30,"distance":0,"hasResult":true},
+                   {"dimension":"C","rawScore":27,"distance":-3,"hasResult":true},
+                   {"dimension":"ES","rawScore":38,"distance":-10,"hasResult":true},
+                   {"dimension":"O","rawScore":33,"distance":3,"hasResult":true}],
+                 "coverage":{"completed":true,"coverageOk":true},
+                 "reportHash":"%s"
+                 }
+                """.formatted(REPORT_HASH);
+    }
+
+    /** 没有外壳的早期快照：只能靠维度码认出来。 */
+    private static String bigFiveReportJsonWithoutKind() {
+        return """
+                {"schemaVersion":1,"hasTypeCode":false,"status":"PROFILE",
+                 "dimensions":[
+                   {"dimension":"E","rawScore":34,"distance":4,"hasResult":true},
+                   {"dimension":"A","rawScore":30,"distance":0,"hasResult":true}],
+                 "reportHash":"%s"
+                 }
+                """.formatted(REPORT_HASH);
+    }
 
     private AiReportInput build(String reportJson, String note, String promptVersion, AiTopic topic) {
         return builder(reportJson).build(REPORT_ID, USER_ID, topic, note, promptVersion, MODEL);

@@ -21,11 +21,11 @@ typeme:
     # 模型名必须可配置；是否可用以账号实际 GET /models 与一次低成本实调为准。
     model: deepseek-flash
     # 入库、进去重键（request_hash 的一部分）。v1 文件仍保留在仓库里：历史任务按自己入库的版本解析。
-    prompt-version: typeme-ai-prompt-v2
+    prompt-version: typeme-ai-prompt-v3
     connect-timeout: 5s
     # 单次总 deadline；部署侧（网关/Nginx）超时必须 >= 它，否则调用会先被网关掐断。
     request-deadline: 90s
-    # 800–1200 汉字正文 + JSON 包装的上限；调小会显著提高截断（TRUNCATED）概率。
+    # 保留旧任务的输出预算；v3 正文编辑目标为 250–450 字，不凑字数。
     max-tokens: 2600
     temperature: 0.4
     daily-limit-per-user: 2

@@ -275,6 +275,10 @@ function scrollTo(id: string) {
 
       <dl class="mt-4 divide-y divide-line border-y border-line text-[14px]">
         <div class="flex flex-col gap-1 py-3 tablet:flex-row tablet:gap-6">
+          <dt class="w-40 shrink-0 font-medium text-ink">管理员可见范围</dt>
+          <dd class="text-ink-soft">本站采用邀请注册。管理员可查看账号状态、最近活动、测评进度与测评报告，并分配每人每日 AI 额度；普通用户不能访问他人的记录。邀请码只在生成时显示完整内容，一码仅供一人注册，过期或撤销后不可用。</dd>
+        </div>
+        <div class="flex flex-col gap-1 py-3 tablet:flex-row tablet:gap-6">
           <dt class="w-40 shrink-0 font-medium text-ink">存在哪里</dt>
           <dd class="text-ink-soft">
             存在本站自己的服务器上，只与你登录的账号关联。会话是服务器下发的 HttpOnly cookie，

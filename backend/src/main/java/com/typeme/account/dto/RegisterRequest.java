@@ -40,6 +40,10 @@ public record RegisterRequest(
                 message = "昵称需为 1–32 个字符且不能只含空白")
         String nickname,
 
-        Boolean disclaimerAccepted
+        Boolean disclaimerAccepted,
+
+        @Size(max = 128, message = "邀请码格式不正确")
+        String invitationCode
 ) {
+    @Override public String toString() { return "RegisterRequest[REDACTED]"; }
 }

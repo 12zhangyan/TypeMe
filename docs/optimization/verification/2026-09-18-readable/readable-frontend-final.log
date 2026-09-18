@@ -1,0 +1,26 @@
+
+ RUN  v2.1.9 D:/develop/develop/code/TypeMe/frontend
+
+ ✓ src/stores/reportLoadingV3.spec.ts (2 tests) 8ms
+ ✓ src/api/v3Ai.spec.ts (18 tests) 9ms
+stderr | src/components/platformIntro.spec.ts > 多量表首页入口 > 失败时能重试，空目录不编造测评卡片
+[typeme] 未预期的前端错误： offline Error: offline
+    at D:\develop\develop\code\TypeMe\frontend\src\components\platformIntro.spec.ts:37:44
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:146:14
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1271:3)
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/vitest/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+ ✓ src/components/platformIntro.spec.ts (2 tests) 67ms
+ ✓ src/components/aiAnalysisPanel.spec.ts (10 tests) 198ms
+
+ Test Files  4 passed (4)
+      Tests  32 passed (32)
+   Start at  14:03:55
+   Duration  4.56s (transform 571ms, setup 0ms, collect 1.27s, tests 282ms, environment 6.09s, prepare 1.17s)
+

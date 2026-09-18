@@ -117,8 +117,10 @@ interface Recorded {
 
 interface ServerOptions {
   detail?: () => Record<string, unknown>
-  patch?: (callIndex: number) => { status: number; body: unknown }
+  patch?: (callIndex: number) => { status: number; body: unknown; after?: Promise<void> }
   submit?: () => { status: number; body: unknown }
+  /** 让交卷请求"掉在路上"（网络层失败，浏览器拿不到任何响应）。 */
+  submitNetworkError?: boolean
   review?: () => { status: number; body: unknown }
 }
 
@@ -158,6 +160,8 @@ function installFetch(): void {
               clarificationDimensions: [],
             },
           }
+      // `after` 让某个用例把请求"挂住"，用来观察在途期间的界面状态。
+      if (result.after) await result.after
       return jsonResponse(result.body, result.status)
     }
     if (method === 'POST' && url.includes(`/attempts/${ATTEMPT_ID}/review`)) {
@@ -173,6 +177,11 @@ function installFetch(): void {
       )
     }
     if (method === 'POST' && url.includes(`/attempts/${ATTEMPT_ID}/submit`)) {
+      if (server.submitNetworkError) {
+        // 请求确实发出去了、服务端也真的交卷成功了，但响应没能回来。
+        // 浏览器能看到的只有这一层失败。
+        throw new TypeError('Failed to fetch')
+      }
       const result = server.submit
         ? server.submit()
         : {
@@ -226,13 +235,13 @@ function patchCalls(): Recorded[] {
  * <p>会话失效走的是 `UNAUTHENTICATED` 这个码，而它只能由 401 触发，
  * 所以需要单独一条"详情请求失败"的替身。
  */
-async function mountAssessWithStatus(status: number) {
+async function mountAssessWithStatus(status: number, code = 'UNAUTHENTICATED', message = '请先登录。') {
   vi.stubGlobal('fetch', (async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input.toString()
     const method = (init?.method ?? 'GET').toUpperCase()
     if (method === 'GET' && url.includes(`/attempts/${ATTEMPT_ID}`)) {
       return new Response(
-        JSON.stringify({ code: 'UNAUTHENTICATED', message: '请先登录。', requestId: 'req-x', details: {} }),
+        JSON.stringify({ code, message, requestId: 'req-x', details: {} }),
         { status, headers: { 'content-type': 'application/json' } },
       )
     }
@@ -648,6 +657,47 @@ describe('答题页：会话在作答过程中失效', () => {
     expect(wrapper.find('[data-assess-login-link]').exists()).toBe(true)
     expect(text).not.toContain('重试')
   })
+
+  /**
+   * 会话失效也可能发生在**保存**的时候（不是载入）。那时给「重试保存」同样是死路：
+   * 在那个状态下重试必然再失败一次，用户会一直点一个永远不会成功的按钮。
+   */
+  it('保存时 401：给的是「登录后接着答」，而不是「重试保存」', async () => {
+    server.patch = () => ({
+      status: 401,
+      body: { code: 'UNAUTHENTICATED', message: '请先登录。', requestId: 'req-s', details: {} },
+    })
+
+    const { wrapper } = await mountAssess()
+    await wrapper.findAll('[data-rating]')[3].trigger('click')
+    await flushPromises()
+    await flushPromises()
+
+    expect(wrapper.find('[data-save-failed]').exists()).toBe(true)
+    expect(wrapper.find('[data-save-login-link]').exists()).toBe(true)
+    expect(wrapper.find('[data-retry-save]').exists(), '会话已失效时重试必然再失败').toBe(false)
+    // 登录后要回到这一页继续答，所以必须带上 redirect
+    expect(wrapper.find('[data-save-login-link]').attributes('href')).toContain('redirect')
+  })
+
+  /**
+   * 404 / 409 PACKAGE_UNAVAILABLE / 403 这类失败**重试一万次也不会变**。
+   * 以前它们与"网络抖了一下"共用同一个「重试」，用户只能对着一个必然失败的按钮点。
+   */
+  it('测评在服务端已不存在（404）：给「重新开始一次」而不是只有一个重试', async () => {
+    const { wrapper } = await mountAssessWithStatus(404, 'NOT_FOUND', '没找到这个测评。')
+
+    expect(wrapper.find('[data-assess-restart]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('重新开始一次测评')
+    expect(wrapper.text()).toContain('在服务端已经不存在')
+  })
+
+  it('内容包已下线（409 PACKAGE_UNAVAILABLE）：如实说明原因，并给出重新开始的路', async () => {
+    const { wrapper } = await mountAssessWithStatus(409, 'PACKAGE_UNAVAILABLE', '这份内容包已经不能用了。')
+
+    expect(wrapper.find('[data-assess-restart]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('内容包已经不能用了')
+  })
 })
 
 describe('答题页：保存失败不能被下一次成功掩盖', () => {
@@ -837,5 +887,184 @@ describe('答题页：断点续答', () => {
 
     const { wrapper } = await mountAssess()
     expect(wrapper.text()).toContain('情境 q2')
+  })
+})
+
+/** 答完四道主测题（每答一题点一次「下一题」），回到最后一题的操作区。 */
+async function answerAllBase(wrapper: Awaited<ReturnType<typeof mountAssess>>['wrapper']) {
+  for (let index = 0; index < QUESTIONS.filter((item) => item.stage === 'base').length; index += 1) {
+    await wrapper.findAll('[data-rating]')[3].trigger('click')
+    await flushPromises()
+    if (index < 3) {
+      await wrapper.find('[data-next]').trigger('click')
+      await flushPromises()
+    }
+  }
+}
+
+describe('答题页：快速操作不会制造假冲突', () => {
+  /**
+   * 这一组钉的是 2026-09-18 第 17 轮修掉的假冲突：`flush()` 之间没有串行化，
+   * 网络稍慢时连点两档就会发出两个带**同一个** `expectedRevision` 的 PATCH，
+   * 第二个必然撞服务端的严格 CAS → 屏幕上弹出「另一台设备改过这次的进度」，
+   * 并把用户自己刚点的那一题列进「本机改动没有写上去」，逼他重新载入重答一遍。
+   * 根本没有第二台设备。
+   */
+  it('在途期间的第二次点击不会另发一个 PATCH，也不会被说成"另一台设备改过"', async () => {
+    let release: (() => void) | null = null
+    const gate = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    server.patch = () => ({
+      status: 200,
+      body: { revision: 8, status: 'BASE_IN_PROGRESS', clarificationDimensions: [] },
+      after: gate,
+    })
+
+    const { wrapper } = await mountAssess()
+    const buttons = wrapper.findAll('[data-rating]')
+    // 两次点击之间不等待：模拟"手快连点两档"
+    const first = buttons[3].trigger('click')
+    const second = buttons[4].trigger('click')
+    await first
+    await second
+    await flushPromises()
+
+    expect(patchCalls(), '在途期间不许并发发出第二个 PATCH').toHaveLength(1)
+    expect(wrapper.find('[data-conflict-banner]').exists()).toBe(false)
+
+    // 放开这一轮：第二档必须被自动带上（点得快 ≠ 丢掉答案）
+    release!()
+    await flushPromises()
+    await flushPromises()
+
+    const bodies = patchCalls().map(
+      (call) => call.body as { responses: { questionId: string; rating: number | null }[] },
+    )
+    expect(bodies).toHaveLength(2)
+    expect(bodies[0].responses.map((item) => item.rating)).toEqual([4])
+    expect(bodies[1].responses.map((item) => item.rating), '第二档要补写上去').toEqual([5])
+    expect(wrapper.find('[data-conflict-banner]').exists()).toBe(false)
+    expect(wrapper.find('[data-save-state]').text()).toContain('已保存')
+  })
+
+  /**
+   * 另一种假冲突：请求**其实写成功了**，但响应丢在路上（超时/断网），用户点「重试保存」
+   * 就会带着落后的 revision 再发一次，撞上服务端严格 CAS 得到 409 —— 而这条 409 的含义是
+   * "你自己那次已经写进去了"，不是"另一台设备改过"。
+   * 判据必须是服务端的**实际内容**，不是猜：重读一次详情，逐条比对。
+   */
+  it('自己的写入已落地却回了 409：按"已保存"收敛，不弹「另一台设备」横幅', async () => {
+    // 第一次 GET：服务端还没有这一条（页面因此停在第 1 题）
+    // 之后的 GET：服务端已经有了我们刚写的值（说明那一次写入其实落地了）
+    let landed = false
+    server.detail = () =>
+      landed
+        ? attemptDetail({ revision: 8, answers: [{ questionId: 'q1', kind: 'RATING', rating: 4 }] })
+        : attemptDetail()
+    server.patch = () => {
+      landed = true
+      return {
+        status: 409,
+        body: {
+          code: 'CONFLICT_REVISION',
+          message: '另一台设备已经更新了这份草稿。',
+          requestId: 'req-own',
+          details: { currentRevision: 8 },
+        },
+      }
+    }
+
+    const { wrapper } = await mountAssess()
+    // 第 4 档（rating 4）—— 正是服务端"已经收到"的那个值
+    await wrapper.findAll('[data-rating]')[3].trigger('click')
+    await flushPromises()
+    await flushPromises()
+
+    expect(wrapper.find('[data-conflict-banner]').exists(), '这不是冲突，不该弹横幅').toBe(false)
+    expect(wrapper.text()).not.toContain('另一台设备改过这次的进度')
+    expect(wrapper.find('[data-save-state]').text()).toContain('已保存')
+  })
+
+  it('服务端存的东西与本机不一致时，仍然按真冲突处理（不能把真冲突说成已保存）', async () => {
+    // 另一台设备把第 1 题改成了第 2 档：这不是"自己那次落地了"，必须按冲突处理。
+    let landed = false
+    server.detail = () =>
+      landed
+        ? attemptDetail({ revision: 8, answers: [{ questionId: 'q1', kind: 'RATING', rating: 2 }] })
+        : attemptDetail()
+    server.patch = () => {
+      landed = true
+      return {
+        status: 409,
+        body: {
+          code: 'CONFLICT_REVISION',
+          message: '另一台设备已经更新了这份草稿。',
+          requestId: 'req-real',
+          details: { currentRevision: 8 },
+        },
+      }
+    }
+
+    const { wrapper } = await mountAssess()
+    await wrapper.findAll('[data-rating]')[3].trigger('click')
+    await flushPromises()
+    await flushPromises()
+
+    expect(wrapper.find('[data-conflict-banner]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('另一台设备改过这次的进度')
+  })
+})
+
+describe('答题页：交卷响应丢失也要能到报告', () => {
+  /**
+   * 交卷成功但响应没回来时，用户重试只会得到一句「这份测评已经提交」。
+   * 契约里 `attempt.reportId` 就是为这条路准备的，前端以前从来不读它 ——
+   * 于是刷新页面也回不到那份**已经生成**的报告，用户唯一能做的只有"再测一次"。
+   */
+  it('交卷响应丢失后发现其实已提交：直接带到那份报告', async () => {
+    server.submitNetworkError = true
+    let submitted = false
+    server.detail = () =>
+      submitted
+        ? attemptDetail({
+            status: 'SUBMITTED',
+            revision: 9,
+            reportId: 'report-7',
+            submittedAt: '2026-09-18T10:00:00Z',
+            answers: [
+              { questionId: 'q1', kind: 'RATING', rating: 4 },
+              { questionId: 'q2', kind: 'RATING', rating: 4 },
+              { questionId: 'q3', kind: 'RATING', rating: 4 },
+              { questionId: 'q4', kind: 'RATING', rating: 4 },
+            ],
+          })
+        : attemptDetail()
+
+    const { wrapper, router } = await mountAssess()
+    await answerAllBase(wrapper)
+    // 交卷请求发出去了（服务端因此真的交卷成功），但浏览器看到的是网络失败
+    submitted = true
+    await wrapper.find('[data-next]').trigger('click')
+    await flushPromises()
+    await flushPromises()
+
+    expect(router.currentRoute.value.name).toBe('report-detail')
+    expect(router.currentRoute.value.params.reportId).toBe('report-7')
+  })
+
+  it('带着一份已交卷的测评刷新答题页：自动打开那份报告，而不是停在一堆答完的题上', async () => {
+    server.detail = () =>
+      attemptDetail({
+        status: 'SUBMITTED',
+        revision: 9,
+        reportId: 'report-9',
+        submittedAt: '2026-09-18T10:00:00Z',
+      })
+
+    const { router } = await mountAssess()
+    await flushPromises()
+    expect(router.currentRoute.value.name).toBe('report-detail')
+    expect(router.currentRoute.value.params.reportId).toBe('report-9')
   })
 })

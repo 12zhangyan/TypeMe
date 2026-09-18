@@ -55,8 +55,8 @@ public class AccountDeletionService {
                                                  HttpServletRequest request) {
         accountService.disableForDeletion(userId, currentPassword);
         int cancelled = dataDeletion.cancelActiveAiJobs(userId);
-        String jobId = DeletionJobRepository.newId();
-        jobs.insertPending(jobId, userId, Instant.now());
+        // 幂等建任务：并发/重复的注销申请得到**同一份**任务，而不是撞唯一约束变成 500。
+        String jobId = jobs.insertPendingOrGetExisting(DeletionJobRepository.newId(), userId, Instant.now());
         log.info("account deletion requested cancelledAiJobs={}", cancelled);
         return new DeleteAccountResponse(jobId);
     }

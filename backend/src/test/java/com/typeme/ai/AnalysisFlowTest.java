@@ -120,7 +120,67 @@ class AnalysisFlowTest {
         asUser(U1);
     }
 
+    @Test
+    void personalQuotaOverridesDefaultAndLoweringDoesNotResetUsage() throws Exception {
+        jdbc.update("UPDATE app_user SET ai_daily_limit=3 WHERE id=?", U1);
+        for (int i = 0; i < 3; i++) mockMvc.perform(create(REPORT_1, "personal-" + i,
+                CREATE_BODY.replace("最近在准备转岗，有点累。", "quota sample " + i))).andExpect(status().isAccepted());
+        assertEquals(3, reservedCalls(U1));
+        mockMvc.perform(create(REPORT_1, "personal-over", CREATE_BODY)).andExpect(status().isTooManyRequests());
+        jdbc.update("UPDATE app_user SET ai_daily_limit=1 WHERE id=?", U1);
+        mockMvc.perform(get("/api/v3/ai/status")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.dailyLimitPerUser").value(1)).andExpect(jsonPath("$.remainingToday").value(0));
+        assertEquals(3, reservedCalls(U1));
+        assertEquals(3, reservedCallsGlobal());
+        asUser(U2);
+        mockMvc.perform(get("/api/v3/ai/status")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.dailyLimitPerUser").value(2)).andExpect(jsonPath("$.remainingToday").value(2));
+    }
+
+    @Test
+    void zeroQuotaBlocksCreationAndRetryWithoutChargingOrCallingProvider() throws Exception {
+        jdbc.update("UPDATE app_user SET ai_daily_limit=0 WHERE id=?", U1);
+        mockMvc.perform(create(REPORT_1, "zero", CREATE_BODY)).andExpect(status().isTooManyRequests());
+        assertEquals(0, countJobs()); assertEquals(0, reservedCalls(U1)); assertEquals(0, mock.calls());
+        jdbc.update("UPDATE app_user SET ai_daily_limit=2 WHERE id=?", U1);
+        String id = createJob("before-zero", CREATE_BODY);
+        jdbc.update("UPDATE ai_analysis_job SET status='FAILED' WHERE id=?", id);
+        jdbc.update("UPDATE app_user SET ai_daily_limit=0 WHERE id=?", U1);
+        mockMvc.perform(post("/api/v3/analyses/{id}/retry", id)).andExpect(status().isTooManyRequests());
+        assertEquals(1, reservedCalls(U1)); assertEquals(1, reservedCallsGlobal());
+        assertEquals("FAILED", job(id).status()); assertEquals(0, mock.calls());
+    }
+
     /* ── 1. 未同意 ─────────────────────────────────────────────────────── */
+
+    @Test
+    void readableJobKeepsItsConsentedVersionAfterSettingsChange() throws Exception {
+        String previous = aiProperties.getPromptVersion();
+        try {
+            aiProperties.setPromptVersion("typeme-ai-prompt-v3");
+            settingsProvider.invalidate();
+            mockMvc.perform(create(REPORT_1, "k-stale-scope", CREATE_BODY))
+                    .andExpect(status().isBadRequest());
+            assertEquals(0, countJobs());
+            assertEquals(0, reservedCalls(U1));
+            String jobId = createJob("k-readable", CREATE_BODY.replace("scope-v2", "scope-v3"));
+            aiProperties.setPromptVersion("typeme-ai-prompt-v2");
+            settingsProvider.invalidate();
+            runQueued();
+            assertEquals("SUCCEEDED", job(jobId).status());
+            assertEquals("analysis-readable-v2", mapper.readTree(job(jobId).responseJson()).path("schemaVersion").asText());
+            assertTrue(mock.lastRequest().systemPrompt().contains("250–450"));
+            assertFalse(mock.lastRequest().userPrompt().contains("processLayer"));
+            assertEquals(1, mock.calls());
+            // 反向切换也必须重新确认，不能按更小范围的确认去发送更大的旧范围。
+            mockMvc.perform(create(REPORT_1, "k-stale-v3", CREATE_BODY.replace("scope-v2", "scope-v3")))
+                    .andExpect(status().isBadRequest());
+            assertEquals(1, countJobs());
+        } finally {
+            aiProperties.setPromptVersion(previous);
+            settingsProvider.invalidate();
+        }
+    }
 
     @Test
     @DisplayName("缺 consent → 400 CONSENT_REQUIRED，且上游零调用")

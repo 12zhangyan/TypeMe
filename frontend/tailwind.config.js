@@ -1,32 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 /**
- * TypeMe 设计变量 v2 —— 「人格探索」视觉系统（2026-09-18 视觉重构轮）。
- *
- * ## 这一版和上一版的区别
- *
- * 上一版是"奶白纸感 + 墨蓝 + 杏橙"的温润阅读风格（`paper #F7F6F2` /
- * `ink #1D2D3A` / `accent #B04E2E`）。本轮按
- * `docs/DSH-前端视觉重构与AI体验目标.md` 换成：
- *
- *   - **清爽的浅色阅读表面**：`paper` 换成偏冷的近白（#F4F6F9），
- *     中文长文阅读时不发黄、和深色区域对比更强；
- *   - **深墨色文字**：`ink` 换成更深的藏青墨（#0D1B2A），标题更有力量；
- *   - **克制的蓝青强调**：`primary` 从灰蓝换成蓝青（#14617A 一档），
- *     承担链接、主按钮、进度、选中态；
- *   - **琥珀色只做"注意/不确定"**：`accent` 从砖红换成琥珀，
- *     不再与主色抢注意力；
- *   - **新增 `navy` / `glow`**：首页主视觉与 AI 洞察区的深海军蓝表面 +
- *     光晕，是这一版辨识度的来源。它们**只用于深色区域**，
- *     普通阅读页面仍然是浅色。
- *
- * ## 三条硬约束（改色值前请先读）
- *
- * 1. **可读性由机器守**：每一个"文字可能落在其上"的色值组合都在
- *    `src/design/contrast.spec.ts` 里按 WCAG 公式实算，普通字号 ≥ 4.5:1。
- *    改 token 就会触发它，不要改门槛去迁就色值。
- * 2. **深色区域的对比度是另一套**：`navy-*` 上的文字同样有断言守住。
- * 3. **层级不能被"调深"抹平**：`ink` → `ink-soft` → `ink-faint`
- *    必须保持递增亮度（同样有断言）。
+ * TypeMe 设计变量 v3：暖白、森林绿与清晰的中文阅读层级。
+ * 保留语义 token 名称，让登录、测评、报告与旧页面共享视觉语言。
+ * navy / glow 为兼容已有组件保留的深绿表面和浅绿文字 token。
+ * 可读性由 src/design/contrast.spec.ts 验证；普通文字对比度门槛不变。
  */
 export default {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
@@ -35,42 +12,35 @@ export default {
       colors: {
         /* ── 浅色阅读表面 ─────────────────────────────────────────────── */
         paper: {
-          DEFAULT: '#F4F6F9',
-          soft: '#EAEEF3',
-          deep: '#DEE4EC',
+          DEFAULT: '#F7F8F2',
+          soft: '#EEF1E9',
+          deep: '#E3E8DE',
         },
         surface: {
           DEFAULT: '#FFFFFF',
-          soft: '#F8FAFC',
+          soft: '#F6F8F3',
         },
 
         /* ── 文字三层 ─────────────────────────────────────────────────── */
         ink: {
-          DEFAULT: '#0D1B2A',
-          soft: '#48586A',
-          /**
-           * 三级文字色。承担 `.caption`(13px)、`.fineprint`(12px)、
-           * 表单校验原因、保存状态提示等"最需要读到的字"。
-           *
-           * 实测：paper 5.03:1 / paper-soft 4.68:1 / 白 5.45:1，全部达标；
-           * 且仍明显轻于 `ink-soft`（paper 6.74:1），层级没有被抹平。
-           * 守卫：`src/design/contrast.spec.ts`。
-           */
-          faint: '#5B6B7F',
+          DEFAULT: '#20372F',
+          soft: '#43574A',
+          /** 三级说明文字；与所有阅读背景的对比度由 contrast.spec.ts 校验。 */
+          faint: '#5B6A5F',
         },
 
-        /* ── 主色：蓝青（链接 / 主按钮 / 进度 / 选中态） ───────────────── */
+        /* ── 主色：森林绿（链接 / 主按钮 / 进度 / 选中态） ───────────────── */
         primary: {
-          50: '#EFF8FB',
-          100: '#D8EEF5',
-          200: '#AEDCEA',
-          300: '#7CC3D8',
-          400: '#3F9CBB',
-          500: '#1D7A97',
+          50: '#EFF5EF',
+          100: '#DCEBDD',
+          200: '#BDD8C4',
+          300: '#95BDA3',
+          400: '#67977C',
+          500: '#467E61',
           /** 正文级用途（`.link`、13–15px 主色文字）实测 ≥ 4.5:1 */
-          600: '#14617A',
-          700: '#0F4E63',
-          800: '#0B3D4E',
+          600: '#2D6652',
+          700: '#244F40',
+          800: '#193D30',
         },
 
         /* ── 强调：琥珀，只用于"注意 / 还说不准 / 补充题" ──────────────── */
@@ -112,30 +82,30 @@ export default {
 
         /* ── 分割线 ───────────────────────────────────────────────────── */
         line: {
-          DEFAULT: '#DDE3EB',
-          soft: '#E9EDF3',
-          strong: '#C3CCD8',
+          DEFAULT: '#DEE4DA',
+          soft: '#E9EDE5',
+          strong: '#BECBC0',
         },
 
-        /* ── 深海军蓝：首页主视觉 + AI 洞察区（只在深色区域使用） ──────── */
+        /* ── 深森林绿：报告概览 + AI 洞察区（只在深色区域使用） ──────── */
         navy: {
-          50: '#E4EFF7',
-          100: '#B6D3E6',
-          200: '#6E9FC0',
-          300: '#3E739B',
-          400: '#2A5578',
-          500: '#1B3D5A',
-          600: '#143049',
-          700: '#0E1F30',
-          800: '#0B1A28',
-          900: '#081320',
+          50: '#EDF5E9',
+          100: '#C9DBCC',
+          200: '#A3C4B2',
+          300: '#739B84',
+          400: '#50755E',
+          500: '#355944',
+          600: '#244735',
+          700: '#183A2D',
+          800: '#153429',
+          900: '#102A21',
         },
 
         /* ── 光晕 / 轨迹（深色区域里的图形与点缀，不用于正文） ─────────── */
         glow: {
-          DEFAULT: '#5AD7E8',
-          soft: '#7FE3F0',
-          deep: '#2BB3C9',
+          DEFAULT: '#D5E9AE',
+          soft: '#E6F1C9',
+          deep: '#BDD795',
         },
       },
 
@@ -152,11 +122,12 @@ export default {
           'sans-serif',
         ],
         display: [
-          'Georgia',
-          '"Times New Roman"',
-          '"Songti SC"',
-          '"SimSun"',
-          'serif',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"Segoe UI"',
+          '"PingFang SC"',
+          '"Microsoft YaHei"',
+          'sans-serif',
         ],
         mono: ['"SFMono-Regular"', 'Consolas', '"Liberation Mono"', 'monospace'],
       },
@@ -182,9 +153,9 @@ export default {
 
       borderRadius: {
         control: '12px',
-        card: '16px',
+        card: '20px',
         question: '22px',
-        cover: '28px',
+        cover: '30px',
         pill: '999px',
       },
 
@@ -194,9 +165,9 @@ export default {
         /** 悬浮 / 可点卡片 */
         lift: '0 14px 30px -14px rgba(13, 27, 42, 0.22)',
         /** 深色区域投影 */
-        deep: '0 30px 70px -30px rgba(8, 19, 32, 0.55)',
+        deep: '0 12px 32px -24px rgba(24, 58, 45, 0.25)',
         /** 主按钮：用主色投影而不是灰黑 */
-        action: '0 10px 24px -12px rgba(20, 97, 122, 0.55)',
+        action: '0 3px 8px -5px rgba(24, 58, 45, 0.22)',
         /** 焦点 / 选中态外环 */
         ring: '0 0 0 4px rgba(29, 122, 151, 0.18)',
       },

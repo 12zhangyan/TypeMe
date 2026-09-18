@@ -93,6 +93,14 @@ public class SecurityConfig {
                                 "/api/v3/auth/register",
                                 "/api/v3/auth/login",
                                 "/api/v3/auth/recover").permitAll()
+                        // 1b) 测评目录：公开。它只包含产品定义（有哪些测评、每项问什么、
+                        //     当前绑定哪一版内容），不含任何用户数据 —— 用户在决定
+                        //     "要不要注册"之前有权知道站点上有什么。
+                        //     ⚠️ 只放开这两条只读路径：`/api/v3/platform/attempts`
+                        //     与 `/reports` 仍然落在下面的 authenticated 规则里。
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v3/platform/instruments",
+                                "/api/v3/platform/instruments/*").permitAll()
                         // 2) /api/v3 的其它路径（含 admin）一律要认证；admin 的 ADMIN 判定在方法级
                         //    @PreAuthorize，这样"忘记加 ADMIN 检查"会同时被测试与注解双重约束。
                         .requestMatchers("/api/v3/**").authenticated()

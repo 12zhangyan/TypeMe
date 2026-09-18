@@ -90,6 +90,16 @@ public class AdminController {
                 .body(adminUserService.updateRole(admin.id(), userId, request.role()));
     }
 
+    public record AiLimitRequest(@jakarta.validation.constraints.NotNull
+            @jakarta.validation.constraints.Min(0) @jakarta.validation.constraints.Max(10000)
+            @jakarta.validation.constraints.Digits(integer = 5, fraction = 0) java.math.BigDecimal aiDailyLimit) {}
+
+    @PutMapping("/users/{id}/ai-limit")
+    public ResponseEntity<Map<String, Object>> updateAiLimit(@PathVariable("id") String userId, @Valid @RequestBody AiLimitRequest request) {
+        currentUser.require();
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(adminUserService.updateAiDailyLimit(userId, request.aiDailyLimit().intValueExact()));
+    }
+
     /** 禁用账号并撤销其全部会话。不能禁用自己。 */
     @PostMapping("/users/{id}/disable")
     public ResponseEntity<Map<String, Object>> disable(@PathVariable("id") String userId) {

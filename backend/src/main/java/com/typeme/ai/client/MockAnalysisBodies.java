@@ -26,6 +26,28 @@ final class MockAnalysisBodies {
         String referenceType = input == null ? null : text(input.path("report").path("referenceType"));
         List<String> evidenceIds = evidenceIds(input);
         String topic = input == null ? "overall" : text(input.path("topic"));
+        if (input != null && com.typeme.ai.input.ReadableReportInput.SCHEMA_VERSION.equals(
+                input.path("outputSchema").path("properties").path("schemaVersion").path("const").asText())) {
+            ObjectNode readable = mapper.createObjectNode();
+            readable.put("schemaVersion", com.typeme.ai.input.ReadableReportInput.SCHEMA_VERSION);
+            if (referenceType == null) readable.putNull("referenceType");
+            else readable.put("referenceType", referenceType);
+            readable.put("summary", "这是一份演示解释，用来查看页面如何呈现本次结果。请结合固定报告逐个阅读各方面的回答，差距较小或回答不足的地方先保留疑问，不急着给自己下结论。");
+            ArrayNode observations = readable.putArray("observations");
+            if (!evidenceIds.isEmpty()) {
+                ObjectNode observation = observations.addObject();
+                observation.put("plainText", "报告中的每个方面分别说明一种回答倾向，不能把其中一项扩展成对整个人的评价。也不需要把所有描述都当成自己在每个场合的固定表现。");
+                observation.put("example", "例如，可以选一个自己最想了解的方面，回想最近一次相关情境，看看当时的做法是否与报告一致。");
+                observation.putArray("evidenceIds").add(evidenceIds.get(0));
+                ObjectNode action = readable.putObject("suggestedAction");
+                action.put("what", "选一个想了解的方面，记下一次与之相关的经历。");
+                action.put("when", "下一次遇到类似场景时，花一分钟记录。");
+                action.put("observe", "看看哪些描述符合自己、哪些不符合；没有帮助的建议不必坚持。");
+                action.putArray("evidenceIds").add(evidenceIds.get(0));
+            } else readable.putNull("suggestedAction");
+            readable.putArray("limitations").add("这是演示内容，没有调用真实模型，也不能证明这份问卷已经完成真人验证。");
+            return readable;
+        }
 
         ObjectNode root = mapper.createObjectNode();
         root.put("schemaVersion", "1");

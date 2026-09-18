@@ -1,0 +1,346 @@
+{
+  "checks": [
+    {
+      "label": "320: hero available before AI assets delivered",
+      "passed": true
+    },
+    {
+      "label": "320: all 16 portrait options",
+      "passed": true
+    },
+    {
+      "label": "320/home: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/hero: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/gallery: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/INTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/INTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/INTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ENFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ENFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ENFP: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ISTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ISTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ISTP: target size",
+      "passed": true
+    },
+    {
+      "label": "320/ESFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "320/ESFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "320/ESFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "320: gallery not a personal result",
+      "passed": true
+    },
+    {
+      "label": "320: CTA transfers focus",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: portrait uses stored result",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: decorative role explained",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320: tied report never receives arbitrary portrait",
+      "passed": true
+    },
+    {
+      "label": "320/jung-tied: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: portrait uses stored result",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: decorative role explained",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390: hero available before AI assets delivered",
+      "passed": true
+    },
+    {
+      "label": "390: all 16 portrait options",
+      "passed": true
+    },
+    {
+      "label": "390/home: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/hero: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/gallery: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/INTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/INTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/INTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ENFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ENFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ENFP: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ISTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ISTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ISTP: target size",
+      "passed": true
+    },
+    {
+      "label": "390/ESFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "390/ESFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "390/ESFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "390: gallery not a personal result",
+      "passed": true
+    },
+    {
+      "label": "390: CTA transfers focus",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: portrait uses stored result",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: decorative role explained",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390: tied report never receives arbitrary portrait",
+      "passed": true
+    },
+    {
+      "label": "390/jung-tied: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: portrait uses stored result",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: decorative role explained",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: hero available before AI assets delivered",
+      "passed": true
+    },
+    {
+      "label": "1440: all 16 portrait options",
+      "passed": true
+    },
+    {
+      "label": "1440/home: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/hero: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/gallery: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/INTJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/INTJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/INTJ: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ENFP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ENFP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ENFP: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ISTP: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ISTP: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ISTP: target size",
+      "passed": true
+    },
+    {
+      "label": "1440/ESFJ: keyboard selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ESFJ: illustration matches selection",
+      "passed": true
+    },
+    {
+      "label": "1440/ESFJ: target size",
+      "passed": true
+    },
+    {
+      "label": "1440: gallery not a personal result",
+      "passed": true
+    },
+    {
+      "label": "1440: CTA transfers focus",
+      "passed": true
+    },
+    {
+      "label": "1440: two cover cards side by side",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: portrait uses stored result",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: decorative role explained",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: tied report never receives arbitrary portrait",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-tied: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v1: portrait uses stored result",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v1: decorative role explained",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v1: no overflow",
+      "passed": true
+    },
+    {
+      "label": "No uncaught JavaScript errors",
+      "passed": true
+    },
+    {
+      "label": "No missing-image requests",
+      "passed": true
+    },
+    {
+      "label": "All API requests mocked",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "image_errors": []
+}

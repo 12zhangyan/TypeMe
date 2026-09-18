@@ -5,7 +5,7 @@ import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
 import { useAssessmentStore, SCALE_CAPTIONS } from '@/stores/assessmentV3'
 import { useAuthStore } from '@/stores/auth'
-import { isSessionExpired } from '@/api/v3'
+import { describeError, isSessionExpired } from '@/api/v3'
 import type { Dimension, Item } from '@/domain/jung/types'
 import { DIMENSION_SHORT_NAME } from '@/domain/jung/labels'
 import { ANSWER_VALUES } from '@/domain/answers'
@@ -71,6 +71,26 @@ const needsReview = ref<{ dimension: Dimension; name: string; note: string }[]>(
  * 页面上没有任何能走通的操作。路由守卫本来就支持 `redirect`，登录后会回到原处续答。
  */
 const sessionExpired = ref(false)
+/**
+ * 载入失败的**错误码**（用于区分"再试一次就能好"和"再试一万次也不会变"）。
+ *
+ * <p>没有它的时候，任何载入失败都只给一个「重试」：测评被删掉（404）或内容包已下线
+ * （409 `PACKAGE_UNAVAILABLE`）时，用户会对着一个必然失败的按钮反复点（第 17 轮）。
+ */
+const loadErrorCode = ref<string | null>(null)
+/**
+ * 这一类失败重试不会改变结果，必须给别的出路。
+ *
+ * <p>`NOT_FOUND`：这份测评在服务端已经不存在（被删除、或链接来自别的账号/别的时间）。
+ * `PACKAGE_UNAVAILABLE`：这次测评锁定的内容包已经不能用了，草稿无法继续。
+ * `FORBIDDEN`：这份测评不属于当前账号 —— 重试同样没有意义。
+ */
+const loadUnrecoverable = computed(
+  () =>
+    !sessionExpired.value &&
+    loadErrorCode.value !== null &&
+    ['NOT_FOUND', 'PACKAGE_UNAVAILABLE', 'FORBIDDEN'].includes(loadErrorCode.value),
+)
 const attemptId = computed(() => (typeof route.params.attemptId === 'string' ? route.params.attemptId : null))
 const baseQuestions = computed(() => assessment.baseQuestions)
 const clarificationQuestions = computed(() => assessment.scheduledClarificationQuestions)
@@ -175,6 +195,14 @@ const clarificationReason = computed(() => {
 const unsavedCount = computed(() => assessment.listUnconfirmedIds().length)
 
 /**
+ * 这次保存失败是**会话失效**造成的吗？
+ *
+ * <p>是的话就不该给「重试保存」：在那个状态下重试必然再失败一次，
+ * 用户会一直点一个永远不会成功的按钮。要给的是"去登录"（第 17 轮）。
+ */
+const saveNeedsLogin = computed(() => assessment.lastError?.sessionExpired === true)
+
+/**
  * 重试把没写上去的作答保存好。
  *
  * <p>`retryUnconfirmed()` 不抛异常：成败都反映在 `saveState`/`lastError` 里
@@ -206,6 +234,13 @@ async function bootstrap(): Promise<void> {
   try {
     if (attemptId.value) {
       await assessment.load(attemptId.value)
+      // 这份测评**已经交过卷**了（交卷成功但用户当时没看到结果、或直接刷新了页面）：
+      // 这一页已经没有可做的事，直接把他送到那份报告。以前这里会把他留在题目页，
+      // 再点交卷只会得到一句没有链接的「已经提交过」（第 17 轮）。
+      if (assessment.status === 'SUBMITTED' && assessment.reportId) {
+        await router.replace({ name: 'report-detail', params: { reportId: assessment.reportId } })
+        return
+      }
     } else {
       if (!auth.isAuthenticated) {
         await router.replace({ name: 'login', query: { redirect: '/assess' } })
@@ -219,11 +254,19 @@ async function bootstrap(): Promise<void> {
   } catch (error) {
     // 会话失效要单独说：答题页没有登录入口，只给「重试」会让用户卡死在这里。
     sessionExpired.value = isSessionExpired(error)
-    loadFailure.value = sessionExpired.value
-      ? '登录状态已经失效。登录后可以接着答，已经保存的作答不会丢。'
-      : error instanceof Error
-        ? error.message
-        : '这份测评没能载入。'
+    loadErrorCode.value = describeError(error).code
+    if (sessionExpired.value) {
+      loadFailure.value = '登录状态已经失效。登录后可以接着答，已经保存的作答不会丢。'
+    } else if (loadUnrecoverable.value) {
+      loadFailure.value =
+        loadErrorCode.value === 'PACKAGE_UNAVAILABLE'
+          ? '这次测评用的内容包已经不能用了，所以它没法继续。可以重新开始一次。'
+          : loadErrorCode.value === 'FORBIDDEN'
+            ? '这份测评不属于当前登录的账号，所以打不开。'
+            : '这份测评在服务端已经不存在了（可能已经被删除，或这个链接不是本机的）。'
+    } else {
+      loadFailure.value = error instanceof Error ? error.message : '这份测评没能载入。'
+    }
   } finally {
     loading.value = false
   }
@@ -491,6 +534,28 @@ async function submit(skipped: boolean): Promise<void> {
     await router.push({ name: 'report-detail', params: { reportId: result.reportId } })
   } catch (error) {
     sessionExpired.value = isSessionExpired(error)
+    // 交卷失败里最常见、也最让用户卡住的一种是"其实已经交上去了"（响应丢在路上、
+    // 或用户重复点了交卷）。这时把他留在一句错误上没有意义：报告已经生成，
+    // 契约里 `attempt.reportId` 就是为这条路准备的，只是前端以前从来没读它（第 17 轮）。
+    if (!sessionExpired.value) {
+      const probe = await assessment.probeSubmission()
+      if (probe.submitted) {
+        if (probe.reportId) {
+          submitNotice.value =
+            '这次测评其实已经交上去了 —— 上一次交卷的响应没有回到浏览器。正在打开那份报告。'
+          announce('这次测评已经提交过了，正在打开报告。')
+          await router.push({ name: 'report-detail', params: { reportId: probe.reportId } })
+          return
+        }
+        // 交上去了，但服务端复核后没有生成报告（信息不足）：如实说明，并给出补答入口。
+        needsReview.value = assessment.insufficientDetails()
+        step.value = 'needs-review'
+        submitNotice.value =
+          '这次测评其实已经交上去了；服务端复核后认为信息还不够，没有生成报告。草稿完整保留，可以接着补答。'
+        announce('这次测评已经提交过了，覆盖不足未生成报告。')
+        return
+      }
+    }
     const display = sessionExpired.value
       ? '登录状态已经失效，所以这次没能交卷。登录后可以接着答，草稿还在。'
       : error instanceof Error
@@ -597,7 +662,7 @@ const earlierUnanswered = computed(() =>
 
 <template>
   <PageContainer page="quiz" tight>
-    <div class="py-4 tablet:py-6 laptop:grid laptop:grid-cols-[17rem_minmax(0,1fr)] laptop:gap-8">
+    <div class="jung-workspace py-4 tablet:py-6 laptop:grid laptop:grid-cols-[17rem_minmax(0,1fr)] laptop:gap-8">
       <!-- 左栏：进度与状态（laptop 起固定在左） -->
       <aside class="laptop:sticky laptop:top-6 laptop:self-start">
         <!--
@@ -606,7 +671,7 @@ const earlierUnanswered = computed(() =>
           这两件事没有落点；收成一块面板后，它在左栏里是明确的、可一眼扫过的，
           同时不与右边的题卡抢焦点。
         -->
-        <div class="rounded-question border border-line bg-surface px-4 py-4 shadow-card">
+        <div class="jung-progress">
           <p class="section-kicker">人格倾向自测（新测）</p>
           <h1 class="mt-1 font-display text-[19px] font-bold leading-tight text-ink tablet:text-[22px]">
             一屏一题，选完点「下一题」
@@ -666,7 +731,25 @@ const earlierUnanswered = computed(() =>
               （报障编号 <code class="font-mono">{{ assessment.lastError.requestId }}</code>）
             </span>
           </p>
+          <!--
+            保存失败的原因里有一种是**重试永远不会成功**的：会话已经失效。
+            那时只给「重试保存」等于把用户按在一个必然失败的按钮上（第 17 轮）。
+            这里据 `lastError.sessionExpired` 换成一个真的能解决问题的入口。
+          -->
+          <template v-if="saveNeedsLogin">
+            <RouterLink
+              :to="{ name: 'login', query: { redirect: route.fullPath } }"
+              class="btn-primary btn-sm mt-2"
+              data-save-login-link
+            >
+              登录后接着答
+            </RouterLink>
+            <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-soft">
+              已经写上去的作答留在服务端，登录后回到这一页就能接着答。
+            </p>
+          </template>
           <button
+            v-else
             type="button"
             class="btn-secondary btn-sm mt-2"
             data-retry-save
@@ -680,7 +763,8 @@ const earlierUnanswered = computed(() =>
 
         <!-- 本地预览：明确标注为"目前的粗略倾向"，不是结论。放在进度卡外面：
              它是"参考"，和"答到哪了 / 存住了吗"不是同一层级。 -->
-        <div v-if="previewLines.length > 0" class="mt-4 rounded-question border border-line bg-surface-soft px-4 py-3.5">
+        <details v-if="previewLines.length > 0" class="jung-preview mt-4">
+          <summary class="cursor-pointer min-h-[44px] py-2 text-[13px] text-ink-soft">查看目前的粗略倾向</summary>
           <p class="flex items-center gap-2 text-[12.5px] font-medium text-ink-soft">
             <AppIcon name="chart" :size="14" class="text-primary-500" />
             目前的粗略倾向（仅供参考）
@@ -693,7 +777,7 @@ const earlierUnanswered = computed(() =>
               {{ line.name }}：{{ line.text }}
             </li>
           </ul>
-        </div>
+        </details>
 
         <div class="mt-4 hidden laptop:block">
           <button type="button" class="btn-secondary btn-block" data-jump-unanswered @click="jumpToFirstUnanswered">
@@ -766,6 +850,16 @@ const earlierUnanswered = computed(() =>
           >
             去登录，然后接着答
           </RouterLink>
+          <!--
+            重试不会改变结果的那几类失败：给"重新开始一次"，而不是一个必然失败的按钮。
+            同时把「重试」也留着，但不再是唯一出路。
+          -->
+          <template v-else-if="loadUnrecoverable">
+            <RouterLink to="/assess" class="btn-primary mt-3 inline-block" data-assess-restart>
+              重新开始一次测评
+            </RouterLink>
+            <button type="button" class="btn-ghost btn-sm ml-2 mt-3" @click="bootstrap">再试一次</button>
+          </template>
           <button v-else type="button" class="btn-secondary mt-3" @click="bootstrap">重试</button>
         </div>
 
@@ -831,7 +925,7 @@ const earlierUnanswered = computed(() =>
         </div>
 
         <!-- 题卡：整页唯一的焦点，所以它拿到最大的留白与最重的一层投影 -->
-        <div v-else-if="currentQuestion" class="card tablet:px-7 tablet:py-6" data-question-card>
+        <div v-else-if="currentQuestion" class="jung-question card tablet:px-7 tablet:py-6" data-question-card>
           <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
             <span class="chip chip-primary">
               {{ currentQuestion.dimension }} · {{ dimensionName(currentQuestion.dimension) }}

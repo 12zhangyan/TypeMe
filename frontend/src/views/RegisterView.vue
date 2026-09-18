@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import EditorialScene from '@/components/EditorialScene.vue'
+import IllustrationFrame from '@/components/IllustrationFrame.vue'
 import { computed, onMounted, ref, useId } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -25,6 +27,7 @@ const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 
+const invitationCode = ref('')
 const username = ref('')
 const nickname = ref('')
 const password = ref('')
@@ -41,6 +44,7 @@ const policyVersion = ref<string | null>(null)
 const codesCopied = ref(false)
 const registered = ref(false)
 
+const invitationId = `reg-invitation-${useId()}`
 const usernameId = `reg-username-${useId()}`
 const nicknameId = `reg-nickname-${useId()}`
 const passwordId = `reg-password-${useId()}`
@@ -74,6 +78,7 @@ const localProblem = computed(() => {
   // 同意项放在最后校验：前面的格式问题更常发生，先让人把字打对。
   // 服务端也校验这一条 —— 这里只是让用户少一次注定失败的往返。
   if (!disclaimerAccepted.value) return '请先勾选并阅读下面的说明，再创建账号。'
+  if (!/^[A-Za-z0-9_-]{32}$/.test(invitationCode.value.trim())) return '请输入管理员提供的 32 位邀请码。'
   return null
 })
 
@@ -102,6 +107,7 @@ async function onSubmit() {
       password.value,
       nickname.value.trim(),
       disclaimerAccepted.value,
+      invitationCode.value.trim(),
     )
     recoveryCodes.value = result.recoveryCodes
     policyVersion.value = result.recoveryCodePolicyVersion
@@ -118,9 +124,9 @@ async function leave() {
 </script>
 
 <template>
-  <PageContainer page="article">
+  <PageContainer page="article" class="auth-page">
     <!-- 第二屏：恢复码。只显示这一次，所以文案与操作都围绕"抄下来"设计。 -->
-    <section v-if="done" aria-labelledby="recovery-heading">
+    <section v-if="done" class="auth-complete" aria-labelledby="recovery-heading">
       <p class="section-kicker">最后一步</p>
       <h1
         id="recovery-heading"
@@ -203,7 +209,7 @@ async function leave() {
     </section>
 
     <!-- 第一屏：注册表单 -->
-    <section v-else aria-labelledby="register-heading">
+    <section v-else class="auth-body" aria-labelledby="register-heading">
       <header>
         <p class="section-kicker">账号</p>
         <h1
@@ -213,12 +219,18 @@ async function leave() {
           注册
         </h1>
         <p class="mt-3 prose-cn max-w-prose">
-          注册后测评进度和报告会存在服务器上，换设备也能接着看。只需要一个用户名和密码，不要邮箱、不要手机号。
+          注册后测评进度和报告会存在服务器上，换设备也能接着看。需要管理员提供的邀请码，不需要邮箱或手机号。
         </p>
+        <IllustrationFrame name="welcome" class="auth-art auth-scene"><EditorialScene scene="welcome" /></IllustrationFrame>
       </header>
 
       <!-- 表单是这一页唯一的焦点元素，所以收进一张卡片，和页头的说明拉开层次 -->
       <form class="card mt-6 max-w-[30rem]" novalidate @submit.prevent="onSubmit">
+        <div class="mb-5">
+          <label :for="invitationId" class="block text-[14.5px] font-medium text-ink">邀请码</label>
+          <input :id="invitationId" v-model="invitationCode" name="invitationCode" class="mt-1.5 w-full min-w-0 rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[16px] text-ink" autocomplete="off" autocapitalize="none" :spellcheck="false" maxlength="32" :disabled="auth.busy" aria-describedby="invitation-help" />
+          <p id="invitation-help" class="caption mt-2">请向管理员领取。一码仅能注册一个账号，过期或撤销后不可使用。</p>
+        </div>
         <div>
           <label :for="usernameId" class="block text-[14.5px] font-medium text-ink">用户名</label>
           <input
@@ -307,7 +319,7 @@ async function leave() {
                 }}<RouterLink to="/about" class="link">{{ disclaimerText.limitLink }}</RouterLink
                 >{{ disclaimerText.middle
                 }}<RouterLink to="/about" class="link">{{ disclaimerText.dataLink }}</RouterLink
-                >{{ disclaimerText.after }}
+                >{{ disclaimerText.after }}我知晓本站管理员可查看账号状态、测评进度和报告，并分配 AI 使用额度。
               </label>
             </div>
             <p :id="`${disclaimerId}-help`" class="caption mt-1.5">
@@ -316,33 +328,12 @@ async function leave() {
           </div>
         </div>
 
-        <div
+        <FormErrorNotice
           v-if="error"
-          class="notice-error mt-4"
-          role="alert"
-          aria-live="assertive"
+          :error="error"
+          class="mt-4"
           data-register-error
-        >
-          <p class="flex items-start gap-2 text-[14.5px] font-medium leading-relaxed">
-            <AppIcon name="alert" :size="17" class="mt-0.5" />
-            <span>{{ error.message }}</span>
-          </p>
-          <ul v-if="error.fields.length" class="mt-2 space-y-1 text-[13.5px] leading-relaxed">
-            <li v-for="field in error.fields" :key="field.field">
-              {{ field.label }}：{{ field.message }}
-            </li>
-          </ul>
-          <p v-if="error.serverMessage" class="mt-2 text-[13.5px] leading-relaxed">
-            服务器说明：{{ error.serverMessage }}
-          </p>
-          <p v-if="error.retryAfterSeconds" class="mt-2 text-[13.5px] leading-relaxed">
-            大约 {{ error.retryAfterSeconds }} 秒后再试就来得及。
-          </p>
-          <p v-if="error.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
-            报障编号：<code class="font-mono">{{ error.requestId }}</code>
-            <span class="block text-ink-faint">（反馈问题时把这个编号一起发过来，能直接查到这次请求。）</span>
-          </p>
-        </div>
+        />
 
         <p v-if="disabledReason" :id="hintId" class="caption mt-3">{{ disabledReason }}</p>
 

@@ -68,6 +68,7 @@ function makeRouter(): Router {
     routes: [
       { path: '/', name: 'landing', component: { template: '<div />' } },
       { path: '/account', name: 'account', component: { template: '<div />' } },
+      { path: '/login', name: 'login', component: { template: '<div />' } },
       { path: '/admin', name: 'admin', component: AdminView },
     ],
   })
@@ -115,6 +116,47 @@ describe('管理后台 · AI 设置', () => {
     expect(box.text()).toContain('这不代表你没有权限')
     expect(box.text()).toContain('请不要据此去改权限配置')
     expect(wrapper.find('[data-admin-denied]').exists()).toBe(false)
+  })
+
+  /**
+   * 401（会话失效）以前会落进"没问到"那一支，于是登录过期的管理员读到的是
+   * 「可能只是后端暂时没响应」—— 他会去重启后端、翻日志，而真正该做的只是重新登录。
+   * 三个状态必须各说各的：403 → 没权限，401 → 重新登录，其它 → 没问到。
+   */
+  it('401：说清是登录态失效，并给一条带 redirect 的登录入口', async () => {
+    fetchAdminAiSettings.mockRejectedValue(
+      new V3ApiError(
+        { code: 'UNAUTHENTICATED', message: '请先登录。', requestId: 'rq-401', details: {} },
+        { status: 401 },
+      ),
+    )
+    const { wrapper } = await mountAdmin()
+
+    const box = wrapper.find('[data-admin-needs-login]')
+    expect(box.exists()).toBe(true)
+    expect(box.text()).toContain('登录状态已经失效')
+    // 不能借用"后端没响应"或"没权限"的说法
+    expect(wrapper.find('[data-admin-unavailable]').exists()).toBe(false)
+    expect(wrapper.find('[data-admin-denied]').exists()).toBe(false)
+    expect(box.text()).toContain('rq-401')
+
+    // 登录入口必须带回跳，否则管理员登录后被丢到首页，还得自己摸回后台
+    const link = box.find('a')
+    expect(link.attributes('href')).toContain('/login')
+    expect(link.attributes('href')).toContain('redirect')
+  })
+
+  it('登录失效时不显示任何设置内容（避免拿旧数据让人以为还有权限）', async () => {
+    fetchAdminAiSettings.mockRejectedValue(
+      new V3ApiError(
+        { code: 'UNAUTHENTICATED', message: '请先登录。', requestId: 'rq-401', details: {} },
+        { status: 401 },
+      ),
+    )
+    const { wrapper } = await mountAdmin()
+
+    expect(wrapper.find('[data-admin-summary]').exists()).toBe(false)
+    expect(wrapper.find('[data-admin-save]').exists()).toBe(false)
   })
 
   it('有权限：显示当前状态，且页面文本里不出现密钥的任何形态', async () => {

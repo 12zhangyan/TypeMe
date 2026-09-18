@@ -229,15 +229,27 @@ def main() -> int:
             second_id = report_ids[1]
             select_a.select_option(first_id)
             page.wait_for_timeout(400)
+            # 第 17 轮起：换选即作废旧结果。只选了一份时页面**不该**留着上一次的对照表。
+            check(
+                page.locator("[data-compare-result]").count() == 0,
+                "只选了一份时不会留着上一次的对照表",
+            )
             select_b.select_option(second_id)
             page.wait_for_timeout(400)
             check("a=" in page.url and "b=" in page.url, "选择写进了 URL 查询参数（可刷新、可分享）", page.url)
 
-            run = page.locator("[data-compare-run]")
-            check(run.count() == 1 and not run.is_disabled(), "两份不同报告时「开始比较」可点")
-            run.click()
+            # 第 17 轮起：两份选齐后**自动**比较（不要求先点按钮），
+            # 表头会写明这次比的是哪两份；「开始比较」按钮此时是重算入口。
             page.wait_for_selector("[data-compare-result]", timeout=20000)
             page.wait_for_timeout(600)
+            run = page.locator("[data-compare-run]")
+            check(run.count() == 1 and not run.is_disabled(), "比较结束后「开始比较」可点（重算入口）")
+            subject = page.locator("[data-compare-subject]")
+            check(subject.count() == 1, "表头写明这次比的是哪两份")
+            check(
+                "这次比的是" in (subject.inner_text() if subject.count() else ""),
+                "表头文案把两份报告的标签都写出来",
+            )
 
             rows_locator = page.locator("[data-compare-row]")
             check(rows_locator.count() == 4, "比较表给出四个维度", f"实际 {rows_locator.count()} 行")

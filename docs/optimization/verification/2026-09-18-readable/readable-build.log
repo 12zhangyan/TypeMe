@@ -1,0 +1,23 @@
+
+> typeme-frontend@1.0.0 prebuild
+> npm run gen:content
+
+
+> typeme-frontend@1.0.0 gen:content
+> node ../scripts/gen-fallback-content.mjs
+
+前端内置副本已是最新，无需改动
+  题库 32 题 / 类型文案 16 型 / 方法页 5 节 / 内容包 3 个（ipip50-zh1, oejts32-zh1-report2, oejts32-zh2-preview-r1） / contentVersion 2026-09-01
+
+> typeme-frontend@1.0.0 build
+> vue-tsc --noEmit && vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 130 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   1.11 kB │ gzip:   1.13 kB
+dist/assets/index-l9pEWP_v.css   57.08 kB │ gzip:   9.98 kB
+dist/assets/index-C7oYJf5j.js   584.51 kB │ gzip: 216.92 kB
+✓ built in 3.93s

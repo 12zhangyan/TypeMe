@@ -128,13 +128,16 @@ public record TypemeProperties(
     }
 
     /** 管理员引导。 */
-    public record Admin(String bootstrapUsername) {
+    public record Admin(String bootstrapUsername, String bootstrapPassword) {
         public Admin {
-            bootstrapUsername = bootstrapUsername == null ? "" : bootstrapUsername.trim();
+            bootstrapUsername = bootstrapUsername == null ? "typeme_admin" : bootstrapUsername.trim();
+            bootstrapPassword = bootstrapPassword == null ? "" : bootstrapPassword;
         }
 
+        @Override public String toString() { return "Admin[credentials=redacted]"; }
+
         static Admin defaults() {
-            return new Admin("");
+            return new Admin("typeme_admin", "");
         }
     }
 
@@ -162,7 +165,7 @@ public record TypemeProperties(
             baseUrl = baseUrl == null ? "" : baseUrl.trim();
             apiKey = apiKey == null ? "" : apiKey.trim();
             model = model == null || model.isBlank() ? "deepseek-chat" : model;
-            promptVersion = promptVersion == null || promptVersion.isBlank() ? "typeme-ai-prompt-v2" : promptVersion;
+            promptVersion = promptVersion == null || promptVersion.isBlank() ? "typeme-ai-prompt-v3" : promptVersion;
             dailyLimitPerUser = dailyLimitPerUser <= 0 ? 10 : dailyLimitPerUser;
             retryLimitPerHour = retryLimitPerHour <= 0 ? 5 : retryLimitPerHour;
             globalDailyCallBudget = globalDailyCallBudget <= 0 ? 500 : globalDailyCallBudget;
@@ -174,7 +177,7 @@ public record TypemeProperties(
         }
 
         static Ai defaults() {
-            return new Ai(false, "", "", "deepseek-chat", "typeme-ai-prompt-v2",
+            return new Ai(false, "", "", "deepseek-chat", "typeme-ai-prompt-v3",
                     10, 5, 500, 2_000_000L, 4, 5_000, 60_000, 2_000, false);
         }
     }

@@ -73,7 +73,7 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
                         .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of("username", username, "password", "TestPassw0rd!",
-                                "disclaimerAccepted", true))), csrf))
+                                "disclaimerAccepted", true, "invitationCode", TestInvitations.create(invitationJdbc)))), csrf))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("no-store")))
                 .andReturn();
@@ -91,7 +91,7 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
                             .session(session)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(json(Map.of("username", bad, "password", "TestPassw0rd!",
-                                    "disclaimerAccepted", true))), csrf))
+                                    "disclaimerAccepted", true, "invitationCode", TestInvitations.create(invitationJdbc)))), csrf))
                     .andReturn();
             assertThat(result.getResponse().getStatus())
                     .as("用户名「%s」必须被拒", bad)
@@ -109,7 +109,7 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
                         .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of("username", uniqueUsername("shortpw"), "password", "1234567",
-                                "disclaimerAccepted", true))), csrf))
+                                "disclaimerAccepted", true, "invitationCode", TestInvitations.create(invitationJdbc)))), csrf))
                 .andReturn();
         assertThat(result.getResponse().getStatus()).isEqualTo(400);
         assertThat(body(result).path("code").asText()).isEqualTo("VALIDATION_FAILED");
@@ -127,7 +127,7 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
                         .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of("username", username.toUpperCase(java.util.Locale.ROOT),
-                                "password", "TestPassw0rd!", "disclaimerAccepted", true))), csrf))
+                                "password", "TestPassw0rd!", "disclaimerAccepted", true, "invitationCode", TestInvitations.create(invitationJdbc)))), csrf))
                 .andReturn();
         // 用户名大小写不敏感（规范化后唯一）：大写形式同样视为重复
         assertThat(result.getResponse().getStatus()).isEqualTo(409);
@@ -174,7 +174,7 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
                         .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(Map.of("username", username, "password", "TestPassw0rd!",
-                                "disclaimerAccepted", true))), csrf))
+                                "disclaimerAccepted", true, "invitationCode", TestInvitations.create(invitationJdbc)))), csrf))
                 .andReturn();
         assertThat(ok.getResponse().getStatus()).isEqualTo(201);
     }

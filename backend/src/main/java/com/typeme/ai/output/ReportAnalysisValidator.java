@@ -94,6 +94,14 @@ public class ReportAnalysisValidator {
             throw AnalysisValidationException.invalidJson("输出不是 JSON 对象。");
         }
         String schemaVersion = textOrNull(root.get("schemaVersion"));
+        if (com.typeme.ai.input.ReadableReportInput.SCHEMA_VERSION.equals(schemaVersion)) {
+            checkReferenceType(root, expectedType);
+            validateReadable(root, evidenceIds);
+            if (content.length() > Math.max(1, maxTokens) * 8) {
+                throw AnalysisValidationException.truncated("通俗分析响应过长。");
+            }
+            return new MapResult(root);
+        }
         if (!"1".equals(schemaVersion)) {
             throw AnalysisValidationException.invalidJson("schemaVersion 必须为字符串 \"1\"。");
         }
@@ -138,6 +146,69 @@ public class ReportAnalysisValidator {
     }
 
     /* ── 规则 2：类型必须精确等于后端值 ─────────────────────────────────── */
+
+    private void validateReadable(JsonNode root, List<String> evidenceIds) {
+        exactFields(root, "schemaVersion", "referenceType", "summary", "observations", "suggestedAction", "limitations");
+        readableText(root, "summary", 200);
+        JsonNode observations = root.get("observations");
+        if (!observations.isArray() || observations.size() > 2) {
+            throw AnalysisValidationException.invalidJson("observations 必须为最多两项的数组。");
+        }
+        for (JsonNode item : observations) {
+            exactFields(item, "plainText", "example", "evidenceIds");
+            readableText(item, "plainText", 180);
+            if (!item.get("example").isNull()) readableText(item, "example", 120);
+            readableEvidence(item, evidenceIds);
+        }
+        JsonNode action = root.get("suggestedAction");
+        if (!action.isNull()) {
+            exactFields(action, "what", "when", "observe", "evidenceIds");
+            for (String field : List.of("what", "when", "observe")) readableText(action, field, 120);
+            readableEvidence(action, evidenceIds);
+        }
+        JsonNode limitations = root.get("limitations");
+        if (!limitations.isArray() || limitations.isEmpty() || limitations.size() > 4) {
+            throw AnalysisValidationException.invalidJson("limitations 必须包含 1–4 条说明。");
+        }
+        for (JsonNode item : limitations) checkReadableText(item, 160);
+    }
+
+    private void exactFields(JsonNode node, String... fields) {
+        if (!node.isObject()) throw AnalysisValidationException.invalidJson("分析字段必须是对象。");
+        java.util.Set<String> expected = java.util.Set.of(fields);
+        node.fieldNames().forEachRemaining(field -> {
+            if (!expected.contains(field)) throw AnalysisValidationException.invalidJson("未知分析字段：" + field);
+        });
+        for (String field : fields) {
+            if (!node.has(field)) throw AnalysisValidationException.invalidJson("缺少分析字段：" + field);
+        }
+    }
+
+    private void readableText(JsonNode node, String field, int max) { checkReadableText(node.get(field), max); }
+
+    private void checkReadableText(JsonNode node, int max) {
+        if (node == null || !node.isTextual() || node.asText().isBlank() || node.asText().length() > max) {
+            throw AnalysisValidationException.invalidJson("通俗分析文本为空、类型错误或过长。");
+        }
+        for (String phrase : BANNED_PHRASES) {
+            if (node.asText().contains(phrase)) {
+                throw AnalysisValidationException.contentViolation("通俗分析含不受支持的表述。");
+            }
+        }
+    }
+
+    private void readableEvidence(JsonNode node, List<String> allowed) {
+        JsonNode ids = node.get("evidenceIds");
+        if (!ids.isArray() || ids.isEmpty() || ids.size() > 8) {
+            throw AnalysisValidationException.invalidJson("每条解释必须引用 1–8 个证据。");
+        }
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (JsonNode id : ids) {
+            if (!id.isTextual() || !allowed.contains(id.asText()) || !seen.add(id.asText())) {
+                throw AnalysisValidationException.invalidJson("证据引用不存在或重复。");
+            }
+        }
+    }
 
     private void checkReferenceType(JsonNode root, String expectedType) {
         JsonNode node = root.get("referenceType");

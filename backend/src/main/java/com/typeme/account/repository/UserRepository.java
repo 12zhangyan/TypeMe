@@ -22,7 +22,7 @@ public class UserRepository {
 
     private static final String COLUMNS =
             "id, username_normalized, username_display, password_hash, nickname, status, role, "
-                    + "created_at, password_changed_at, recovery_code_version, deletion_requested_at";
+                    + "created_at, password_changed_at, recovery_code_version, deletion_requested_at, ai_daily_limit";
 
     private static final RowMapper<UserRecord> MAPPER = (rs, rowNum) -> new UserRecord(
             rs.getString("id"),
@@ -35,7 +35,8 @@ public class UserRepository {
             toInstant(rs.getTimestamp("created_at")),
             toInstant(rs.getTimestamp("password_changed_at")),
             rs.getInt("recovery_code_version"),
-            toInstant(rs.getTimestamp("deletion_requested_at")));
+            toInstant(rs.getTimestamp("deletion_requested_at")),
+            (Integer) rs.getObject("ai_daily_limit"));
 
     private final JdbcTemplate jdbc;
 
@@ -112,6 +113,10 @@ public class UserRepository {
     }
 
     /** 注销第一步：立即禁止登录并记录申请时间。 */
+    public void updateAiDailyLimit(String userId, Integer limit) {
+        jdbc.update("UPDATE app_user SET ai_daily_limit = ? WHERE id = ?", limit, userId);
+    }
+
     public void markDisabledForDeletion(String id, Instant now) {
         jdbc.update("UPDATE app_user SET status = ?, deletion_requested_at = ? WHERE id = ?",
                 UserRecord.STATUS_DISABLED, Timestamp.from(now), id);

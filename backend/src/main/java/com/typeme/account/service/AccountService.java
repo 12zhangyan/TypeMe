@@ -82,6 +82,7 @@ public class AccountService {
     private final SecurityContextRepository securityContextRepository;
     private final AuthenticationManager authenticationManager;
     private final TypemeProperties properties;
+    private final InvitationService invitations;
 
     public AccountService(UserRepository users,
                           RecoveryCodeRepository recoveryCodes,
@@ -92,7 +93,7 @@ public class AccountService {
                           SessionAuthenticationStrategy sessionAuthenticationStrategy,
                           SecurityContextRepository securityContextRepository,
                           AuthenticationManager authenticationManager,
-                          TypemeProperties properties) {
+                          TypemeProperties properties, InvitationService invitations) {
         this.users = users;
         this.recoveryCodes = recoveryCodes;
         this.sessions = sessions;
@@ -103,6 +104,7 @@ public class AccountService {
         this.securityContextRepository = securityContextRepository;
         this.authenticationManager = authenticationManager;
         this.properties = properties;
+        this.invitations = invitations;
     }
 
     // ------------------------------------------------------------------ 注册
@@ -117,10 +119,13 @@ public class AccountService {
      */
     @Transactional
     public RegisterResponse register(String rawUsername, String rawPassword, String rawNickname,
-                                     boolean disclaimerAccepted) {
+                                     boolean disclaimerAccepted, String invitationCode) {
         requireDisclaimerIfConfigured(disclaimerAccepted);
         String display = rawUsername.trim();
         String normalized = UserRepository.normalize(display);
+        if (normalized.equals(UserRepository.normalize(properties.admin().bootstrapUsername()))) {
+            throw ApiException.validation("该用户名为管理员保留，请使用其他名称。", Map.of("username", "管理员保留名称"));
+        }
         String nickname = normalizeNickname(rawNickname);
 
         Instant now = Instant.now();
@@ -133,6 +138,7 @@ public class AccountService {
             throw new ApiException(ApiErrorCodes.CONFLICT, HttpStatus.CONFLICT, "该用户名已被注册。");
         }
 
+        invitations.consume(invitationCode, userId);
         List<String> plainCodes = issueRecoveryCodes(userId, now);
         log.info("account registered");
         return new RegisterResponse(userId, display, nickname, plainCodes, RECOVERY_CODE_POLICY_VERSION);

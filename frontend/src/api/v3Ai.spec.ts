@@ -33,6 +33,29 @@ const VALID = {
 }
 
 describe('parseAnalysisResult', () => {
+  const readable = {
+    schemaVersion: 'analysis-readable-v2', referenceType: null,
+    summary: '这次两边差别不大，先保留判断。',
+    observations: [{ plainText: '可以留意具体场景。', example: '例如，回想一次聊天。', evidenceIds: ['EI:summary'] }],
+    suggestedAction: { what: '记一次交流。', when: '下次聊天后。', observe: '留意是否想独处。', evidenceIds: ['EI:summary'] },
+    limitations: ['一次问卷不能概括所有场景。'],
+  }
+
+  it('通俗版完整呈现解释、例子和行动，不要求凑出旧版长文', () => {
+    const view = parseAnalysisResult(readable)!
+    expect(view.summary).toBe(readable.summary)
+    expect(view.referenceType).toBeNull()
+    expect(view.sections[0]!.body).toContain('例如，回想一次聊天。')
+    expect(view.actions[0]!.steps).toEqual(['记一次交流。', '下次聊天后。', '留意是否想独处。'])
+    expect(view.reflectionQuestions).toEqual([])
+    expect(parseAnalysisResult({ ...readable, observations: [], suggestedAction: null })).not.toBeNull()
+  })
+
+  it('通俗版拒绝缺引用、残缺行动和混入旧字段的输出', () => {
+    expect(parseAnalysisResult({ ...readable, observations: [{ ...readable.observations[0], evidenceIds: [] }] })).toBeNull()
+    expect(parseAnalysisResult({ ...readable, suggestedAction: { what: '只给一句话' } })).toBeNull()
+    expect(parseAnalysisResult({ ...readable, sections: [] })).toBeNull()
+  })
   it('完整输出：逐项读出来，没有问题列表', () => {
     const view = parseAnalysisResult(VALID)
     expect(view).not.toBeNull()
@@ -99,7 +122,7 @@ describe('主题', () => {
   })
 
   it('scopeVersion 与后端一致（它进 request_hash，写错会破坏去重）', () => {
-    expect(AI_SCOPE_VERSION).toBe('typeme-ai-scope-v2')
+    expect(AI_SCOPE_VERSION).toBe('typeme-ai-scope-v3')
   })
 })
 

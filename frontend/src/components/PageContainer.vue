@@ -33,7 +33,8 @@ withDefaults(
 
 <template>
   <div
-    class="mx-auto w-full px-3 tablet:px-6 laptop:px-8"
+    class="page-container mx-auto w-full px-4 tablet:px-6 laptop:px-8"
+    :data-page="page"
     :class="[WIDTHS[page], tight ? '' : 'py-6 tablet:py-8 laptop:py-10']"
   >
     <slot />

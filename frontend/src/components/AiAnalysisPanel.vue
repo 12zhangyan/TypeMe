@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAiAnalysisStore } from '@/stores/aiAnalysisV3'
 import { ANALYSIS_TOPICS, topicLabel, type AnalysisTopic } from '@/api/v3Ai'
@@ -40,9 +40,19 @@ import AppIcon from '@/components/AppIcon.vue'
  * - `mock: true` 必须显著标注"这是演示数据，没有调用真实模型"；
  * - 解析中丢掉的部分要**明说**（见 `api/v3Ai.ts` 的 `resultProblems`）；
  * - 失败时给"下一步动作"（重试 / 稍后再看），不显示原始错误 JSON。
+ *
+ * ## 2026-09-18（第 17 轮）：面板与 store 的归属关系变成显式的
+ *
+ * 这里原来靠一个**隐式前提**才不串台：报告页换报告时 `reports.loading` 置位、正文整块销毁重建，
+ * 面板跟着重新 `onMounted`。那个前提是别人（加载态）顺手给的，任何"保留旧内容 + 局部骨架"
+ * 的体验优化都会让它失效，而失效的表现是"B 报告页面上显示 A 的分析"。
+ * 现在改成面板自己负责：
+ *   - `watch(() => props.reportId)` + 父组件的 `:key`，换报告一定重新加载；
+ *   - 卸载调用 `ai.reset()`（不只是 `stopPolling`）—— 顺带清掉上一个用户的额度与正文；
+ *   - 渲染一律走 `ai.ownJobs`，与请求同源的 `job` 仍然来自 `ai.activeJob`（已按报告过滤）。
  */
 
-const props = defineProps<{ reportId: string }>()
+const props = defineProps<{ reportId: string; requiresReadable?: boolean }>()
 
 const ai = useAiAnalysisStore()
 
@@ -56,7 +66,16 @@ const confirmOpen = ref(false)
 const consentChecked = ref(false)
 
 const job = computed(() => ai.activeJob)
+/**
+ * 当前**正在看**的那条任务是不是还在跑。
+ *
+ * 注意它只看展示中的这一条（决定显示哪张卡），与 `ai.hasRunning`（有没有**任何**任务在跑，
+ * 决定能不能再建一个）是两件事：用户在历史里点开一条失败的任务时，另一个任务可能还在跑，
+ * 这时该看到的是"失败"那张卡，而"再生成一个"仍然要被挡住。
+ */
 const running = computed(() => job.value?.status === 'QUEUED' || job.value?.status === 'RUNNING')
+/** 有别的任务在跑：这时不能再建一个（额度与并发都该挡在这里）。 */
+const otherJobRunning = computed(() => ai.hasRunning && !running.value)
 /**
  * 任务已经成功结束。
  *
@@ -70,9 +89,19 @@ const failed = computed(() => job.value?.status === 'FAILED' || job.value?.statu
 
 /** 额度用完：按钮禁用，并说清"什么时候能再来"。 */
 const outOfQuota = computed(() => ai.remainingToday !== null && ai.remainingToday <= 0)
+const readable = computed(() => ai.status?.promptVersion === 'typeme-ai-prompt-v3')
+const supported = computed(() => !props.requiresReadable || readable.value)
+
+watch(() => ai.status?.promptVersion, () => { consentChecked.value = false })
 
 const canSubmit = computed(
-  () => ai.available && !ai.creating && !running.value && consentChecked.value && !outOfQuota.value,
+  () =>
+    ai.available &&
+    supported.value &&
+    !ai.creating &&
+    !ai.hasRunning &&
+    consentChecked.value &&
+    !outOfQuota.value,
 )
 
 const statusText = computed(() => {
@@ -90,24 +119,51 @@ const statusText = computed(() => {
  * 每一项都刻意**不带** `data-ai-summary` 这类结果钩子 —— 那些钩子只属于真正生成出来的
  * 内容，自动化验收靠它们的计数判断"有没有结果"，预览混进去就会让计数失去意义。
  */
-const STRUCTURE_PREVIEW = [
-  { icon: 'spark' as const, title: '整体印象', body: '把四个维度放一起，先给一段总述。' },
+const STRUCTURE_PREVIEW = computed(() => readable.value ? [
+  { icon: 'spark' as const, title: '一句话结论', body: '先说这次回答反映了什么。' },
+  { icon: 'book' as const, title: '为什么这样说', body: '最多两条解释，用生活中的例子帮助理解。' },
+  { icon: 'steps' as const, title: '可以试一次', body: '一件小事：怎么做、何时做、留意什么。' },
+  { icon: 'alert' as const, title: '哪些还不能确定', body: '说明这次作答和这段解释的限制。' },
+] : [
+  { icon: 'spark' as const, title: '整体印象', body: '把几个维度放一起，先给一段总述。' },
   { icon: 'book' as const, title: '分主题解读', body: '按你选的主题展开几段，而不是重复报告。' },
   { icon: 'steps' as const, title: '可以试试', body: '带步骤的做法，不是"多与人交流"这类空话。' },
   { icon: 'question' as const, title: '可以问问自己', body: '留给你自己回答的问题。' },
   { icon: 'alert' as const, title: '这段分析的边界', body: '模型自己说明推测在哪里可能不成立。' },
-]
+])
 
 onMounted(() => {
   void ai.loadStatus()
   void ai.loadJobs(props.reportId)
 })
 
+/**
+ * 换报告必须重新读一次。
+ *
+ * 父组件同时给了 `:key="reportId"`，所以正常路径下这里是**重新挂载**而不是 prop 变化。
+ * 保留这个 watch 是为了让"panel 认哪份报告"成为组件自己的性质：将来谁把 `:key` 去掉
+ * （或者把加载态改成保留旧内容），换报告也不会继续显示上一份的分析。
+ */
+watch(
+  () => props.reportId,
+  (reportId) => {
+    ai.reset()
+    void ai.loadStatus()
+    void ai.loadJobs(reportId)
+  },
+)
+
 onBeforeUnmount(() => {
-  // 停轮询是必须的：这是一个内嵌面板，报告页切走时它会被销毁。
-  // 漏掉这一步就会出现"用户已经离开，后台还在每 3 秒问一次"。
-  ai.stopPolling()
+  // `reset()` 而不是 `stopPolling()`：这是一个内嵌面板，报告页切走时它会被销毁。
+  // 只停 timer 的话，`jobs`/`status` 会连同"上一个用户还剩几次额度"一起留在单例里，
+  // 下次挂载（哪怕是另一个账号）在 `loadJobs` 回来之前会先渲染出旧内容。
+  ai.reset()
 })
+
+/** 列表读失败时的手动重试：这是唯一能把"读不到"变成"读到了"的动作。 */
+function reloadJobs(): void {
+  void ai.loadJobs(props.reportId)
+}
 
 function openConfirm(): void {
   confirmOpen.value = true
@@ -128,7 +184,9 @@ async function submit(): Promise<void> {
 
 async function retry(): Promise<void> {
   const current = job.value
-  if (!current) return
+  // 任务必须属于这份报告才允许重试。归属在 store 里已经过滤过一遍，
+  // 这里再对一次是因为"点错报告的任务"代价很高：排的是别人的队。
+  if (!current || current.reportId !== props.reportId) return
   await ai.retry(current.jobId)
 }
 
@@ -172,7 +230,14 @@ function pickTopic(value: AnalysisTopic): void {
     <div v-if="!ai.status && !ai.statusLoading" class="deep-card mt-5" data-ai-status-unavailable>
       <p class="flex items-start gap-2.5 text-[14px] leading-relaxed text-navy-100">
         <AppIcon name="info" :size="17" class="mt-0.5 text-glow" />
-        <span>现在问不到这台服务器的 AI 能力状态，暂时不能生成。可以稍后刷新页面再看。</span>
+        <!--
+          "登录已失效"与"这台服务器问不到"必须分开说：前者重试一百次也没用，
+          后者等一会儿可能就好了。修之前 401 也落在这里，文案会把用户引向刷新页面。
+        -->
+        <span v-if="ai.statusError?.sessionExpired">
+          登录状态已经失效，所以现在读不到 AI 能力状态。重新登录后回到这份报告就能继续生成。
+        </span>
+        <span v-else>现在问不到这台服务器的 AI 能力状态，暂时不能生成。可以稍后刷新页面再看。</span>
       </p>
     </div>
     <p v-else-if="ai.statusLoading && !ai.status" class="mt-5 text-[13.5px] text-navy-200">
@@ -186,8 +251,8 @@ function pickTopic(value: AnalysisTopic): void {
         <span class="text-[14.5px] font-medium leading-relaxed text-white">这台服务器没有开启 AI 分析。</span>
       </p>
       <p class="mt-2 text-[14px] leading-relaxed text-navy-100">
-        上面的固定报告与四个维度都不受影响，它们不依赖 AI 就能看。
-        历史报告、对比、导出与删除也照常可用 —— 只是少了这一段额外视角。
+        上面的固定报告与各个维度都不受影响，它们不依赖 AI 就能看。
+        已保存的测评与报告仍然可以回看。
       </p>
     </div>
 
@@ -201,6 +266,40 @@ function pickTopic(value: AnalysisTopic): void {
         <p v-if="ai.remainingToday === 0" class="text-[13.5px] text-navy-200" data-ai-quota-empty>
           今天的额度已经用完，明天会重新计算。
         </p>
+      </div>
+
+      <!--
+        ③ 读不到这份报告已有的分析：必须**说出来**并给重试。
+        以前这里只把错误写进 `jobsError`（没有任何模板读它），结果是同一个界面既可能显示
+        上一份报告的列表，也可能显示"生成一段 AI 分析"——后者会让用户以为这份报告还没有分析。
+        "读不到"和"还没有"不能长得一样。
+      -->
+      <div
+        v-if="ai.jobsError && !ai.jobsLoading"
+        class="mt-5 rounded-card border border-danger-300/40 bg-danger-500/10 px-4 py-4"
+        role="alert"
+        data-ai-jobs-error
+      >
+        <p class="flex items-start gap-2.5">
+          <AppIcon name="alert" :size="17" class="mt-0.5 text-danger-200" />
+          <span class="text-[14px] leading-relaxed text-white">
+            没能读到这份报告已有的分析记录，所以下面暂时不显示任何既往结果 ——
+            这不代表它没有生成过。基础报告完全不受影响。
+          </span>
+        </p>
+        <p v-if="ai.jobsError.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed text-navy-200">
+          报障编号：<code class="font-mono">{{ ai.jobsError.requestId }}</code>
+        </p>
+        <button
+          type="button"
+          class="btn-on-deep btn-sm mt-3"
+          :disabled="ai.jobsLoading"
+          data-ai-jobs-retry
+          @click="reloadJobs"
+        >
+          <AppIcon name="refresh" :size="16" />
+          重新读取
+        </button>
       </div>
 
       <!-- ③ 已有任务：展示结果 / 等待 / 失败 -->
@@ -247,8 +346,20 @@ function pickTopic(value: AnalysisTopic): void {
             <div class="skeleton skeleton-on-deep h-3.5 w-[80%]" />
           </div>
           <p v-if="ai.pollingGaveUp" class="mt-4 text-[13px] leading-relaxed text-navy-200" data-ai-polling-gave-up>
-            已经等了很久还没有结果，自动刷新先停下来了。可以稍后在下面重试，或过一会儿刷新页面。
+            已经等了很久还没有结果，自动刷新先停下来了。任务本身可能还在跑 ——
+            点下面这个按钮再问一次，或者过一会儿刷新页面。
           </p>
+          <button
+            v-if="ai.pollingGaveUp"
+            type="button"
+            class="btn-on-deep btn-sm mt-3"
+            :disabled="ai.jobsLoading"
+            data-ai-recheck
+            @click="reloadJobs"
+          >
+            <AppIcon name="refresh" :size="16" />
+            重新检查
+          </button>
         </div>
 
         <!-- 失败：说清原因 + 给下一步，不显示原始错误码 -->
@@ -327,7 +438,7 @@ function pickTopic(value: AnalysisTopic): void {
                     >{{ index + 1 }}</span
                   >
                   <h3 class="text-[16px] font-semibold text-ink">{{ section.title }}</h3>
-                  <p class="mt-1.5 max-w-[42rem] text-[14.5px] leading-[1.75] text-ink-soft">
+                  <p class="mt-1.5 max-w-[42rem] whitespace-pre-line text-[14.5px] leading-[1.75] text-ink-soft">
                     {{ section.body }}
                   </p>
                 </li>
@@ -429,13 +540,16 @@ function pickTopic(value: AnalysisTopic): void {
           <button
             type="button"
             class="btn-glow mt-4"
-            :disabled="!ai.available || outOfQuota || ai.creating"
+            :disabled="!ai.available || !supported || outOfQuota || ai.creating"
             data-ai-start
             @click="openConfirm"
           >
             <AppIcon name="spark" :size="17" />
             {{ ai.creating ? '正在提交…' : outOfQuota ? '今天额度已用完' : '生成一段 AI 分析' }}
           </button>
+          <p v-if="!supported && ai.status" class="mt-3 text-[13.5px] text-navy-100" data-ai-unsupported>
+            当前 AI 解读版本还不支持大五报告，基础报告可正常阅读。
+          </p>
         </div>
 
         <!--
@@ -452,10 +566,17 @@ function pickTopic(value: AnalysisTopic): void {
             <div class="rounded-card border border-primary-200 bg-primary-50 px-3.5 py-3">
               <p class="text-[13.5px] font-semibold text-primary-800">会发送</p>
               <ul class="mt-1.5 space-y-1 text-[13.5px] leading-relaxed text-primary-800">
-                <li class="list-dot">四个维度的方向、强度与是否处于边界</li>
-                <li class="list-dot">结果状态与候选方向（规则距离，不是概率）</li>
-                <li class="list-dot">最多 8 条作答片段（题号、左右字母、你选的位置档位）</li>
-                <li class="list-dot">报告里「四个精神活动过程」那一块的摘要</li>
+                <template v-if="ai.status?.promptVersion === 'typeme-ai-prompt-v3'">
+                  <li class="list-dot">这份报告的维度含义、分数或方向，以及回答是否足够</li>
+                  <li class="list-dot">本次结果状态，以及最多 5 条维度摘要作为解释依据</li>
+                  <li class="list-dot">你选的关注主题，以及主动填写的近况（如果有）</li>
+                </template>
+                <template v-else>
+                  <li class="list-dot">四个维度的方向、强度与是否处于边界</li>
+                  <li class="list-dot">结果状态与候选方向（规则距离，不是概率）</li>
+                  <li class="list-dot">最多 8 条作答片段（题号、左右字母、你选的位置档位）</li>
+                  <li class="list-dot">报告里「四个精神活动过程」那一块的摘要</li>
+                </template>
               </ul>
             </div>
             <div class="rounded-card border border-line bg-surface-soft px-3.5 py-3">
@@ -558,16 +679,41 @@ function pickTopic(value: AnalysisTopic): void {
             报障编号：<code class="font-mono">{{ ai.createError.requestId }}</code>
           </p>
         </div>
+
+        <!--
+          命中去重：服务端对"同一份范围"已有任务时不会再建、也不会再扣额度。
+          这句话必须说出来，否则用户会以为刚才那一下又花了一次次数。
+        -->
+        <p
+          v-if="ai.createCached"
+          class="mt-3 rounded-card border border-glow/30 bg-white/[0.06] px-3.5 py-2.5 text-[13.5px] leading-relaxed text-navy-100"
+          role="status"
+          data-ai-create-cached
+        >
+          <AppIcon name="info" :size="15" class="mr-1.5 inline align-[-2px] text-glow" />
+          这次没有新建任务：同一份范围的生成请求已经在下面了，也没有重复占用今天的次数。
+        </p>
+
+        <!--
+          另一个任务还在跑：把"按钮为什么点不动"说清楚，而不是让按钮静静地禁用着。
+        -->
+        <p
+          v-if="otherJobRunning"
+          class="mt-3 text-[13px] leading-relaxed text-navy-200"
+          data-ai-other-running
+        >
+          另一次生成还在进行中。等它结束后再开始新的分析 —— 同一份报告同时跑两个不会更快。
+        </p>
       </div>
 
       <!-- ⑤ 历史任务列表（同一报告多次生成时） -->
-      <div v-if="ai.jobs.length > 1" class="deep-card mt-6" data-ai-history>
+      <div v-if="ai.ownJobs.length > 1" class="deep-card mt-6" data-ai-history>
         <h3 class="flex items-center gap-2 text-[14.5px] font-semibold text-white">
           <AppIcon name="clock" :size="16" class="text-glow" />
           这份报告生成过的分析
         </h3>
         <ul class="mt-2 divide-y divide-white/10">
-          <li v-for="item in ai.jobs" :key="item.jobId">
+          <li v-for="item in ai.ownJobs" :key="item.jobId">
             <!--
               整行做成一个 ≥44px 的按钮（而不是把可点区域留在一个 14px 的
               文字链接上）：底下的任务列表是"切换看哪一次分析"的唯一入口，

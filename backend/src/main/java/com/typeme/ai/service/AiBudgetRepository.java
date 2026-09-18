@@ -95,9 +95,15 @@ public class AiBudgetRepository {
 
     public int reservedCalls(String scopeKey, LocalDate date) {
         Integer value = jdbcTemplate.queryForObject(
-                "SELECT reserved_calls FROM ai_usage_budget WHERE scope_key = ? AND budget_date = ?",
+                "SELECT COALESCE(MAX(reserved_calls), 0) FROM ai_usage_budget WHERE scope_key = ? AND budget_date = ?",
                 Integer.class, scopeKey, date);
         return value == null ? 0 : value;
+    }
+
+    /** null means inherit the site default; zero explicitly disables new calls. */
+    public int effectiveUserLimit(String userId, int fallback, boolean lock) {
+        Integer override = jdbcTemplate.queryForObject("SELECT ai_daily_limit FROM app_user WHERE id = ?" + (lock ? " FOR UPDATE" : ""), Integer.class, userId);
+        return override == null ? fallback : override;
     }
 
     /** 实际已消耗的 token（用于全局 token 预算判定）。 */

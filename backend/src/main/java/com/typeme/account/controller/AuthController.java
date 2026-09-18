@@ -73,7 +73,7 @@ public class AuthController {
         rateLimit.checkRegisterIp(clientIpResolver.resolve(httpRequest));
         RegisterResponse response = accountService.register(
                 request.username(), request.password(), request.nickname(),
-                Boolean.TRUE.equals(request.disclaimerAccepted()));
+                Boolean.TRUE.equals(request.disclaimerAccepted()), request.invitationCode());
         // 建立会话：注册后立刻可用（契约 §7.2）。
         accountService.establishSessionForNewUser(httpRequest, response.userId(), response.username());
         return ResponseEntity.status(HttpStatus.CREATED)

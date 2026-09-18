@@ -1,0 +1,29 @@
+{
+  "base": "http://127.0.0.1:5175",
+  "reportIds": [
+    "e02292d9-61a2-3011-ae28-f9cb177e9dd6",
+    "5496eb16-4d1d-32bd-9d74-b0e496bcf3c9"
+  ],
+  "passed": 58,
+  "failed": [],
+  "skipped": [],
+  "injected": [
+    "保存请求返回 401（Playwright 路由注入）",
+    "交卷请求送达后端但响应被丢弃（Playwright route.fetch + abort）",
+    "删除报告返回 500（Playwright 路由注入）"
+  ],
+  "notes": [
+    "本次作答选了第 5 档，实际点击 47 次",
+    "320px reports 顶栏文字链接高度 <24px：TypeMe 十六型人格参考 92x19",
+    "390px reports 顶栏文字链接高度 <24px：TypeMe 十六型人格参考 203x22",
+    "1440px reports 顶栏文字链接高度 <24px：TypeMe 十六型人格参考 203x22",
+    "320px compare 顶栏文字链接高度 <24px：TypeMe 十六型人格参考 92x19",
+    "390px compare 顶栏文字链接高度 <24px：TypeMe 十六型人格参考 203x22",
+    "1440px compare 顶栏文字链接高度 <24px：TypeMe 十六型人格参考 203x22",
+    "320px report-detail 顶栏文字链接高度 <24px：TypeMe 十六型人格参考 92x19",
+    "390px report-detail 顶栏文字链接高度 <24px：TypeMe 十六型人格参考 203x22",
+    "1440px report-detail 顶栏文字链接高度 <24px：TypeMe 十六型人格参考 203x22",
+    "320px 答题页 顶栏文字链接高度 <24px：TypeMe 十六型人格参考 92x19",
+    "390px 答题页 顶栏文字链接高度 <24px：TypeMe 十六型人格参考 203x22"
+  ]
+}

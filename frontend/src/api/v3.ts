@@ -204,6 +204,7 @@ const FIELD_LABELS: Record<string, string> = {
   confirm: '确认词',
   // 注册页的免责声明同意项（2026-09-17）。后端回的是字段名，标签在这里补。
   disclaimerAccepted: '免责声明同意',
+  invitationCode: '邀请码',
 }
 
 /**
@@ -456,6 +457,48 @@ async function send(method: HttpMethod, path: string, options: RequestOptions): 
 }
 
 /**
+ * 会话失效的全局通知（`UNAUTHENTICATED`）。
+ *
+ * ## 为什么要有这个钩子
+ *
+ * `UNAUTHENTICATED` 可能来自**任何一个** v3 请求：报告、AI、作答、后台、导出。
+ * 在加这个钩子之前，只有 `auth` store 自己的 action 会调 `captureError` 去清登录态，
+ * 于是别处的 401 就留下了一个很难看的中间状态：顶栏还写着"已登录 / 退出"，
+ * 而当前页面每个请求都在 401；用户想重新登录，敲 `#/login` 还会被 `guestOnly` 守卫
+ * 当成"已登录的人访问登录页"弹回 `/account`（`/account` 又用 store 里那份过期的
+ * profile 渲染出一个**看起来完全正常**的账号页）。唯一的出口是先点"退出"。
+ *
+ * 让每个调用点各自记得清状态是不可靠的——它们有十几个，而且新写的页面不会知道这条约定。
+ * 所以把判断放在**唯一**知道"这次请求到底是不是 401"的地方（`request`），
+ * 由 `auth` 模块注册一个监听器来清状态并给出重新登录的出口。
+ *
+ * 监听器抛异常不会影响请求本身：登录态的清理是副作用，不是请求的一部分。
+ */
+export type SessionExpiredListener = (display: ErrorDisplay) => void
+
+const sessionExpiredListeners = new Set<SessionExpiredListener>()
+
+/** 注册会话失效监听；返回取消函数（测试里用来避免监听器跨用例累积）。 */
+export function onSessionExpired(listener: SessionExpiredListener): () => void {
+  sessionExpiredListeners.add(listener)
+  return () => {
+    sessionExpiredListeners.delete(listener)
+  }
+}
+
+function notifySessionExpired(payload: V3ErrorPayload, status: number): void {
+  if (payload.code !== UNAUTHENTICATED_CODE) return
+  const display = describeError(new V3ApiError(payload, { status }))
+  for (const listener of sessionExpiredListeners) {
+    try {
+      listener(display)
+    } catch {
+      // 监听器（清理登录态）失败不该把一次正常的上报变成一个不同形状的错误
+    }
+  }
+}
+
+/**
  * 发一个请求并处理错误。
  *
  * `CSRF_INVALID` 的处理是**契约要求**的（契约 §7.3：前端靠这个码决定"重新取 token 重试"）：
@@ -472,8 +515,11 @@ async function request(method: HttpMethod, path: string, options: RequestOptions
     await ensureCsrfToken()
     const retried = await send(method, path, options)
     if (retried.ok) return retried
-    throw new V3ApiError(await readErrorPayload(retried, path), { status: retried.status })
+    const retriedPayload = await readErrorPayload(retried, path)
+    notifySessionExpired(retriedPayload, retried.status)
+    throw new V3ApiError(retriedPayload, { status: retried.status })
   }
+  notifySessionExpired(payload, response.status)
   throw new V3ApiError(payload, { status: response.status })
 }
 
@@ -669,11 +715,13 @@ export async function registerAccount(input: {
    * 而不是等线上用户注册时撞 400。
    */
   disclaimerAccepted: boolean
+  invitationCode: string
 }): Promise<RegisterResult> {
   const body: Record<string, unknown> = {
     username: input.username,
     password: input.password,
     disclaimerAccepted: input.disclaimerAccepted,
+    invitationCode: input.invitationCode,
   }
   const nickname = input.nickname?.trim()
   if (nickname) body.nickname = nickname

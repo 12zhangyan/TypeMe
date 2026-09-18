@@ -59,6 +59,7 @@ async function mountRegister() {
 }
 
 async function fillValidForm(wrapper: ReturnType<typeof mount>) {
+  await wrapper.find("input[name=invitationCode]").setValue("a".repeat(32))
   await wrapper.find("input[name='username']").setValue('zhangsan')
   await wrapper.find("input[name='new-password']").setValue('GoodPassw0rd!')
   await wrapper.find("input[name='confirm-password']").setValue('GoodPassw0rd!')
@@ -74,6 +75,17 @@ describe('注册页：免责声明同意项', () => {
       recoveryCodes: ['AAAA-BBBB-CCCC-DDDD'],
       recoveryCodePolicyVersion: 'typeme-recovery-code-v1',
     })
+  })
+
+  it('没有邀请码不能提交，并明确管理员可查看的范围', async () => {
+    const { wrapper } = await mountRegister()
+    await fillValidForm(wrapper)
+    await wrapper.find("input[name='disclaimer-accepted']").setValue(true)
+    await wrapper.find("input[name=invitationCode]").setValue('')
+    await wrapper.find('form').trigger('submit')
+    expect(registerAccount).not.toHaveBeenCalled()
+    expect(wrapper.text()).toContain('管理员可查看账号状态、测评进度和报告')
+    expect((wrapper.find("button[type='submit']").element as HTMLButtonElement).disabled).toBe(true)
   })
 
   it('默认不勾选：不能提交，且不会静默替用户同意', async () => {

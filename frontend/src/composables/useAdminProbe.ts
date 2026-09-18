@@ -31,8 +31,11 @@ async function probe(): Promise<boolean> {
     if (isForbidden(error)) {
       cached = false
     } else if (isSessionExpired(error)) {
-      // 会话失效：不是"不是管理员"，但也没必要显示入口。
-      cached = false
+      // 会话失效：**不缓存**。这不是"这个账号不是管理员"，而是"这次没问到"。
+      // 缓存 false 的后果是：用户在同一页里重新登录之后，后台入口仍然不出现
+      // （页面不刷新就永远看不到），而本文件的注释一直写着"失败不缓存"（第 17 轮）。
+      isAdmin.value = false
+      return false
     } else {
       // 没问到：不缓存，下次再问。
       return false
@@ -63,9 +66,24 @@ export function useAdminProbe(): { isAdmin: typeof isAdmin; refresh: () => Promi
   }
 }
 
-/** 仅测试用：清掉缓存，避免用例之间互相影响。 */
-export function resetAdminProbeForTests(): void {
+/**
+ * 换账号 / 退出登录时清掉缓存（2026-09-18 第 17 轮）。
+ *
+ * <p><b>为什么必须清</b>：`cached` 是模块级的，一次会话里不会变——但"一次会话"结束后
+ * 它就变成了**上一个账号的答案**。共用设备上管理员退出、普通用户登录之后，
+ * `cached = true` 会让后台入口出现在普通用户面前；点进去虽然会 403，
+ * 但这个入口存在本身就已经泄露了"这台站有后台"（本文件开头写明普通用户根本不该知道）。
+ *
+ * <p>所有"身份变了"的路径都汇到 `auth` 的 `applyAnonymous` / `applyProfile`，
+ * 所以由它们调用；散在页面里写一定会漏（退出、注销、恢复密码、会话过期、换账号各是一条）。
+ */
+export function resetAdminProbe(): void {
   inflight = null
   cached = null
   isAdmin.value = false
+}
+
+/** 仅测试用：与 {@link resetAdminProbe} 同义，保留旧名字避免改动既有用例。 */
+export function resetAdminProbeForTests(): void {
+  resetAdminProbe()
 }

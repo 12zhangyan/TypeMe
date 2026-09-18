@@ -34,7 +34,7 @@ class DataExportDegradationTest {
 
     private static UserRecord user() {
         return new UserRecord("user-1", "probe", "probe", "hash", "昵称", "ACTIVE", "USER",
-                null, null, 1, null);
+                null, null, 1, null, null);
     }
 
     private static JdbcTemplate jdbcWhereReportsFail() {

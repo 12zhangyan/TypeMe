@@ -63,13 +63,14 @@ public class AnalysisCreationWriter {
 
         AiRuntimeSettings settings = settingsProvider.settings();
         String userScope = "user:" + userId;
+        int userLimit = budgets.effectiveUserLimit(userId, settings.dailyLimitPerUser(), true);
 
         // 1) 原子预留：先 +1，再看是否越过上限；越过就补偿回退（绝不留泄漏的预留）。
         int userReserved = budgets.reserve(userScope, now);
-        if (userReserved > settings.dailyLimitPerUser()) {
+        if (userReserved > userLimit) {
             budgets.releaseReservation(userScope, budgets.today());
             throw AiException.budgetExceeded("user", Map.of(
-                    "limit", settings.dailyLimitPerUser(), "used", userReserved - 1));
+                    "limit", userLimit, "used", userReserved - 1));
         }
         int globalReserved;
         try {
@@ -119,13 +120,14 @@ public class AnalysisCreationWriter {
     public boolean retry(AnalysisJobRepository.JobRow row, String userId, Instant now) {
         AiRuntimeSettings settings = settingsProvider.settings();
         String userScope = "user:" + userId;
+        int userLimit = budgets.effectiveUserLimit(userId, settings.dailyLimitPerUser(), true);
         LocalDate date = budgets.today();
 
         int userReserved = budgets.reserve(userScope, now);
-        if (userReserved > settings.dailyLimitPerUser()) {
+        if (userReserved > userLimit) {
             budgets.releaseReservation(userScope, date);
             throw AiException.budgetExceeded("user", Map.of(
-                    "limit", settings.dailyLimitPerUser(), "used", userReserved - 1));
+                    "limit", userLimit, "used", userReserved - 1));
         }
         int globalReserved = budgets.reserve(AiBudgetRepository.GLOBAL_SCOPE, now);
         if (globalReserved > settings.globalDailyCallBudget()) {

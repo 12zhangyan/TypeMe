@@ -7,8 +7,13 @@ import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import RecoverView from '@/views/RecoverView.vue'
 import AccountView from '@/views/AccountView.vue'
-import AssessView from '@/views/AssessView.vue'
+import AssessChooserView from '@/views/AssessChooserView.vue'
+import AttemptRouterView from '@/views/AttemptRouterView.vue'
+import InstrumentsView from '@/views/InstrumentsView.vue'
+import InstrumentMethodView from '@/views/InstrumentMethodView.vue'
+import BigFiveReportView from '@/views/BigFiveReportView.vue'
 import ReportV3View from '@/views/ReportV3View.vue'
+import ReportsListView from '@/views/ReportsListView.vue'
 import CompareView from '@/views/CompareView.vue'
 import AdminView from '@/views/AdminView.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -35,7 +40,7 @@ export const router = createRouter({
   routes: [
     // 标题不带量表名：站点默认是大五（IPIP-50），但用户可以在首页切到 OEJTS 旧版本，
     // 写死任意一个都会在另一种情况下说错话。具体量表名由壳里的副标题动态显示。
-    { path: '/', name: 'landing', component: LandingView, meta: { title: 'TypeMe · 十六型人格参考测评' } },
+    { path: '/', name: 'landing', component: LandingView, meta: { title: 'TypeMe · 发现适合你的测评' } },
     { path: '/quiz', name: 'quiz', component: QuizView, meta: { title: '答题中 · TypeMe' } },
     { path: '/result', name: 'result', component: ResultView, meta: { title: '你的结果 · TypeMe' } },
     { path: '/about', name: 'about', component: AboutView, meta: { title: '关于与方法说明 · TypeMe' } },
@@ -70,6 +75,12 @@ export const router = createRouter({
     // 403 → 页面显示"你没有权限"），所以隐藏入口不是为了"安全靠隐蔽"，
     // 而是不让每个普通用户在顶栏看到一个点进去必然没用的链接。
     {
+      path: '/admin/members',
+      name: 'admin-members',
+      component: () => import('@/views/AdminMembersView.vue'),
+      meta: { title: '成员与邀请 · TypeMe', requiresAuth: true },
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: AdminView,
@@ -79,22 +90,45 @@ export const router = createRouter({
     // ── 新测（契约 03 §7.2）───────────────────────────────────────────────
     // 需要登录：答案与报告都放在服务端，这样"换设备继续"与"回看历史报告"
     // 才是真的成立。旧引擎（/quiz、/result）仍然不需要登录，且行为一字未改。
+    //
+    // `/assess` 从"直接开一份十六型草稿"变成了**选择页**（未答完的 + 可开始的）。
+    // 多量表之后这不是可选改动：一个按钮无法表达"接着上次"和"换一项测评"两件事，
+    // 而且点第二次会多出一份空草稿。
     {
       path: '/assess',
       name: 'assess',
-      component: AssessView,
+      component: AssessChooserView,
       meta: { title: '开始测评 · TypeMe', requiresAuth: true },
     },
+    // 答题页按草稿归属分流（十六型 / 大五各自的完成规则不同）。
     {
       path: '/assess/:attemptId',
       name: 'assess-attempt',
-      component: AssessView,
+      component: AttemptRouterView,
       meta: { title: '答题中 · TypeMe', requiresAuth: true },
     },
+
+    // ── 多量表发现页 ──────────────────────────────────────────────────────
+    // `/instruments` 与 `/instruments/:slug/method` **公开**：用户在被要求登录之前
+    // 有权知道站上有哪几项测评、每项问什么。它们只读产品定义，不含任何个人信息。
+    // 路径刻意沿用 `/assess` 之外的新前缀，避免与既有契约的 `/catalog` 语义混淆。
+    {
+      path: '/instruments',
+      name: 'instruments',
+      component: InstrumentsView,
+      meta: { title: '测评列表 · TypeMe' },
+    },
+    {
+      path: '/instruments/:slug/method',
+      name: 'instrument-method',
+      component: InstrumentMethodView,
+      meta: { title: '方法说明 · TypeMe' },
+    },
+
     {
       path: '/reports',
       name: 'reports',
-      component: ReportV3View,
+      component: ReportsListView,
       meta: { title: '历史报告 · TypeMe', requiresAuth: true },
     },
     // ⚠️ `/reports/compare` **必须**排在 `/reports/:reportId` 前面。
@@ -106,6 +140,14 @@ export const router = createRouter({
       name: 'report-compare',
       component: CompareView,
       meta: { title: '复测比较 · TypeMe', requiresAuth: true },
+    },
+    // 大五报告单独一条：两者渲染模型完全不同（没有类型码、没有四字母），
+    // 用同一个页面按 reportKind 分支会让两边都变成"半个页面"。
+    {
+      path: '/reports/big-five/:reportId',
+      name: 'big-five-report',
+      component: BigFiveReportView,
+      meta: { title: '大五倾向报告 · TypeMe', requiresAuth: true },
     },
     {
       path: '/reports/:reportId',

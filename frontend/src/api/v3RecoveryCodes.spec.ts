@@ -95,6 +95,7 @@ describe('注册时对同一个字段的期望（故意相反）', () => {
       username: 'someone',
       password: 'TestPassw0rd!',
       disclaimerAccepted: true,
+      invitationCode: "a".repeat(32),
     })
 
     expect(result.profile.userId).toBe('u-1')

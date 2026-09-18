@@ -23,8 +23,20 @@ const props = withDefaults(
     danger?: boolean
     /** 默认焦点落在哪个按钮：保留 / 取消是更安全的默认（§5.2） */
     initialFocus?: 'cancel' | 'confirm'
+    /**
+     * 确认之后请求还在路上（2026-09-18 第 17 轮）。
+     *
+     * <p>为什么弹窗要管这件事：删除这类操作"确认"只是一次网络请求的开始，
+     * 而请求期间弹窗曾经**立刻关掉**，于是用户看不到任何"正在处理"，
+     * 很自然再点一次 → 第二个 DELETE 并发发出 → 第二个 404，
+     * 在数据**已经删掉**之后把结果翻成"删除没能完成"。
+     * busy 时两个键都禁用、Esc 与点遮罩也不关闭：在途请求必须要有确定的归宿。
+     */
+    busy?: boolean
+    /** busy 时确认键上的文案（如实说明正在做什么）。 */
+    busyLabel?: string
   }>(),
-  { cancelLabel: '取消', danger: false, initialFocus: 'cancel' },
+  { cancelLabel: '取消', danger: false, initialFocus: 'cancel', busy: false, busyLabel: '正在处理…' },
 )
 
 const emit = defineEmits<{ confirm: []; cancel: [] }>()
@@ -47,6 +59,8 @@ function focusables(): HTMLElement[] {
 }
 
 function close(confirm: boolean) {
+  // 在途时不允许关闭：否则"请求还在跑"这件事就没有任何界面在承载。
+  if (props.busy) return
   if (confirm) emit('confirm')
   else emit('cancel')
 }
@@ -56,6 +70,7 @@ function onKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') {
     event.preventDefault()
     event.stopPropagation()
+    // busy 时吞掉 Esc 但不关闭，避免"按了没反应还以为是卡住"。
     close(false)
     return
   }
@@ -116,16 +131,19 @@ onBeforeUnmount(() => {
       <p v-if="description" class="mt-2 prose-sm">{{ description }}</p>
 
       <div class="mt-5 flex flex-col-reverse gap-2 tablet:flex-row tablet:justify-end">
-        <button ref="cancelButton" type="button" class="btn-secondary" @click="close(false)">
+        <button ref="cancelButton" type="button" class="btn-secondary" :disabled="busy" @click="close(false)">
           {{ cancelLabel }}
         </button>
         <button
           ref="confirmButton"
           type="button"
           :class="danger ? 'btn-danger' : 'btn-primary'"
+          :disabled="busy"
+          :aria-busy="busy ? 'true' : 'false'"
+          data-confirm-dialog-confirm
           @click="close(true)"
         >
-          {{ confirmLabel }}
+          {{ busy ? busyLabel : confirmLabel }}
         </button>
       </div>
     </div>

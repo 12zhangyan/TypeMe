@@ -1,0 +1,41 @@
+
+ RUN  v2.1.9 D:/develop/develop/code/TypeMe/frontend
+
+ ✓ src/design/contrast.spec.ts (45 tests) 6ms
+stderr | src/components/platformIntro.spec.ts > 多量表首页入口 > 失败时能重试，空目录不编造测评卡片
+[typeme] 未预期的前端错误： offline Error: offline
+    at D:\develop\develop\code\TypeMe\frontend\src\components\platformIntro.spec.ts:37:44
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:146:14
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1271:3)
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/vitest/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+ ✓ src/components/platformIntro.spec.ts (2 tests) 97ms
+stderr | src/views/shellNav.spec.ts > 顶栏导航（App.vue） > 指向「开始测评」的入口只出现一次
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/views/shellNav.spec.ts > 顶栏导航（App.vue） > 停在关于页时，导航项写的仍然是它自己的目标名
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/views/shellNav.spec.ts > 顶栏导航（App.vue） > 停在关于页时，导航项写的仍然是它自己的目标名
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+
+stderr | src/views/shellNav.spec.ts > 顶栏导航（App.vue） > 未登录时不渲染重复的账号入口
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+ ✓ src/views/shellNav.spec.ts (3 tests) 167ms
+ ✓ src/views/landingResume.spec.ts (8 tests) 484ms
+
+ Test Files  4 passed (4)
+      Tests  58 passed (58)
+   Start at  14:13:54
+   Duration  5.49s (transform 1.50s, setup 0ms, collect 3.23s, tests 753ms, environment 6.66s, prepare 1.08s)
+

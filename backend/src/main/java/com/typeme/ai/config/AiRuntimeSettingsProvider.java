@@ -192,7 +192,7 @@ public class AiRuntimeSettingsProvider implements AiSettingsStore, AiSettingsCac
                 nonBlank(properties.getModel(), "deepseek-flash"),
                 key,
                 source,
-                nonBlank(properties.getPromptVersion(), "typeme-ai-prompt-v2"),
+                nonBlank(properties.getPromptVersion(), "typeme-ai-prompt-v3"),
                 properties.isMockMode(),
                 properties.getDailyLimitPerUser(),
                 properties.getRetryLimitPerHour(),

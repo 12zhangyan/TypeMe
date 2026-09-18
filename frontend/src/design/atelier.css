@@ -1,0 +1,66 @@
+/* Picture-book surfaces. Images remain decorative; questionnaires and stored scores are unchanged. */
+.atelier-platform { --atelier-paper: #f8f5ed; --atelier-green: #274c3c; }
+.atelier-platform .discovery-hero { grid-template-columns: 1.02fr 1fr; column-gap: 44px; min-height: 0; }
+.atelier-platform .discovery-copy { padding: 46px 0 48px; }
+.atelier-platform .discovery-edition { padding-bottom: 18px; }
+.atelier-platform .discovery-copy h1 { font-size: clamp(58px,6.65vw,96px); line-height: 1.28; letter-spacing: -.055em; max-width: 100%; }
+.atelier-platform .discovery-eyebrow { margin-bottom: 22px; }
+.atelier-platform .discovery-caption { margin-top: 27px; gap: 14px; }
+.atelier-platform .discovery-actions { gap: 18px; }
+.atelier-platform .discovery-actions .btn-primary { padding-inline: 22px; gap: 14px; }
+.atelier-platform .atelier-cover { height: auto; min-height: 510px; align-self: start; padding-top: 15px; }
+.atelier-cover-art { width: 100%; aspect-ratio: 1.06; border-radius: 48% 48% 5px 5px; }
+.atelier-margin-note { position: absolute; right: -15px; top: 130px; writing-mode: vertical-rl; font-size: 8px; letter-spacing: .16em; color: #64735f; }
+.atelier-cover-note { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 19px 18px 23px; background: #f0ebdf; margin: -1px 7% 24px; border-top: 1px solid #b9bba6; }
+.atelier-cover-note > span:first-child { grid-column: 1/-1; font-size: 10px; letter-spacing: .1em; color: #6b715e; }
+.atelier-cover-note p { font-family: 'Songti SC','SimSun',serif; font-size: 20px; line-height: 1.6; }.atelier-cover-note > span:last-child { font-size: 28px; align-self: end; }
+.atelier-platform .discovery-baseline { margin-top: 12px; }
+.atelier-platform .catalog-heading { padding-top: 65px; }
+.atelier-platform .assessment-grid,.atelier-catalog .assessment-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
+.atelier-platform .assessment-card,.atelier-catalog .assessment-card { display: flex; flex-direction: column; min-height: 100%; border: 1px solid #dfe2d3; background: #fcfbf5; border-radius: 7px; }
+.atelier-platform .assessment-card-five,.atelier-catalog .assessment-card-five { background: #fcf8f0; border-color: #e5ddd0; }
+.atelier-platform .assessment-card-art,.atelier-catalog .assessment-card-art { min-height: 290px; height: 290px; background: #e5e9d6; }
+.atelier-platform .assessment-card-five .assessment-card-art,.atelier-catalog .assessment-card-five .assessment-card-art { background: #eae2d1; }
+.assessment-cover-art { height: 100%; width: 100%; }.assessment-cover-art .editorial-scene { width: 100%; height: 135%; margin-top: 13px; }
+.atelier-platform .assessment-card-art::after,.atelier-catalog .assessment-card-art::after { display: none; }
+.atelier-platform .assessment-card-category,.atelier-catalog .assessment-card-category { top: 19px; left: 22px; background: #faf8ede8; color: #39513e; padding: 6px 10px; border-radius: 2px; font-size: 10px; }
+.atelier-platform .assessment-card-number,.atelier-catalog .assessment-card-number { z-index: 1; font-size: 76px; right: 20px; bottom: 8px; color: #f9f2df; text-shadow: 0 1px 6px #274c3c25; }
+.atelier-platform .assessment-card-content,.atelier-catalog .assessment-card-content { flex: 1; padding: 28px 30px 30px; }
+.atelier-platform .assessment-card-content h2,.atelier-catalog .assessment-card-content h2 { font-size: 29px; margin-top: 18px; font-weight: 500; }
+.atelier-platform .assessment-card-actions,.atelier-catalog .assessment-card-actions { margin-top: auto; gap: 10px; padding-top: 20px; }
+.atelier-platform .assessment-card-summary,.atelier-catalog .assessment-card-summary { max-width: none; }
+.atelier-catalog-heading { max-width: 680px; padding: 28px 0 18px; }
+.atelier-catalog-heading h1 { font: 48px/1.4 'Songti SC','SimSun',serif; margin-top: 19px; }.atelier-catalog-heading > p:last-child { font-size: 14px; line-height: 1.9; }
+.personality-gallery { margin-top: 85px; border-top: 1px solid #c9d1c1; padding-top: 38px; }
+.portrait-gallery-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
+.portrait-gallery-heading h2 { margin-top: 17px; font: 43px/1.45 'Songti SC','SimSun',serif; letter-spacing: -.04em; }.portrait-gallery-heading em { font-style: normal; color: #51765c; }
+.portrait-gallery-heading > p { font-size: 12px; line-height: 2; color: #62715e; }
+.portrait-gallery-body { display: grid; grid-template-columns: .95fr 1.05fr; border: 1px solid #d6ddce; border-radius: 7px; overflow: hidden; background: #fcfbf6; }
+.portrait-spotlight { min-width: 0; background: var(--portrait-tint); }
+.portrait-spotlight-art { position: relative; height: 355px; overflow: hidden; }.portrait-spotlight-art > .personality-portrait { position: relative; height: 100%; width: 100%; z-index: 1; }
+.portrait-big-code { position: absolute; inset: 6px 0 auto; text-align: center; font: italic 102px/1.4 Georgia,serif; color: #ffffff7d; letter-spacing: -.025em; }
+.portrait-edition { position: absolute; bottom: 15px; left: 22px; font-size: 8px; letter-spacing: .15em; color: #66725c; z-index: 2; }
+.portrait-spotlight-copy { padding: 25px 30px 30px; border-top: 1px solid #ffffff80; }.portrait-spotlight-copy h3 { font: 32px/1.45 'Songti SC','SimSun',serif; margin: 12px 0; }.portrait-spotlight-copy > p:not(.section-kicker) { font-size: 14px; line-height: 1.8; color: #455748; }.portrait-spotlight-copy > span { font-size: 10px; display: block; margin-top: 20px; color: #5d6c57; }
+.portrait-picker-panel { padding: 28px; min-width: 0; }.portrait-picker-hint { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; margin-bottom: 18px; color: #4c604d; }
+.portrait-picker { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 9px; }
+.portrait-picker button { position: relative; min-width: 0; border: 1px solid #e2e6d8; border-radius: 5px; padding: 3px 3px 7px; background: #f3f3e9; transition: border-color .15s, background .15s; }
+.portrait-picker button:hover { border-color: #91a185; background: #e9edde; }.portrait-picker button[aria-pressed='true'] { border: 2px solid #39634b; padding: 2px 2px 6px; background: #e2e9d8; }
+.portrait-picker button:focus-visible { outline: 2px solid #39634b; outline-offset: 3px; }.portrait-picker button > span { display: block; font-size: 11px; font-weight: 600; letter-spacing: .06em; }.portrait-picker .personality-portrait { height: 73px; aspect-ratio: auto; }
+.portrait-picker-note { font-size: 11px; line-height: 1.85; color: #62715e; margin-top: 20px; }.portrait-method-link { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid #dfe2d4; padding-top: 14px; margin-top: 17px; font-size: 12px; color: #315740; line-height: 1.8; }.portrait-method-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+.atelier-reflection { display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; background: #e8edde; border-radius: 7px; margin-top: 80px; overflow: hidden; }
+.atelier-reflection-art { height: 410px; align-self: end; }.atelier-reflection-copy { padding: 40px 50px; }.atelier-reflection-copy h2 { font: 39px/1.5 'Songti SC','SimSun',serif; margin: 20px 0; }.atelier-reflection-copy em { color: #51765c; font-style: normal; }.atelier-reflection-copy > p:not(.section-kicker) { max-width: 330px; font-size: 13px; line-height: 2; color: #52644f; }.atelier-reflection-copy > a { display: inline-block; margin-top: 22px; font-size: 12px; }
+.atelier-reading-path { padding: 38px 0 24px; }.atelier-reading-path ol { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 30px; margin-top: 27px; }.atelier-reading-path li { display: flex; gap: 18px; }.atelier-reading-path li > span { font: italic 29px/1 Georgia,serif; color: #87967c; }.atelier-reading-path h3 { font-size: 13px; font-weight: 600; }.atelier-reading-path li p { font-size: 12px; line-height: 1.8; color: #62715e; margin-top: 8px; }
+.auth-page .auth-art.auth-scene { width: 116%; max-width: 440px; height: 375px; margin: 28px -8% -32px; }
+.report-character-study { display: flex; align-items: center; gap: 20px; margin-top: 26px; padding: 12px 18px; background: #edf0e1; border-radius: 5px; }.report-character-study > .personality-portrait { width: 140px; flex: 0 0 140px; }.report-character-study figcaption { font-size: 13px; color: #435a43; }.report-character-study figcaption > span { font-size: 10px; letter-spacing: .15em; }.report-character-study figcaption p { margin: 12px 0; font: 22px/1.7 'Songti SC','SimSun',serif; }.report-character-study small { font-size: 10px; }
+@media(max-width:1023px) {
+  .atelier-platform .discovery-hero { column-gap: 24px; }.atelier-platform .discovery-copy h1 { font-size: clamp(54px,7vw,79px); }.atelier-platform .discovery-copy { padding-top: 25px; }.atelier-platform .atelier-cover { min-height: 0; }.atelier-platform .discovery-actions { flex-direction: column; align-items: start; }.atelier-platform .assessment-card-content,.atelier-catalog .assessment-card-content { padding: 24px; }
+  .portrait-picker-panel { padding: 22px; }.portrait-picker { gap: 6px; }.portrait-picker .personality-portrait { height: 62px; }.portrait-spotlight-art { height: 318px; }.portrait-spotlight-copy { padding: 25px; }.portrait-gallery-heading h2 { font-size: 36px; }
+  .atelier-reflection-copy { padding: 30px; }.atelier-reflection-copy h2 { font-size: 32px; }.atelier-reflection-art { height: 370px; }
+}
+@media(max-width:767px) {
+  .atelier-platform .discovery-hero { grid-template-columns: 1fr; }.atelier-platform .discovery-copy { padding: 10px 0 0; }.atelier-platform .discovery-copy h1 { font-size: clamp(53px,14vw,86px); }.atelier-platform .discovery-actions { gap: 15px; margin-top: 26px; }.atelier-platform .discovery-actions .btn-primary { width: 100%; justify-content: space-between; }.atelier-platform .atelier-cover { height: auto; padding: 0; margin: 30px 0 0; }.atelier-cover-art { max-height: 330px; }.atelier-margin-note { right: 0; top: 65px; font-size: 7px; }.atelier-cover-note { margin: 0 7% 18px; padding: 13px 16px; }.atelier-cover-note p { font-size: 17px; }.atelier-cover-note > span:first-child { font-size: 9px; }.atelier-platform .discovery-baseline { margin-top: 0; }
+  .atelier-platform .catalog-heading { padding-top: 40px; }.atelier-platform .assessment-grid,.atelier-catalog .assessment-grid { grid-template-columns: 1fr; gap: 23px; }.atelier-platform .assessment-card-art,.atelier-catalog .assessment-card-art { height: 230px; min-height: 230px; }.atelier-platform .assessment-card-content h2,.atelier-catalog .assessment-card-content h2 { font-size: 27px; }.atelier-catalog-heading { padding-top: 6px; }.atelier-catalog-heading h1 { font-size: 37px; }
+  .personality-gallery { margin-top: 48px; padding-top: 30px; }.portrait-gallery-heading { display: block; margin-bottom: 23px; }.portrait-gallery-heading h2 { font-size: 34px; }.portrait-gallery-heading > p { margin-top: 16px; }.portrait-gallery-body { grid-template-columns: 1fr; }.portrait-spotlight-art { height: 286px; }.portrait-big-code { font-size: 87px; }.portrait-spotlight-copy { padding: 20px 23px 23px; }.portrait-spotlight-copy h3 { font-size: 28px; }.portrait-spotlight-copy > span { margin-top: 13px; }.portrait-picker-panel { padding: 22px 16px; }.portrait-picker-hint { font-size: 11px; }.portrait-picker .personality-portrait { height: 65px; }.portrait-picker button > span { font-size: 10px; }.portrait-picker-note { margin-top: 17px; }
+  .atelier-reflection { grid-template-columns: 1fr; margin-top: 48px; }.atelier-reflection-art { height: 255px; grid-row: 2; }.atelier-reflection-copy { padding: 30px 25px 5px; }.atelier-reflection-copy h2 { font-size: 32px; }.atelier-reading-path { padding-top: 30px; }.atelier-reading-path ol { grid-template-columns: 1fr; gap: 24px; }.atelier-reading-path li { gap: 19px; }
+  .auth-page .auth-art.auth-scene { display: none; }.report-character-study { gap: 10px; padding: 12px; }.report-character-study > .personality-portrait { width: 80px; flex-basis: 80px; }.report-character-study figcaption { min-width: 0; }.report-character-study figcaption p { font-size: 16px; }
+}
