@@ -6,7 +6,6 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { refreshCsrfToken } from '@/api/v3'
 import PageContainer from '@/components/PageContainer.vue'
-import AppIcon from '@/components/AppIcon.vue'
 
 /**
  * 登录 —— 契约 `03-AI与前端契约-v1.md` §7.2（`/login` 公开；已登录访问则跳回 redirect）。
@@ -141,13 +140,6 @@ async function onSubmit() {
       。忘记了密码？
       <RouterLink :to="{ name: 'recover', query: route.query }" class="link">用恢复码重置</RouterLink>
       。
-    </p>
-
-    <p class="mt-6 flex max-w-prose items-start gap-2 fineprint">
-      <AppIcon name="lock" :size="16" class="mt-0.5" />
-      <span>
-        登录状态保存在服务器的 HttpOnly cookie 里，这个网站不会把任何登录凭据写进浏览器的本地存储。
-      </span>
     </p>
   </PageContainer>
 </template>
