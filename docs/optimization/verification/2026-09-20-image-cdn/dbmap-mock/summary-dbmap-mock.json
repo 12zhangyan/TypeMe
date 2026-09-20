@@ -1,0 +1,1067 @@
+{
+  "label": "dbmap-mock",
+  "mode": "remote",
+  "site": "http://127.0.0.1:5196",
+  "imageBase": "http://127.0.0.1:5199",
+  "scope": "isolated build + mock image domain + mocked API; no database, no AI, no cloud resources",
+  "passed": 152,
+  "failed": 0,
+  "failures": [],
+  "notes": [
+    "320/配置切换：图片域名请求 20 条，站点图片请求 0 条",
+    "390/配置切换：图片域名请求 20 条，站点图片请求 0 条",
+    "1440/配置切换：图片域名请求 20 条，站点图片请求 0 条",
+    "320/冷缓存：主图响应一直挂到占位截图拍完才释放（挂起 [1016, 991] ms，两张占位截图耗时 95 ms）；主图区域细节 stddev 4.16（64 色） → 60.53（3499 色）",
+    "390/冷缓存：主图响应一直挂到占位截图拍完才释放（挂起 [1043, 1037] ms，两张占位截图耗时 112 ms）；主图区域细节 stddev 3.39（46 色） → 60.36（3457 色）",
+    "1440/冷缓存：主图响应一直挂到占位截图拍完才释放（挂起 [1086, 1055] ms，两张占位截图耗时 144 ms）；主图区域细节 stddev 2.59（5 色） → 61.59（3453 色）"
+  ],
+  "checks": [
+    {
+      "label": "320/切换：首屏主图指向图片域名的对象键",
+      "passed": true,
+      "detail": "http://127.0.0.1:5199/illustrations/2026-09-20/home-hero.4583aa734b96.webp"
+    },
+    {
+      "label": "320/切换：所有插画都来自图片域名",
+      "passed": true,
+      "detail": "{\"127.0.0.1:5199\": 21}"
+    },
+    {
+      "label": "320/切换：站点服务器没有收到任何图片请求（源站不再出图）",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "320/切换：图片域名确实收到了请求",
+      "passed": true,
+      "detail": "20 条"
+    },
+    {
+      "label": "320/切换：正常加载全程都在主地址上（没有无谓的回退）",
+      "passed": true,
+      "detail": "['primary']"
+    },
+    {
+      "label": "320/切换：不预加载全部人物，只有主图高优先级",
+      "passed": true,
+      "detail": "preload=0 high=1 lazy=20"
+    },
+    {
+      "label": "320/切换：屏外图片仍是懒加载",
+      "passed": true,
+      "detail": "lazy=20"
+    },
+    {
+      "label": "320/切换：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/切换：首屏主图指向图片域名的对象键",
+      "passed": true,
+      "detail": "http://127.0.0.1:5199/illustrations/2026-09-20/home-hero.4583aa734b96.webp"
+    },
+    {
+      "label": "390/切换：所有插画都来自图片域名",
+      "passed": true,
+      "detail": "{\"127.0.0.1:5199\": 21}"
+    },
+    {
+      "label": "390/切换：站点服务器没有收到任何图片请求（源站不再出图）",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/切换：图片域名确实收到了请求",
+      "passed": true,
+      "detail": "20 条"
+    },
+    {
+      "label": "390/切换：正常加载全程都在主地址上（没有无谓的回退）",
+      "passed": true,
+      "detail": "['primary']"
+    },
+    {
+      "label": "390/切换：不预加载全部人物，只有主图高优先级",
+      "passed": true,
+      "detail": "preload=0 high=1 lazy=20"
+    },
+    {
+      "label": "390/切换：屏外图片仍是懒加载",
+      "passed": true,
+      "detail": "lazy=20"
+    },
+    {
+      "label": "390/切换：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/切换：首屏主图指向图片域名的对象键",
+      "passed": true,
+      "detail": "http://127.0.0.1:5199/illustrations/2026-09-20/home-hero.4583aa734b96.webp"
+    },
+    {
+      "label": "1440/切换：所有插画都来自图片域名",
+      "passed": true,
+      "detail": "{\"127.0.0.1:5199\": 21}"
+    },
+    {
+      "label": "1440/切换：站点服务器没有收到任何图片请求（源站不再出图）",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/切换：图片域名确实收到了请求",
+      "passed": true,
+      "detail": "20 条"
+    },
+    {
+      "label": "1440/切换：正常加载全程都在主地址上（没有无谓的回退）",
+      "passed": true,
+      "detail": "['primary']"
+    },
+    {
+      "label": "1440/切换：不预加载全部人物，只有主图高优先级",
+      "passed": true,
+      "detail": "preload=0 high=1 lazy=20"
+    },
+    {
+      "label": "1440/切换：屏外图片仍是懒加载",
+      "passed": true,
+      "detail": "lazy=20"
+    },
+    {
+      "label": "1440/切换：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "320/冷缓存：主图未到时处于明确的加载态",
+      "passed": true,
+      "detail": "state=loading"
+    },
+    {
+      "label": "320/冷缓存：加载中不显示半成品图片",
+      "passed": true,
+      "detail": "opacity=0"
+    },
+    {
+      "label": "320/冷缓存：首屏主图 eager + 高优先级",
+      "passed": true,
+      "detail": "loading=eager priority=high"
+    },
+    {
+      "label": "320/冷缓存：图片加载期间正文与按钮可用",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：没有整页 loading 遮罩",
+      "passed": true,
+      "detail": "overlays=0"
+    },
+    {
+      "label": "320/冷缓存：正文不等待图片",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：慢网不是回退，仍在主地址上",
+      "passed": true,
+      "detail": "primary"
+    },
+    {
+      "label": "320/冷缓存：主图请求立即发往图片域名",
+      "passed": true,
+      "detail": "['/illustrations/2026-09-20/home-hero.4583aa734b96.webp']"
+    },
+    {
+      "label": "320/冷缓存：慢网期间没有偷偷改用本地图片",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "320/冷缓存：主图完成加载与解码后进入 ready",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：占位截图期间图片响应一直没返回（占位证据不是拍晚了的假象）",
+      "passed": true,
+      "detail": "挂起记录=[('home-hero.4583aa734b96.webp', 1016, True), ('type-infp.6f366d5766eb.webp', 991, True)]"
+    },
+    {
+      "label": "320/冷缓存：占位阶段图片区细节明显更少（不是半张图）",
+      "passed": true,
+      "detail": "占位 stddev=4.16 → 显示后 stddev=60.53"
+    },
+    {
+      "label": "320/冷缓存：图片出现后同区域真的换了画面（像素级证据）",
+      "passed": true,
+      "detail": "变化像素占比=0.901，平均差=109.77"
+    },
+    {
+      "label": "320/冷缓存：记录到主图状态变化",
+      "passed": true,
+      "detail": "changes=14"
+    },
+    {
+      "label": "320/冷缓存：已交付图片全程走位图，从不先用兜底 SVG 顶替",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：加载期间不渲染兜底 SVG 内容",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：主图以透明度过渡自然出现",
+      "passed": true,
+      "detail": "中间帧=9 帧"
+    },
+    {
+      "label": "320/冷缓存：淡入只改透明度且时长在 180–240ms",
+      "passed": true,
+      "detail": "transition=['opacity 0.2s']"
+    },
+    {
+      "label": "320/冷缓存：图片出现不引起布局位移",
+      "passed": true,
+      "detail": "CLS=0.00208"
+    },
+    {
+      "label": "320/冷缓存：没有任何位移来自图片容器",
+      "passed": true,
+      "detail": "来源=[]；全部来源=['A btn-ghost btn-sm×1']"
+    },
+    {
+      "label": "320/冷缓存：.atelier-cover-art 尺寸稳定",
+      "passed": true,
+      "detail": "272–272px（变化 0px）"
+    },
+    {
+      "label": "320/冷缓存：.assessment-card-art 尺寸稳定",
+      "passed": true,
+      "detail": "230–230px（变化 0px）"
+    },
+    {
+      "label": "320/冷缓存：.portrait-spotlight-art 尺寸稳定",
+      "passed": true,
+      "detail": "286–286px（变化 0px）"
+    },
+    {
+      "label": "320/冷缓存：.atelier-reflection-art 尺寸稳定",
+      "passed": true,
+      "detail": "255–255px（变化 0px）"
+    },
+    {
+      "label": "320/冷缓存：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/冷缓存：主图未到时处于明确的加载态",
+      "passed": true,
+      "detail": "state=loading"
+    },
+    {
+      "label": "390/冷缓存：加载中不显示半成品图片",
+      "passed": true,
+      "detail": "opacity=0"
+    },
+    {
+      "label": "390/冷缓存：首屏主图 eager + 高优先级",
+      "passed": true,
+      "detail": "loading=eager priority=high"
+    },
+    {
+      "label": "390/冷缓存：图片加载期间正文与按钮可用",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：没有整页 loading 遮罩",
+      "passed": true,
+      "detail": "overlays=0"
+    },
+    {
+      "label": "390/冷缓存：正文不等待图片",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：慢网不是回退，仍在主地址上",
+      "passed": true,
+      "detail": "primary"
+    },
+    {
+      "label": "390/冷缓存：主图请求立即发往图片域名",
+      "passed": true,
+      "detail": "['/illustrations/2026-09-20/home-hero.4583aa734b96.webp']"
+    },
+    {
+      "label": "390/冷缓存：慢网期间没有偷偷改用本地图片",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/冷缓存：主图完成加载与解码后进入 ready",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：占位截图期间图片响应一直没返回（占位证据不是拍晚了的假象）",
+      "passed": true,
+      "detail": "挂起记录=[('home-hero.4583aa734b96.webp', 1043, True), ('type-infp.6f366d5766eb.webp', 1037, True)]"
+    },
+    {
+      "label": "390/冷缓存：占位阶段图片区细节明显更少（不是半张图）",
+      "passed": true,
+      "detail": "占位 stddev=3.39 → 显示后 stddev=60.36"
+    },
+    {
+      "label": "390/冷缓存：图片出现后同区域真的换了画面（像素级证据）",
+      "passed": true,
+      "detail": "变化像素占比=0.901，平均差=110.06"
+    },
+    {
+      "label": "390/冷缓存：记录到主图状态变化",
+      "passed": true,
+      "detail": "changes=15"
+    },
+    {
+      "label": "390/冷缓存：已交付图片全程走位图，从不先用兜底 SVG 顶替",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：加载期间不渲染兜底 SVG 内容",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：主图以透明度过渡自然出现",
+      "passed": true,
+      "detail": "中间帧=9 帧"
+    },
+    {
+      "label": "390/冷缓存：淡入只改透明度且时长在 180–240ms",
+      "passed": true,
+      "detail": "transition=['opacity 0.2s']"
+    },
+    {
+      "label": "390/冷缓存：图片出现不引起布局位移",
+      "passed": true,
+      "detail": "CLS=0.00169"
+    },
+    {
+      "label": "390/冷缓存：没有任何位移来自图片容器",
+      "passed": true,
+      "detail": "来源=[]；全部来源=['A btn-ghost btn-sm×1']"
+    },
+    {
+      "label": "390/冷缓存：.atelier-cover-art 尺寸稳定",
+      "passed": true,
+      "detail": "330–330px（变化 0px）"
+    },
+    {
+      "label": "390/冷缓存：.assessment-card-art 尺寸稳定",
+      "passed": true,
+      "detail": "230–230px（变化 0px）"
+    },
+    {
+      "label": "390/冷缓存：.portrait-spotlight-art 尺寸稳定",
+      "passed": true,
+      "detail": "286–286px（变化 0px）"
+    },
+    {
+      "label": "390/冷缓存：.atelier-reflection-art 尺寸稳定",
+      "passed": true,
+      "detail": "255–255px（变化 0px）"
+    },
+    {
+      "label": "390/冷缓存：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/冷缓存：主图未到时处于明确的加载态",
+      "passed": true,
+      "detail": "state=loading"
+    },
+    {
+      "label": "1440/冷缓存：加载中不显示半成品图片",
+      "passed": true,
+      "detail": "opacity=0"
+    },
+    {
+      "label": "1440/冷缓存：首屏主图 eager + 高优先级",
+      "passed": true,
+      "detail": "loading=eager priority=high"
+    },
+    {
+      "label": "1440/冷缓存：图片加载期间正文与按钮可用",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：没有整页 loading 遮罩",
+      "passed": true,
+      "detail": "overlays=0"
+    },
+    {
+      "label": "1440/冷缓存：正文不等待图片",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：慢网不是回退，仍在主地址上",
+      "passed": true,
+      "detail": "primary"
+    },
+    {
+      "label": "1440/冷缓存：主图请求立即发往图片域名",
+      "passed": true,
+      "detail": "['/illustrations/2026-09-20/home-hero.4583aa734b96.webp']"
+    },
+    {
+      "label": "1440/冷缓存：慢网期间没有偷偷改用本地图片",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/冷缓存：主图完成加载与解码后进入 ready",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：占位截图期间图片响应一直没返回（占位证据不是拍晚了的假象）",
+      "passed": true,
+      "detail": "挂起记录=[('home-hero.4583aa734b96.webp', 1086, True), ('type-infp.6f366d5766eb.webp', 1055, True)]"
+    },
+    {
+      "label": "1440/冷缓存：占位阶段图片区细节明显更少（不是半张图）",
+      "passed": true,
+      "detail": "占位 stddev=2.59 → 显示后 stddev=61.59"
+    },
+    {
+      "label": "1440/冷缓存：图片出现后同区域真的换了画面（像素级证据）",
+      "passed": true,
+      "detail": "变化像素占比=0.901，平均差=109.75"
+    },
+    {
+      "label": "1440/冷缓存：记录到主图状态变化",
+      "passed": true,
+      "detail": "changes=15"
+    },
+    {
+      "label": "1440/冷缓存：已交付图片全程走位图，从不先用兜底 SVG 顶替",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：加载期间不渲染兜底 SVG 内容",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：主图以透明度过渡自然出现",
+      "passed": true,
+      "detail": "中间帧=9 帧"
+    },
+    {
+      "label": "1440/冷缓存：淡入只改透明度且时长在 180–240ms",
+      "passed": true,
+      "detail": "transition=['opacity 0.2s']"
+    },
+    {
+      "label": "1440/冷缓存：图片出现不引起布局位移",
+      "passed": true,
+      "detail": "CLS=0.00234"
+    },
+    {
+      "label": "1440/冷缓存：没有任何位移来自图片容器",
+      "passed": true,
+      "detail": "来源=[]；全部来源=['NAV flex flex-wrap items-center justify-end gap-1 text-[13.5px] tablet:g×1']"
+    },
+    {
+      "label": "1440/冷缓存：.atelier-cover-art 尺寸稳定",
+      "passed": true,
+      "detail": "562–562px（变化 0px）"
+    },
+    {
+      "label": "1440/冷缓存：.assessment-card-art 尺寸稳定",
+      "passed": true,
+      "detail": "290–290px（变化 0px）"
+    },
+    {
+      "label": "1440/冷缓存：.portrait-spotlight-art 尺寸稳定",
+      "passed": true,
+      "detail": "355–355px（变化 0px）"
+    },
+    {
+      "label": "1440/冷缓存：.atelier-reflection-art 尺寸稳定",
+      "passed": true,
+      "detail": "410–410px（变化 0px）"
+    },
+    {
+      "label": "1440/冷缓存：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/回退：远端 404 后最终仍然显示图片",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/回退：失败后切到本地打包资源",
+      "passed": true,
+      "detail": "local-fallback"
+    },
+    {
+      "label": "390/回退：回退后的图片正常显示（不是兜底 SVG）",
+      "passed": true,
+      "detail": "{\"attempt\": \"local-fallback\", \"state\": \"ready\", \"source\": \"image\", \"host\": \"127.0.0.1:5196\", \"naturalWidth\": 960, \"opacity\": 1, \"h1Visible\": true, \"ctaEnabled\": true}"
+    },
+    {
+      "label": "390/回退：显示的是站点本地的同一张图",
+      "passed": true,
+      "detail": "host=127.0.0.1:5196 nw=960"
+    },
+    {
+      "label": "390/回退：远端只请求一次（不反复重试）",
+      "passed": true,
+      "detail": "远端请求=1"
+    },
+    {
+      "label": "390/回退：本地只请求一次",
+      "passed": true,
+      "detail": "本地请求=['/assets/home-hero-D6cgdiEp.webp']"
+    },
+    {
+      "label": "390/回退：正文与按钮不受配图失败影响",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/回退：回退不引起图片容器位移",
+      "passed": true,
+      "detail": "来源=[]；CLS=0.00169"
+    },
+    {
+      "label": "390/回退：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/双重失败：两次都失败后进入兜底",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/双重失败：兜底 SVG 顶上且不再保留失效 img",
+      "passed": true,
+      "detail": "{\"state\": \"fallback\", \"source\": \"vector\", \"attempt\": \"local-fallback\", \"hasImg\": false, \"hasVector\": true, \"h1Visible\": true, \"galleryText\": true, \"others\": [\"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"ready\", \"loading\"]}"
+    },
+    {
+      "label": "390/双重失败：失败链停在「已回退」这一档",
+      "passed": true,
+      "detail": "local-fallback"
+    },
+    {
+      "label": "390/双重失败：总共只发两次请求，没有第三次",
+      "passed": true,
+      "detail": "远端=1 本地=1"
+    },
+    {
+      "label": "390/双重失败：正文与图鉴不受影响",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/双重失败：只有缺图的那一张受影响",
+      "passed": true,
+      "detail": "['ready', 'ready', 'ready', 'ready', 'ready', 'ready']"
+    },
+    {
+      "label": "390/双重失败：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/缓存命中：首次访问完成加载",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/缓存命中：命中缓存时不为演出动画拖延显示",
+      "passed": true,
+      "detail": "占位窗口=0.0ms"
+    },
+    {
+      "label": "390/缓存命中：命中缓存时不长时间闪占位",
+      "passed": true,
+      "detail": "中间帧=0 帧"
+    },
+    {
+      "label": "390/缓存命中：回到首页没有重新下载主图（图片域名侧无新请求）",
+      "passed": true,
+      "detail": "图片域名请求 9 → 9"
+    },
+    {
+      "label": "390/缓存命中：无布局位移",
+      "passed": true,
+      "detail": "CLS=0.00169"
+    },
+    {
+      "label": "390/缓存命中：位移不来自图片容器",
+      "passed": true,
+      "detail": "来源=[]"
+    },
+    {
+      "label": "390/缓存命中：不使用兜底 SVG",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/缓存命中：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/缓存命中：首次访问完成加载",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/缓存命中：命中缓存时不为演出动画拖延显示",
+      "passed": true,
+      "detail": "占位窗口=0.0ms"
+    },
+    {
+      "label": "1440/缓存命中：命中缓存时不长时间闪占位",
+      "passed": true,
+      "detail": "中间帧=0 帧"
+    },
+    {
+      "label": "1440/缓存命中：回到首页没有重新下载主图（图片域名侧无新请求）",
+      "passed": true,
+      "detail": "图片域名请求 10 → 10"
+    },
+    {
+      "label": "1440/缓存命中：无布局位移",
+      "passed": true,
+      "detail": "CLS=0.00234"
+    },
+    {
+      "label": "1440/缓存命中：位移不来自图片容器",
+      "passed": true,
+      "detail": "来源=[]"
+    },
+    {
+      "label": "1440/缓存命中：不使用兜底 SVG",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/缓存命中：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/切换：默认人物先就绪",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/切换：插画跟随最后一次选择",
+      "passed": true,
+      "detail": "type-enfp"
+    },
+    {
+      "label": "390/切换：显示的是新选择的位图",
+      "passed": true,
+      "detail": "{'artwork': 'type-enfp', 'state': 'ready', 'attempt': 'primary', 'file': 'type-enfp.c06b798e47d3.webp', 'opacity': 1, 'heading': '灵感漫游者', 'pressed': ['ENFP，灵感漫游者']}"
+    },
+    {
+      "label": "390/切换：切换过程不触发回退",
+      "passed": true,
+      "detail": "primary"
+    },
+    {
+      "label": "390/切换：选中态、标题与插画指的是同一个人物",
+      "passed": true,
+      "detail": "{\"artwork\": \"type-enfp\", \"state\": \"ready\", \"attempt\": \"primary\", \"file\": \"type-enfp.c06b798e47d3.webp\", \"opacity\": 1, \"heading\": \"灵感漫游者\", \"pressed\": [\"ENFP，灵感漫游者\"]}"
+    },
+    {
+      "label": "390/切换：可见的插画永远属于当前选择",
+      "passed": true,
+      "detail": "不一致样本=0"
+    },
+    {
+      "label": "390/切换：晚到的旧图片不会覆盖新选择",
+      "passed": true,
+      "detail": "晚到可见样本=0"
+    },
+    {
+      "label": "390/切换：切换过程不引起图片容器位移",
+      "passed": true,
+      "detail": "来源=[]；CLS=0.00169"
+    },
+    {
+      "label": "390/切换：每个名字的请求次数有界",
+      "passed": true,
+      "detail": "{\"type-intj\": 1, \"type-esfp\": 2, \"type-intp\": 2, \"type-enfp\": 2}"
+    },
+    {
+      "label": "390/切换：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/切换：默认人物先就绪",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/切换：插画跟随最后一次选择",
+      "passed": true,
+      "detail": "type-enfp"
+    },
+    {
+      "label": "1440/切换：显示的是新选择的位图",
+      "passed": true,
+      "detail": "{'artwork': 'type-enfp', 'state': 'ready', 'attempt': 'primary', 'file': 'type-enfp.c06b798e47d3.webp', 'opacity': 1, 'heading': '灵感漫游者', 'pressed': ['ENFP，灵感漫游者']}"
+    },
+    {
+      "label": "1440/切换：切换过程不触发回退",
+      "passed": true,
+      "detail": "primary"
+    },
+    {
+      "label": "1440/切换：选中态、标题与插画指的是同一个人物",
+      "passed": true,
+      "detail": "{\"artwork\": \"type-enfp\", \"state\": \"ready\", \"attempt\": \"primary\", \"file\": \"type-enfp.c06b798e47d3.webp\", \"opacity\": 1, \"heading\": \"灵感漫游者\", \"pressed\": [\"ENFP，灵感漫游者\"]}"
+    },
+    {
+      "label": "1440/切换：可见的插画永远属于当前选择",
+      "passed": true,
+      "detail": "不一致样本=0"
+    },
+    {
+      "label": "1440/切换：晚到的旧图片不会覆盖新选择",
+      "passed": true,
+      "detail": "晚到可见样本=0"
+    },
+    {
+      "label": "1440/切换：切换过程不引起图片容器位移",
+      "passed": true,
+      "detail": "来源=[]；CLS=0.00234"
+    },
+    {
+      "label": "1440/切换：每个名字的请求次数有界",
+      "passed": true,
+      "detail": "{\"type-intj\": 1, \"type-esfp\": 2, \"type-intp\": 2, \"type-enfp\": 2}"
+    },
+    {
+      "label": "1440/切换：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "全部 API 均被模拟",
+      "passed": true,
+      "detail": "[]"
+    }
+  ],
+  "requests": {
+    "cdn": [
+      "/illustrations/2026-09-20/home-hero.4583aa734b96.webp",
+      "/illustrations/2026-09-20/type-infp.6f366d5766eb.webp",
+      "/illustrations/2026-09-20/type-intj.c96c6a363703.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-entj.a01db804d119.webp",
+      "/illustrations/2026-09-20/type-enfj.3e54194d48bf.webp",
+      "/illustrations/2026-09-20/type-entp.1228b4dfe038.webp",
+      "/illustrations/2026-09-20/type-infj.9cde37ca45c2.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp",
+      "/illustrations/2026-09-20/type-istj.eee7d23c2768.webp",
+      "/illustrations/2026-09-20/type-isfj.7da3a212b9ef.webp",
+      "/illustrations/2026-09-20/type-estj.a37348063c17.webp",
+      "/illustrations/2026-09-20/type-esfj.d9199a6a37e3.webp",
+      "/illustrations/2026-09-20/type-istp.a4def3a28f98.webp",
+      "/illustrations/2026-09-20/type-isfp.22d83e8252d4.webp",
+      "/illustrations/2026-09-20/type-estp.d3b59822d424.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp",
+      "/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp",
+      "/illustrations/2026-09-20/reflection.6923255424c0.webp",
+      "/illustrations/2026-09-20/home-hero.4583aa734b96.webp",
+      "/illustrations/2026-09-20/type-infp.6f366d5766eb.webp",
+      "/illustrations/2026-09-20/type-intj.c96c6a363703.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-entj.a01db804d119.webp",
+      "/illustrations/2026-09-20/type-entp.1228b4dfe038.webp",
+      "/illustrations/2026-09-20/type-infj.9cde37ca45c2.webp",
+      "/illustrations/2026-09-20/type-enfj.3e54194d48bf.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp",
+      "/illustrations/2026-09-20/type-istj.eee7d23c2768.webp",
+      "/illustrations/2026-09-20/type-isfj.7da3a212b9ef.webp",
+      "/illustrations/2026-09-20/type-estj.a37348063c17.webp",
+      "/illustrations/2026-09-20/type-esfj.d9199a6a37e3.webp",
+      "/illustrations/2026-09-20/type-istp.a4def3a28f98.webp",
+      "/illustrations/2026-09-20/type-isfp.22d83e8252d4.webp",
+      "/illustrations/2026-09-20/type-estp.d3b59822d424.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp",
+      "/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp",
+      "/illustrations/2026-09-20/reflection.6923255424c0.webp",
+      "/illustrations/2026-09-20/home-hero.4583aa734b96.webp",
+      "/illustrations/2026-09-20/type-infp.6f366d5766eb.webp",
+      "/illustrations/2026-09-20/type-intj.c96c6a363703.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-entj.a01db804d119.webp",
+      "/illustrations/2026-09-20/type-entp.1228b4dfe038.webp",
+      "/illustrations/2026-09-20/type-infj.9cde37ca45c2.webp",
+      "/illustrations/2026-09-20/type-enfj.3e54194d48bf.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp",
+      "/illustrations/2026-09-20/type-istj.eee7d23c2768.webp",
+      "/illustrations/2026-09-20/type-isfj.7da3a212b9ef.webp",
+      "/illustrations/2026-09-20/type-estj.a37348063c17.webp",
+      "/illustrations/2026-09-20/type-esfj.d9199a6a37e3.webp",
+      "/illustrations/2026-09-20/type-istp.a4def3a28f98.webp",
+      "/illustrations/2026-09-20/type-isfp.22d83e8252d4.webp",
+      "/illustrations/2026-09-20/type-estp.d3b59822d424.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/reflection.6923255424c0.webp",
+      "/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp",
+      "/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp",
+      "/illustrations/2026-09-20/home-hero.4583aa734b96.webp",
+      "/illustrations/2026-09-20/type-infp.6f366d5766eb.webp",
+      "/illustrations/2026-09-20/type-intj.c96c6a363703.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-entj.a01db804d119.webp",
+      "/illustrations/2026-09-20/type-entp.1228b4dfe038.webp",
+      "/illustrations/2026-09-20/type-infj.9cde37ca45c2.webp",
+      "/illustrations/2026-09-20/type-enfj.3e54194d48bf.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp",
+      "/illustrations/2026-09-20/type-istj.eee7d23c2768.webp",
+      "/illustrations/2026-09-20/type-isfj.7da3a212b9ef.webp",
+      "/illustrations/2026-09-20/type-estj.a37348063c17.webp",
+      "/illustrations/2026-09-20/type-esfj.d9199a6a37e3.webp",
+      "/illustrations/2026-09-20/type-istp.a4def3a28f98.webp",
+      "/illustrations/2026-09-20/type-isfp.22d83e8252d4.webp",
+      "/illustrations/2026-09-20/type-estp.d3b59822d424.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp",
+      "/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp",
+      "/illustrations/2026-09-20/home-hero.4583aa734b96.webp",
+      "/illustrations/2026-09-20/type-infp.6f366d5766eb.webp",
+      "/illustrations/2026-09-20/type-intj.c96c6a363703.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-entj.a01db804d119.webp",
+      "/illustrations/2026-09-20/type-entp.1228b4dfe038.webp",
+      "/illustrations/2026-09-20/type-infj.9cde37ca45c2.webp",
+      "/illustrations/2026-09-20/type-enfj.3e54194d48bf.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp",
+      "/illustrations/2026-09-20/type-istj.eee7d23c2768.webp",
+      "/illustrations/2026-09-20/type-isfj.7da3a212b9ef.webp",
+      "/illustrations/2026-09-20/type-estj.a37348063c17.webp",
+      "/illustrations/2026-09-20/type-esfj.d9199a6a37e3.webp",
+      "/illustrations/2026-09-20/type-istp.a4def3a28f98.webp",
+      "/illustrations/2026-09-20/type-isfp.22d83e8252d4.webp",
+      "/illustrations/2026-09-20/type-estp.d3b59822d424.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/reflection.6923255424c0.webp",
+      "/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp",
+      "/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp",
+      "/illustrations/2026-09-20/home-hero.4583aa734b96.webp",
+      "/illustrations/2026-09-20/type-infp.6f366d5766eb.webp",
+      "/illustrations/2026-09-20/type-intj.c96c6a363703.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-entj.a01db804d119.webp",
+      "/illustrations/2026-09-20/type-entp.1228b4dfe038.webp",
+      "/illustrations/2026-09-20/type-infj.9cde37ca45c2.webp",
+      "/illustrations/2026-09-20/type-enfj.3e54194d48bf.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp",
+      "/illustrations/2026-09-20/type-istj.eee7d23c2768.webp",
+      "/illustrations/2026-09-20/type-isfj.7da3a212b9ef.webp",
+      "/illustrations/2026-09-20/type-estj.a37348063c17.webp",
+      "/illustrations/2026-09-20/type-esfj.d9199a6a37e3.webp",
+      "/illustrations/2026-09-20/type-istp.a4def3a28f98.webp",
+      "/illustrations/2026-09-20/type-isfp.22d83e8252d4.webp",
+      "/illustrations/2026-09-20/type-estp.d3b59822d424.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/reflection.6923255424c0.webp",
+      "/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp",
+      "/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp",
+      "/illustrations/2026-09-20/home-hero.4583aa734b96.webp",
+      "/illustrations/2026-09-20/type-infp.6f366d5766eb.webp",
+      "/illustrations/2026-09-20/type-intj.c96c6a363703.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-entj.a01db804d119.webp",
+      "/illustrations/2026-09-20/type-entp.1228b4dfe038.webp",
+      "/illustrations/2026-09-20/type-infj.9cde37ca45c2.webp",
+      "/illustrations/2026-09-20/type-enfj.3e54194d48bf.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp",
+      "/illustrations/2026-09-20/type-istj.eee7d23c2768.webp",
+      "/illustrations/2026-09-20/type-isfj.7da3a212b9ef.webp",
+      "/illustrations/2026-09-20/type-estj.a37348063c17.webp",
+      "/illustrations/2026-09-20/type-esfj.d9199a6a37e3.webp",
+      "/illustrations/2026-09-20/type-istp.a4def3a28f98.webp",
+      "/illustrations/2026-09-20/type-isfp.22d83e8252d4.webp",
+      "/illustrations/2026-09-20/type-estp.d3b59822d424.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp",
+      "/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp",
+      "/illustrations/2026-09-20/home-hero.4583aa734b96.webp",
+      "/illustrations/2026-09-20/type-infp.6f366d5766eb.webp",
+      "/illustrations/2026-09-20/type-intj.c96c6a363703.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-entj.a01db804d119.webp",
+      "/illustrations/2026-09-20/type-entp.1228b4dfe038.webp",
+      "/illustrations/2026-09-20/type-infj.9cde37ca45c2.webp",
+      "/illustrations/2026-09-20/type-enfj.3e54194d48bf.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp",
+      "/illustrations/2026-09-20/type-istj.eee7d23c2768.webp",
+      "/illustrations/2026-09-20/type-isfj.7da3a212b9ef.webp",
+      "/illustrations/2026-09-20/type-esfj.d9199a6a37e3.webp",
+      "/illustrations/2026-09-20/type-estj.a37348063c17.webp",
+      "/illustrations/2026-09-20/type-istp.a4def3a28f98.webp",
+      "/illustrations/2026-09-20/type-isfp.22d83e8252d4.webp",
+      "/illustrations/2026-09-20/type-estp.d3b59822d424.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp",
+      "/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp",
+      "/illustrations/2026-09-20/home-hero.4583aa734b96.webp",
+      "/illustrations/2026-09-20/type-infp.6f366d5766eb.webp",
+      "/illustrations/2026-09-20/type-intj.c96c6a363703.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-entj.a01db804d119.webp",
+      "/illustrations/2026-09-20/type-entp.1228b4dfe038.webp",
+      "/illustrations/2026-09-20/type-infj.9cde37ca45c2.webp",
+      "/illustrations/2026-09-20/type-enfj.3e54194d48bf.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp",
+      "/illustrations/2026-09-20/type-istj.eee7d23c2768.webp",
+      "/illustrations/2026-09-20/type-estj.a37348063c17.webp",
+      "/illustrations/2026-09-20/type-esfj.d9199a6a37e3.webp",
+      "/illustrations/2026-09-20/type-isfj.7da3a212b9ef.webp",
+      "/illustrations/2026-09-20/type-istp.a4def3a28f98.webp",
+      "/illustrations/2026-09-20/type-isfp.22d83e8252d4.webp",
+      "/illustrations/2026-09-20/type-estp.d3b59822d424.webp",
+      "/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp",
+      "/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/reflection.6923255424c0.webp",
+      "/illustrations/2026-09-20/home-hero.4583aa734b96.webp",
+      "/illustrations/2026-09-20/type-infp.6f366d5766eb.webp",
+      "/illustrations/2026-09-20/type-intj.c96c6a363703.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-entj.a01db804d119.webp",
+      "/illustrations/2026-09-20/type-entp.1228b4dfe038.webp",
+      "/illustrations/2026-09-20/type-infj.9cde37ca45c2.webp",
+      "/illustrations/2026-09-20/type-enfj.3e54194d48bf.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp",
+      "/illustrations/2026-09-20/type-istj.eee7d23c2768.webp",
+      "/illustrations/2026-09-20/type-isfj.7da3a212b9ef.webp",
+      "/illustrations/2026-09-20/type-estj.a37348063c17.webp",
+      "/illustrations/2026-09-20/type-esfj.d9199a6a37e3.webp",
+      "/illustrations/2026-09-20/type-istp.a4def3a28f98.webp",
+      "/illustrations/2026-09-20/type-isfp.22d83e8252d4.webp",
+      "/illustrations/2026-09-20/type-estp.d3b59822d424.webp",
+      "/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/reflection.6923255424c0.webp",
+      "/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp",
+      "/illustrations/2026-09-20/home-hero.4583aa734b96.webp",
+      "/illustrations/2026-09-20/type-infp.6f366d5766eb.webp",
+      "/illustrations/2026-09-20/type-intj.c96c6a363703.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-entj.a01db804d119.webp",
+      "/illustrations/2026-09-20/type-entp.1228b4dfe038.webp",
+      "/illustrations/2026-09-20/type-infj.9cde37ca45c2.webp",
+      "/illustrations/2026-09-20/type-enfj.3e54194d48bf.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp",
+      "/illustrations/2026-09-20/type-istj.eee7d23c2768.webp",
+      "/illustrations/2026-09-20/type-isfj.7da3a212b9ef.webp",
+      "/illustrations/2026-09-20/type-estj.a37348063c17.webp",
+      "/illustrations/2026-09-20/type-esfj.d9199a6a37e3.webp",
+      "/illustrations/2026-09-20/type-istp.a4def3a28f98.webp",
+      "/illustrations/2026-09-20/type-isfp.22d83e8252d4.webp",
+      "/illustrations/2026-09-20/type-estp.d3b59822d424.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp",
+      "/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp",
+      "/illustrations/2026-09-20/reflection.6923255424c0.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp",
+      "/illustrations/2026-09-20/home-hero.4583aa734b96.webp",
+      "/illustrations/2026-09-20/type-infp.6f366d5766eb.webp",
+      "/illustrations/2026-09-20/type-intj.c96c6a363703.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-entj.a01db804d119.webp",
+      "/illustrations/2026-09-20/type-entp.1228b4dfe038.webp",
+      "/illustrations/2026-09-20/type-infj.9cde37ca45c2.webp",
+      "/illustrations/2026-09-20/type-enfj.3e54194d48bf.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp",
+      "/illustrations/2026-09-20/type-istj.eee7d23c2768.webp",
+      "/illustrations/2026-09-20/type-isfj.7da3a212b9ef.webp",
+      "/illustrations/2026-09-20/type-estj.a37348063c17.webp",
+      "/illustrations/2026-09-20/type-esfj.d9199a6a37e3.webp",
+      "/illustrations/2026-09-20/type-istp.a4def3a28f98.webp",
+      "/illustrations/2026-09-20/type-isfp.22d83e8252d4.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/type-estp.d3b59822d424.webp",
+      "/illustrations/2026-09-20/reflection.6923255424c0.webp",
+      "/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp",
+      "/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp",
+      "/illustrations/2026-09-20/type-esfp.16016c5e0828.webp",
+      "/illustrations/2026-09-20/type-intp.0c15455e1bda.webp",
+      "/illustrations/2026-09-20/type-enfp.c06b798e47d3.webp"
+    ],
+    "site": [
+      "/",
+      "/assets/index-8hFye18q.js",
+      "/assets/index-DSEqS7We.css",
+      "/",
+      "/assets/index-8hFye18q.js",
+      "/assets/index-DSEqS7We.css",
+      "/",
+      "/assets/index-8hFye18q.js",
+      "/assets/index-DSEqS7We.css",
+      "/",
+      "/assets/index-8hFye18q.js",
+      "/assets/index-DSEqS7We.css",
+      "/",
+      "/assets/index-8hFye18q.js",
+      "/assets/index-DSEqS7We.css",
+      "/",
+      "/assets/index-8hFye18q.js",
+      "/assets/index-DSEqS7We.css",
+      "/",
+      "/assets/index-8hFye18q.js",
+      "/assets/index-DSEqS7We.css",
+      "/assets/home-hero-D6cgdiEp.webp",
+      "/",
+      "/assets/index-8hFye18q.js",
+      "/assets/index-DSEqS7We.css",
+      "/assets/home-hero-D6cgdiEp.webp",
+      "/",
+      "/assets/index-8hFye18q.js",
+      "/assets/index-DSEqS7We.css",
+      "/",
+      "/assets/index-8hFye18q.js",
+      "/assets/index-DSEqS7We.css",
+      "/",
+      "/assets/index-8hFye18q.js",
+      "/assets/index-DSEqS7We.css",
+      "/",
+      "/assets/index-8hFye18q.js",
+      "/assets/index-DSEqS7We.css"
+    ]
+  }
+}

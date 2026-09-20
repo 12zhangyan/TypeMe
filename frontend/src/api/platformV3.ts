@@ -515,6 +515,61 @@ export async function fetchInstruments(): Promise<InstrumentCard[]> {
   )
 }
 
+/* ── 公开插画地址 ───────────────────────────────────────────────────────── */
+
+/** 库里的一条插画地址。`sha256` 供核对脚本用，页面不使用它。 */
+export interface IllustrationAssetView {
+  name: string
+  url: string
+  sha256: string
+}
+
+/**
+ * 一份**完整**的插画地址映射以及它的版本号。
+ *
+ * `urls` 是 `名字 → 绝对地址`。**地址原样带回**：这里不做"能不能用"的判断，
+ * 那是解析层（`design/illustrationAssets.ts`）的事，这样"契约形状不对"与
+ * "地址不该用"两类问题不会混在一个错误里。
+ *
+ * `version` 由服务端给出（行数 + 最新更新时间），前端只拿它判断本地缓存是否还有效，
+ * **不要解析它的内部结构**。
+ */
+export interface IllustrationMap {
+  release: string | null
+  version: string
+  urls: Record<string, string>
+}
+
+function parseIllustrationAsset(raw: unknown, path: string): IllustrationAssetView {
+  const source = obj({ asset: raw }, 'asset', path)
+  return {
+    name: str(source, 'name', path),
+    url: str(source, 'url', path),
+    sha256: str(source, 'sha256', path),
+  }
+}
+
+/**
+ * 读公开插画地址（匿名可读）。
+ *
+ * 表为空时返回空映射，**不是错误**：页面会继续用本地打包资源。
+ */
+export async function fetchIllustrations(): Promise<IllustrationMap> {
+  const path = `${BASE}/illustrations`
+  const response = await v3Request('GET', path)
+  const payload = await v3ReadJson<Record<string, unknown>>(response, path)
+  const urls: Record<string, string> = {}
+  arr(payload, 'assets', path).forEach((item, index) => {
+    const asset = parseIllustrationAsset(item, `${path}.assets[${index}]`)
+    urls[asset.name] = asset.url
+  })
+  return {
+    release: nullableStr(payload, 'release', path),
+    version: str(payload, 'version', path),
+    urls,
+  }
+}
+
 export async function fetchInstrumentDetail(slug: string): Promise<InstrumentDetail> {
   const path = `${BASE}/instruments/${encodeURIComponent(slug)}`
   const response = await v3Request('GET', path)

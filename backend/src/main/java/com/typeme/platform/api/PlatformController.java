@@ -7,14 +7,17 @@ import com.typeme.platform.catalog.AssessmentRelease;
 import com.typeme.platform.catalog.InstrumentKind;
 import com.typeme.platform.service.BigFiveAttemptService;
 import com.typeme.platform.service.BigFiveReportService;
+import com.typeme.platform.service.IllustrationAssetService;
 import com.typeme.platform.service.PlatformQueryService;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,16 +46,19 @@ public class PlatformController {
     private final BigFiveAttemptService bigFiveAttempts;
     private final BigFiveReportService bigFiveReports;
     private final PlatformQueryService queries;
+    private final IllustrationAssetService illustrations;
 
     public PlatformController(
             AssessmentCatalog catalog,
             BigFiveAttemptService bigFiveAttempts,
             BigFiveReportService bigFiveReports,
-            PlatformQueryService queries) {
+            PlatformQueryService queries,
+            IllustrationAssetService illustrations) {
         this.catalog = catalog;
         this.bigFiveAttempts = bigFiveAttempts;
         this.bigFiveReports = bigFiveReports;
         this.queries = queries;
+        this.illustrations = illustrations;
     }
 
     /* ── 目录（需登录，但不含任何个人信息） ──────────────────────────────── */
@@ -84,6 +90,42 @@ public class PlatformController {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache())
                 .body(queries.instrument(slug));
+    }
+
+    /* ── 公开插画地址（运行期从库里取，不必为换图发版） ──────────────────── */
+
+    /**
+     * 全部公开插画的远端地址。
+     *
+     * <p><b>公开</b>（`SecurityConfig` 里单独 permitAll），理由与目录接口同源但更硬：
+     * 首页是**匿名**可访问的，而首页首屏正是这次图片迁移要省流量的那部分流量。
+     * 锁在登录后等于让最重要的访客继续从源站出图。响应只含公开插画地址，无用户数据。
+     *
+     * <p>刻意**不**用 `requireUser()`：那会让公开接口在未登录时 401（与上面的配置自相矛盾）。
+     */
+    @GetMapping("/illustrations")
+    public ResponseEntity<PlatformDtos.IllustrationListResponse> illustrations() {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache())
+                .body(illustrations.list());
+    }
+
+    /**
+     * 改一批插画地址（立即生效，不需要重新构建/发布前端）。
+     *
+     * <p>**仅 ADMIN**：这里写的是"公开页面会去加载哪个地址"，写错就等于把用户引到别的
+     * 域名上；因此鉴权在方法级显式声明（与 `/api/v3/admin/**` 同一套判定），而不是靠路径前缀。
+     * 校验（白名单名字、https、域名允许清单、sha256 形状）在 {@code IllustrationAssetService}。
+     *
+     * <p>返回改完之后的完整列表，方便调用方确认"整个页面现在会用什么地址"。
+     */
+    @PutMapping("/illustrations")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PlatformDtos.IllustrationListResponse> updateIllustrations(
+            @RequestBody(required = false) PlatformDtos.IllustrationUpdateRequest request) {
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache())
+                .body(illustrations.update(request));
     }
 
     /* ── 大五草稿与答题 ─────────────────────────────────────────────────── */

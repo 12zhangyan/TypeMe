@@ -277,4 +277,38 @@ public final class PlatformDtos {
 
     public record MyReportListResponse(List<MyReportRow> items, int page, int size, long total) {
     }
+
+    /* ── 公开插画地址（运行期从库里取） ─────────────────────────────────── */
+
+    /**
+     * 一张公开插画的远端地址。
+     *
+     * @param name   逻辑名，等于素材文件名（`home-hero`、`type-intj`……），前端按它取值
+     * @param url    绝对地址；路径里带内容哈希，所以"换图 = 换地址"，不需要刷缓存
+     * @param sha256 该地址应有的字节哈希，供核对脚本做"库 ↔ 本地素材 ↔ 远端对象"三方核对
+     */
+    public record IllustrationAssetView(String name, String url, String sha256) {
+    }
+
+    /**
+     * 全部公开插画 + 一个内容版本号。
+     *
+     * <p>{@code version} 由"行数 + 最新 updated_at"拼成，是不透明字符串：前端只拿它判断
+     * 本地缓存是否还有效，**不要**解析它的内部结构。任何一行被改、被加、被删，它都会变。
+     *
+     * <p>为什么把 {@code release} 和 {@code version} 都带上：前者是"这批素材属于哪次发布"
+     * （人看的、可整体回退的标签），后者是"这份数据变没变"（机器判等用的）。
+     */
+    public record IllustrationListResponse(String release, String version, List<IllustrationAssetView> assets) {
+    }
+
+    /**
+     * 改一批插画地址的请求。**只允许公开插画的名字**，且地址必须是 https + 允许清单内的域名
+     * （校验在服务层，见 {@code IllustrationAssetService}）。
+     */
+    public record IllustrationUpdateRequest(List<IllustrationUpdateItem> assets) {
+    }
+
+    public record IllustrationUpdateItem(String name, String url, String sha256, String release) {
+    }
 }
