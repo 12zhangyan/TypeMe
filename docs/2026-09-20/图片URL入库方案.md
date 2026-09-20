@@ -212,7 +212,7 @@ PUT  /api/v3/platform/illustrations      # 仅 ADMIN；整批校验、整批生�
 | --- | --- | --- |
 | `scripts/gen-image-publish.mjs` | 新增 `--emit-sql`：从真实素材生成 **Flyway 迁移 SQL**（默认 stdout，`--out` 才写文件，**已存在的文件拒绝覆盖**，除非 `--force`）。不再产出 `illustrationPublish.json`；`--check` 保留且改为**忽略行尾 CR**（Windows 上 `core.autocrlf=true` 会把检出的清单变成 CRLF，按字节比会把刚 clone 的干净工作区误报成"清单不一致"） | 已完成 |
 | `scripts/check-remote-images.mjs` | 新增 `--from-api=<服务地址>`：读**公开接口**取地址（不需要库凭据），核对三方一致 —— 库里的 `sha256` ↔ 本地素材字节 ↔ 远端对象字节；漂移即失败。不带参数时仍按上传清单核对 | 已完成 |
-| `scripts/check-bundled-image-urls.mjs`（原 `check-image-base-url.mjs`） | 语义变化：产物里**不应**再出现任何绝对图片地址或图片主机（不再有构建期域名）。已用负向探针确认能抓出写死的地址 | 已完成 |
+| `scripts/check-bundled-image-urls.mjs`（原 `check-image-base-url.mjs`） | 语义变化：产物里**不应**再出现任何绝对图片地址或图片主机（不再有构建期域名）。已用负向探针确认能抓出写死的地址；**已接进 `npm run build` 的 `postbuild`**，写死域名当场构建失败；扫描范围含 `dist/index.html` | 已完成 |
 | `scripts/cos-upload-images.mjs` | 未改（它只管上传；入库 SQL 由 `--emit-sql` 产出，作为 Flyway 迁移随部署执行） | — |
 | `scripts/browser-verify-{image-cdn,real-images}.py` | 改为由**接口 mock**提供地址表（`/api/v3/platform/illustrations`），不再依赖构建期域名；真实域名脚本额外断言"产物里不得出现域名" | 已完成 |
 
@@ -276,10 +276,10 @@ PUT  /api/v3/platform/illustrations      # 仅 ADMIN；整批校验、整批生�
 | 解码失败回退负向探针 | 把解码失败改回"直接兜底"再跑组件用例 | **如预期变红**（`expected 'primary' to be 'local-fallback'`），改回后转绿 |
 | 前端单测 | `npm.cmd test` | **47 文件 / 1007 用例通过**（新增解码失败回退 1 条） |
 | 后端测试子集（排除三类真实 MySQL IT） | `mvn.cmd test "-Dtest=*,!AccountSqlDialectMySqlIT,!AiSqlDialectMySqlIT,!ConcurrencyMySqlIT"` | **387 用例通过 / 0 失败**（1 跳过） |
-| 类型检查 / 构建 | `npm.cmd run typecheck` / `npm.cmd run build` | 0 退出码 |
+| 类型检查 / 构建 | `npm.cmd run typecheck` / `npm.cmd run build` | 0 退出码（`build` 现在自带 `postbuild` 产物地址检查） |
 | 生成产物一致 | `node scripts/gen-image-publish.mjs --check` | 21 张、2,622,284 字节与素材一致（清单文件本身未变；顺带修掉 CRLF 误报，负向探针：手改一行即报错） |
 | 迁移可重现 | `--emit-sql --out <迁移> --force` 后比对 | 与仓库里的 `V10` **逐字节一致** |
-| 产物零绝对地址 | `node scripts/check-bundled-image-urls.mjs` | 通过（负向探针能抓出写死的域名） |
+| 产物零绝对地址 | `node scripts/check-bundled-image-urls.mjs`（已接进 `npm run build` 的 `postbuild`） | 扫 5 个文件（4 个 `assets/*.js\|css` + `index.html`）通过；两个负向探针：产物里塞 COS 绝对地址 → 退出码 1，`index.html` 缺失 → 退出码 2 |
 | **真实 COS 浏览器验收** | `TYPEME_LABEL=dbmap-real python scripts/browser-verify-real-images.py` | **PASS 70 / FAIL 0**；21 个插画位全部来自 COS、无本地回退、CLS≈0.002、`high=1 / lazy=20`；冷启动占位 434–524ms、缓存命中 199–247ms |
 | 本地模拟域名（失败分支） | `TYPEME_LABEL=dbmap-mock python scripts/browser-verify-image-cdn.py` | **PASS 152 / FAIL 0** |
 | **CSP 复现（修法 A 之前）** | `TYPEME_LABEL=dbmap-csp TYPEME_CSP="default-src 'self'" …` | 20 条请求全部 `blockedReason: csp`，21 个位置全部回退本地 —— 这就是修法 A 要修掉的现象 |
@@ -319,8 +319,12 @@ PUT  /api/v3/platform/illustrations      # 仅 ADMIN；整批校验、整批生�
 5. ~~建表怎么执行~~ → **已定：`V10` Flyway 迁移，随部署执行；幂等，兼容人工建过表的库**
    （Codex review #2 指出"手工步骤会让新环境功能不可用"，已采纳）。
 6. ~~解码失败不回退本地~~ → **已修**（Codex review #1），与网络失败共用同一条回退。
-7. 可选加固（未做）：COS 防盗链白名单、外网下行流量告警、把 `check-bundled-image-urls.mjs` 接进
-   `prebuild`（现在只是手动/CI 可跑）。
+7. ~~把 `check-bundled-image-urls.mjs` 接进构建~~ → **已接**，钩子是 `frontend/package.json` 的
+   `postbuild`（不是 `prebuild`：prebuild 只能查上一次的产物，postbuild 查的正是刚生成的这一份），
+   扫描范围含 `dist/index.html`（在模板里写一个 `<link rel="preload">` 同样会把域名钉死）。
+8. 可选加固（仍未做，都需要你在云控制台操作或授权）：COS 防盗链白名单、外网下行流量告警。
+   另外"表不存在时读接口返回空表而不是 500"这条**已经作废**：表由 `V10` 迁移随部署创建，
+   真出现"表不存在"意味着迁移失败、应用本身起不来，此时掩盖成空表只会更难查（见 §4/§10）。
 
 ## 13. 回滚
 
