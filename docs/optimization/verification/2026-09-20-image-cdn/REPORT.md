@@ -402,4 +402,5 @@ CLS 0.002、`preload=0 high=1 lazy=20`；冷启动占位窗口 434–524ms（含
   真实链路（MySQL → 后端 → 浏览器）要在后端重新部署后跑一次：
   `node scripts/check-remote-images.mjs --from-api=<服务地址>`，
   再核对线上响应头（§12.4），并在真实响应头下重跑一次浏览器验收。
-- 防盗链、COS 下行告警、`check-bundled-image-urls.mjs` 接入 `prebuild` —— 都未做。
+- COS 防盗链白名单、COS 下行流量告警 —— 未做（需要云控制台操作）。
+  `check-bundled-image-urls.mjs` 已接进 `npm run build` 的 `postbuild`（见方案 §8/§11）。

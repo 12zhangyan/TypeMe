@@ -358,7 +358,7 @@ curl.exe -sI <站点地址>/ | Select-String 'Content-Security-Policy'   # 应�
 | `frontend/src/api/platformV3.ts` | `fetchIllustrations()`：严格按契约解析，字段缺失即抛 `UNEXPECTED_RESPONSE` |
 | `scripts/gen-image-publish.mjs` | 从真实素材生成上传清单与**入库迁移 SQL**（`--emit-sql`），支持 `--check` |
 | `scripts/upload-image-manifest.mjs` / `cos-upload-images.mjs` | 上传计划与执行器（`--plan` / `--verify-key` / `--execute`），自带 COS 签名 |
-| `scripts/check-bundled-image-urls.mjs` | 产物里**不得**出现任何绝对图片地址或图片主机（取代 `check-image-base-url.mjs`） |
+| `scripts/check-bundled-image-urls.mjs` | 产物里**不得**出现任何绝对图片地址或图片主机（取代 `check-image-base-url.mjs`）。已接进 `npm run build` 的 `postbuild`，扫描范围含 `dist/index.html` |
 | `scripts/check-remote-images.mjs` | 匿名核对已上传对象；`--from-api=<服务地址>` 做**库 ↔ 本地素材 ↔ 远端对象**三方核对 |
 | `scripts/browser-verify-image-cdn.py` | 浏览器验收：两个本地服务器分别扮演站点（含接口 mock）与图片域名（失败分支注入） |
 | `scripts/browser-verify-real-images.py` | 浏览器验收：地址由接口 mock 给出、浏览器真的去 COS 官方域名取图 |
