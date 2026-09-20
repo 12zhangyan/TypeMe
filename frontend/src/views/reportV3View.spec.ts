@@ -606,6 +606,28 @@ describe('报告页：REFERENCE', () => {
     }
   })
 
+  it('能读取带 version 2 中性外壳的报告体', async () => {
+    api.detail = () => ({
+      status: 200,
+      body: {
+        report: {
+          schemaVersion: 2,
+          instrument: { slug: 'jung48' },
+          reportKind: 'jung_reference',
+          reportId: REPORT_ID,
+          attemptId: ATTEMPT_ID,
+          createdAt: '2026-09-16T10:20:00Z',
+          report: REFERENCE,
+        },
+      },
+    })
+    const { wrapper } = await mountReport()
+
+    expect(wrapper.find('[data-shape-error]').exists()).toBe(false)
+    expect(wrapper.find('[data-status="REFERENCE"]').exists()).toBe(true)
+    expect(wrapper.find('h1').text()).toContain('ENFP')
+  })
+
   it('四维得分条用 position 画位置，两端标签用内容包给的名称', async () => {
     api.detail = () => ({ status: 200, body: { report: REFERENCE } })
     const { wrapper } = await mountReport()

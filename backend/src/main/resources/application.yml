@@ -63,6 +63,14 @@ typeme:
   app-version: "1.0.0"
   content-version: "2026-09-01"
 
+  # 公开插画的远端地址（库表 illustration_asset 的写入边界）。
+  illustration:
+    # 允许写进 illustration_asset 的域名（逗号分隔）。不在这里的域名一律拒绝写入：
+    # 管理员接口写的是"公开页面去加载哪个地址"，放开等于允许把任意第三方图片挂到本站。
+    # 换 CDN / 自有域名时改这里（或用 TYPEME_ILLUSTRATION_ALLOWED_HOSTS 覆盖），
+    # 并且**同时**改 CSP 的 img-src（若那个头还在，见 REPORT §12）。
+    allowed-hosts: yan-public-1407914221.cos.ap-beijing.myqcloud.com
+
   # 账号与会话（开发方案 §5）。这里**不含任何 secret 值**。
   auth:
     # 绝对会话上限：过滤链每个已认证请求都校验 app_user_session.absolute_expires_at。

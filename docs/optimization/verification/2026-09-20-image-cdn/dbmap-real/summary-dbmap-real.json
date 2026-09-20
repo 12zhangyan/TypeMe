@@ -1,0 +1,370 @@
+{
+  "label": "dbmap-real",
+  "mode": "real",
+  "site": "http://127.0.0.1:5197",
+  "imageBase": "https://yan-public-1407914221.cos.ap-beijing.myqcloud.com",
+  "scope": "isolated build + real COS official domain + mocked API; browser fetches images from COS over HTTPS",
+  "passed": 70,
+  "failed": 0,
+  "failures": [],
+  "notes": [
+    "cold/320：图片请求 20 条、2483161 字节、本地回退请求 0 条、占位窗口 550ms、中间帧 9 个、最慢 ('assessment-bigfive.e13c9e572c1c.webp', 732)",
+    "warm/320：图片请求 20 条、编码字节 0 字节、零字节响应 20 条、CDP 缓存事件 0 条、占位窗口 203ms、中间帧 9 个",
+    "cold/390：图片请求 20 条、2483157 字节、本地回退请求 0 条、占位窗口 445ms、中间帧 9 个、最慢 ('assessment-jung.b364f47f1802.webp', 538)",
+    "warm/390：图片请求 20 条、编码字节 0 字节、零字节响应 20 条、CDP 缓存事件 0 条、占位窗口 199ms、中间帧 9 个",
+    "cold/1440：图片请求 20 条、2483145 字节、本地回退请求 0 条、占位窗口 524ms、中间帧 9 个、最慢 ('assessment-bigfive.e13c9e572c1c.webp', 616)",
+    "warm/1440：图片请求 20 条、编码字节 0 字节、零字节响应 20 条、CDP 缓存事件 0 条、占位窗口 247ms、中间帧 9 个"
+  ],
+  "checks": [
+    {
+      "label": "真实域名/320：首屏主图加载完成（data-artwork-state=ready）",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "真实域名/320：浏览器确实向真实域名取了图",
+      "passed": true,
+      "detail": "20 条"
+    },
+    {
+      "label": "真实域名/320：请求地址都是图片域名 + 发布清单对象键",
+      "passed": true,
+      "detail": "['https://yan-public-1407914221.cos.ap-beijing.myqcloud.com/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp', 'https://yan-public-1407914221.cos.ap-beijing.myqcloud.com/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp']"
+    },
+    {
+      "label": "真实域名/320：全部图片响应 200（无 4xx/5xx）",
+      "passed": true,
+      "detail": "{}"
+    },
+    {
+      "label": "真实域名/320：没有加载失败的图片请求",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "真实域名/320：没有触发本地兜底（说明真实域名这条路是通的）",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "真实域名/320：所有插画位都渲染了 <img>（没有停在兜底 SVG）",
+      "passed": true,
+      "detail": "frames=21 withImg=21"
+    },
+    {
+      "label": "真实域名/320：所有插画都来自图片域名",
+      "passed": true,
+      "detail": "{\"yan-public-1407914221.cos.ap-beijing.myqcloud.com\": 21}"
+    },
+    {
+      "label": "真实域名/320：首屏主图指向发布清单里的对象键",
+      "passed": true,
+      "detail": "https://yan-public-1407914221.cos.ap-beijing.myqcloud.com/illustrations/2026-09-20/home-hero.4583aa734b96.webp"
+    },
+    {
+      "label": "真实域名/320：全程在主地址上，没有发生回退",
+      "passed": true,
+      "detail": "['primary']"
+    },
+    {
+      "label": "真实域名/320：主图容器高度全程不变（已预留尺寸）",
+      "passed": true,
+      "detail": "272~272px"
+    },
+    {
+      "label": "真实域名/320：布局位移可忽略（CLS）",
+      "passed": true,
+      "detail": "0.00208"
+    },
+    {
+      "label": "真实域名/320：位移不来自图片容器",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "真实域名/320：图片解码后有淡入过程",
+      "passed": true,
+      "detail": "中间帧 9 个"
+    },
+    {
+      "label": "真实域名/320：不预加载全部人物，只有主图高优先级",
+      "passed": true,
+      "detail": "preload=0 high=1 lazy=20"
+    },
+    {
+      "label": "真实域名/320：屏外图片仍是懒加载",
+      "passed": true,
+      "detail": "lazy=20"
+    },
+    {
+      "label": "真实域名/320：等待图片期间主要按钮仍在版面上（没有被挤出）",
+      "passed": true,
+      "detail": "[64, 44]"
+    },
+    {
+      "label": "真实域名/320：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "真实域名/320：二次加载主图就绪",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "真实域名/320：二次加载完全没有重新下载图片（max-age 生效）",
+      "passed": true,
+      "detail": "编码字节 0；零字节响应 20/20 条（CDP 缓存事件 0 条，Chromium 在内存缓存命中时不发该事件）"
+    },
+    {
+      "label": "真实域名/320：二次加载也没有触发本地兜底",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "真实域名/320：缓存命中时占位窗口不超过冷启动，且落在淡入时长量级内",
+      "passed": true,
+      "detail": "冷启动 550ms → 缓存命中 203ms（淡入本身 200ms）"
+    },
+    {
+      "label": "真实域名/320：二次加载所有插画位仍然有图",
+      "passed": true,
+      "detail": "frames=21 withImg=21"
+    },
+    {
+      "label": "真实域名/390：首屏主图加载完成（data-artwork-state=ready）",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "真实域名/390：浏览器确实向真实域名取了图",
+      "passed": true,
+      "detail": "20 条"
+    },
+    {
+      "label": "真实域名/390：请求地址都是图片域名 + 发布清单对象键",
+      "passed": true,
+      "detail": "['https://yan-public-1407914221.cos.ap-beijing.myqcloud.com/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp', 'https://yan-public-1407914221.cos.ap-beijing.myqcloud.com/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp']"
+    },
+    {
+      "label": "真实域名/390：全部图片响应 200（无 4xx/5xx）",
+      "passed": true,
+      "detail": "{}"
+    },
+    {
+      "label": "真实域名/390：没有加载失败的图片请求",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "真实域名/390：没有触发本地兜底（说明真实域名这条路是通的）",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "真实域名/390：所有插画位都渲染了 <img>（没有停在兜底 SVG）",
+      "passed": true,
+      "detail": "frames=21 withImg=21"
+    },
+    {
+      "label": "真实域名/390：所有插画都来自图片域名",
+      "passed": true,
+      "detail": "{\"yan-public-1407914221.cos.ap-beijing.myqcloud.com\": 21}"
+    },
+    {
+      "label": "真实域名/390：首屏主图指向发布清单里的对象键",
+      "passed": true,
+      "detail": "https://yan-public-1407914221.cos.ap-beijing.myqcloud.com/illustrations/2026-09-20/home-hero.4583aa734b96.webp"
+    },
+    {
+      "label": "真实域名/390：全程在主地址上，没有发生回退",
+      "passed": true,
+      "detail": "['primary']"
+    },
+    {
+      "label": "真实域名/390：主图容器高度全程不变（已预留尺寸）",
+      "passed": true,
+      "detail": "330~330px"
+    },
+    {
+      "label": "真实域名/390：布局位移可忽略（CLS）",
+      "passed": true,
+      "detail": "0.00169"
+    },
+    {
+      "label": "真实域名/390：位移不来自图片容器",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "真实域名/390：图片解码后有淡入过程",
+      "passed": true,
+      "detail": "中间帧 9 个"
+    },
+    {
+      "label": "真实域名/390：不预加载全部人物，只有主图高优先级",
+      "passed": true,
+      "detail": "preload=0 high=1 lazy=20"
+    },
+    {
+      "label": "真实域名/390：屏外图片仍是懒加载",
+      "passed": true,
+      "detail": "lazy=20"
+    },
+    {
+      "label": "真实域名/390：等待图片期间主要按钮仍在版面上（没有被挤出）",
+      "passed": true,
+      "detail": "[64, 44]"
+    },
+    {
+      "label": "真实域名/390：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "真实域名/390：二次加载主图就绪",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "真实域名/390：二次加载完全没有重新下载图片（max-age 生效）",
+      "passed": true,
+      "detail": "编码字节 0；零字节响应 20/20 条（CDP 缓存事件 0 条，Chromium 在内存缓存命中时不发该事件）"
+    },
+    {
+      "label": "真实域名/390：二次加载也没有触发本地兜底",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "真实域名/390：缓存命中时占位窗口不超过冷启动，且落在淡入时长量级内",
+      "passed": true,
+      "detail": "冷启动 445ms → 缓存命中 199ms（淡入本身 200ms）"
+    },
+    {
+      "label": "真实域名/390：二次加载所有插画位仍然有图",
+      "passed": true,
+      "detail": "frames=21 withImg=21"
+    },
+    {
+      "label": "真实域名/1440：首屏主图加载完成（data-artwork-state=ready）",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "真实域名/1440：浏览器确实向真实域名取了图",
+      "passed": true,
+      "detail": "20 条"
+    },
+    {
+      "label": "真实域名/1440：请求地址都是图片域名 + 发布清单对象键",
+      "passed": true,
+      "detail": "['https://yan-public-1407914221.cos.ap-beijing.myqcloud.com/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp', 'https://yan-public-1407914221.cos.ap-beijing.myqcloud.com/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp']"
+    },
+    {
+      "label": "真实域名/1440：全部图片响应 200（无 4xx/5xx）",
+      "passed": true,
+      "detail": "{}"
+    },
+    {
+      "label": "真实域名/1440：没有加载失败的图片请求",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "真实域名/1440：没有触发本地兜底（说明真实域名这条路是通的）",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "真实域名/1440：所有插画位都渲染了 <img>（没有停在兜底 SVG）",
+      "passed": true,
+      "detail": "frames=21 withImg=21"
+    },
+    {
+      "label": "真实域名/1440：所有插画都来自图片域名",
+      "passed": true,
+      "detail": "{\"yan-public-1407914221.cos.ap-beijing.myqcloud.com\": 21}"
+    },
+    {
+      "label": "真实域名/1440：首屏主图指向发布清单里的对象键",
+      "passed": true,
+      "detail": "https://yan-public-1407914221.cos.ap-beijing.myqcloud.com/illustrations/2026-09-20/home-hero.4583aa734b96.webp"
+    },
+    {
+      "label": "真实域名/1440：全程在主地址上，没有发生回退",
+      "passed": true,
+      "detail": "['primary']"
+    },
+    {
+      "label": "真实域名/1440：主图容器高度全程不变（已预留尺寸）",
+      "passed": true,
+      "detail": "562~562px"
+    },
+    {
+      "label": "真实域名/1440：布局位移可忽略（CLS）",
+      "passed": true,
+      "detail": "0.00234"
+    },
+    {
+      "label": "真实域名/1440：位移不来自图片容器",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "真实域名/1440：图片解码后有淡入过程",
+      "passed": true,
+      "detail": "中间帧 9 个"
+    },
+    {
+      "label": "真实域名/1440：不预加载全部人物，只有主图高优先级",
+      "passed": true,
+      "detail": "preload=0 high=1 lazy=20"
+    },
+    {
+      "label": "真实域名/1440：屏外图片仍是懒加载",
+      "passed": true,
+      "detail": "lazy=20"
+    },
+    {
+      "label": "真实域名/1440：等待图片期间主要按钮仍在版面上（没有被挤出）",
+      "passed": true,
+      "detail": "[88, 44]"
+    },
+    {
+      "label": "真实域名/1440：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "真实域名/1440：二次加载主图就绪",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "真实域名/1440：二次加载完全没有重新下载图片（max-age 生效）",
+      "passed": true,
+      "detail": "编码字节 0；零字节响应 20/20 条（CDP 缓存事件 0 条，Chromium 在内存缓存命中时不发该事件）"
+    },
+    {
+      "label": "真实域名/1440：二次加载也没有触发本地兜底",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "真实域名/1440：缓存命中时占位窗口不超过冷启动，且落在淡入时长量级内",
+      "passed": true,
+      "detail": "冷启动 524ms → 缓存命中 247ms（淡入本身 200ms）"
+    },
+    {
+      "label": "真实域名/1440：二次加载所有插画位仍然有图",
+      "passed": true,
+      "detail": "frames=21 withImg=21"
+    },
+    {
+      "label": "全部 API 均被模拟",
+      "passed": true,
+      "detail": "[]"
+    }
+  ]
+}
