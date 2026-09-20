@@ -1,0 +1,32 @@
+vite v5.4.21 building for production...
+transforming...
+✓ 181 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                 1.11 kB │ gzip:   1.13 kB
+dist/assets/type-isfp-zcHMQZVA.webp            68.57 kB
+dist/assets/type-esfp-CL1vjemO.webp            77.80 kB
+dist/assets/type-infj-NRnNd75I.webp            78.53 kB
+dist/assets/type-enfp-BXZftj5A.webp            82.26 kB
+dist/assets/type-intj-CxwObSdk.webp            91.19 kB
+dist/assets/type-infp-DWAc8UWa.webp            96.77 kB
+dist/assets/type-estp-UpzRvBFu.webp            97.65 kB
+dist/assets/type-istp-BWy4oBkF.webp            99.10 kB
+dist/assets/type-intp-ChmGdYgh.webp           100.02 kB
+dist/assets/type-entp-B11k7avk.webp           101.03 kB
+dist/assets/type-esfj-CEY1x6Xr.webp           102.93 kB
+dist/assets/type-enfj-DKtaU3n5.webp           115.15 kB
+dist/assets/type-estj-CoyiBDqO.webp           118.47 kB
+dist/assets/type-istj-Dz86OCJJ.webp           120.15 kB
+dist/assets/type-entj-BUARddye.webp           127.24 kB
+dist/assets/type-isfj-BKUFVdRf.webp           132.44 kB
+dist/assets/welcome-CrZc5P_y.webp             148.73 kB
+dist/assets/reflection-5DNzDZ6M.webp          188.17 kB
+dist/assets/assessment-bigfive-DZ0Z8zRm.webp  188.51 kB
+dist/assets/home-hero-D6cgdiEp.webp           236.96 kB
+dist/assets/assessment-jung-B6Tyu8Wl.webp     250.60 kB
+dist/assets/AdminMembersView-C43ZHzlQ.css       3.71 kB │ gzip:   1.16 kB
+dist/assets/index-87ljfG13.css                 88.12 kB │ gzip:  16.91 kB
+dist/assets/AdminMembersView-Di1GSUAZ.js       17.08 kB │ gzip:   6.85 kB
+dist/assets/index-BXHWFU_8.js                 644.09 kB │ gzip: 243.41 kB
+✓ built in 5.73s

@@ -132,9 +132,62 @@ export const contributionOf = (item: Item, rating: number): number =>
 export const triggerThreshold = (policy: ScoringPolicy, n: number): number =>
   n <= 0 ? 0 : Math.floor((policy.boundaryNumerator * n) / policy.boundaryDenominator)
 
-/** 边界阈值 `B(n) = max(0, T(n) − 1)`；`|S| <= B(n)` 才是"倾向较轻"。 */
-export const boundaryThreshold = (policy: ScoringPolicy, n: number): number =>
-  Math.max(0, triggerThreshold(policy, n) - 1)
+/**
+ * 边界与触发**同一条尺度**（`B(n) = T(n)`，不再减一）的计分版本。
+ *
+ * 必须与后端 `JungScoringPolicy.UNIFIED_SCALE_VERSIONS` 一致：两侧不一致就会出现
+ * "预览说这一维倾向较轻、服务端报告说明确"这种同一份答卷两个结论的问题。
+ */
+const UNIFIED_BOUNDARY_SCALE_VERSIONS: readonly string[] = ['typeme-jung48-score-v3']
+
+/** 边界 `= 触发 − 1` 的历史版本（行为冻结，旧包/旧草稿/旧报告继续走这一套）。 */
+const SEPARATE_BOUNDARY_VERSIONS: readonly string[] = [
+  'typeme-jung48-score-v1',
+  'typeme-jung48-score-v2',
+]
+
+/** 已知计分版本（报错信息与自检用）。 */
+export const KNOWN_SCORING_VERSIONS: readonly string[] = [
+  ...SEPARATE_BOUNDARY_VERSIONS,
+  ...UNIFIED_BOUNDARY_SCALE_VERSIONS,
+]
+
+/**
+ * 未知计分版本直接拒绝，**不静默落回某一套规则**。
+ *
+ * 后端在内容包加载期做同一件事（`JungScoringPolicy` 的紧凑构造器）。
+ * 这里再做一次是为了预览侧：前端先用本地函数算一遍给用户看，
+ * 若按另一套规则算出一个数字，用户会先看到一个与服务端不同的结论。
+ */
+export const assertKnownScoringVersion = (policy: ScoringPolicy): void => {
+  if (!KNOWN_SCORING_VERSIONS.includes(policy.version)) {
+    throw new Error(
+      `未知计分版本：${policy.version}（已知：${KNOWN_SCORING_VERSIONS.join('、')}）。`
+        + '新增计分版本必须在前端与后端的版本表里同时登记。',
+    )
+  }
+}
+
+/** 本版本是否使用"边界 = 触发"的统一尺度。 */
+export const usesUnifiedBoundaryScale = (policy: ScoringPolicy): boolean =>
+  UNIFIED_BOUNDARY_SCALE_VERSIONS.includes(policy.version)
+
+/** 边界阈值 `B(n) = max(0, T(n) − 1)`（历史）或 `max(0, T(n))`（统一尺度）。 */
+export const boundaryThreshold = (policy: ScoringPolicy, n: number): number => {
+  const trigger = triggerThreshold(policy, n)
+  return usesUnifiedBoundaryScale(policy) ? Math.max(0, trigger) : Math.max(0, trigger - 1)
+}
+
+/**
+ * 是否需要把该维标成"倾向较轻"。
+ *
+ * 统一尺度版本额外要求 `nFinal > 0`：没有任何有效数字回答时不存在"较轻的倾向"，
+ * 那种情况该走覆盖不足（NEEDS_REVIEW）。历史版本保持原样（行为冻结）。
+ */
+export const isBoundary = (policy: ScoringPolicy, sFinal: number, nFinal: number): boolean => {
+  if (usesUnifiedBoundaryScale(policy) && nFinal <= 0) return false
+  return Math.abs(sFinal) <= boundaryThreshold(policy, nFinal)
+}
 
 /** 类型码严格匹配，只接受大写规范形。 */
 export const isLegalTypeCode = (value: unknown): value is string =>

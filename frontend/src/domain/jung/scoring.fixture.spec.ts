@@ -18,8 +18,9 @@ import { resolve } from 'node:path'
 import { checkCoverage, reviewClarification, score } from '../jung/scoring'
 import { DIMENSIONS, type Answer, type ContentPackage, type Dimension } from '../jung/types'
 
+/** 夹具绑定的是**当前内容包**（`JungPackageLoader.CURRENT_PACKAGE_ID`）。 */
 const packageJson = JSON.parse(
-  readFileSync(resolve(__dirname, '../../../../backend/src/main/resources/content/typeme-jung48-zh-v1.json'), 'utf8'),
+  readFileSync(resolve(__dirname, '../../../../backend/src/main/resources/content/typeme-jung48-zh-v3.json'), 'utf8'),
 ) as ContentPackage
 
 const fixture = JSON.parse(
@@ -37,9 +38,14 @@ const fixture = JSON.parse(
 }
 
 const pkgVersion = packageJson.instrument.scoringVersion
+/**
+ * 报告文案版本按**包自己声明的**那一版读取，而不是写死一个默认版本：
+ * v3 复用了 v2 的报告文案，若写死或只比较常量，就可能"常量对得上、文件对不上"。
+ */
+const reportVersion = packageJson.instrument.reportContentVersion
 const reportsJson = JSON.parse(
-  readFileSync(resolve(__dirname, '../../../../backend/src/main/resources/content/typeme-type-report-zh-v1.json'), 'utf8'),
-) as { sha256: string }
+  readFileSync(resolve(__dirname, `../../../../backend/src/main/resources/content/${reportVersion}.json`), 'utf8'),
+) as { sha256: string; reportContentVersion: string }
 
 /** 夹具里 answers 是"题号 → 作答"的对象；补充题作答也在同一张表里。 */
 function toAnswerMap(entry: (typeof fixture.cases)[number]): Map<string, Answer> {
@@ -56,9 +62,10 @@ describe('新测计分：与夹具（Java 权威实现）逐字段一致', () =>
     expect(fixture.packageId).toBe(packageJson.packageId)
   })
 
-  it('内容包自带指纹，且 16 型报告文件也有指纹', () => {
+  it('内容包自带指纹，且它声明的报告文案版本能取到对应文件', () => {
     expect(packageJson.sha256).toMatch(/^[0-9a-f]{64}$/)
     expect(reportsJson.sha256).toMatch(/^[0-9a-f]{64}$/)
+    expect(reportsJson.reportContentVersion).toBe(reportVersion)
   })
 
   it('覆盖检查逻辑本身是纯函数（同一输入两次结果相同）', () => {

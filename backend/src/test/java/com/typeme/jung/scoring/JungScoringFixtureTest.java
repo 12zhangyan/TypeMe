@@ -92,18 +92,22 @@ class JungScoringFixtureTest {
     @DisplayName("16 型报告内容声明的 sha256 必须与加载期重算值一致")
     void declaredTypeReportHashMatchesRecomputed() throws IOException {
         String declared;
+        // 读的是**默认包声明的那一版**报告文案（v3 沿用的是 v1 的报告内容，不是 v2 的易读版），
+        // 而不是那个历史默认常量：写死常量会在"默认包换文案版本"时继续对着旧文件通过。
+        String reportVersion = pkg.reportContentVersion();
         try (InputStream in = new DefaultResourceLoader()
-                .getResource("classpath:content/typeme-type-report-zh-v1.json").getInputStream()) {
+                .getResource("classpath:content/" + reportVersion + ".json").getInputStream()) {
             declared = new ObjectMapper().readTree(in).path("sha256").asText();
         }
-        assertTrue(declared != null && declared.length() == 64,
+        assertNotNull(declared, "报告文案 " + reportVersion + " 必须能读到");
+        assertTrue(declared.length() == 64,
                 "类型报告必须声明 64 位十六进制 sha256，实际：" + declared);
         // 加载器在加载时已经比对过，这里再确认"确实做过比对"而不是静默跳过
         assertNotNull(new JungPackageLoader(new DefaultResourceLoader()).currentTypeReports());
     }
 
     @Test
-    @DisplayName("18 个共享夹具用例全部与 Java 权威计分一致")
+    @DisplayName("共享夹具用例全部与 Java 权威计分一致")
     void allFixtureCases() {
         JsonNode cases = fixture.path("cases");
         assertTrue(cases.isArray() && cases.size() >= 18,

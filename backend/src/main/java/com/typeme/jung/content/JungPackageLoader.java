@@ -65,10 +65,32 @@ public class JungPackageLoader {
      * <p>它**不随最新发布自动前移** —— 换默认版本意味着"新用户开始用另一套题"，
      * 是一次需要显式决定并写进变更记录的发布动作。已发布的旧包继续留在
      * {@code classpath:content/} 里供旧草稿与旧报告加载。
+     *
+     * <p>2026-09-18：默认版本由 {@code typeme-jung48-zh-v1} 显式前移到
+     * {@code typeme-jung48-zh-v3}。v3 的题目与 v1/v2 逐字相同，差别只在它声明的
+     * {@code scoringVersion = typeme-jung48-score-v3}（边界与触发同尺度）。
+     * 计分规则按草稿绑定的 {@code scoringVersion} 分派，所以旧草稿仍走旧规则；
+     * 换默认包与换规则是同一个决定的两面，不能只改其中一处。
      */
-    public static final String CURRENT_PACKAGE_ID = "typeme-jung48-zh-v1";
+    public static final String CURRENT_PACKAGE_ID = "typeme-jung48-zh-v3";
 
-    /** 默认内容包引用的 16 型基础报告内容版本。 */
+    /**
+     * 16 型基础报告文案的**历史默认版本**（v1）。
+     *
+     * <p><b>它不是"报告文案怎么取"的权威。</b>运行期解析报告文案用的是**包自己声明的**
+     * {@code reportContentVersion}：构造器里 {@code typeReportContents.get(jungPackage.reportContentVersion())}
+     * （取不到直接抛异常），报告侧走 {@code findTypeReports(pkg.reportContentVersion())}。
+     * 当前默认包 {@code typeme-jung48-zh-v3} 声明的是 {@code typeme-type-report-zh-v2}，
+     * 所以**不能用这个常量推断某份报告用的是哪版文案**。
+     *
+     * <p>2026-09-18 的说明：这个常量目前只剩两个消费者 —— 已 {@code @Deprecated} 的
+     * {@code JungReportBuilder.build(loader, …)} 重载所用的 {@code currentTypeReports()}，
+     * 以及两个无调用方的 {@code declaredTypeReportSha256()} / {@code recomputedTypeReportSha256()}。
+     * 本次（v3 计分口径调整）**刻意没有顺手把它改成 v2**：那属于清理无人调用的旧路径，
+     * 会让依赖它的既有测试改成"对着另一版文案断言"，与本次改动无关。
+     * 真正要守住的是"包声明的版本必须能解析到"，那一条由加载期检查与
+     * {@code JungScoringPolicyTest.currentPackageReportContentVersionResolves} 负责。
+     */
     public static final String CURRENT_TYPE_REPORT_VERSION = "typeme-type-report-zh-v1";
 
     /** 过程层（四个精神活动过程 + 派生建议）内容版本。 */

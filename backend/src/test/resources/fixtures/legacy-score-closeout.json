@@ -1,0 +1,1506 @@
+{
+  "basis": "Frozen v1/v2 expectations; inputs copied once, never generated from v3 expected results.",
+  "cases": [
+    {
+      "id": "CASE-02",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "skipped": true,
+      "status": "TENTATIVE",
+      "typeCode": "ENFP",
+      "finalN": 12,
+      "finalS": 1,
+      "boundary": true,
+      "applied": false,
+      "candidates": [
+        "ENFP",
+        "INFP"
+      ],
+      "costs": [
+        0,
+        1
+      ],
+      "scheduled": [
+        "EI"
+      ]
+    },
+    {
+      "id": "CASE-09",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "skipped": true,
+      "status": "REFERENCE",
+      "typeCode": "ENFP",
+      "finalN": 12,
+      "finalS": 2,
+      "boundary": false,
+      "applied": false,
+      "candidates": [],
+      "costs": [],
+      "scheduled": [
+        "EI"
+      ]
+    },
+    {
+      "id": "CASE-13",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "unknown"
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-11": {
+          "kind": "unknown"
+        },
+        "EI-12": {
+          "kind": "unknown"
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "skipped": true,
+      "status": "REFERENCE",
+      "typeCode": "ENFP",
+      "finalN": 9,
+      "finalS": 1,
+      "boundary": false,
+      "applied": false,
+      "candidates": [],
+      "costs": [],
+      "scheduled": [
+        "EI"
+      ]
+    },
+    {
+      "id": "CASE-14",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-C1": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-C2": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-C3": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-C4": {
+          "kind": "rating",
+          "rating": 1
+        }
+      },
+      "skipped": false,
+      "status": "REFERENCE",
+      "typeCode": "ENFP",
+      "finalN": 16,
+      "finalS": 5,
+      "boundary": false,
+      "applied": true,
+      "candidates": [],
+      "costs": [],
+      "scheduled": [
+        "EI"
+      ]
+    },
+    {
+      "id": "CASE-21",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-C1": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-C2": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-C3": {
+          "kind": "rating",
+          "rating": 3
+        },
+        "EI-C4": {
+          "kind": "rating",
+          "rating": 3
+        }
+      },
+      "skipped": false,
+      "status": "TENTATIVE",
+      "typeCode": "ENFP",
+      "finalN": 16,
+      "finalS": 2,
+      "boundary": true,
+      "applied": true,
+      "candidates": [
+        "ENFP",
+        "INFP"
+      ],
+      "costs": [
+        0,
+        2
+      ],
+      "scheduled": [
+        "EI"
+      ]
+    },
+    {
+      "id": "CASE-10",
+      "answers": {
+        "EI-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-08": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "EI-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "EI-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        }
+      },
+      "skipped": true,
+      "status": "TIED",
+      "typeCode": null,
+      "finalN": 12,
+      "finalS": 0,
+      "boundary": true,
+      "applied": false,
+      "candidates": [
+        "INFP",
+        "ENFP",
+        "INFJ",
+        "ENFJ"
+      ],
+      "costs": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "scheduled": [
+        "EI",
+        "JP"
+      ]
+    },
+    {
+      "id": "CASE-19",
+      "answers": {
+        "SN-05": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-06": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-07": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "SN-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-02": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-03": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "SN-08": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "SN-10": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "TF-01": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "TF-04": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-12": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "TF-11": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-02": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-03": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-04": {
+          "kind": "rating",
+          "rating": 1
+        },
+        "JP-07": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-08": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-10": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-01": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-05": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-06": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-09": {
+          "kind": "rating",
+          "rating": 5
+        },
+        "JP-11": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "JP-12": {
+          "kind": "rating",
+          "rating": 4
+        },
+        "EI-01": {
+          "kind": "unknown"
+        },
+        "EI-02": {
+          "kind": "unknown"
+        },
+        "EI-03": {
+          "kind": "unknown"
+        },
+        "EI-04": {
+          "kind": "unknown"
+        },
+        "EI-05": {
+          "kind": "unknown"
+        },
+        "EI-06": {
+          "kind": "unknown"
+        },
+        "EI-07": {
+          "kind": "unknown"
+        },
+        "EI-08": {
+          "kind": "unknown"
+        },
+        "EI-09": {
+          "kind": "unknown"
+        },
+        "EI-10": {
+          "kind": "unknown"
+        },
+        "EI-11": {
+          "kind": "unknown"
+        },
+        "EI-12": {
+          "kind": "unknown"
+        }
+      },
+      "skipped": false,
+      "status": "NEEDS_REVIEW",
+      "typeCode": null,
+      "finalN": 0,
+      "finalS": 0,
+      "boundary": true,
+      "applied": false,
+      "candidates": [],
+      "costs": [],
+      "scheduled": []
+    }
+  ]
+}

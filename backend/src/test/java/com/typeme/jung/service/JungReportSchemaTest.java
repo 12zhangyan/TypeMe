@@ -353,9 +353,23 @@ class JungReportSchemaTest {
     }
 
     @Test
-    @DisplayName("§7 methodology 字段一致")
+    @DisplayName("§7 methodology 字段一致，且版本字段来自**这一份报告自己的内容包**")
     void methodologyKeysMatchContract() throws Exception {
-        assertEquals(METHODOLOGY_KEYS, keysOf(tentativeReport().path("methodology")));
+        JsonNode methodology = tentativeReport().path("methodology");
+        assertEquals(METHODOLOGY_KEYS, keysOf(methodology));
+
+        // 版本绑定：报告元数据必须记下**这一份报告实际用的**包与文案版本，
+        // 历史报告全靠这些字段才能被正确解释（不能记"当前默认值"，也不能记另一版文案）。
+        JungPackage pkg = loader().current();
+        assertEquals(pkg.packageId(), methodology.path("packageId").asText());
+        assertEquals(pkg.scoringVersion(), methodology.path("scoringVersion").asText());
+        assertEquals(pkg.scoringPolicy().version(), methodology.path("policyVersion").asText());
+        assertEquals(pkg.reportContentVersion(), methodology.path("reportContentVersion").asText());
+        // 默认包换成 v3 之后这两条必须跟着走；写死在这里是为了让"换包但没换元数据"当场红。
+        assertEquals("typeme-jung48-score-v3", methodology.path("scoringVersion").asText(),
+                "默认包已声明 score-v3，报告元数据必须一致");
+        assertEquals("typeme-type-report-zh-v1", methodology.path("reportContentVersion").asText(),
+                "v3 复用的报告文案版本是 v1；改成 v2 会同时改变用户看到的报告结构（八段+3 条行动 → 一句话+1 个动作）");
     }
 
     @Test
