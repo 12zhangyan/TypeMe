@@ -2,6 +2,7 @@
 import importlib.util
 import json
 import os
+import re
 from pathlib import Path
 from urllib.parse import urlparse
 from playwright.sync_api import sync_playwright
@@ -14,7 +15,19 @@ OUT = ROOT / os.environ.get('TYPEME_BROWSER_EVIDENCE', 'docs/optimization/verifi
 OUT.mkdir(parents=True, exist_ok=True)
 checks, errors = [], []
 state = {'signed_in': False, 'save_fail': False, 'catalog_fail': False}
-jung = json.loads((ROOT / 'backend/src/main/resources/content/typeme-jung48-zh-v2.json').read_text(encoding='utf-8'))
+jung_loader = (ROOT / 'backend/src/main/java/com/typeme/jung/content/JungPackageLoader.java').read_text(encoding='utf-8')
+match = re.search(r'CURRENT_PACKAGE_ID\s*=\s*"([^"]+)"', jung_loader)
+assert match, 'JungPackageLoader.CURRENT_PACKAGE_ID 没找到：脚本必须跟着服务端当前默认包走'
+CURRENT_JUNG_PACKAGE = match.group(1)
+
+def jung_package(package_id):
+    return json.loads((ROOT / f'backend/src/main/resources/content/{package_id}.json').read_text(encoding='utf-8'))
+
+# 浏览器验收必须用**服务端当前默认包**（新草稿绑定的那一版）。
+# 之前这里写死 v2，于是主流程实际绑定的 v3 拿不到阅读说明、页面根本不显示，
+# 脚本却一直绿 —— 默认包换版时这里要跟着换，而不是继续测上一版。
+jung = jung_package(CURRENT_JUNG_PACKAGE)
+historical_jung = jung_package('typeme-jung48-zh-v2')
 content = json.loads((ROOT / 'backend/src/main/resources/content/bigfive50-zh-v1.json').read_text(encoding='utf-8'))
 items = [{**q, 'kind': 'agreement_statement', 'stage': 'base', 'statement': q['text']} for q in content['questions']]
 attempt = dict(attemptId='visual-attempt', instrumentSlug='bigfive50', instrumentKind='big_five',
@@ -36,12 +49,17 @@ def api(route):
         respond(route, {'code': 'UNAUTHENTICATED', 'message': '请先登录'}, 401)
     elif path == '/api/v3/platform/instruments' and state['catalog_fail']:
         respond(route, {'code': 'SERVICE_UNAVAILABLE', 'message': '列表暂时不可用'}, 503)
-    elif path == '/api/v3/platform/attempts/visual-jung':
-        respond(route, {'code': 'NOT_FOUND', 'message': '转到十六型'}, 404)
-    elif path == '/api/v3/attempts/visual-jung':
-        respond(route, {**attempt, 'attemptId':'visual-jung', 'packageId':jung['packageId'],
+    elif path in ('/api/v3/platform/attempts/visual-jung', '/api/v3/platform/attempts/visual-jung-v2'):
+        # 分流信号必须是 409 INSTRUMENT_MISMATCH：2026-09-20 起 `404` 的含义是
+        # "没有找到这份测评"（独立空态），不再代表"这是十六型草稿"。
+        # 这里原来写的是 404，于是脚本根本进不了十六型答题页而一直超时。
+        respond(route, {'code': 'INSTRUMENT_MISMATCH', 'message': '这是十六型草稿', 'requestId': None, 'details': {}}, 409)
+    elif path in ('/api/v3/attempts/visual-jung', '/api/v3/attempts/visual-jung-v2'):
+        attempt_id = path.rsplit('/', 1)[-1]
+        pkg = jung if attempt_id == 'visual-jung' else historical_jung
+        respond(route, {**attempt, 'attemptId': attempt_id, 'packageId': pkg['packageId'],
                        'status':'BASE_IN_PROGRESS', 'answers':[], 'currentQuestionId':None,
-                       'coverage':[], 'packageContent':jung})
+                       'coverage':[], 'packageContent':pkg})
     elif path == '/api/v3/auth/csrf':
         respond(route, {'token': 'synthetic-browser-only', 'headerName': 'X-XSRF-TOKEN', 'parameterName': '_csrf'})
     elif path == '/api/v3/platform/attempts/visual-attempt':
@@ -135,11 +153,14 @@ with sync_playwright() as pw:
         page.goto(fixture.BASE+'/#/reports')
         page.locator('[data-reports-empty]').wait_for()
         capture(page, 'reports-empty', width)
-        page.goto(fixture.BASE+'/#/assess/visual-jung')
-        page.locator('[role="radiogroup"]').wait_for()
-        check('活动结束后' in page.locator('[data-question-example]').inner_text(),f'{width}/jung visible scene explanation')
-        targets(page, '[role="radio"]', f'{width}/jung quiz')
-        capture(page, 'answer-jung', width)
+        for attempt_id, pkg in (('visual-jung', jung), ('visual-jung-v2', historical_jung)):
+            page.goto(fixture.BASE+f'/#/assess/{attempt_id}')
+            page.locator('[role="radiogroup"]').wait_for()
+            example = page.locator('[data-question-example]')
+            check(example.count() == 1, f'{width}/jung({pkg["packageId"]}) visible scene explanation')
+            check('活动结束后' in example.inner_text(), f'{width}/jung({pkg["packageId"]}) scene text matches the item')
+            targets(page, '[role="radio"]', f'{width}/jung({pkg["packageId"]}) quiz')
+            capture(page, 'answer-jung' if attempt_id == 'visual-jung' else 'answer-jung-v2', width)
         state['catalog_fail'] = True
         page.goto('about:blank')
         page.goto(fixture.BASE)
