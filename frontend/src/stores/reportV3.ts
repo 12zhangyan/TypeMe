@@ -10,7 +10,6 @@ import {
   type SelfReflection,
 } from '@/api/v3Assessment'
 import { describeError, type ErrorDisplay } from '@/api/v3'
-import { reportBodyOf } from '@/api/platformV3'
 import { buildReportView, type ReportViewModelV3 } from '@/domain/reportV3'
 
 /**
@@ -93,7 +92,8 @@ export const useReportStore = defineStore('reportV3', {
     view(state): ReportViewModelV3 | null {
       if (!state.current) return null
       try {
-        return buildReportView(reportBodyOf(state.current.report), state.current.selfReflection)
+        // 整份快照进解析器（解析器自己下钻到报告体；reportHash 在外壳层）。
+        return buildReportView(state.current.report, state.current.selfReflection)
       } catch {
         // 形状不符合契约：由 `shapeError` 单独呈现，绝不降级成"页面上看起来还行的报告"
         return null
@@ -104,7 +104,7 @@ export const useReportStore = defineStore('reportV3', {
     shapeError(state): string | null {
       if (!state.current) return null
       try {
-        buildReportView(reportBodyOf(state.current.report), state.current.selfReflection)
+        buildReportView(state.current.report, state.current.selfReflection)
         return null
       } catch (error) {
         return error instanceof Error ? error.message : '这份报告读不出来。'

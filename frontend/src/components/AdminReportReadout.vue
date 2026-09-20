@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { buildReportView } from '@/domain/reportV3'
-import { parseBigFiveReport, reportBodyOf, type ReportDetailView } from '@/api/platformV3'
+import { parseBigFiveReport, type ReportDetailView } from '@/api/platformV3'
 const props = defineProps<{ detail: ReportDetailView }>()
 const parsed = computed(() => {
   try {
-    const body = reportBodyOf(props.detail.report)
-    if (props.detail.reportKind === 'big_five_profile') return { bigFive: parseBigFiveReport(body) }
-    if (props.detail.reportKind === 'jung_reference') return { jung: buildReportView(body) }
+    // 整份快照进解析器（两个解析器都自己下钻到报告体；reportHash 在外壳层）。
+    if (props.detail.reportKind === 'big_five_profile') return { bigFive: parseBigFiveReport(props.detail.report) }
+    if (props.detail.reportKind === 'jung_reference') return { jung: buildReportView(props.detail.report) }
     return { error: '暂不支持这种报告，请联系维护人员。' }
   } catch { return { error: '这份报告的数据不完整，无法可靠展示。请联系维护人员。' } }
 })

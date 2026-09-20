@@ -473,11 +473,15 @@ export function parseReportDetail(raw: unknown, path: string): ReportDetailView 
 /* ── 报告体解包 ─────────────────────────────────────────────────────────── */
 
 /**
- * 取出报告体。
+ * 取出报告体：整份快照 → 外壳里的 `report`。
  *
  * v2 报告是「中性外壳 + `report` 体」，v1 报告体就是根节点本身。
  * **判据是"根节点有没有 `report` 对象"，不是 `schemaVersion`** —— 有些早期快照没写版本号。
  * 历史报告只读不改，所以这里只做一次下钻，绝不去补字段。
+ *
+ * 两层结构的意义（2026-09-20 故障复盘）：`reportHash` 挂在外壳层、结论字段在报告体层，
+ * 所以解析器一律**先接整份快照、再调这里下钻一次**；调用方既不要自己传下钻后的对象，
+ * 也不要自己再下钻 —— 多钻或少钻都会让页面显示「这份报告读不出来」。
  */
 export function reportBodyOf(raw: Record<string, unknown>): Record<string, unknown> {
   const nested = raw['report']
@@ -757,14 +761,19 @@ export interface BigFiveReportView {
 }
 
 /**
- * 解析大五报告体。
+ * 解析大五报告快照。
  *
  * 只在 `reportKind === 'big_five_profile'` 时调用。字段缺失时抛错而不是补默认值：
  * 报告页是用户最终看到的东西，宁可显示"这份报告无法渲染"也不要把一维的缺失
  * 悄悄画成"接近中间"。
+ *
+ * ⚠️ 参数是**整份快照的根节点**（`ReportDetail.report` 原样，含外壳），
+ * 函数内部自己下钻到外壳里的报告体 —— 与 `buildReportView` 同一套约定。
+ * 两层结构的意义见 `reportBodyOf` 的说明。
  */
-export function parseBigFiveReport(body: Record<string, unknown>): BigFiveReportView {
+export function parseBigFiveReport(snapshot: Record<string, unknown>): BigFiveReportView {
   const path = '大五报告'
+  const body = reportBodyOf(snapshot)
   const coverageRaw = obj(body, 'coverage', path)
   return {
     status: str(body, 'status', path),

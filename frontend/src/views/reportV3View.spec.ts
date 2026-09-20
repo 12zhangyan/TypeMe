@@ -618,6 +618,9 @@ describe('报告页：REFERENCE', () => {
           attemptId: ATTEMPT_ID,
           createdAt: '2026-09-16T10:20:00Z',
           report: REFERENCE,
+          // 真实快照的指纹在**外壳**层（后端 finalizeWithHash 在 wrap 之后追加），
+          // 报告体里没有它。替身必须照这个形状放，否则测不出"读错层"。
+          reportHash: 'b'.repeat(64),
         },
       },
     })
