@@ -104,6 +104,8 @@ const REPORT_BODY = {
   profileTitle: '大五人格倾向测评',
   hasTypeCode: false,
   summary: '这次回答里，E 这一个方面的方向比较清楚。',
+  // 诱饵：故意和外壳层不同。解析器真去读它会拿到 'e'*64，就能被这条用例抓住。
+  reportHash: 'e'.repeat(64),
   dimensions: [
     {
       dimension: 'E',
@@ -159,6 +161,9 @@ const ENVELOPED = {
   reportKind: 'big_five_profile',
   schemaVersion: 2,
   report: REPORT_BODY,
+  // 后端把指纹追加在**外壳**上（finalizeWithHash 在 wrap 之后执行），
+  // 所以真实快照的 body 里没有这个键 —— 它比 body 里那个诱饵值更能说明问题。
+  reportHash: 'f'.repeat(64),
 }
 
 const REPORT_DETAIL = {
@@ -315,37 +320,54 @@ describe('报告解析', () => {
     const detail = await fetchPlatformReport('r1')
     expect(detail.instrumentTitle).toBe('大五人格倾向测评')
     expect(isEnvelopedReport(detail.report)).toBe(true)
+    // 外壳那一层才有 reportKind；`report` 里面是报告体
+    expect(detail.report['reportKind']).toBe('big_five_profile')
     const body = reportBodyOf(detail.report)
-    expect(body['reportKind']).toBeUndefined() // 外壳的那一层才是 reportKind
+    expect(body['reportKind']).toBeUndefined()
     expect(body['status']).toBe('PROFILE')
     expect(body['dimensions']).toHaveLength(1)
   })
 
+  it('解析器吃整份快照：外壳在、报告体里没有指纹时也不能报错', async () => {
+    // 这条用例来自一个真实故障：调用方之前先 `reportBodyOf()` 下钻一层再交给解析器，
+    // 而 `reportHash` 只在外壳上（后端 finalizeWithHash 在 wrap 之后追加），
+    // 于是 2026-09-20 之后生成的新报告一律显示「这份报告读不出来」。
+    installFetch({ '/platform/reports/r1': REPORT_DETAIL })
+    const detail = await fetchPlatformReport('r1')
+    const view = parseBigFiveReport(detail.report)
+    expect(view.status).toBe('PROFILE')
+    expect(view.dimensions).toHaveLength(1)
+    // 指纹属于快照而不属于报告体；换成 body 后读到的是另一层（这里放了个诱饵值）。
+    expect((detail.report as Record<string, unknown>)['reportHash']).toBe('f'.repeat(64))
+    expect(reportBodyOf(detail.report)['reportHash']).toBe('e'.repeat(64))
+  })
+
   it('没有外壳的旧报告也能读（不能因为升级就打成破版）', async () => {
-    // v1 报告没有 instrument/report 外壳，raw 就是报告本身
+    // v1 报告没有 instrument/report 外壳，raw 就是报告本身；
+    // 此时根节点既是外壳又是报告体，解析器照样吃整份快照。
     const unwrapped = { ...REPORT_DETAIL, report: REPORT_BODY }
     installFetch({ '/platform/reports/r1': unwrapped })
     const detail = await fetchPlatformReport('r1')
     expect(isEnvelopedReport(detail.report)).toBe(false)
     // 解析器要能吃下这种形状
-    const parsed = parseBigFiveReport(reportBodyOf(detail.report))
+    const parsed = parseBigFiveReport(detail.report)
     expect(parsed.dimensions).toHaveLength(1)
   })
 
   it('中点取自服务端，而不是两端平均', async () => {
     installFetch({ '/platform/reports/r1': REPORT_DETAIL })
     const detail = await fetchPlatformReport('r1')
-    const parsed = parseBigFiveReport(reportBodyOf(detail.report))
+    const parsed = parseBigFiveReport(detail.report)
     expect(parsed.dimensions[0]!.midpoint).toBe(30)
 
     // 反例：把量程改成大五真实的不对称形状（ES 是 6–50）。
     // 此时两端平均是 28，而权威中点仍是 30 —— 用平均去算就会画错位置。
     const asymmetric = JSON.parse(JSON.stringify(ENVELOPED)) as Record<string, unknown>
-    const body = asymmetric['report'] as Record<string, unknown>
-    const dims = body['dimensions'] as Record<string, unknown>[]
+    const asymBody = asymmetric['report'] as Record<string, unknown>
+    const dims = asymBody['dimensions'] as Record<string, unknown>[]
     dims[0]!['rangeLow'] = 6
     dims[0]!['rangeHigh'] = 50
-    const parsedAsymmetric = parseBigFiveReport(body)
+    const parsedAsymmetric = parseBigFiveReport(asymmetric)
     expect(parsedAsymmetric.dimensions[0]!.midpoint).toBe(30)
     expect(
       (parsedAsymmetric.dimensions[0]!.rangeLow + parsedAsymmetric.dimensions[0]!.rangeHigh) / 2,
@@ -358,6 +380,6 @@ describe('报告解析', () => {
     delete body['coverage']
     installFetch({ '/platform/reports/r1': { ...REPORT_DETAIL, report: broken } })
     const detail = await fetchPlatformReport('r1')
-    expect(() => parseBigFiveReport(reportBodyOf(detail.report))).toThrow(/coverage/)
+    expect(() => parseBigFiveReport(detail.report)).toThrow(/coverage/)
   })
 })

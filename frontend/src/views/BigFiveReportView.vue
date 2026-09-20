@@ -11,7 +11,6 @@ import {
   fetchPlatformReport,
   isEnvelopedReport,
   parseBigFiveReport,
-  reportBodyOf,
   type BigFiveReportView,
   type ReportDetailView,
 } from '@/api/platformV3'
@@ -89,7 +88,8 @@ async function load(): Promise<void> {
     }
     detail.value = result
     try {
-      report.value = parseBigFiveReport(reportBodyOf(result.report))
+      // 整份快照进解析器（解析器自己下钻到报告体；reportHash 在外壳层）。
+      report.value = parseBigFiveReport(result.report)
     } catch (parseError) {
       // 报告体不完整时**不猜**：如实说这份报告无法渲染，并给出报障编号。
       report.value = null

@@ -773,9 +773,34 @@ function parseProcessPlan(raw: Record<string, unknown>): ProcessPlanV3 {
 /* ── 主入口 ─────────────────────────────────────────────────────────────── */
 
 /**
- * 把服务端的 `report_json` 转成视图模型。
+ * 报告快照的两层结构：**外壳**（`instrument` / `reportKind` / `schemaVersion` /
+ * `reportId` / `reportHash`）与**报告体**（外壳里的 `report`）。
  *
- * @param raw `GET /reports/{id}` 返回的 `report`（原样，未做任何假设）
+ * 为什么要在这里一次说清（2026-09-20 的故障复盘）：
+ *
+ * - 后端把 `reportHash` 追加在**外壳**上 —— `JungReportBuilder.finalizeWithHash` 跑在
+ *   `ReportEnvelope.wrap` 之后，因为哈希必须覆盖"除自己以外的每个字段"，它只能落在外层；
+ *   报告体里**天生没有**这个键。
+ * - 结论层字段（`status` / `dimensions` / `share` / `methodology` …）在**报告体**那层。
+ *
+ * 所以两层谁都不能被调用方直接当入口：报告体进解析器会让 `reportHash` 消失，
+ * 页面显示「这份报告读不出来」；整份快照进解析器则会连 `status` 都读不到
+ * （大五那边正好踩过这个坑：`parseBigFiveReport(detail.report)` 直接报 coverage 缺失）。
+ *
+ * 因此入口只接受**整份快照**，由这里统一下钻一次；调用方不再自己 `reportBodyOf`。
+ * v1 旧快照没有外壳，下钻条件（根节点有没有 `report` 对象）不成立，原样使用 ——
+ * 那种形状里根节点既是外壳又是报告体，历史报告照旧可读。
+ */
+function bodyOfSnapshot(snapshot: Record<string, unknown>): Record<string, unknown> {
+  const nested = snapshot['report']
+  return isRecord(nested) ? nested : snapshot
+}
+
+/**
+ * 把服务端的 `report_json` 快照转成视图模型。
+ *
+ * @param raw 整份快照（`GET /reports/{id}` 返回的 `report` 原样，含外壳）——
+ *            **不要**先下钻：`reportHash` 在外壳层，下钻后就没了。
  * @param selfReflection 自我理解（可选；与报告隔离，**不会**写回报告任何字段）
  */
 export function buildReportView(
@@ -785,7 +810,7 @@ export function buildReportView(
   if (!isRecord(raw)) {
     fail('report', '这份报告的响应里没有内容，无法渲染。')
   }
-  const report = raw
+  const report = bodyOfSnapshot(raw)
 
   const reportId = readString(report, 'reportId', '报告')
   const attemptId = readString(report, 'attemptId', '报告')
@@ -1085,7 +1110,9 @@ export function buildReportView(
       alt: readString(shareRaw, 'alt', '分享信息'),
     },
     methodology,
-    reportHash: readString(report, 'reportHash', '报告'),
+    // 指纹在**外壳（快照根）**上：后端 finalizeWithHash 跑在 wrap 之后，哈希要覆盖
+    // "除自己以外的每个字段"，所以它必然落在封套那一层；报告体里没有这个键。
+    reportHash: readString(raw, 'reportHash', '报告'),
     selfReflection: selfReflection ?? { selfSelectedTypeCode: null, note: null, updatedAt: null },
   }
 }
