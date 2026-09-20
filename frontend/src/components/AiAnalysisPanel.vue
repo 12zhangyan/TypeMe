@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAiAnalysisStore } from '@/stores/aiAnalysisV3'
-import { ANALYSIS_TOPICS, topicLabel, type AnalysisTopic } from '@/api/v3Ai'
+import { ANALYSIS_TOPICS, READABLE_PROMPT_VERSION, topicLabel, type AnalysisTopic } from '@/api/v3Ai'
 import AppIcon from '@/components/AppIcon.vue'
 
 /**
@@ -89,7 +89,14 @@ const failed = computed(() => job.value?.status === 'FAILED' || job.value?.statu
 
 /** 额度用完：按钮禁用，并说清"什么时候能再来"。 */
 const outOfQuota = computed(() => ai.remainingToday !== null && ai.remainingToday <= 0)
-const readable = computed(() => ai.status?.promptVersion === 'typeme-ai-prompt-v3')
+/**
+ * 服务端当前提示词版本是否就是"可读版契约"那一版。
+ *
+ * 用**同一个** `readable` 同时驱动三件事：大五是否禁用、结构预览用哪一套、确认区列举的
+ * 发送范围用哪一套。此前模板里另写了一份 `=== 'typeme-ai-prompt-v3'` 字面量 ——
+ * 两处一旦漂开，界面会出现"按钮说暂不支持、确认区却按新版列范围"这种自相矛盾。
+ */
+const readable = computed(() => ai.status?.promptVersion === READABLE_PROMPT_VERSION)
 const supported = computed(() => !props.requiresReadable || readable.value)
 
 watch(() => ai.status?.promptVersion, () => { consentChecked.value = false })
@@ -566,7 +573,7 @@ function pickTopic(value: AnalysisTopic): void {
             <div class="rounded-card border border-primary-200 bg-primary-50 px-3.5 py-3">
               <p class="text-[13.5px] font-semibold text-primary-800">会发送</p>
               <ul class="mt-1.5 space-y-1 text-[13.5px] leading-relaxed text-primary-800">
-                <template v-if="ai.status?.promptVersion === 'typeme-ai-prompt-v3'">
+                <template v-if="readable">
                   <li class="list-dot">这份报告的维度含义、分数或方向，以及回答是否足够</li>
                   <li class="list-dot">本次结果状态，以及最多 5 条维度摘要作为解释依据</li>
                   <li class="list-dot">你选的关注主题，以及主动填写的近况（如果有）</li>

@@ -128,6 +128,36 @@ describe('AI 分析面板', () => {
     readable.unmount()
   })
 
+  it('提示词版本兼容：未知/更新的版本按旧版处理，且「能否走大五」与「确认区列哪套范围」必须同源', async () => {
+    // 后端对未知版本一律落到旧版输入；前端不能"乐观地"把 v4 当成新版：
+    // 否则会出现"按钮说暂不支持大五、确认区却按新版列发送范围"这种自相矛盾。
+    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v4' }))
+    const unknownOnJung = await mountPanel()
+    await unknownOnJung.find('[data-ai-start]').trigger('click')
+    const unknownText = unknownOnJung.find('[data-ai-consent]').text()
+    expect(unknownText).toContain('最多 8 条作答片段')
+    expect(unknownText).not.toContain('最多 5 条维度摘要')
+    unknownOnJung.unmount()
+
+    const unknownOnBigFive = await mountPanel(true)
+    expect(unknownOnBigFive.get('[data-ai-start]').attributes('disabled')).toBeDefined()
+    expect(unknownOnBigFive.get('[data-ai-unsupported]').text()).toContain('还不支持大五报告')
+    unknownOnBigFive.unmount()
+
+    // v3 是唯一被认可的可读版：两条路径同时切换过去。
+    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v3' }))
+    const readableOnJung = await mountPanel()
+    await readableOnJung.find('[data-ai-start]').trigger('click')
+    const readableText = readableOnJung.find('[data-ai-consent]').text()
+    expect(readableText).toContain('最多 5 条维度摘要')
+    expect(readableText).not.toContain('最多 8 条作答片段')
+    readableOnJung.unmount()
+
+    const readableOnBigFive = await mountPanel(true)
+    expect(readableOnBigFive.get('[data-ai-start]').attributes('disabled')).toBeUndefined()
+    readableOnBigFive.unmount()
+  })
+
   it('AI 没开：说清"基础报告不受影响"，且不显示生成按钮', async () => {
     fetchAiStatus.mockResolvedValue(status({ enabled: false }))
     const wrapper = await mountPanel()

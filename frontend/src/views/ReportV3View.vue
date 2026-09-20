@@ -8,6 +8,7 @@ import AiAnalysisPanel from '@/components/AiAnalysisPanel.vue'
 import DimensionMeter from '@/components/DimensionMeter.vue'
 import AppIcon from '@/components/AppIcon.vue'
 import PersonalityPortrait from '@/components/PersonalityPortrait.vue'
+import { plainJungRows, readingParagraphs } from '@/domain/plainReport'
 
 import { useReportStore } from '@/stores/reportV3'
 import { useInstrumentV3Store } from '@/stores/instrumentV3'
@@ -60,6 +61,7 @@ const noteId = `report-self-note-${useId()}`
 
 const reportId = computed(() => (typeof route.params.reportId === 'string' ? route.params.reportId : null))
 const view = computed<ReportViewModelV3 | null>(() => reports.view)
+const plainReadings = computed(() => plainJungRows(view.value?.dimensionRows ?? []))
 
 // 旧收藏链接也按报告实际种类分流，不能把大五交给四维解析器。
 watch(() => reports.current, (current) => {
@@ -332,11 +334,11 @@ async function removeReport(): Promise<void> {
 const overviewNote = computed(() => {
   switch (view.value?.status) {
     case 'REFERENCE':
-      return '四个维度都达到了展示条件'
+      return '这次回答在四个方面都有偏向，仍只作参考'
     case 'TENTATIVE':
-      return '有一维只是略偏，还不能当成确定的类型'
+      return '至少一个方面的差距很小，还不能当成确定的类型'
     case 'TIED':
-      return '有维度两边证据一样多，因此不给主类型'
+      return '有些方面两边得分相同，这次不选出唯一类型'
     default:
       return ''
   }
@@ -547,7 +549,7 @@ function jumpToSection(id: string): void {
         class="flex flex-col gap-6 laptop:grid laptop:grid-cols-[minmax(0,1fr)_14rem] laptop:items-start laptop:gap-10"
       >
         <div class="min-w-0">
-          <!-- ══ 结果概览：整页的视觉焦点（深色面板） ══════════════════════
+          <!-- ══ 结果概览：暖白个人档案 ═══════════════════════════════════
             三种状态共用一块面板，靠 `:data-status` 区分 —— 状态之间的差别由
             里面的**文案与有没有类型码**表达，而不是换一套版式：
             平分时不该因为"没测出类型"就被降级成一张灰卡片。
@@ -556,33 +558,33 @@ function jumpToSection(id: string): void {
             id="report-overview"
             data-anchor
             data-report-overview
-            class="deep-panel deep-grid scroll-mt-24 rounded-cover px-5 py-7 shadow-deep tablet:px-9 tablet:py-10"
+            class="report-paper scroll-mt-24"
             :data-status="view.status"
           >
-            <p class="mb-7 border-b border-navy-400 pb-4 text-[10px] tracking-[0.2em] text-navy-100">TYPEME / 个人探索档案</p>
-            <p class="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span class="chip chip-on-deep">{{ statusLabel(view.status) }}</span>
-              <span class="text-[12.5px] text-navy-200" data-status-note>{{ overviewNote }}</span>
+            <p class="report-paper-label">TYPEME / 个人探索档案</p>
+            <p class="report-paper-status">
+              <span class="chip">{{ statusLabel(view.status) }}</span>
+              <span data-status-note>{{ overviewNote }}</span>
             </p>
 
-            <div class="mt-5 flex flex-wrap items-end gap-x-8 gap-y-4">
+            <div class="report-paper-identity">
               <p
                 v-if="view.typeCode"
-                class="display-hero text-[64px] leading-[0.85] tracking-[0.06em] text-white tablet:text-[84px]"
+                class="report-paper-code"
                 data-type-code
               >
                 {{ view.typeCode }}
               </p>
               <div class="min-w-0">
                 <h1
-                  class="display-hero text-[23px] leading-tight text-white tablet:text-[30px]"
+                  class="report-paper-title"
                   :data-tied-title="view.status === 'TIED' || null"
                 >
                   {{ view.headline }}
                 </h1>
                 <p
                   v-if="view.typeNameCn"
-                  class="mt-2 text-[17px] font-medium text-glow-soft"
+                  class="report-paper-name"
                   data-type-name
                 >
                   {{ view.typeNameCn }}
@@ -592,26 +594,29 @@ function jumpToSection(id: string): void {
 
             <!--
               略偏与平分必须当场说清楚 —— 这两处最容易被读成"结果很确定"。
-              文案与旧版逐字一致（单测钉着「略偏 / 两端」「没有哪一个四字母类型更适合当主标题」）。
+              用日常语言解释差距，同时保留略偏、两端与不指定唯一类型的含义。
             -->
             <p
               v-if="view.status === 'TENTATIVE'"
-              class="notice-uncertain mt-5 text-[14px] leading-relaxed"
+              class="report-paper-notice"
               data-tentative-notice
             >
-              这一侧只是略偏，还不足以当成确定的类型。下面每一维都写了两端的样子，
-              两个方向都值得一起读。
+              有些方面只是略偏：你选择两端做法的差距不大。这些地方的两种描述都值得读，不必急着认定自己只属于一边。
             </p>
             <p
               v-else-if="view.status === 'TIED'"
-              class="notice-uncertain mt-5 text-[14px] leading-relaxed"
+              class="report-paper-notice"
               data-tied-notice
             >
-              本次作答里，有维度两边的证据正好一样多，因此没有哪一个四字母类型更适合当主标题。
-              下面是几个都说得通的方向，请当成"一起看"，而不是"哪一个更准"。
+              有些方面两边得分相同，所以没有哪一个四字母类型更适合当主标题。可以一起看看几种描述，这次不必选出唯一答案。
             </p>
 
-            <p class="mt-5 max-w-[42rem] text-[15.5px] leading-[1.75] text-navy-100">{{ view.summary }}</p>
+            <div class="report-paper-summary" data-plain-report>
+              <p class="font-semibold">先看这四句话，就能了解这次结果</p>
+              <p class="mt-2 text-[12.5px]">下面根据你这次的回答说明，不代表你一直如此，也不是能力评价。</p>
+              <ul class="plain-report-list"><li v-for="reading in plainReadings" :key="reading.title"><h2>{{ reading.title }}</h2><p>{{ reading.result }}</p></li></ul>
+              <details class="mt-4"><summary class="cursor-pointer text-[13px]">查看保存时的完整摘要</summary><p class="mt-2">{{ view.summary }}</p></details>
+            </div>
             <figure v-if="view.typeCode" class="report-character-study" data-report-character>
               <PersonalityPortrait :code="view.typeCode" /><figcaption><span>类型生活速写</span><p>一种理解自己的角度，<br>不是你必须活成的样子。</p><small>角色为原创插画，不是额外测量。</small></figcaption>
             </figure>
@@ -621,20 +626,21 @@ function jumpToSection(id: string): void {
           <section class="mt-10 scroll-mt-24" id="report-dimensions" data-anchor aria-labelledby="report-dimensions-title">
             <div class="flex items-baseline gap-3">
               <span class="section-index" aria-hidden="true">01</span>
-              <h2 id="report-dimensions-title" class="section-title">四个维度各自落在哪里</h2>
+              <h2 id="report-dimensions-title" class="section-title">四个方面，分别怎么看</h2>
             </div>
             <p class="mt-2 max-w-[42rem] text-[13.5px] leading-relaxed text-ink-soft">
               位置点表示本次作答落在两端之间的哪个地方。靠哪一端都不是「更好」，
               只是这一侧的解释更贴近本次的作答。
             </p>
             <div class="mt-4 space-y-3">
+              <div v-for="(row, index) in view.dimensionRows" :key="row.dimension">
+              <p class="reading-example"><span>{{ plainReadings[index]?.title }} · 举个例子</span>{{ plainReadings[index]?.example }}例子只帮助理解，不代表你一定经历过。</p>
               <DimensionMeter
-                v-for="(row, index) in view.dimensionRows"
-                :key="row.dimension"
                 :row="row"
                 :index="index"
                 show-details
               />
+              </div>
             </div>
           </section>
 
@@ -716,7 +722,7 @@ function jumpToSection(id: string): void {
                   <span class="section-index" aria-hidden="true">{{ String(index + 1).padStart(2, '0') }}</span>
                   {{ section.title }}
                 </summary>
-                <p class="mt-2 max-w-[46rem] text-[14.5px] leading-[1.72] text-ink-soft">{{ section.body }}</p>
+                <p v-for="(paragraph, paragraphIndex) in readingParagraphs(section.body)" :key="paragraphIndex" class="mt-3 max-w-[46rem] text-[14.5px] leading-[1.9] text-ink-soft">{{ paragraph }}</p>
               </details>
             </div>
           </section>

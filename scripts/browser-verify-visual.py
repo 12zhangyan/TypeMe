@@ -109,6 +109,7 @@ with sync_playwright() as pw:
         page.goto('about:blank')
         page.goto(fixture.BASE+'/#/assess/visual-attempt')
         page.locator('[data-bigfive-item="Q01"]').wait_for()
+        check('主动带动气氛' in page.locator('[data-question-example]').inner_text(),f'{width}/bigfive visible reading example')
         targets(page, '[role="radio"], [data-bigfive-next], [data-bigfive-unknown]', f'{width}/quiz')
         check(not page.locator('[data-bigfive-grid]').is_visible(), f'{width}/quiz optional index collapsed')
         capture(page, 'answer', width)
@@ -117,6 +118,7 @@ with sync_playwright() as pw:
         check('还没保存' in page.locator('[data-bigfive-save-state]').inner_text(), f'{width}/quiz truthful unsaved state')
         page.locator('[data-bigfive-next]').click()
         page.locator('[data-bigfive-item="Q02"]').wait_for()
+        check('别人的处境和近况' in page.locator('[data-question-example]').inner_text(),f'{width}/bigfive reading example follows next item')
         check(attempt['answers'][0]['rating'] == 4, f'{width}/quiz simulated save has chosen rating')
         page.locator('[data-bigfive-prev]').click()
         page.locator('[data-bigfive-item="Q01"]').wait_for()
@@ -135,6 +137,7 @@ with sync_playwright() as pw:
         capture(page, 'reports-empty', width)
         page.goto(fixture.BASE+'/#/assess/visual-jung')
         page.locator('[role="radiogroup"]').wait_for()
+        check('活动结束后' in page.locator('[data-question-example]').inner_text(),f'{width}/jung visible scene explanation')
         targets(page, '[role="radio"]', f'{width}/jung quiz')
         capture(page, 'answer-jung', width)
         state['catalog_fail'] = True

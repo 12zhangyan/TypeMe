@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
@@ -18,12 +18,25 @@ import { fetchPlatformAttempt, type InstrumentKind } from '@/api/platformV3'
  * 它会在"补充题维度"这些字段上得到空值，然后渲染出一个**看起来正常但题目空白**的页面 ——
  * 比直接说"这份草稿该去另一个页面"糟糕得多。
  *
- * ## 为什么不能用路由参数判断
+ * ## 判据为什么是 `INSTRUMENT_MISMATCH`，而不是"请求失败"
  *
- * 用户可能直接粘一个 `/assess/<id>` 链接，也可能从"我的测评"点进来，
- * 那条路径上没有 `?kind=`。所以**归属必须由服务端说了算**：先读一次 attempt，
- * 按服务端返回的 `instrumentKind` 决定渲染哪一页。代价是多一次请求，
- * 换来的是"任何入口进来都不会渲染错页面"。
+ * 大五端点 `GET /api/v3/platform/attempts/{id}` **只会**读大五草稿。它对一份
+ * **属于当前用户的十六型草稿**回 `409 INSTRUMENT_MISMATCH` —— 这是分流信号，不是故障。
+ * 用它的前提是它**已经做过归属校验**：服务端先按 `(id, user_id)` 读出草稿，
+ * 读不到就是 `404`，然后才判"锁定的包是不是大五"。所以：
+ *
+ * - 别人的草稿与不存在的 id 都是 `404` —— 二者同形，既不泄露存在性，
+ *   也不会被这里误判成"这是十六型草稿"（那会把"没有这份测评"渲染成一份空白答题页）；
+ * - `401`／`403`／网络错误／`PACKAGE_UNAVAILABLE` 同理，都是**不能继续**，不是"换个页面"；
+ * - 分流只决定**渲染哪一页**：真正渲染时，十六型页面还会用自己的接口再读一次，
+ *   并按草稿绑定的包校验（大五草稿走十六型端点得 `409 PACKAGE_UNAVAILABLE`）。
+ *   前端不读任何 `kind` 参数，也不缓存上一次的分流结果。
+ *
+ * ## 换 id 与竞态
+ *
+ * 同一个路由换 `attemptId`（点列表里另一份草稿）时组件实例会被复用，
+ * 所以必须 `watch` 参数重新分流，并且**只让最后一次请求的响应生效** ——
+ * 否则慢的旧请求晚到，会把页面顶回上一份草稿的答题页。
  */
 
 const route = useRoute()
@@ -31,35 +44,60 @@ const route = useRoute()
 const kind = ref<InstrumentKind | null>(null)
 const loading = ref(true)
 const error = ref<ErrorDisplay | null>(null)
+const notFound = ref(false)
 
-const attemptId = (() => {
+/** 后端 `BigFiveAttemptService.requireBigFiveRelease` 的分流信号（409）。 */
+const INSTRUMENT_MISMATCH_CODE = 'INSTRUMENT_MISMATCH'
+
+/** 每次分流自增；只有"最新一次"的响应允许改状态。 */
+let requestSeq = 0
+
+const attemptId = computed(() => {
   const value = route.params.attemptId
   return typeof value === 'string' ? value : ''
-})()
+})
 
-onMounted(async () => {
-  if (!attemptId) {
+async function loadAttempt(id: string): Promise<void> {
+  const seq = ++requestSeq
+  loading.value = true
+  error.value = null
+  notFound.value = false
+  kind.value = null
+
+  if (!id) {
     loading.value = false
+    notFound.value = true
     return
   }
+
   try {
     // 这一页只用它来判断归属；真正的草稿状态由被渲染的答题页自己再读一次
     // （重复读一次换来的是"两个 store 各自持有完整状态"，而不是互相污染）。
-    const attempt = await fetchPlatformAttempt(attemptId)
+    const attempt = await fetchPlatformAttempt(id)
+    if (seq !== requestSeq) return
     kind.value = attempt.instrumentKind
   } catch (loadError) {
+    if (seq !== requestSeq) return
     const display = describeError(loadError)
-    // 大五接口对十六型草稿会返回 404 —— 那不是错误，是"该走另一条路"。
-    // 判据用「这个 attempt 不是大五」而不是「有没有报错」，避免把网络错误
-    // 也当成"这是十六型的草稿"。
-    if (display.code === 'NOT_FOUND' || display.code === 'FORBIDDEN') {
+    if (display.code === INSTRUMENT_MISMATCH_CODE) {
+      // 服务端已按当前用户确认这份草稿存在，只是它锁定的不是大五的包 → 十六型。
       kind.value = 'jung'
+    } else if (display.code === 'NOT_FOUND') {
+      // 不存在，或不是本人的草稿（同形）。绝不能当成"这是十六型草稿"。
+      notFound.value = true
     } else {
       error.value = display
     }
   } finally {
-    loading.value = false
+    if (seq === requestSeq) loading.value = false
   }
+}
+
+watch(attemptId, (id) => void loadAttempt(id), { immediate: true })
+
+// 离开这一页之后，还在路上的响应不该再改任何状态。
+onBeforeUnmount(() => {
+  requestSeq += 1
 })
 </script>
 
@@ -82,7 +120,7 @@ onMounted(async () => {
       </p>
       <RouterLink to="/instruments" class="btn-secondary btn-sm mt-3">回到测评列表</RouterLink>
     </div>
-    <div v-else class="notice-neutral max-w-prose text-[14.5px] leading-relaxed">
+    <div v-else class="notice-neutral max-w-prose text-[14.5px] leading-relaxed" data-attempt-route-not-found>
       没有找到这份测评。
       <RouterLink to="/instruments" class="link">回到测评列表</RouterLink>重新开始。
     </div>

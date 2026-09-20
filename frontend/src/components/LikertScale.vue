@@ -177,6 +177,8 @@ function optionLabel(value: number, index: number): string {
       </p>
     </div>
 
+    <slot name="reading-help" />
+
     <!-- 五档等宽一行；320px 也不隐藏中间选项 -->
     <div
       class="mt-5 grid grid-cols-5 gap-1.5 tablet:gap-3"

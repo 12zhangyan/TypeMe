@@ -9,6 +9,7 @@ import { describeError, isSessionExpired } from '@/api/v3'
 import type { Dimension, Item } from '@/domain/jung/types'
 import { DIMENSION_SHORT_NAME } from '@/domain/jung/labels'
 import { ANSWER_VALUES } from '@/domain/answers'
+import { questionExample } from '@/domain/readingCompanion'
 
 /**
  * 五档文案本身定义在 store（`SCALE_CAPTIONS`），因为同步冲突提示也要引用同一份。
@@ -105,6 +106,7 @@ const activeIndex = computed(() =>
   step.value === 'clarification' ? clarificationIndex.value : baseIndex.value,
 )
 const currentQuestion = computed<Item | null>(() => activeQuestions.value[activeIndex.value] ?? null)
+const readingExample = computed(() => questionExample(assessment.packageView?.packageId, currentQuestion.value))
 const activeNumber = computed(() => activeIndex.value + 1)
 const activeTotal = computed(() => activeQuestions.value.length)
 const isLastInStage = computed(() => activeTotal.value > 0 && activeIndex.value === activeTotal.value - 1)
@@ -642,14 +644,6 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 
-/** 页面上的维度名（内容包优先）。 */
-function dimensionName(dimension: Dimension): string {
-  return (
-    assessment.contentPackage?.dimensions.find((copy) => copy.dimension === dimension)?.name ??
-    DIMENSION_SHORT_NAME[dimension]
-  )
-}
-
 /** 主测是否全部处理完（决定"完成主测"按钮是否可用）。 */
 const baseReady = computed(() => totalBase.value > 0 && unansweredBaseIds.value.length === 0)
 /** 当前这一题**之前**还有多少题没处理（服务端要求全处理，界面要提前说清楚）。 */
@@ -928,16 +922,15 @@ const earlierUnanswered = computed(() =>
         <div v-else-if="currentQuestion" class="jung-question card tablet:px-7 tablet:py-6" data-question-card>
           <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
             <span class="chip chip-primary">
-              {{ currentQuestion.dimension }} · {{ dimensionName(currentQuestion.dimension) }}
-            </span>
-            <span v-if="currentQuestion.facet" class="text-[12.5px] text-ink-faint">
-              {{ currentQuestion.facet }}
+              日常选择
             </span>
             <span class="ml-auto text-[12.5px] text-ink-faint">第 {{ activeNumber }} / {{ activeTotal }} 题</span>
           </div>
           <h2 class="mt-3 font-display text-[20px] font-bold leading-[1.45] text-ink tablet:text-[24px]">
             {{ currentQuestion.scenario }}
           </h2>
+          <p v-if="readingExample" class="reading-example" data-question-example><span>想一个这样的场景</span>{{ readingExample }}</p>
+          <p class="mt-3 text-[13px] leading-relaxed text-ink-soft">下面两种做法，哪一种更像平时的你？按真实习惯选，不用选你觉得“应该”做到的。</p>
 
           <!--
             两端陈述：中间加一条短轴线，让"这两句是同一根轴的两端"在没有刻度的情况下
@@ -1000,7 +993,7 @@ const earlierUnanswered = computed(() =>
               {{ isUnknown ? '已选：这题我说不好' : '这题我说不好' }}
             </button>
             <span class="text-[12.5px] leading-relaxed text-ink-faint">
-              这也是一次作答：不计分，但不会算作"没答"。
+              没经历过、没看明白，或两边都不像你，可以选这个。已作答，但不计分。
             </span>
           </div>
 
@@ -1020,6 +1013,7 @@ const earlierUnanswered = computed(() =>
             </template>
           </p>
 
+          <p class="mt-3 text-[12.5px] leading-relaxed text-ink-soft">“两边差不多”是指两种做法都像你、出现得差不多；“说不好”是现在无法判断，不是中间档。</p>
           <details v-if="currentQuestion.help" class="mt-3">
             <summary class="link cursor-pointer text-[13.5px]">这题是什么意思？</summary>
             <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft">{{ currentQuestion.help }}</p>

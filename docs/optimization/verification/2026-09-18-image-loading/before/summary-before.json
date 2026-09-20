@@ -1,0 +1,645 @@
+{
+  "label": "before",
+  "scope": "isolated build + mocked API; no database, no AI, no external network",
+  "passed": 91,
+  "failed": 29,
+  "failures": [
+    "320/冷缓存：主图未到时处于明确的加载态 —— state=None",
+    "320/冷缓存：加载中不显示半成品图片 —— opacity=1",
+    "320/冷缓存：主图完成加载与解码后进入 ready",
+    "320/冷缓存：主图以透明度过渡自然出现 —— 中间帧=0 帧",
+    "320/冷缓存：淡入只改透明度且时长在 180–240ms —— transition=['all 0s']",
+    "390/冷缓存：主图未到时处于明确的加载态 —— state=None",
+    "390/冷缓存：加载中不显示半成品图片 —— opacity=1",
+    "390/冷缓存：主图完成加载与解码后进入 ready",
+    "390/冷缓存：主图以透明度过渡自然出现 —— 中间帧=0 帧",
+    "390/冷缓存：淡入只改透明度且时长在 180–240ms —— transition=['all 0s']",
+    "1440/冷缓存：主图未到时处于明确的加载态 —— state=None",
+    "1440/冷缓存：加载中不显示半成品图片 —— opacity=1",
+    "1440/冷缓存：主图完成加载与解码后进入 ready",
+    "1440/冷缓存：主图以透明度过渡自然出现 —— 中间帧=0 帧",
+    "1440/冷缓存：淡入只改透明度且时长在 180–240ms —— transition=['all 0s']",
+    "390/缓存命中：首次访问完成加载",
+    "1440/缓存命中：首次访问完成加载",
+    "390/失败：加载失败后退出 loading 并显示兜底",
+    "390/失败：兜底 SVG 顶上且不再保留失效 img —— {'source': 'vector', 'state': None, 'hasImg': False, 'hasVector': True, 'heading': '故事收藏者'}",
+    "390/失败：失败只影响缺图的那一张，其余照常 ready",
+    "390/切换：默认人物先就绪",
+    "390/切换：显示的是新选择的位图 —— {'artwork': 'type-enfp', 'state': None, 'file': 'type-enfp-BXZftj5A.webp', 'opacity': 1, 'heading': '灵感漫游者', 'pressed': ['ENFP，灵感漫游者']}",
+    "1440/切换：默认人物先就绪",
+    "1440/切换：显示的是新选择的位图 —— {'artwork': 'type-enfp', 'state': None, 'file': 'type-enfp-BXZftj5A.webp', 'opacity': 1, 'heading': '灵感漫游者', 'pressed': ['ENFP，灵感漫游者']}",
+    "390/减少动画：主图仍能正常显示",
+    "390/减少动画：解码完成即直接显示 —— 首个完全不透明样本 naturalWidth=0",
+    "390/报告：配图未到时正文与类型码已可读 —— {'state': None, 'body': 397, 'code': 'ENFP'}",
+    "390/报告：配图最终显示",
+    "390/报告：配图以透明度过渡出现 —— 中间帧=0 帧"
+  ],
+  "notes": [
+    "320/冷缓存：启动 900ms 内浏览器已请求 16 张人物图（DOM 已标 loading=lazy，headless 未按距离阈值延后）",
+    "390/冷缓存：启动 900ms 内浏览器已请求 16 张人物图（DOM 已标 loading=lazy，headless 未按距离阈值延后）",
+    "1440/冷缓存：启动 900ms 内浏览器已请求 16 张人物图（DOM 已标 loading=lazy，headless 未按距离阈值延后）",
+    "390/报告：报告页整体 CLS=0.50358（来源=['A btn-ghost btn-sm×1', 'FOOTER site-footer relative border-t border-line bg-paper-soft×1']），与配图无关，属报告流式渲染，不在本轮范围"
+  ],
+  "checks": [
+    {
+      "label": "320/冷缓存：主图未到时处于明确的加载态",
+      "passed": false,
+      "detail": "state=None"
+    },
+    {
+      "label": "320/冷缓存：加载中不显示半成品图片",
+      "passed": false,
+      "detail": "opacity=1"
+    },
+    {
+      "label": "320/冷缓存：首屏主图 eager + 高优先级",
+      "passed": true,
+      "detail": "loading=eager fetchpriority=high"
+    },
+    {
+      "label": "320/冷缓存：屏外图片仍走懒加载",
+      "passed": true,
+      "detail": "lazy img=20"
+    },
+    {
+      "label": "320/冷缓存：图片加载期间文字与按钮可用",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：没有整页 loading 遮罩",
+      "passed": true,
+      "detail": "overlays=0"
+    },
+    {
+      "label": "320/冷缓存：正文不等待图片",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：只有首屏主图是高优先级，且没有额外 preload",
+      "passed": true,
+      "detail": "high=1 preload=0"
+    },
+    {
+      "label": "320/冷缓存：首屏主图立即发起请求",
+      "passed": true,
+      "detail": "['home-hero-D6cgdiEp.webp']"
+    },
+    {
+      "label": "320/冷缓存：主图完成加载与解码后进入 ready",
+      "passed": false,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：记录到主图状态变化",
+      "passed": true,
+      "detail": "changes=2"
+    },
+    {
+      "label": "320/冷缓存：已交付图片全程走位图，从不先用兜底 SVG 顶替",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：加载期间不渲染兜底 SVG 内容（避免 SVG→位图突兀替换）",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：主图以透明度过渡自然出现",
+      "passed": false,
+      "detail": "中间帧=0 帧"
+    },
+    {
+      "label": "320/冷缓存：淡入只改透明度且时长在 180–240ms",
+      "passed": false,
+      "detail": "transition=['all 0s']"
+    },
+    {
+      "label": "320/冷缓存：图片出现不引起布局位移",
+      "passed": true,
+      "detail": "CLS=0"
+    },
+    {
+      "label": "320/冷缓存：没有任何位移来自图片容器",
+      "passed": true,
+      "detail": "来源=[]；全部位移来源=[]"
+    },
+    {
+      "label": "320/冷缓存：.atelier-cover-art 尺寸稳定",
+      "passed": true,
+      "detail": "272–272px（变化 0px）"
+    },
+    {
+      "label": "320/冷缓存：.portrait-spotlight-art 尺寸稳定",
+      "passed": true,
+      "detail": "286–286px（变化 0px）"
+    },
+    {
+      "label": "320/冷缓存：.assessment-card-art 尺寸稳定",
+      "passed": true,
+      "detail": "230–230px（变化 0px）"
+    },
+    {
+      "label": "320/冷缓存：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "320/冷缓存：API 全部被模拟",
+      "passed": true,
+      "detail": "set()"
+    },
+    {
+      "label": "390/冷缓存：主图未到时处于明确的加载态",
+      "passed": false,
+      "detail": "state=None"
+    },
+    {
+      "label": "390/冷缓存：加载中不显示半成品图片",
+      "passed": false,
+      "detail": "opacity=1"
+    },
+    {
+      "label": "390/冷缓存：首屏主图 eager + 高优先级",
+      "passed": true,
+      "detail": "loading=eager fetchpriority=high"
+    },
+    {
+      "label": "390/冷缓存：屏外图片仍走懒加载",
+      "passed": true,
+      "detail": "lazy img=20"
+    },
+    {
+      "label": "390/冷缓存：图片加载期间文字与按钮可用",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：没有整页 loading 遮罩",
+      "passed": true,
+      "detail": "overlays=0"
+    },
+    {
+      "label": "390/冷缓存：正文不等待图片",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：只有首屏主图是高优先级，且没有额外 preload",
+      "passed": true,
+      "detail": "high=1 preload=0"
+    },
+    {
+      "label": "390/冷缓存：首屏主图立即发起请求",
+      "passed": true,
+      "detail": "['home-hero-D6cgdiEp.webp']"
+    },
+    {
+      "label": "390/冷缓存：主图完成加载与解码后进入 ready",
+      "passed": false,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：记录到主图状态变化",
+      "passed": true,
+      "detail": "changes=2"
+    },
+    {
+      "label": "390/冷缓存：已交付图片全程走位图，从不先用兜底 SVG 顶替",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：加载期间不渲染兜底 SVG 内容（避免 SVG→位图突兀替换）",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：主图以透明度过渡自然出现",
+      "passed": false,
+      "detail": "中间帧=0 帧"
+    },
+    {
+      "label": "390/冷缓存：淡入只改透明度且时长在 180–240ms",
+      "passed": false,
+      "detail": "transition=['all 0s']"
+    },
+    {
+      "label": "390/冷缓存：图片出现不引起布局位移",
+      "passed": true,
+      "detail": "CLS=0.00169"
+    },
+    {
+      "label": "390/冷缓存：没有任何位移来自图片容器",
+      "passed": true,
+      "detail": "来源=[]；全部位移来源=['A btn-ghost btn-sm×1']"
+    },
+    {
+      "label": "390/冷缓存：.atelier-cover-art 尺寸稳定",
+      "passed": true,
+      "detail": "330–330px（变化 0px）"
+    },
+    {
+      "label": "390/冷缓存：.portrait-spotlight-art 尺寸稳定",
+      "passed": true,
+      "detail": "286–286px（变化 0px）"
+    },
+    {
+      "label": "390/冷缓存：.assessment-card-art 尺寸稳定",
+      "passed": true,
+      "detail": "230–230px（变化 0px）"
+    },
+    {
+      "label": "390/冷缓存：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/冷缓存：API 全部被模拟",
+      "passed": true,
+      "detail": "set()"
+    },
+    {
+      "label": "1440/冷缓存：主图未到时处于明确的加载态",
+      "passed": false,
+      "detail": "state=None"
+    },
+    {
+      "label": "1440/冷缓存：加载中不显示半成品图片",
+      "passed": false,
+      "detail": "opacity=1"
+    },
+    {
+      "label": "1440/冷缓存：首屏主图 eager + 高优先级",
+      "passed": true,
+      "detail": "loading=eager fetchpriority=high"
+    },
+    {
+      "label": "1440/冷缓存：屏外图片仍走懒加载",
+      "passed": true,
+      "detail": "lazy img=20"
+    },
+    {
+      "label": "1440/冷缓存：图片加载期间文字与按钮可用",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：没有整页 loading 遮罩",
+      "passed": true,
+      "detail": "overlays=0"
+    },
+    {
+      "label": "1440/冷缓存：正文不等待图片",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：只有首屏主图是高优先级，且没有额外 preload",
+      "passed": true,
+      "detail": "high=1 preload=0"
+    },
+    {
+      "label": "1440/冷缓存：首屏主图立即发起请求",
+      "passed": true,
+      "detail": "['home-hero-D6cgdiEp.webp']"
+    },
+    {
+      "label": "1440/冷缓存：主图完成加载与解码后进入 ready",
+      "passed": false,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：记录到主图状态变化",
+      "passed": true,
+      "detail": "changes=2"
+    },
+    {
+      "label": "1440/冷缓存：已交付图片全程走位图，从不先用兜底 SVG 顶替",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：加载期间不渲染兜底 SVG 内容（避免 SVG→位图突兀替换）",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：主图以透明度过渡自然出现",
+      "passed": false,
+      "detail": "中间帧=0 帧"
+    },
+    {
+      "label": "1440/冷缓存：淡入只改透明度且时长在 180–240ms",
+      "passed": false,
+      "detail": "transition=['all 0s']"
+    },
+    {
+      "label": "1440/冷缓存：图片出现不引起布局位移",
+      "passed": true,
+      "detail": "CLS=0.00234"
+    },
+    {
+      "label": "1440/冷缓存：没有任何位移来自图片容器",
+      "passed": true,
+      "detail": "来源=[]；全部位移来源=['NAV flex flex-wrap items-center justify-end gap-1 text-[13.5px] tablet:g×1']"
+    },
+    {
+      "label": "1440/冷缓存：.atelier-cover-art 尺寸稳定",
+      "passed": true,
+      "detail": "562–562px（变化 0px）"
+    },
+    {
+      "label": "1440/冷缓存：.portrait-spotlight-art 尺寸稳定",
+      "passed": true,
+      "detail": "355–355px（变化 0px）"
+    },
+    {
+      "label": "1440/冷缓存：.assessment-card-art 尺寸稳定",
+      "passed": true,
+      "detail": "290–290px（变化 0px）"
+    },
+    {
+      "label": "1440/冷缓存：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/冷缓存：API 全部被模拟",
+      "passed": true,
+      "detail": "set()"
+    },
+    {
+      "label": "390/缓存命中：首次访问完成加载",
+      "passed": false,
+      "detail": ""
+    },
+    {
+      "label": "390/缓存命中：命中缓存时不为演出动画拖延显示",
+      "passed": true,
+      "detail": "占位窗口=0.0ms"
+    },
+    {
+      "label": "390/缓存命中：命中缓存时不长时间闪占位",
+      "passed": true,
+      "detail": "中间帧=0 帧"
+    },
+    {
+      "label": "390/缓存命中：回到首页没有重新下载主图",
+      "passed": true,
+      "detail": "请求数 4 → 4"
+    },
+    {
+      "label": "390/缓存命中：无布局位移",
+      "passed": true,
+      "detail": "CLS=0.00169"
+    },
+    {
+      "label": "390/缓存命中：位移不来自图片容器",
+      "passed": true,
+      "detail": "来源=[]"
+    },
+    {
+      "label": "390/缓存命中：不使用兜底 SVG",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/缓存命中：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/缓存命中：首次访问完成加载",
+      "passed": false,
+      "detail": ""
+    },
+    {
+      "label": "1440/缓存命中：命中缓存时不为演出动画拖延显示",
+      "passed": true,
+      "detail": "占位窗口=0.0ms"
+    },
+    {
+      "label": "1440/缓存命中：命中缓存时不长时间闪占位",
+      "passed": true,
+      "detail": "中间帧=0 帧"
+    },
+    {
+      "label": "1440/缓存命中：回到首页没有重新下载主图",
+      "passed": true,
+      "detail": "请求数 5 → 5"
+    },
+    {
+      "label": "1440/缓存命中：无布局位移",
+      "passed": true,
+      "detail": "CLS=0.00234"
+    },
+    {
+      "label": "1440/缓存命中：位移不来自图片容器",
+      "passed": true,
+      "detail": "来源=[]"
+    },
+    {
+      "label": "1440/缓存命中：不使用兜底 SVG",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/缓存命中：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/失败：加载失败后退出 loading 并显示兜底",
+      "passed": false,
+      "detail": ""
+    },
+    {
+      "label": "390/失败：兜底 SVG 顶上且不再保留失效 img",
+      "passed": false,
+      "detail": "{'source': 'vector', 'state': None, 'hasImg': False, 'hasVector': True, 'heading': '故事收藏者'}"
+    },
+    {
+      "label": "390/失败：正文不受配图失败影响",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/失败：换一个人物仍可恢复显示",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/失败：失败只影响缺图的那一张，其余照常 ready",
+      "passed": false,
+      "detail": ""
+    },
+    {
+      "label": "390/失败：失败不反复重试",
+      "passed": true,
+      "detail": "请求次数=1"
+    },
+    {
+      "label": "390/失败：兜底替换不引起图片容器位移",
+      "passed": true,
+      "detail": "来源=[]；CLS=0.00169"
+    },
+    {
+      "label": "390/失败：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/切换：默认人物先就绪",
+      "passed": false,
+      "detail": ""
+    },
+    {
+      "label": "390/切换：插画跟随最后一次选择",
+      "passed": true,
+      "detail": "type-enfp"
+    },
+    {
+      "label": "390/切换：显示的是新选择的位图",
+      "passed": false,
+      "detail": "{'artwork': 'type-enfp', 'state': None, 'file': 'type-enfp-BXZftj5A.webp', 'opacity': 1, 'heading': '灵感漫游者', 'pressed': ['ENFP，灵感漫游者']}"
+    },
+    {
+      "label": "390/切换：选中态、标题与插画指的是同一个人物",
+      "passed": true,
+      "detail": "{\"artwork\": \"type-enfp\", \"state\": null, \"file\": \"type-enfp-BXZftj5A.webp\", \"opacity\": 1, \"heading\": \"灵感漫游者\", \"pressed\": [\"ENFP，灵感漫游者\"]}"
+    },
+    {
+      "label": "390/切换：可见的插画永远属于当前选择",
+      "passed": true,
+      "detail": "不一致样本=0"
+    },
+    {
+      "label": "390/切换：晚到的旧图片不会覆盖新选择",
+      "passed": true,
+      "detail": "晚到可见样本=0"
+    },
+    {
+      "label": "390/切换：切换过程不引起图片容器位移",
+      "passed": true,
+      "detail": "来源=[]；CLS=0.00169"
+    },
+    {
+      "label": "390/切换：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/切换：默认人物先就绪",
+      "passed": false,
+      "detail": ""
+    },
+    {
+      "label": "1440/切换：插画跟随最后一次选择",
+      "passed": true,
+      "detail": "type-enfp"
+    },
+    {
+      "label": "1440/切换：显示的是新选择的位图",
+      "passed": false,
+      "detail": "{'artwork': 'type-enfp', 'state': None, 'file': 'type-enfp-BXZftj5A.webp', 'opacity': 1, 'heading': '灵感漫游者', 'pressed': ['ENFP，灵感漫游者']}"
+    },
+    {
+      "label": "1440/切换：选中态、标题与插画指的是同一个人物",
+      "passed": true,
+      "detail": "{\"artwork\": \"type-enfp\", \"state\": null, \"file\": \"type-enfp-BXZftj5A.webp\", \"opacity\": 1, \"heading\": \"灵感漫游者\", \"pressed\": [\"ENFP，灵感漫游者\"]}"
+    },
+    {
+      "label": "1440/切换：可见的插画永远属于当前选择",
+      "passed": true,
+      "detail": "不一致样本=0"
+    },
+    {
+      "label": "1440/切换：晚到的旧图片不会覆盖新选择",
+      "passed": true,
+      "detail": "晚到可见样本=0"
+    },
+    {
+      "label": "1440/切换：切换过程不引起图片容器位移",
+      "passed": true,
+      "detail": "来源=[]；CLS=0.00234"
+    },
+    {
+      "label": "1440/切换：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/减少动画：浏览器偏好已生效",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/减少动画：主图仍能正常显示",
+      "passed": false,
+      "detail": ""
+    },
+    {
+      "label": "390/减少动画：关掉动画时不再走 200ms 淡入",
+      "passed": true,
+      "detail": "['all 1e-05s', 'all 1e-05s']"
+    },
+    {
+      "label": "390/减少动画：解码完成即直接显示",
+      "passed": false,
+      "detail": "首个完全不透明样本 naturalWidth=0"
+    },
+    {
+      "label": "390/减少动画：没有中间透明度帧",
+      "passed": true,
+      "detail": "中间帧=0"
+    },
+    {
+      "label": "390/报告：配图未到时正文与类型码已可读",
+      "passed": false,
+      "detail": "{'state': None, 'body': 397, 'code': 'ENFP'}"
+    },
+    {
+      "label": "390/报告：配图最终显示",
+      "passed": false,
+      "detail": ""
+    },
+    {
+      "label": "390/报告：配图以透明度过渡出现",
+      "passed": false,
+      "detail": "中间帧=0 帧"
+    },
+    {
+      "label": "390/报告：[data-report-character] 尺寸稳定",
+      "passed": true,
+      "detail": "177–177px（变化 0px）"
+    },
+    {
+      "label": "390/报告：.report-character-study > .personality-portrait 尺寸稳定",
+      "passed": true,
+      "detail": "144–144px（变化 0px）"
+    },
+    {
+      "label": "390/报告：配图出现不引起图片容器位移",
+      "passed": true,
+      "detail": "来源=[]；CLS=0.50358；全部来源=['A btn-ghost btn-sm×1', 'FOOTER site-footer relative border-t border-line bg-paper-soft×1']"
+    },
+    {
+      "label": "390/报告：使用已交付位图而不是兜底 SVG",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/报告：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "全部 API 均被模拟（含其它页面顺带发起的请求）",
+      "passed": true,
+      "detail": "[]"
+    }
+  ]
+}
