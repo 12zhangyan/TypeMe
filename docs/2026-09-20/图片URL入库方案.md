@@ -240,6 +240,7 @@ PUT  /api/v3/platform/illustrations      # 仅 ADMIN；整批校验、整批生�
 | S7 | **CSP 修法 A** | 无 | 响应头里没有 `Content-Security-Policy`，其余安全头不受影响 | 已完成（含负向探针：加回空 lambda 即变红）；部署后需核对线上响应头 |
 | S8 | **解码失败并入同一条回退链**（Codex review #1） | S4 | 远端图解码失败时改用本地资源、只失败一次 | 已完成（新增用例 + 负向探针：改回"直接兜底"即变红） |
 | S9 | **建表交回 Flyway 并做成幂等**（Codex review #2） | S1 | 新环境部署即建表；已人工建表的库重复执行不失败 | 已完成（`migrationIsIdempotent` + 负向探针：改成普通 `CREATE TABLE` 即报 `Table already exists`） |
+| S10 | **用例隔离：每个用例前重置种子**（Codex review #3） | S2 | 用例结果与执行顺序无关；重置收回写用例的副作用 | 已完成（随机顺序连跑 3 次全绿；负向探针：注掉重置 + 写用例先跑 → 读用例变红） |
 
 **与初稿的差异（实现时定的，都是实现细节，语义未变）**
 
@@ -268,12 +269,13 @@ PUT  /api/v3/platform/illustrations      # 仅 ADMIN；整批校验、整批生�
 
 | 验证 | 命令 | 结果 |
 | --- | --- | --- |
-| 迁移 + 读/写接口 + 响应头 | `mvn.cmd test -Dtest=IllustrationAssetIT` | **6/6 通过**（H2 上 Flyway 应用 V10；真实 MySQL 待部署时验证） |
+| 迁移 + 读/写接口 + 响应头 | `mvn.cmd test -Dtest=IllustrationAssetIT` | **8/8 通过**（H2 上 Flyway 应用 V10；真实 MySQL 待部署时验证） |
+| 用例不依赖执行顺序 | 同一类连跑 3 次，`-Djunit.jupiter.testmethod.order.default=…MethodOrderer$Random` | **3 次全绿**；负向探针：注掉"每个用例前重置"且写用例先跑时，读用例读到 `home-hero.aaaaaaaaaaaa` 而变红 |
 | 迁移幂等 | 同上的 `migrationIsIdempotent` | 迁移被再执行一遍后行数仍为 21（负向探针：改成普通 `CREATE TABLE` 即报 `Table "illustration_asset" already exists`） |
 | CSP 回归负向探针 | 把空 lambda 加回 `SecurityConfig` 再跑上面这条 | **如预期变红**（响应头出现 `Content-Security-Policy: default-src 'self'`），改回后转绿 |
 | 解码失败回退负向探针 | 把解码失败改回"直接兜底"再跑组件用例 | **如预期变红**（`expected 'primary' to be 'local-fallback'`），改回后转绿 |
 | 前端单测 | `npm.cmd test` | **47 文件 / 1007 用例通过**（新增解码失败回退 1 条） |
-| 后端测试子集（排除三类真实 MySQL IT） | `mvn.cmd test "-Dtest=*,!AccountSqlDialectMySqlIT,!AiSqlDialectMySqlIT,!ConcurrencyMySqlIT"` | **385 用例通过 / 0 失败**（1 跳过） |
+| 后端测试子集（排除三类真实 MySQL IT） | `mvn.cmd test "-Dtest=*,!AccountSqlDialectMySqlIT,!AiSqlDialectMySqlIT,!ConcurrencyMySqlIT"` | **387 用例通过 / 0 失败**（1 跳过） |
 | 类型检查 / 构建 | `npm.cmd run typecheck` / `npm.cmd run build` | 0 退出码 |
 | 生成产物一致 | `node scripts/gen-image-publish.mjs --check` | 21 张、2,622,284 字节与素材一致（清单文件本身未变；顺带修掉 CRLF 误报，负向探针：手改一行即报错） |
 | 迁移可重现 | `--emit-sql --out <迁移> --force` 后比对 | 与仓库里的 `V10` **逐字节一致** |
@@ -303,10 +305,9 @@ PUT  /api/v3/platform/illustrations      # 仅 ADMIN；整批校验、整批生�
 | 两处真相（库 vs 上传清单）漂移 | 中 | S5 的三方一致性检查；清单降级为种子/基线 |
 | ~~地址可运行期改动 → 与 CSP 白名单不一致~~ | ~~高~~ → **已消除** | 修法 A 已落地：不再发 CSP 头，改地址与策略无关 |
 | `localStorage` 缓存导致"改地址后老访客仍是旧图" | 低 | 缓存带 `version`，启动即以接口 `version` 决定是否替换；且旧地址失效时有一次性本地回退 |
-| 交付件 SQL 未执行时读接口 500（表不存在） | 低 | 前端按"读表失败"用本地素材，页面正常；如果你希望安静一点，可让读接口在表不存在时返回空表（尚未做） |
-
 | 建表迁移在"人工已建过表"的库上重复执行 | 中 | 迁移写成幂等（`IF NOT EXISTS` + `INSERT IGNORE`），并由 `IllustrationAssetIT#migrationIsIdempotent` 钉住；负向探针确认非幂等写法会红 |
-| 迁移执行失败（例如真实 MySQL 语法差异）会导致应用起不来 | 低 | 迁移已被 6 条契约用例在 H2 上执行过、且被重复执行一次；真实 MySQL 的方言差异要在**首次部署时**盯一眼启动日志（目前无人执行过真实 MySQL 迁移） |
+| 迁移执行失败（例如真实 MySQL 语法差异）导致应用起不来 | 低 | 迁移已被 8 条契约用例在 H2 上执行过、且被重复执行一遍；真实 MySQL 的方言差异要在**首次部署时**盯一眼启动日志（目前无人执行过真实 MySQL 迁移） |
+| 用例之间互相污染（写用例真的改库） | 低 | `IllustrationAssetIT` 每个用例前重置种子（`reseedIllustrationAssets`），并有一条顺序无关的用例把"重置收回副作用 / 种子不覆盖运行期改动"钉住；`INSERT IGNORE` 不能当恢复脚本用（原文见 Codex review #8） |
 
 **未决项**
 

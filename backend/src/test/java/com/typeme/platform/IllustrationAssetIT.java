@@ -3,6 +3,7 @@ package com.typeme.platform;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typeme.account.AccountIntegrationTestBase;
 import com.typeme.account.TestAccounts;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -30,6 +31,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * 该迁移是幂等的（`CREATE TABLE IF NOT EXISTS` + `INSERT IGNORE`），因为有些库里表可能
  * 已经由人工建好过（人工执行不留 `flyway_schema_history` 记录）。
  *
+ * <p><b>每个用例前重置种子</b>（见 {@link #reseedIllustrationAssets()}）：写用例会真的改库，
+ * 而 `INSERT IGNORE` 不能拿来实现"再执行一遍就恢复"——它对已存在的主键保留原值。
+ *
  * <p>钉住五件事：
  * <ol>
  *   <li><b>匿名可读</b>：首页是匿名页，首屏出图不能要求先登录；响应里只有公开插画地址；</li>
@@ -42,7 +46,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * </ol>
  */
 class IllustrationAssetIT extends AccountIntegrationTestBase {
-
     private static final String PATH = "/api/v3/platform/illustrations";
     private static final String HOST = "yan-public-1407914221.cos.ap-beijing.myqcloud.com";
     private static final String RELEASE = "2026-09-20";
@@ -60,7 +63,49 @@ class IllustrationAssetIT extends AccountIntegrationTestBase {
         return count == null ? -1 : count;
     }
 
+    /* ── 用例隔离 ───────────────────────────────────────────────────────── */
+
+    /**
+     * 每个用例都从"迁移刚执行完"的种子状态开始。
+     *
+     * <p>为什么不能省：本类共用一个 H2 库，而
+     * {@link #adminCanChangeAddressAndItTakesEffectImmediately()} 会把 home-hero 永久改成测试地址。
+     * 没有这一步，用例之间就有隐式耦合 —— 当前恰好全绿，只是因为读用例的断言比较宽松
+     * （测试地址也落在发布目录下、哈希形状也合法）；哪天断言收紧、或写用例改到别的路径，
+     * 就会变成"换个执行顺序才红"的幽灵失败。Codex review 指出（2026-09-20，PR #8）。
+     *
+     * <p><b>不能靠"再执行一遍迁移"来重置</b>：{@code INSERT IGNORE} 对已存在的主键是保留原值 ——
+     * 幂等的代价正是"它不能当恢复脚本用"。所以这里显式删行、再灌一遍种子。
+     */
+    @BeforeEach
+    void reseedIllustrationAssets() throws Exception {
+        assertThat(MIGRATION.exists()).as("缺少迁移文件：%s", MIGRATION).isTrue();
+        invitationJdbc.update("DELETE FROM illustration_asset");
+        try (var connection = invitationJdbc.getDataSource().getConnection()) {
+            ScriptUtils.executeSqlScript(connection, MIGRATION);
+        }
+        assertThat(rowCount()).as("重置后应当是迁移种下的 21 行").isEqualTo(21);
+    }
+
     /* ── 迁移本身 ───────────────────────────────────────────────────────── */
+
+    @Test
+    @DisplayName("表是 Flyway 应用 V10 建起来的，列与迁移定义一致（不是测试脚手架自己拼的）")
+    void flywayAppliedV10() {
+        // 引入 @BeforeEach 重置之前，"Flyway 真的跑过 V10"是靠"进用例时行数已是 21"隐含证明的；
+        // 那个数字现在由重置逻辑保证，所以把 Flyway 记录与表结构直接断言出来，覆盖不缩水。
+        Integer applied = invitationJdbc.queryForObject(
+                "SELECT COUNT(*) FROM flyway_schema_history WHERE version = '10' AND success = TRUE",
+                Integer.class);
+        assertThat(applied).as("V10 应当已被 Flyway 成功应用一次").isEqualTo(1);
+
+        List<String> columns = invitationJdbc.queryForList(
+                "SELECT LOWER(column_name) FROM information_schema.columns "
+                        + "WHERE UPPER(table_name) = 'ILLUSTRATION_ASSET'",
+                String.class);
+        assertThat(columns).as("列就是迁移里定义的那五个，没有多也没有少")
+                .containsExactlyInAnyOrder("asset_name", "url", "sha256", "release", "updated_at");
+    }
 
     @Test
     @DisplayName("迁移是幂等的：库里已经建过表、插过这 21 行时，再执行一次既不报错也不重复插入")
@@ -69,14 +114,42 @@ class IllustrationAssetIT extends AccountIntegrationTestBase {
         // 已经存在，而人工执行不会在 flyway_schema_history 留记录 —— Flyway 之后照样会应用
         // 这个版本。若 DDL/DML 不是幂等的，那些库会在部署时"表已存在 / 主键冲突"直接起不来，
         // 而且要等到部署那一刻才发现。这里在 H2 上把"再执行一遍"提前跑掉。
-        assertThat(MIGRATION.exists()).as("缺少迁移文件：%s", MIGRATION).isTrue();
-        assertThat(rowCount()).as("Flyway 已经应用了 V10 并种下 21 行").isEqualTo(21);
+        //
+        // @BeforeEach 已经把种子恢复好，所以这一次执行走的正是两种最容易出事的路径：
+        // 表已存在（CREATE TABLE IF NOT EXISTS 分支）+ 21 行已存在（INSERT IGNORE 分支）。
+        assertThat(rowCount()).as("前置条件：种子已经在库里").isEqualTo(21);
 
         try (var connection = invitationJdbc.getDataSource().getConnection()) {
             ScriptUtils.executeSqlScript(connection, MIGRATION);
         }
 
         assertThat(rowCount()).as("第二次执行不能把行数变成 42").isEqualTo(21);
+    }
+
+    @Test
+    @DisplayName("写用例的副作用靠重置收回；而种子脚本本身不覆盖运行期改动（INSERT IGNORE 保留已存在的行）")
+    void reseedRestoresSeedsAndMigrationKeepsRuntimeEdits() throws Exception {
+        // 这条钉住 Codex review 指出的要点，且**不依赖任何别的用例**：
+        //   1. 写用例（adminCanChangeAddressAndItTakesEffectImmediately）会真的改库，
+        //      所以每个用例开始前必须有一步重置，否则结果取决于执行顺序（见 reseedIllustrationAssets）；
+        //   2. 但重置**不能**用"再执行一遍迁移"代替：INSERT IGNORE 对已存在的主键保留原值 ——
+        //      这既是"部署时能平滑跳过人工建过表的库"的代价，也是"种子不覆盖运维/PUT 改过的地址"。
+        String seeded = firstUrl();
+        String edited = "https://" + HOST + "/illustrations/" + RELEASE + "/home-hero.aaaaaaaaaaaa.webp";
+
+        // 模拟"上一个用例刚改完库"。
+        invitationJdbc.update("UPDATE illustration_asset SET url = ? WHERE asset_name = 'home-hero'", edited);
+        assertThat(firstUrl()).as("前提：改库确实生效").isEqualTo(edited);
+
+        // 只跑迁移、不动数据：改过的行必须原样留着 —— 否则每次部署都会把运行期改过的地址冲回种子。
+        try (var connection = invitationJdbc.getDataSource().getConnection()) {
+            ScriptUtils.executeSqlScript(connection, MIGRATION);
+        }
+        assertThat(firstUrl()).as("种子脚本不该覆盖运行期改动").isEqualTo(edited);
+
+        // 真正收回副作用的是重置，也就是下一个用例开始时会发生的那一步。
+        reseedIllustrationAssets();
+        assertThat(firstUrl()).as("重置必须把被改过的行恢复成种子地址").isEqualTo(seeded);
     }
 
     /* ── 响应头：不能有 CSP ─────────────────────────────────────────────── */
