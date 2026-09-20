@@ -16,9 +16,10 @@
  */
 
 import {
-  boundaryThreshold,
+  assertKnownScoringVersion,
   contributionOf,
   DIMENSIONS,
+  isBoundary,
   NEGATIVE_POLE,
   POSITIVE_POLE,
   triggerThreshold,
@@ -123,6 +124,8 @@ const normalize = (S: number, n: number): number | null => (n === 0 ? null : S /
  * 前者不该出报告。
  */
 export function checkCoverage(pkg: ContentPackage, answers: Map<string, Answer>): CoverageReport {
+  // 未知计分版本直接拒绝：宁可这里报错，也不要用另一套规则先算出一个数字给用户看。
+  assertKnownScoringVersion(pkg.scoringPolicy)
   const perDimension = {} as Record<Dimension, DimensionCoverage>
   const insufficientDimensions: Dimension[] = []
   let coverageOk = true
@@ -272,7 +275,8 @@ export function score(
           : computedPole === POSITIVE_POLE[dimension]
             ? 'positive'
             : 'negative',
-      boundary: Math.abs(SFinal) <= boundaryThreshold(pkg.scoringPolicy, nFinal),
+      // 边界口径按 scoringPolicy.version 分派（v1/v2：B=T−1；v3：B=T 且要求 n>0）
+      boundary: isBoundary(pkg.scoringPolicy, SFinal, nFinal),
       clarificationScheduled: scheduled,
       clarificationSkipped: scheduled && clarificationSkipped,
       clarificationApplied: applied,

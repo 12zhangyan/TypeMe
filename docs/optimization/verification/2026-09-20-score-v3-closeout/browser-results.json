@@ -1,0 +1,716 @@
+{
+  "scope": "synthetic reports from the production scorer/report builder + fully mocked API; no live database, no backend, no real AI call",
+  "base": "http://127.0.0.1:5189",
+  "widths": [
+    320,
+    390,
+    1440
+  ],
+  "reports": {
+    "v1-same-answers": {
+      "status": "REFERENCE",
+      "computedTypeCode": "ENFP",
+      "candidates": 0,
+      "scoringVersion": "typeme-jung48-score-v1",
+      "reportContentVersion": "typeme-type-report-zh-v1"
+    },
+    "v3-boundary": {
+      "status": "TENTATIVE",
+      "computedTypeCode": "ENFP",
+      "candidates": 2,
+      "scoringVersion": "typeme-jung48-score-v3",
+      "reportContentVersion": "typeme-type-report-zh-v1"
+    },
+    "v3-tied": {
+      "status": "TIED",
+      "computedTypeCode": null,
+      "candidates": 4,
+      "scoringVersion": "typeme-jung48-score-v3",
+      "reportContentVersion": "typeme-type-report-zh-v1"
+    }
+  },
+  "checks": [
+    {
+      "label": "320/v3-boundary: 状态徽标是 TENTATIVE",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 现状说明写明\"差距小、不算确定\"",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 仍给出参考类型 ENFP",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 列出 2 个候选（含方向本身）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 候选是 ENFP/INFP，实测 ['ENFP', 'INFP']",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 标出\"差距小\"的那一维",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 固定报告正文在（AI 关闭不影响）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 状态说明: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 状态说明: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 状态说明: 元素有可见尺寸（248×43）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 状态说明: 横向落在视口内（x=36, w=248, 视口=320）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 参考类型: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 参考类型: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 参考类型: 元素有可见尺寸（248×68）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 参考类型: 横向落在视口内（x=36, w=248, 视口=320）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 候选列表: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 候选列表: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 候选列表: 元素有可见尺寸（288×163）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: 候选列表: 横向落在视口内（x=16, w=288, 视口=320）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-boundary: no horizontal overflow (scroll 320 <= 320 + 1)",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: 旧版同答卷仍是 REFERENCE",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: 现状说明是\"四面都有偏向\"",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: 参考类型 ENFP",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: 不确定时才列候选，这里不该有",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: 没有\"差距小\"的维",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: 状态说明: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: 状态说明: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: 状态说明: 元素有可见尺寸（228×22）",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: 状态说明: 横向落在视口内（x=36, w=228, 视口=320）",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: 参考类型: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: 参考类型: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: 参考类型: 元素有可见尺寸（248×68）",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: 参考类型: 横向落在视口内（x=36, w=248, 视口=320）",
+      "passed": true
+    },
+    {
+      "label": "320/v1-same-answers: no horizontal overflow (scroll 320 <= 320 + 1)",
+      "passed": true
+    },
+    {
+      "label": "320/v3-tied: 状态是 TIED",
+      "passed": true
+    },
+    {
+      "label": "320/v3-tied: 不平分时才有四字母 —— 这里必须没有",
+      "passed": true
+    },
+    {
+      "label": "320/v3-tied: 标题写明不选唯一类型",
+      "passed": true
+    },
+    {
+      "label": "320/v3-tied: 并列候选 4 个（EI 两端 × JP 两端）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-tied: 并列标题: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "320/v3-tied: 并列标题: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-tied: 并列标题: 元素有可见尺寸（248×36）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-tied: 并列标题: 横向落在视口内（x=36, w=248, 视口=320）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-tied: 候选列表: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "320/v3-tied: 候选列表: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-tied: 候选列表: 元素有可见尺寸（288×160）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-tied: 候选列表: 横向落在视口内（x=16, w=288, 视口=320）",
+      "passed": true
+    },
+    {
+      "label": "320/v3-tied: no horizontal overflow (scroll 320 <= 320 + 1)",
+      "passed": true
+    },
+    {
+      "label": "320/needs-review: 显示\"没有报告\"而不是报告",
+      "passed": true
+    },
+    {
+      "label": "320/needs-review: 不渲染报告骨架",
+      "passed": true
+    },
+    {
+      "label": "320/needs-review: 不给四字母",
+      "passed": true
+    },
+    {
+      "label": "320/needs-review: 不给候选",
+      "passed": true
+    },
+    {
+      "label": "320/needs-review: 空态卡片: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "320/needs-review: 空态卡片: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "320/needs-review: 空态卡片: 元素有可见尺寸（288×569）",
+      "passed": true
+    },
+    {
+      "label": "320/needs-review: 空态卡片: 横向落在视口内（x=16, w=288, 视口=320）",
+      "passed": true
+    },
+    {
+      "label": "320/needs-review: no horizontal overflow (scroll 320 <= 320 + 1)",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 状态徽标是 TENTATIVE",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 现状说明写明\"差距小、不算确定\"",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 仍给出参考类型 ENFP",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 列出 2 个候选（含方向本身）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 候选是 ENFP/INFP，实测 ['ENFP', 'INFP']",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 标出\"差距小\"的那一维",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 固定报告正文在（AI 关闭不影响）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 状态说明: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 状态说明: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 状态说明: 元素有可见尺寸（264×22）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 状态说明: 横向落在视口内（x=43, w=264, 视口=390）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 参考类型: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 参考类型: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 参考类型: 元素有可见尺寸（304×68）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 参考类型: 横向落在视口内（x=43, w=304, 视口=390）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 候选列表: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 候选列表: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 候选列表: 元素有可见尺寸（358×138）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: 候选列表: 横向落在视口内（x=16, w=358, 视口=390）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-boundary: no horizontal overflow (scroll 390 <= 390 + 1)",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: 旧版同答卷仍是 REFERENCE",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: 现状说明是\"四面都有偏向\"",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: 参考类型 ENFP",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: 不确定时才列候选，这里不该有",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: 没有\"差距小\"的维",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: 状态说明: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: 状态说明: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: 状态说明: 元素有可见尺寸（228×22）",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: 状态说明: 横向落在视口内（x=43, w=228, 视口=390）",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: 参考类型: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: 参考类型: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: 参考类型: 元素有可见尺寸（304×68）",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: 参考类型: 横向落在视口内（x=43, w=304, 视口=390）",
+      "passed": true
+    },
+    {
+      "label": "390/v1-same-answers: no horizontal overflow (scroll 390 <= 390 + 1)",
+      "passed": true
+    },
+    {
+      "label": "390/v3-tied: 状态是 TIED",
+      "passed": true
+    },
+    {
+      "label": "390/v3-tied: 不平分时才有四字母 —— 这里必须没有",
+      "passed": true
+    },
+    {
+      "label": "390/v3-tied: 标题写明不选唯一类型",
+      "passed": true
+    },
+    {
+      "label": "390/v3-tied: 并列候选 4 个（EI 两端 × JP 两端）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-tied: 并列标题: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "390/v3-tied: 并列标题: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-tied: 并列标题: 元素有可见尺寸（304×41）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-tied: 并列标题: 横向落在视口内（x=43, w=304, 视口=390）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-tied: 候选列表: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "390/v3-tied: 候选列表: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-tied: 候选列表: 元素有可见尺寸（358×160）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-tied: 候选列表: 横向落在视口内（x=16, w=358, 视口=390）",
+      "passed": true
+    },
+    {
+      "label": "390/v3-tied: no horizontal overflow (scroll 390 <= 390 + 1)",
+      "passed": true
+    },
+    {
+      "label": "390/needs-review: 显示\"没有报告\"而不是报告",
+      "passed": true
+    },
+    {
+      "label": "390/needs-review: 不渲染报告骨架",
+      "passed": true
+    },
+    {
+      "label": "390/needs-review: 不给四字母",
+      "passed": true
+    },
+    {
+      "label": "390/needs-review: 不给候选",
+      "passed": true
+    },
+    {
+      "label": "390/needs-review: 空态卡片: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "390/needs-review: 空态卡片: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "390/needs-review: 空态卡片: 元素有可见尺寸（358×459）",
+      "passed": true
+    },
+    {
+      "label": "390/needs-review: 空态卡片: 横向落在视口内（x=16, w=358, 视口=390）",
+      "passed": true
+    },
+    {
+      "label": "390/needs-review: no horizontal overflow (scroll 390 <= 390 + 1)",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 状态徽标是 TENTATIVE",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 现状说明写明\"差距小、不算确定\"",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 仍给出参考类型 ENFP",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 列出 2 个候选（含方向本身）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 候选是 ENFP/INFP，实测 ['ENFP', 'INFP']",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 标出\"差距小\"的那一维",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 固定报告正文在（AI 关闭不影响）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 状态说明: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 状态说明: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 状态说明: 元素有可见尺寸（264×22）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 状态说明: 横向落在视口内（x=273, w=264, 视口=1440）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 参考类型: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 参考类型: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 参考类型: 元素有可见尺寸（526×101）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 参考类型: 横向落在视口内（x=189, w=526, 视口=1440）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 候选列表: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 候选列表: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 候选列表: 元素有可见尺寸（430×139）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: 候选列表: 横向落在视口内（x=152, w=430, 视口=1440）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-boundary: no horizontal overflow (scroll 1440 <= 1440 + 1)",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: 旧版同答卷仍是 REFERENCE",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: 现状说明是\"四面都有偏向\"",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: 参考类型 ENFP",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: 不确定时才列候选，这里不该有",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: 没有\"差距小\"的维",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: 状态说明: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: 状态说明: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: 状态说明: 元素有可见尺寸（228×22）",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: 状态说明: 横向落在视口内（x=273, w=228, 视口=1440）",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: 参考类型: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: 参考类型: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: 参考类型: 元素有可见尺寸（526×101）",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: 参考类型: 横向落在视口内（x=189, w=526, 视口=1440）",
+      "passed": true
+    },
+    {
+      "label": "1440/v1-same-answers: no horizontal overflow (scroll 1440 <= 1440 + 1)",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-tied: 状态是 TIED",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-tied: 不平分时才有四字母 —— 这里必须没有",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-tied: 标题写明不选唯一类型",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-tied: 并列候选 4 个（EI 两端 × JP 两端）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-tied: 并列标题: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-tied: 并列标题: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-tied: 并列标题: 元素有可见尺寸（798×41）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-tied: 并列标题: 横向落在视口内（x=189, w=798, 视口=1440）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-tied: 候选列表: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-tied: 候选列表: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-tied: 候选列表: 元素有可见尺寸（430×139）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-tied: 候选列表: 横向落在视口内（x=152, w=430, 视口=1440）",
+      "passed": true
+    },
+    {
+      "label": "1440/v3-tied: no horizontal overflow (scroll 1440 <= 1440 + 1)",
+      "passed": true
+    },
+    {
+      "label": "1440/needs-review: 显示\"没有报告\"而不是报告",
+      "passed": true
+    },
+    {
+      "label": "1440/needs-review: 不渲染报告骨架",
+      "passed": true
+    },
+    {
+      "label": "1440/needs-review: 不给四字母",
+      "passed": true
+    },
+    {
+      "label": "1440/needs-review: 不给候选",
+      "passed": true
+    },
+    {
+      "label": "1440/needs-review: 空态卡片: 元素存在",
+      "passed": true
+    },
+    {
+      "label": "1440/needs-review: 空态卡片: 元素有布局盒（不是 display:none / 未挂载）",
+      "passed": true
+    },
+    {
+      "label": "1440/needs-review: 空态卡片: 元素有可见尺寸（1136×372）",
+      "passed": true
+    },
+    {
+      "label": "1440/needs-review: 空态卡片: 横向落在视口内（x=152, w=1136, 视口=1440）",
+      "passed": true
+    },
+    {
+      "label": "1440/needs-review: no horizontal overflow (scroll 1440 <= 1440 + 1)",
+      "passed": true
+    },
+    {
+      "label": "no uncaught browser errors: []",
+      "passed": true
+    },
+    {
+      "label": "all APIs intercepted and accounted for: []",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "unexpectedApis": []
+}

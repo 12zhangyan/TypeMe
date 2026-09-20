@@ -19,26 +19,38 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseYaml } from './lib/yaml.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const root = resolve(here, '..')
 
-const QUESTION_SOURCE = join(
-  root,
-  'docs/2026-09-16/implementation/content/jung48-questions.yml',
-)
+/**
+ * 题目与计分政策的**唯一来源：当前内容包**（不再是 YAML 维护源）。
+ *
+ * <p>为什么换来源：夹具的期望值必须与 Java / 前端**真正加载的那份内容**逐字对应。
+ * YAML 维护源与生成出来的包并不总是相同 —— v2 对 `JP-02` / `JP-04` 做过极性修正，
+ * 而 YAML 仍是修正前的版本。继续从 YAML 算期望值，会在"默认包切到带修正的版本"时
+ * 静默错位（题目极性变了，按极点分配的答案跟着变，期望值却不是）。
+ * YAML → 包的转换本身由 `scripts/convert-jung-content.mjs --check` 与
+ * `scripts/gen-platform-content.mjs --check` 各自守住，不靠这里兼管。
+ */
+const PACKAGE_SOURCE = join(root, 'backend/src/main/resources/content/typeme-jung48-zh-v3.json')
 const OUTPUTS = [
   join(root, 'docs/2026-09-16/implementation/fixtures/score-cases.json'),
   join(root, 'backend/src/test/resources/fixtures/score-cases.json'),
   join(root, 'frontend/src/domain/__fixtures__/score-cases.json'),
 ]
 
-const POLICY = {
-  version: 'typeme-jung48-score-v1',
-  minBaseRatingsPerDimension: 9,
-  boundaryNumerator: 2,
-  boundaryDenominator: 10,
+if (!existsSync(PACKAGE_SOURCE)) {
+  throw new Error(`当前内容包还没生成：${PACKAGE_SOURCE}（先跑 node scripts/gen-platform-content.mjs）`)
+}
+const PACKAGE = JSON.parse(readFileSync(PACKAGE_SOURCE, 'utf8'))
+/** 与内容包 `scoringPolicy` 同形；夹具的期望值完全按它计算。 */
+const POLICY = { ...PACKAGE.scoringPolicy }
+if (PACKAGE.instrument?.scoringVersion !== POLICY.version) {
+  throw new Error(
+    `内容包自身不一致：instrument.scoringVersion=${PACKAGE.instrument?.scoringVersion}`
+    + ` 但 scoringPolicy.version=${POLICY.version}`,
+  )
 }
 
 const DIMENSIONS = ['EI', 'SN', 'TF', 'JP']
@@ -85,26 +97,42 @@ function deriveProcesses(typeCode) {
 }
 
 const triggerThreshold = (n) => (n <= 0 ? 0 : Math.floor((POLICY.boundaryNumerator * n) / POLICY.boundaryDenominator))
+
 /**
- * 边界阈值 `B(n) = max(0, T(n) − 1)`，与 Java 侧 `JungScoringPolicy.boundaryThreshold` 一致。
- *
- * 注意 `B(n) === 0` 的含义：n=9 时 T=1、B=0，于是**任何**非零倾向都算"轻"。
- * 这不是笔误 —— 题量少时本来就分不出细微差别，标成轻比重申一个假的确定性更诚实。
- * 但这条规则的后果（n=9 时 |S|=1 会得到 TENTATIVE）必须在契约里写明，否则
- * 前后端各按自己理解的阈值实现时，这一格就会静默分叉。
+ * 边界与触发**同一条尺度**（`B(n) = T(n)`，不再减一）的计分版本。
+ * 与 Java `JungScoringPolicy.UNIFIED_SCALE_VERSIONS`、前端 `types.ts` 同一张表。
  */
-const boundaryThreshold = (n) => Math.max(0, triggerThreshold(n) - 1)
+const UNIFIED_BOUNDARY_SCALE_VERSIONS = ['typeme-jung48-score-v3']
+
+/** 边界阈值 `B(n) = max(0, T(n) − 1)`（历史）或 `max(0, T(n))`（统一尺度）。 */
+const boundaryThreshold = (n) => {
+  const trigger = triggerThreshold(n)
+  return UNIFIED_BOUNDARY_SCALE_VERSIONS.includes(POLICY.version)
+    ? Math.max(0, trigger)
+    : Math.max(0, trigger - 1)
+}
+
+/**
+ * 是否需要把该维标成"倾向较轻"。
+ *
+ * 统一尺度版本额外要求 `nFinal > 0`：没有有效数字回答时不存在"较轻的倾向"，
+ * 那种情况该走覆盖不足（NEEDS_REVIEW）。历史版本保持原样。
+ *
+ * 注意 `B(n) === 0`（历史规则下 n=9 时）的含义：只有 `S = 0` 才算"轻"，
+ * 也就是只有平分；非零倾向在这一档**不**算轻。这一格曾经被写反过，
+ * 所以夹具专门钉住 n=9、|S|=1 的结论。
+ */
+const isBoundary = (s, n) => {
+  if (UNIFIED_BOUNDARY_SCALE_VERSIONS.includes(POLICY.version) && n <= 0) return false
+  return Math.abs(s) <= boundaryThreshold(n)
+}
 
 /* ── 题库读取 ─────────────────────────────────────────────────────────── */
 
 function loadQuestions() {
-  if (!existsSync(QUESTION_SOURCE)) {
-    throw new Error(`题库还没交付：${QUESTION_SOURCE}`)
-  }
-  const parsed = parseYaml(readFileSync(QUESTION_SOURCE, 'utf8'))
-  const questions = parsed?.questions
+  const questions = PACKAGE?.questions
   if (!Array.isArray(questions) || questions.length === 0) {
-    throw new Error('题库文件里没有 questions 列表')
+    throw new Error(`内容包里没有 questions 列表：${PACKAGE_SOURCE}`)
   }
   return questions
 }
@@ -394,7 +422,7 @@ function score(index, answers, skipped) {
       position: finalN === 0 ? null : (m(finalS, finalN) + 1) / 2,
       computedPole: pole,
       tiedSide: pole === null ? 'tied' : pole === POSITIVE[dimension] ? 'positive' : 'negative',
-      boundary: Math.abs(finalS) <= boundaryThreshold(finalN),
+      boundary: isBoundary(finalS, finalN),
       clarificationScheduled: scheduledThis,
       clarificationSkipped: scheduledThis && skipped,
       clarificationApplied: effective,
@@ -462,9 +490,9 @@ function score(index, answers, skipped) {
 const CASES = [
   { id: 'CASE-01', note: '四维都给出明确的一侧：钉住 TF/JP 的正负极方向（与旧 OEJTS 相反）',
     fill: { EI: '+12', SN: '+10', TF: '-12', JP: '-8' } },
-  { id: 'CASE-02', note: 'EI 主测倾向很轻但其余维明确：轻的一维不改变四字母，只影响候选',
-    fill: { EI: '+2', SN: '+10', TF: '+12', JP: '-10' }, skip: ['EI'] },
-  { id: 'CASE-03', note: '补充题把主测方向翻转：最终方向必须按合并后的 S 判定',
+  { id: 'CASE-02', note: 'n=12、|S|=1：落在带内（B(12)=2）而用户**跳过**了补充题 → TENTATIVE。与 CASE-14（同一份主测但完成补充题）构成「跳过 / 完成」对照',
+    fill: { EI: '+1', SN: '+10', TF: '+12', JP: '-10' }, skip: ['EI'] },
+  { id: 'CASE-03', note: '补充题与主测同向叠加（不是翻转）：最终方向与边界都必须按合并后的 S 判定，本例落成 n=16、|S|=6',
     fill: { EI: '+2', SN: '+10', TF: '+12', JP: '-10' },
     clarification: { answers: {
       'EI-C1': { kind: 'rating', rating: 1 }, 'EI-C2': { kind: 'rating', rating: 5 },
@@ -484,19 +512,22 @@ const CASES = [
     fill: { EI: '+12', SN: '+10', TF: '+12', JP: '-10' }, drop: ['JP-12'] },
   { id: 'CASE-08', note: '单维真实平分 + 其余非零：平分维不参与类型判定',
     fill: { EI: 'alternate', SN: '+10', TF: '+8', JP: '-10' }, skip: ['EI'] },
-  { id: 'CASE-09', note: 'n=12、|S|=2：落在触发阈值上，但不是边界阈值',
+  { id: 'CASE-09', note: 'n=12、|S|=2 恰好等于 B(12)=2：跳过补充题、结果仍在带内 → TENTATIVE。这条钉住 v3 的政策要点 —— 跳过不会再让结论显得更明确（旧规则 B=T−1=1 时它是 REFERENCE）',
     fill: { EI: '+2', SN: '+10', TF: '+12', JP: '-10' }, skip: ['EI'] },
-  { id: 'CASE-10', note: '平分维与边界维同时出现：平分优先，状态为 TIED',
-    fill: { EI: 'alternate', SN: '+10', TF: '-8', JP: '+2' }, skip: ['EI', 'JP'] },
-  { id: 'CASE-11', note: '四维倾向都极轻：候选数量应等于各维可选极点的笛卡尔积',
+  { id: 'CASE-10', note: '平分维与**真边界维**同时出现（EI 平分、JP |S|=1 落在 B(12)=2 之内）：平分优先，状态是 TIED 而不是 TENTATIVE，也不给完整四字母',
+    fill: { EI: 'alternate', SN: '+10', TF: '-8', JP: '+1' }, skip: ['EI', 'JP'] },
+  { id: 'CASE-11', note: '四维倾向都极轻（EI/TF/JP 恰好压在 B(12)=2 上、SN |S|=1 在带内）：候选数量应等于各维可选极点的笛卡尔积',
     fill: { EI: '+2', SN: '+1', TF: '-2', JP: '+2' }, skip: ['EI', 'SN', 'TF', 'JP'] },
-  { id: 'CASE-12', note: 'n=12、|S|=3：超过触发阈值，不安排补充题',
+  { id: 'CASE-12', note: 'n=12、|S|=3：超过触发阈值 T(12)=2 故不安排补充题，也刚好越出带一格（B(12)=2+1）→ REFERENCE',
     fill: { EI: '+3', SN: '+10', TF: '+12', JP: '-10' } },
-  { id: 'CASE-13', note: 'n=9、|S|=1：T(9)=1 故触发；B(9)=0 故任何非零倾向都算轻',
+  { id: 'CASE-13', note: 'n=9、|S|=1 恰好等于 B(9)=1：覆盖下限这一档也有「倾向较轻」区间（旧规则 B(9)=0，任何非零倾向都会被判成明确）→ TENTATIVE',
     fill: { EI: '+1', SN: '+10', TF: '+12', JP: '-10' },
     unknown: { EI: ['EI-10', 'EI-11', 'EI-12'] }, skip: ['EI'] },
-  { id: 'CASE-14', note: '明确跳过补充题：只按主测计分，且不报错',
-    fill: { EI: '+2', SN: '+10', TF: '+12', JP: '-10' }, skip: ['EI'] },
+  { id: 'CASE-14', note: '与 CASE-02 同一份主测（EI=+1）但**完成**了补充题：合并后 n=16、|S|=5 越出带（B(16)=3）→ REFERENCE。与 CASE-02 构成「跳过 / 完成」对照',
+    fill: { EI: '+1', SN: '+10', TF: '+12', JP: '-10' },
+    clarification: { answers: {
+      'EI-C1': { kind: 'rating', rating: 1 }, 'EI-C2': { kind: 'rating', rating: 5 },
+      'EI-C3': { kind: 'rating', rating: 1 }, 'EI-C4': { kind: 'rating', rating: 1 } } } },
   { id: 'CASE-15', note: '补充题全部回答"无法判断"：最终 n 回到主测数字回答数',
     fill: { EI: 'neutral', SN: '+10', TF: '+12', JP: '-10' },
     clarification: { answers: {
@@ -505,11 +536,23 @@ const CASES = [
   { id: 'CASE-16', note: '四维都真实平分：证明 S 是代数和而不是逐题绝对值累加',
     fill: { EI: 'alternate', SN: 'alternate', TF: 'alternate', JP: 'alternate' },
     skip: ['EI', 'SN', 'TF', 'JP'] },
-  { id: 'CASE-17', note: '一维轻、一维明确：候选只发生在轻的那一维上',
+  { id: 'CASE-17', note: '两维轻、两维明确：EI |S|=2 与 SN |S|=1 都落在 B(12)=2 之内，候选只发生在这两维上，TF/JP 不进候选',
     fill: { EI: '+2', SN: '+1', TF: '+12', JP: '-10' }, skip: ['EI', 'SN'] },
   { id: 'CASE-18', note: '只有 EI 不足 9 个数字回答：覆盖按维判定，其余维充足也要回退',
     fill: { EI: '+8', SN: '+10', TF: '+12', JP: '-10' },
     unknown: { EI: ['EI-09', 'EI-10', 'EI-11', 'EI-12'] } },
+  { id: 'CASE-19', note: '某一维 12 题全部「说不好」：n=0，m 必须是 null（不能用 0 冒充「正好居中」），状态先回退 NEEDS_REVIEW',
+    fill: { SN: '+10', TF: '+12', JP: '-10' },
+    unknown: { EI: ['EI-01', 'EI-02', 'EI-03', 'EI-04', 'EI-05', 'EI-06',
+      'EI-07', 'EI-08', 'EI-09', 'EI-10', 'EI-11', 'EI-12'] } },
+  { id: 'CASE-20', note: '覆盖不足与平分、边界同时出现：NEEDS_REVIEW 优先于 TIED 与 TENTATIVE，且不给四字母、不给候选',
+    fill: { EI: 'alternate', SN: '+10', TF: '+12', JP: '+1' },
+    unknown: { SN: ['SN-09', 'SN-10', 'SN-11', 'SN-12'] }, skip: ['EI', 'JP'] },
+  { id: 'CASE-21', note: 'n=16、|S|=2 落在带内（B(16)=3）：补充题全答中立档，边界在**最终合并题集**上判定，合并后仍算轻 → TENTATIVE',
+    fill: { EI: '+2', SN: '+10', TF: '+12', JP: '-10' },
+    clarification: { answers: {
+      'EI-C1': { kind: 'rating', rating: 3 }, 'EI-C2': { kind: 'rating', rating: 3 },
+      'EI-C3': { kind: 'rating', rating: 3 }, 'EI-C4': { kind: 'rating', rating: 3 } } } },
 ]
 
 /* ── 生成 ─────────────────────────────────────────────────────────────── */
@@ -749,7 +792,7 @@ function build() {
   const canonical = JSON.stringify(
     {
       scoringVersion: POLICY.version,
-      packageId: 'typeme-jung48-zh-v1',
+      packageId: PACKAGE.packageId,
       dynamicsVersion: DYNAMICS_VERSION,
       cases,
       // 16 型的过程结构：不只是"参考值"，它是过程层唯一能守住"内倾那一支没写反"的凭据

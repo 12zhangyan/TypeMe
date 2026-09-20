@@ -60,6 +60,21 @@ const V2_SCORING_VERSION = 'typeme-jung48-score-v2'
 const V2_REPORT_CONTENT_VERSION = 'typeme-type-report-zh-v2'
 const V2_CONTENT_STATUS = 'draft_review_pending'
 
+const V3_PACKAGE_PATH = join(CONTENT_OUT_DIR, 'typeme-jung48-zh-v3.json')
+const V3_PACKAGE_ID = 'typeme-jung48-zh-v3'
+const V3_SCORING_VERSION = 'typeme-jung48-score-v3'
+/*
+ * v3 只换计分口径（边界与触发同尺度），**不改任何题目与报告文案**，因此复用一个已有的报告文案版本。
+ *
+ * 复用哪一版：**v1** —— 也就是当前新草稿实际在用的那一版。
+ * 为什么不是更新的 v2：v2 的报告文案带 `readableSummary` / `readableFirstSteps`，
+ * 服务端构造器一旦取到它就会把"八段 + 3 条成长行动"换成"一句话摘要 + 1 个可观察动作"，
+ * 而那是另一条在途的易读性改造，不该由"换计分口径"这一件事顺带推上线。
+ * 本次决定保持"新草稿的报告文案与今天完全一致"，只让计分规则变 ——
+ * 判断依据是运行期**按包声明的版本解析**（取不到即启动失败），不是任何默认常量。
+ */
+const V3_REPORT_CONTENT_VERSION = 'typeme-type-report-zh-v1'
+
 const IPIP_PACKAGE_ID = 'typeme-bigfive50-zh-v1'
 const IPIP_INSTRUMENT_ID = 'ipip50'
 const IPIP_SCORING_VERSION = 'ipip-bfm50-1.0'
@@ -148,6 +163,30 @@ function jungCanonicalSource(pkg) {
 
 function jungSha256(pkg) {
   return sha256(JSON.stringify(jungCanonicalSource(pkg)))
+}
+
+/**
+ * 确认某个报告内容版本**确实存在于已生成的内容目录**，并读回它自己声明的版本号。
+ *
+ * <p>为什么必须查文件而不是只看常量：内容包声明的是 `reportContentVersion`，
+ * 运行期 `JungPackageLoader` 按**包自己声明的那个版本**去 `typeReportContents` 里取文案，
+ * 取不到就在启动期抛异常。如果只在生成期比较常量，就可能产出一个"常量对得上、
+ * 但文件不存在"的包 —— 那时错误要等到服务启动才暴露。
+ */
+function requireTypeReportVersion(version, label) {
+  // 报告内容文件名就是它自己声明的版本号（typeme-type-report-zh-vN.json）。
+  const path = join(CONTENT_OUT_DIR, `${version}.json`)
+  if (!existsSync(path)) {
+    fail(`${label} 引用的报告内容版本 ${version} 没有对应文件（${path.replace(root, '.')}），`
+      + '请先生成该版本报告再生成内容包')
+    return null
+  }
+  const report = readJson(path, `${label} 报告内容`)
+  if (report.reportContentVersion !== version) {
+    fail(`${label} 引用 ${version}，但该文件自己声明的是 ${report.reportContentVersion}`)
+    return null
+  }
+  return report
 }
 
 /* ── 十六型 v2：逐题修正 ────────────────────────────────────────────────── */
@@ -327,6 +366,57 @@ function buildJungV2() {
     },
     dimensions: v1.dimensions.map((dimension) => ({ ...dimension })),
     questions,
+  }
+  pkg.sha256 = jungSha256(pkg)
+  return pkg
+}
+
+/* ── 十六型 v3：只换计分口径的声明，题目与文案逐字沿用 v2 ───────────────── */
+
+/**
+ * 十六型 v3：**只改版本声明**（`scoringVersion` 从 `…-score-v2` 到 `…-score-v3`），
+ * 题目、维度文案、报告文案一律不动。
+ *
+ * <p>为什么需要新包而不是原地改 v2：`assessment_package` 按 `packageId + sha256` 登记，
+ * 内容包一旦被草稿/报告绑定就不能静默替换（改了就等于让同一个 packageId 指向两份内容，
+ * 历史报告无法解释）。计分规则由 `scoringVersion` 分派，所以"换规则"必须落在一个新的
+ * `scoringVersion` 上，并且要有一个声明它的内容包。
+ *
+ * <p>本次改动**不涉及任何题面**：下面用深比较钉住这一点，任何人顺手改题都会在生成期失败。
+ *
+ * @param {object} v2 buildJungV2() 的结果（必须是同一份会被写盘的字节来源）
+ */
+function buildJungV3(v2) {
+  if (v2.questions.length !== 64) fail(`v3 题目总数应沿用 v2 的 64，实际 ${v2.questions.length}`)
+  // 复用 v2 的报告文案版本前，先确认那个版本的文件真的存在、且自己声明的版本号对得上。
+  requireTypeReportVersion(V3_REPORT_CONTENT_VERSION, 'v3')
+
+  const pkg = {
+    // 先整体沿用 v2，再覆盖与版本有关的字段：这样 v2 将来新增字段（例如 readable）
+    // 不会被 v3 悄悄丢掉，也不需要在这里维护一份字段清单。
+    ...v2,
+    packageId: V3_PACKAGE_ID,
+    instrument: {
+      ...v2.instrument,
+      revision: 'v3',
+      scoringVersion: V3_SCORING_VERSION,
+      reportContentVersion: V3_REPORT_CONTENT_VERSION,
+    },
+    contentStatus: v2.contentStatus,
+    scoringPolicy: {
+      ...v2.scoringPolicy,
+      version: V3_SCORING_VERSION,
+    },
+    dimensions: v2.dimensions.map((dimension) => ({ ...dimension })),
+    questions: v2.questions.map((question) => ({ ...question })),
+  }
+  delete pkg.sha256
+  // 本次不改题面：派生结果必须与 v2 的题目、维度逐字相同。
+  if (JSON.stringify(pkg.questions) !== JSON.stringify(v2.questions)) {
+    fail('v3 应逐字沿用 v2 的题目：本次是计分口径调整，不允许夹带题面改动')
+  }
+  if (JSON.stringify(pkg.dimensions) !== JSON.stringify(v2.dimensions)) {
+    fail('v3 应逐字沿用 v2 的维度文案：本次是计分口径调整，不允许夹带文案改动')
   }
   pkg.sha256 = jungSha256(pkg)
   return pkg
@@ -791,11 +881,14 @@ function writeOrCheck(path, value) {
 const checkOnly = process.argv.includes('--check')
 
 let jungV2
+let jungV3
 let typeReportsV2
 let bigFive
 try {
   jungV2 = buildJungV2()
+  // 先生成 v2 报告：v3 包要复用它的报告文案版本，requireTypeReportVersion 会去核对那份文件。
   typeReportsV2 = buildJungV2TypeReports()
+  jungV3 = buildJungV3(jungV2)
   bigFive = buildBigFivePackage()
 } catch (error) {
   console.error(`内容生成失败：${error.message}`)
@@ -811,6 +904,7 @@ if (problems.length > 0) {
 const results = [
   writeOrCheck(V2_PACKAGE_PATH, jungV2),
   writeOrCheck(V2_TYPE_REPORT_PATH, typeReportsV2),
+  writeOrCheck(V3_PACKAGE_PATH, jungV3),
   writeOrCheck(IPIP_PACKAGE_PATH, bigFive),
 ]
 
@@ -822,5 +916,6 @@ if (!results.every(Boolean)) {
 if (!checkOnly) {
   console.log(`\n十六型 v2 指纹：${jungV2.sha256.slice(0, 12)}…（包）`)
   console.log(`16 型报告 v2 指纹：${typeReportsV2.sha256.slice(0, 12)}…`)
+  console.log(`十六型 v3 指纹：${jungV3.sha256.slice(0, 12)}…（包；报告文案沿用 ${V3_REPORT_CONTENT_VERSION}）`)
   console.log(`大五（IPIP-50）指纹：${bigFive.sha256.slice(0, 12)}…`)
 }

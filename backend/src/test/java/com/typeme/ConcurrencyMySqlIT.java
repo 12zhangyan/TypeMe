@@ -3,8 +3,9 @@ package com.typeme;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typeme.account.repository.DeletionJobRepository;
 import com.typeme.jung.api.JungDtos;
-import com.typeme.jung.domain.JungItem;
+import com.typeme.jung.content.JungPackage;
 import com.typeme.jung.content.JungPackageLoader;
+import com.typeme.jung.domain.JungItem;
 import com.typeme.jung.service.AttemptService;
 import com.typeme.jung.service.IdempotencyGuard;
 import com.typeme.jung.service.ReportService;
@@ -346,11 +347,20 @@ class ConcurrencyMySqlIT {
         if (existing != null && existing > 0) {
             return;
         }
+        // 占位行的版本字段取自**加载器里的同一个包**，不写死旧版本号：
+        // 默认包换代后写死会造出"package_id 是新的、scoring_version 是旧的"这种自相矛盾的行。
+        JungPackage pkg = currentJungPackage();
         jdbc.update("INSERT INTO assessment_package (package_id, instrument_id, scoring_version,"
                         + " report_content_version, content_status, content_json, sha256, published_at)"
                         + " VALUES (?, ?, ?, ?, ?, '{\"questions\":[]}', REPEAT('a', 64), ?)",
-                JungPackageLoader.CURRENT_PACKAGE_ID, "typeme-jung48", "typeme-jung48-score-v1",
-                JungPackageLoader.CURRENT_TYPE_REPORT_VERSION, "draft_review_pending", Timestamp.from(Instant.now()));
+                JungPackageLoader.CURRENT_PACKAGE_ID, "typeme-jung48",
+                pkg.scoringVersion(), pkg.reportContentVersion(), "draft_review_pending",
+                Timestamp.from(Instant.now()));
+    }
+
+    /** 当前默认内容包（每次现取，避免静态缓存到另一个版本的字段）。 */
+    private static JungPackage currentJungPackage() {
+        return new JungPackageLoader(new DefaultResourceLoader()).current();
     }
 
     private static String seedAttempt(JdbcTemplate jdbc, String userId) {
