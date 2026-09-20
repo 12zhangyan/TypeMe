@@ -110,11 +110,11 @@ console.log(`
 按 PLAN.md 第 9 节的清单逐项复核时，图片地址形如：
     ${ACCESS_DOMAIN}/${manifest.items[0].objectKey}
 
-地址怎么进到页面：生成**手工交付 SQL**、在服务器上执行一次之后，前端启动时读
+地址怎么进到页面：生成入库迁移、随部署由 Flyway 建表播种之后，前端启动时读
 GET /api/v3/platform/illustrations：
 
-    node scripts/gen-image-publish.mjs --emit-sql --out docs/2026-09-20/illustration-asset.sql
-    # 该文件不是 Flyway 迁移：不放进 db/migration，由人在服务器上执行（见文件头注释）
+    node scripts/gen-image-publish.mjs --emit-sql --out backend/src/main/resources/db/migration/V10__illustration_asset.sql
+    # 迁移是幂等的（IF NOT EXISTS + INSERT IGNORE），人工建过表的库重复执行也不会失败
     node scripts/check-remote-images.mjs --from-api <服务地址>     # 库 ↔ 本地素材 ↔ 远端对象 三方核对
 
 本脚本没有执行任何上传、没有创建任何云资源、没有改动 DNS。`)

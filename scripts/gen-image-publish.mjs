@@ -22,7 +22,7 @@
  *     node scripts/gen-image-publish.mjs            # 生成 / 更新上传清单
  *     node scripts/gen-image-publish.mjs --check     # 只校验与素材一致，不写文件
  *     node scripts/gen-image-publish.mjs --emit-sql [--out <文件>] [--force]
- *                                                   # 生成"图片地址入库"的手工交付 SQL
+ *                                                   # 生成"图片地址入库"的 Flyway 迁移 SQL
  *
  * 环境变量：
  *
@@ -40,13 +40,14 @@
  *
  * 关于 `--emit-sql`：运行期地址的事实来源是数据库表 `illustration_asset`（见
  * `docs/2026-09-20/图片URL入库方案.md`）。这个模式把当前素材对应的绝对地址生成成
- * **一份手工交付的 SQL**（`docs/2026-09-20/illustration-asset.sql`）：
+ * **一份 Flyway 迁移**（`db/migration/V<下一个版本>__illustration_asset.sql`）：
  *
- *   - 默认写到 stdout；给了 `--out` 才写文件（约定就是上面那个路径）；
- *   - **它刻意不是 Flyway 迁移**：不放在 `db/migration/` 下，所以不会随部署自动执行，
- *     由人在服务器上跑一次。仓库里也没有对应的 Flyway 版本号。
- *   - **已存在的文件一律拒绝覆盖**（这份文件是交付记录，改地址请新建一份并改名或先用
- *     `PUT /api/v3/platform/illustrations`），除非显式 `--force`；
+ *   - 默认写到 stdout；给了 `--out` 才写文件；
+ *   - **建表与种子都是幂等的**（`CREATE TABLE IF NOT EXISTS` + `INSERT IGNORE`）：
+ *     有些库可能先用同一份 SQL 手工建过表，而手工执行不留 `flyway_schema_history` 记录，
+ *     普通 CREATE/INSERT 会让那些库在部署时"表已存在 / 主键冲突"起不来；
+ *   - **已存在的文件一律拒绝覆盖**（迁移是历史，改地址要新建 V11/V12…，或直接用
+ *     `PUT /api/v3/platform/illustrations` 改库），除非显式 `--force`；
  *   - 域名取 `--base-url` 或 `TYPEME_IMAGE_BASE_URL`，默认 COS 官方域名；
  *     它只在"生成 SQL"时用到，**不再进入前端包**（这正是入库要解决的问题）。
  */
@@ -267,30 +268,28 @@ const outputs = [
   [MANIFEST_MD, manifestMd],
 ]
 
-/* ── 6. 交付 SQL（--emit-sql）：把"当前素材对应的绝对地址"变成库里的数据 ── */
+/* ── 6. 入库迁移 SQL（--emit-sql）：把"当前素材对应的绝对地址"变成库里的数据 ── */
 
-/** 交付件 SQL 的固定位置：手工执行、不进 db/migration（因此不会被 Flyway 自动执行）。 */
-const DELIVERY_SQL = 'docs/2026-09-20/illustration-asset.sql'
+/** 约定位置：Flyway 迁移目录下，随部署自动执行（不是手工交付件）。 */
+const MIGRATION_SQL = 'backend/src/main/resources/db/migration/V10__illustration_asset.sql'
 
-function deliverySql(baseUrl) {
+function migrationSql(baseUrl) {
   const rows = items
     .map((item) => `    (${sqlLiteral(item.name)}, ${sqlLiteral(`${baseUrl}/${item.objectKey}`)}, ${sqlLiteral(item.sha256)}, ${sqlLiteral(RELEASE)}, CURRENT_TIMESTAMP)`)
     .join(',\n')
-  return `-- 公开插画的远端地址（数据库驱动）——**手工交付件，不是 Flyway 迁移**。
+  return `-- 公开插画的远端地址（数据库驱动）。
 --
--- 位置是有意的：它**不在** backend/src/main/resources/db/migration/ 下，
--- 所以既不会打进应用包、也不会在部署时被 Flyway 自动执行；由你在服务器上手工跑一次。
--- 从 GitHub 拉代码构建部署的 jar 不会带上它。
---
--- 生成方式：node scripts/gen-image-publish.mjs --emit-sql --out ${DELIVERY_SQL}
+-- 生成方式：node scripts/gen-image-publish.mjs --emit-sql --out ${MIGRATION_SQL}
 -- 运行时消费：GET /api/v3/platform/illustrations（公开只读，匿名可访问）
 -- 运行期修改：PUT /api/v3/platform/illustrations（仅 ADMIN，改地址不必发版）
 -- 方案与边界：docs/2026-09-20/图片URL入库方案.md
 --
--- 执行方式（服务器上，只跑一次）：
---     mysql -h <主机> -u <用户> -p <库名> < illustration-asset.sql
--- 已经建表或插过数据时不要重复执行：CREATE 加了 IF NOT EXISTS，但 21 条 INSERT 会主键冲突。
--- 想改某一张图的地址请用 PUT 接口，不要改本文件再跑一遍。
+-- 为什么建表与种子都写成幂等的：
+-- 有的库（联调库、或曾经照本文档手工执行过同一份 SQL 的库）里表已经存在、21 行也已经插好，
+-- 而手工执行不会在 flyway_schema_history 里留记录。若这里用普通 CREATE/INSERT，那些库
+-- 会在部署时因为"表已存在 / 主键冲突"直接起不来。IF NOT EXISTS + INSERT IGNORE 让
+-- "手工建过"和"全新库"两种历史都能平滑走到同一个状态；已有行（可能已被 PUT 改过地址）
+-- 不会被这份种子覆盖回去。
 --
 -- 只放**网站公开插画**（5 张场景图 + 16 张人物图）：不含报告、答卷、账号信息或任何私人文件。
 -- url 里带内容哈希，改图 = 换对象键 = 天然无缓存问题；sha256 用于"库 ↔ 本地素材 ↔ 远端对象"
@@ -298,7 +297,7 @@ function deliverySql(baseUrl) {
 --
 -- COLLATE 钉 as_cs 的理由同 V1/V6：默认的 *_ai_ci 大小写不敏感会让 'home-hero' 与
 -- 'HOME-HERO' 变成同一个主键值，白名单校验就白做了。COLLATE 只能写在列定义最末尾
--- （MySQL 与 H2 MySQL 模式的语法交集 —— 后端契约测试也在 H2 上执行本文件）。
+-- （MySQL 与 H2 MySQL 模式的语法交集 —— 后端测试也在 H2 上执行本迁移）。
 CREATE TABLE IF NOT EXISTS illustration_asset (
     asset_name VARCHAR(64)  NOT NULL COLLATE utf8mb4_0900_as_cs,
     url        VARCHAR(512) NOT NULL,
@@ -308,13 +307,13 @@ CREATE TABLE IF NOT EXISTS illustration_asset (
     CONSTRAINT pk_illustration_asset PRIMARY KEY (asset_name)
 );
 
-INSERT INTO illustration_asset (asset_name, url, sha256, release, updated_at) VALUES
+INSERT IGNORE INTO illustration_asset (asset_name, url, sha256, release, updated_at) VALUES
 ${rows};
 `
 }
 
 if (EMIT_SQL) {
-  const sql = deliverySql(resolveBaseUrl())
+  const sql = migrationSql(resolveBaseUrl())
   const out = optionValue('--out')
   if (!out) {
     process.stdout.write(sql)
@@ -322,22 +321,25 @@ if (EMIT_SQL) {
   }
   const target = resolve(out)
   if (existsSync(target) && !FORCE) {
-    // 交付件是"这一批地址曾经入库"的记录：不允许被静默重新生成覆盖，
-    // 否则"库里现在是什么"就说不清了（改地址应当用 PUT 接口）。
+    // 迁移是历史：已经执行过的文件不允许被重新生成覆盖，否则"库里是什么"就说不清了。
     console.error(`✗ 目标已存在，拒绝覆盖：${relative(ROOT, target).split('\\').join('/')}`)
-    console.error('  这份文件是交付记录：改地址请用 PUT /api/v3/platform/illustrations，')
-    console.error('  确实要重新生成（例如换了发布版本，另存一份）时加 --force。')
+    console.error('  迁移是历史记录：改地址请用 PUT /api/v3/platform/illustrations，')
+    console.error('  确实要覆盖（仅限尚未执行的草稿）时加 --force。')
     process.exit(1)
   }
   mkdirSync(dirname(target), { recursive: true })
   writeFileSync(target, sql, 'utf8')
-  console.log(`✓ 交付 SQL 已生成（${items.length} 行，版本 ${RELEASE}）`)
+  console.log(`✓ 入库迁移 SQL 已生成（${items.length} 行，版本 ${RELEASE}）`)
   console.log(`  · ${relative(ROOT, target).split('\\').join('/')}`)
   console.log('  这一步只生成文件；执行迁移受数据库写入授权约束，本脚本不会连库。')
   process.exit(0)
 }
 
 if (CHECK) {
+  // 比较前统一去掉 CR：仓库里 .gitattributes 是 `* text=auto`，而 Windows 上 core.autocrlf=true
+  // 会把检出的文件变成 CRLF，本脚本生成的是 LF —— 直接按字节比会把"刚 checkout 的干净工作区"
+  // 报成"清单不一致"，让人白查一轮。内容差异仍然会被抓出来（只有行尾不同才算一致）。
+  const normalize = (text) => text.replace(/\r\n/g, '\n')
   const drift = []
   for (const [file, expected] of outputs) {
     let actual = null
@@ -346,7 +348,9 @@ if (CHECK) {
     } catch {
       actual = null
     }
-    if (actual !== expected) drift.push(relative(ROOT, file).split('\\').join('/'))
+    if (actual === null || normalize(actual) !== normalize(expected)) {
+      drift.push(relative(ROOT, file).split('\\').join('/'))
+    }
   }
   if (drift.length > 0) {
     console.error(`✗ 图片发布清单与素材不一致：${drift.join('、')}`)

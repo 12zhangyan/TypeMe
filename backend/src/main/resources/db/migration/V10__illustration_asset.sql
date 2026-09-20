@@ -1,18 +1,16 @@
--- 公开插画的远端地址（数据库驱动）——**手工交付件，不是 Flyway 迁移**。
+-- 公开插画的远端地址（数据库驱动）。
 --
--- 位置是有意的：它**不在** backend/src/main/resources/db/migration/ 下，
--- 所以既不会打进应用包、也不会在部署时被 Flyway 自动执行；由你在服务器上手工跑一次。
--- 从 GitHub 拉代码构建部署的 jar 不会带上它。
---
--- 生成方式：node scripts/gen-image-publish.mjs --emit-sql --out docs/2026-09-20/illustration-asset.sql
+-- 生成方式：node scripts/gen-image-publish.mjs --emit-sql --out backend/src/main/resources/db/migration/V10__illustration_asset.sql
 -- 运行时消费：GET /api/v3/platform/illustrations（公开只读，匿名可访问）
 -- 运行期修改：PUT /api/v3/platform/illustrations（仅 ADMIN，改地址不必发版）
 -- 方案与边界：docs/2026-09-20/图片URL入库方案.md
 --
--- 执行方式（服务器上，只跑一次）：
---     mysql -h <主机> -u <用户> -p <库名> < illustration-asset.sql
--- 已经建表或插过数据时不要重复执行：CREATE 加了 IF NOT EXISTS，但 21 条 INSERT 会主键冲突。
--- 想改某一张图的地址请用 PUT 接口，不要改本文件再跑一遍。
+-- 为什么建表与种子都写成幂等的：
+-- 有的库（联调库、或曾经照本文档手工执行过同一份 SQL 的库）里表已经存在、21 行也已经插好，
+-- 而手工执行不会在 flyway_schema_history 里留记录。若这里用普通 CREATE/INSERT，那些库
+-- 会在部署时因为"表已存在 / 主键冲突"直接起不来。IF NOT EXISTS + INSERT IGNORE 让
+-- "手工建过"和"全新库"两种历史都能平滑走到同一个状态；已有行（可能已被 PUT 改过地址）
+-- 不会被这份种子覆盖回去。
 --
 -- 只放**网站公开插画**（5 张场景图 + 16 张人物图）：不含报告、答卷、账号信息或任何私人文件。
 -- url 里带内容哈希，改图 = 换对象键 = 天然无缓存问题；sha256 用于"库 ↔ 本地素材 ↔ 远端对象"
@@ -20,7 +18,7 @@
 --
 -- COLLATE 钉 as_cs 的理由同 V1/V6：默认的 *_ai_ci 大小写不敏感会让 'home-hero' 与
 -- 'HOME-HERO' 变成同一个主键值，白名单校验就白做了。COLLATE 只能写在列定义最末尾
--- （MySQL 与 H2 MySQL 模式的语法交集 —— 后端契约测试也在 H2 上执行本文件）。
+-- （MySQL 与 H2 MySQL 模式的语法交集 —— 后端测试也在 H2 上执行本迁移）。
 CREATE TABLE IF NOT EXISTS illustration_asset (
     asset_name VARCHAR(64)  NOT NULL COLLATE utf8mb4_0900_as_cs,
     url        VARCHAR(512) NOT NULL,
@@ -30,7 +28,7 @@ CREATE TABLE IF NOT EXISTS illustration_asset (
     CONSTRAINT pk_illustration_asset PRIMARY KEY (asset_name)
 );
 
-INSERT INTO illustration_asset (asset_name, url, sha256, release, updated_at) VALUES
+INSERT IGNORE INTO illustration_asset (asset_name, url, sha256, release, updated_at) VALUES
     ('assessment-bigfive', 'https://yan-public-1407914221.cos.ap-beijing.myqcloud.com/illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp', 'e13c9e572c1cf9de336da6594e120c02d4a501e0b987c304dc3840bfc34d1799', '2026-09-20', CURRENT_TIMESTAMP),
     ('assessment-jung', 'https://yan-public-1407914221.cos.ap-beijing.myqcloud.com/illustrations/2026-09-20/assessment-jung.b364f47f1802.webp', 'b364f47f1802989b0be73abce2dd99fc6ea986380382e12c442ccca85c7029b6', '2026-09-20', CURRENT_TIMESTAMP),
     ('home-hero', 'https://yan-public-1407914221.cos.ap-beijing.myqcloud.com/illustrations/2026-09-20/home-hero.4583aa734b96.webp', '4583aa734b964aba28f8b5c862e69d81b595e6f6ab25d2bf879b06bf27e54a8d', '2026-09-20', CURRENT_TIMESTAMP),

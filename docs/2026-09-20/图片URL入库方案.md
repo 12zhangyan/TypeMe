@@ -1,6 +1,6 @@
 # 图片 URL 入库方案（对象存储地址改为数据库驱动）
 
-> 状态：**已实现（W1+W2）；三项决定已定：CSP 按修法 A 改完、入库 SQL 作为手工交付件、首屏维持甲**
+> 状态：**已实现（W1+W2）；CSP 按修法 A 改完、建表交回 Flyway（幂等）、首屏维持甲**
 >
 > - **CSP（修法 A）已改**：`SecurityConfig` 里那个空的 `contentSecurityPolicy(csp -> {})` 已删除。
 >   回归断言在 `IllustrationAssetIT#noContentSecurityPolicyHeader`（同时断言其余安全响应头仍在，
@@ -8,14 +8,18 @@
 >   该用例立刻变红——响应头里出现 `Content-Security-Policy: default-src 'self'`。
 >   ⚠️ **还剩一步**：改的是后端代码，要等**后端重新构建部署**才生效。部署后请核对一次真实响应头
 >   （`curl.exe -sI <地址>/`），确认没有 `Content-Security-Policy`，图片才会真的走 COS。
-> - **入库 SQL 是手工交付件，不是 Flyway 迁移**：`docs/2026-09-20/illustration-asset.sql`。
->   它刻意**不**放在 `backend/src/main/resources/db/migration/` 下：不会打进应用包、
->   部署时不会被 Flyway 自动执行，由你在服务器上 `mysql ... < illustration-asset.sql` 跑一次。
->   执行前读接口返回 500（表不存在），前端按"读表失败"用本地素材，页面照常、不会崩。
+> - **建表与种子是一份 Flyway 迁移**：`V10__illustration_asset.sql`，随部署自动执行 —— 新环境开箱可用，
+>   不需要任何手工数据库步骤。**它是幂等的**（`CREATE TABLE IF NOT EXISTS` + `INSERT IGNORE`），
+>   因为有些库里表和这 21 行可能已经被人工建好过（人工执行不留 `flyway_schema_history` 记录，
+>   Flyway 之后仍会应用这个版本）；回归断言 `IllustrationAssetIT#migrationIsIdempotent`。
+>   （2026-09-20 晚修正：此前一版刻意不做迁移、把 SQL 当手工交付件，结果是新环境上读接口 500、
+>   前端只能一直用本地素材 —— Codex review 指出，已改。）
+> - **解码失败与网络失败走同一条回退**：远端图 `load` 成功但 `decode()` 被拒时，也换成随包的本地
+>   同名图再试一次，而不是直接掉到兜底 SVG（此前漏了这条路径，Codex review 指出，已修并加断言）。
 > - 首屏取 **甲**（启动读一次小接口 + 1.2s 上限 + `localStorage`），已实现并实测。
 >
 > 实现与证据落点：`backend/.../IllustrationAssetService.java`、`PlatformController`（GET/PUT）、
-> `docs/2026-09-20/illustration-asset.sql`、`frontend/src/stores/illustrationAssetsV3.ts`、
+> `V10__illustration_asset.sql`、`frontend/src/stores/illustrationAssetsV3.ts`、
 > `frontend/src/design/{illustrationAssets,remoteImageUrl}.ts`、`IllustrationFrame.vue`；
 > 验证见 §11 的"实际执行结果"。
 > 原始诉求：用户希望"图片 URL 存到库里"，而不是构建期写死在前端包里。
@@ -48,7 +52,7 @@
 | 目录类接口是 `authenticated`，匿名读不到 | `SecurityConfig.java:106`；`frontend/src/stores/instrumentV3.ts:20`（注释记了实测 401） |
 | 前端启动有全局初始化钩子 | `frontend/src/App.vue:122,137`（`fetchMeta()`、`instrument.load()`） |
 | 管理员写入路径与鉴权范式 | `AdminController` 类级 `@PreAuthorize("hasRole('ADMIN')")`，方法级判定；`PUT /api/v3/admin/ai-settings` |
-| 现有迁移到 `V9`；本方案的建表/种子**不进迁移目录**，作为手工交付件 | `backend/src/main/resources/db/migration/`（到 V9）；交付件 `docs/2026-09-20/illustration-asset.sql` |
+| 现有迁移到 `V9`，本方案的建表/种子是新增的 `V10` | `backend/src/main/resources/db/migration/V10__illustration_asset.sql` |
 | ~~后端会发 `Content-Security-Policy: default-src 'self'`~~ → **已修（修法 A）** | 空 lambda 已从 `SecurityConfig` 删除；回归断言 `IllustrationAssetIT#noContentSecurityPolicyHeader` |
 
 **结论性事实**：同一形态（运行期可改的配置存库 + 管理员写入 + 前端启动读一次）在本仓库已经跑通两次
@@ -73,11 +77,13 @@
                     └─ 兜底 SVG（本地也没有）
 ```
 
-## 4. 库表（已定稿；执行方式是**手工交付件**）
+## 4. 库表（已定稿；由 Flyway 迁移 `V10` 建表并播种）
 
 ```sql
--- docs/2026-09-20/illustration-asset.sql（手工执行，不是 Flyway 迁移）
+-- backend/src/main/resources/db/migration/V10__illustration_asset.sql
 -- 公开插画的远端地址表。只放"本来就是公开资源"的插画，不含任何用户数据。
+-- IF NOT EXISTS / INSERT IGNORE 是幂等写法：有些库里表与这 21 行可能已被人工建好过，
+-- 而人工执行不留 flyway_schema_history 记录 —— 普通 CREATE/INSERT 会让那些库部署时起不来。
 CREATE TABLE IF NOT EXISTS illustration_asset (
     -- 逻辑名，与 assets/illustrations/<name>.webp 的文件名一致（home-hero / type-intj / …）
     -- COLLATE 钉 as_cs 的理由同 V1/V6：默认 *_ai_ci 大小写不敏感会放过 'HOME-HERO' 这类错值。
@@ -93,12 +99,13 @@ CREATE TABLE IF NOT EXISTS illustration_asset (
 );
 ```
 
-- 主键 `asset_name` ⇒ 一个名字只有一条"当前地址"。**历史变更由交付件 SQL 与上传清单承担**，表只存现值。
+- 主键 `asset_name` ⇒ 一个名字只有一条"当前地址"。**历史变更由迁移文件与上传清单承担**，表只存现值。
 - 两个引擎的语法交集、`COLLATE` 只能写在列定义末尾 —— 这些坑 V1/V2/V6 的注释已踩过。
-  本表**同时**在真实 MySQL（手工执行交付件）与 H2（后端契约测试执行同一份文件）上跑，
-  所以语法必须落在两者的交集里：`CREATE TABLE IF NOT EXISTS` + `CURRENT_TIMESTAMP` 都已验证可行。
+  本迁移在真实 MySQL（部署时 Flyway 执行）与 H2（后端契约测试里 Flyway 执行，且被再执行一遍）
+  上都会跑，所以语法必须落在两者交集里：`CREATE TABLE IF NOT EXISTS` + `INSERT IGNORE`
+  + `CURRENT_TIMESTAMP` 都已在 H2 上实测通过（真实 MySQL 待部署时验证）。
 - 种子数据（21 行）由第 8 节工具从**真实素材**生成（`--emit-sql`），**不手写**；
-  生成结果与仓库里的交付件**逐字节一致**（重新生成可核对）。
+  迁移文件与生成器输出**逐字节一致**（`--force` 重新生成可核对）。
 - 发布版本仍在库里登记（`release` 列），供人读与整体回退；但**页面地址的事实来源是这张表**，
   仓库里不再保留一份"名字 → 对象键"的运行时映射（`illustrationPublish.json` 已删除，见 §9）。
 
@@ -132,9 +139,8 @@ GET /api/v3/platform/illustrations
 
 ## 6. 写路径（两个切片，都要）
 
-**切片 W1（B 端一次性，必须）**：交付件 `docs/2026-09-20/illustration-asset.sql` 自带 21 行种子，
-在服务器上手工执行一次。改了地址要么改库（见 W2），要么重新生成一份新的交付件再执行。
-可审计（文件进仓库历史）、可回滚（删行或删表）。
+**切片 W1（发版内建，必须）**：`V10__illustration_asset.sql` 自带 21 行种子，随部署由 Flyway 执行。
+改了地址要么改库（见 W2），要么新增一个迁移。可审计（迁移进仓库历史）、可回滚（删行或删表）。
 
 **切片 W2（运行期可改，已按你的选择实现）**：
 
@@ -204,10 +210,10 @@ PUT  /api/v3/platform/illustrations      # 仅 ADMIN；整批校验、整批生�
 
 | 脚本 | 改动 | 状态 |
 | --- | --- | --- |
-| `scripts/gen-image-publish.mjs` | 新增 `--emit-sql`：从真实素材生成**手工交付 SQL**（默认 stdout，`--out` 才写文件，**已存在的文件拒绝覆盖**，除非 `--force`）。不再产出 `illustrationPublish.json`；`--check` 保留 | 已完成 |
+| `scripts/gen-image-publish.mjs` | 新增 `--emit-sql`：从真实素材生成 **Flyway 迁移 SQL**（默认 stdout，`--out` 才写文件，**已存在的文件拒绝覆盖**，除非 `--force`）。不再产出 `illustrationPublish.json`；`--check` 保留且改为**忽略行尾 CR**（Windows 上 `core.autocrlf=true` 会把检出的清单变成 CRLF，按字节比会把刚 clone 的干净工作区误报成"清单不一致"） | 已完成 |
 | `scripts/check-remote-images.mjs` | 新增 `--from-api=<服务地址>`：读**公开接口**取地址（不需要库凭据），核对三方一致 —— 库里的 `sha256` ↔ 本地素材字节 ↔ 远端对象字节；漂移即失败。不带参数时仍按上传清单核对 | 已完成 |
 | `scripts/check-bundled-image-urls.mjs`（原 `check-image-base-url.mjs`） | 语义变化：产物里**不应**再出现任何绝对图片地址或图片主机（不再有构建期域名）。已用负向探针确认能抓出写死的地址 | 已完成 |
-| `scripts/cos-upload-images.mjs` | 未改（它只管上传；入库 SQL 由 `--emit-sql` 产出，在服务器上手工执行） | — |
+| `scripts/cos-upload-images.mjs` | 未改（它只管上传；入库 SQL 由 `--emit-sql` 产出，作为 Flyway 迁移随部署执行） | — |
 | `scripts/browser-verify-{image-cdn,real-images}.py` | 改为由**接口 mock**提供地址表（`/api/v3/platform/illustrations`），不再依赖构建期域名；真实域名脚本额外断言"产物里不得出现域名" | 已完成 |
 
 ## 9. 与现有机制的关系（退场与保留）
@@ -215,8 +221,8 @@ PUT  /api/v3/platform/illustrations      # 仅 ADMIN；整批校验、整批生�
 | 机制 | 处置 |
 | --- | --- |
 | `VITE_IMAGE_BASE_URL` / `.env.production` / 构建期注入 | **已退场**。地址来自运行期接口，于是"切换方式 A/B"、"忘设环境变量导致静默回退"这两个风险一起消失 |
-| `illustrationPublish.json` | **已删除**。运行期地址由库表决定；对象键在上传清单里、种子在交付件 SQL 里，同一份事实不再生成两份 |
-| Flyway 迁移 | 本方案**不进** `db/migration`：表是手工执行的交付件（见 §4/§6），所以部署不会自动建表，也不会和"手工已建表"冲突 |
+| `illustrationPublish.json` | **已删除**。运行期地址由库表决定；对象键在上传清单里、种子在 `V10` 迁移里，同一份事实不再生成两份 |
+| Flyway 迁移 | `V10__illustration_asset.sql` 建表 + 播种，随部署自动执行；**幂等**写法兼容"人工已经建过表"的库（见 §4） |
 | 本地打包素材（2.5 MB 仍在包里） | **保留**。它仍是"接口失败/超时""库里没有这个名字""离线开发"时的唯一回退目标 |
 | `IllustrationFrame` 的占位/淡入/一次回退 | **完全保留**，本方案只加了一个"地址表未就绪"的占位态与"一次渲染只用一个来源"的定源 |
 | CSP | **已修（修法 A）**：空 lambda 删除，`default-src 'self'` 不再发出；回归断言见 `IllustrationAssetIT`。**需要后端重新部署后才在生产生效** |
@@ -225,13 +231,15 @@ PUT  /api/v3/platform/illustrations      # 仅 ADMIN；整批校验、整批生�
 
 | # | 切片 | 依赖 | 完成判据 | 实际状态 |
 | --- | --- | --- | --- | --- |
-| S1 | 交付件 SQL + 种子数据（**执行需你在服务器上做**） | 无 | 真实 MySQL 与 H2 都能执行成功；21 行与素材一致 | 文件已生成（`--emit-sql`，与仓库交付件逐字节一致），**H2 上随契约测试执行通过**；真实 MySQL 由你执行 |
-| S2 | 公开读接口 + 后端测试 | S1 | 匿名 200、字段完整、无用户数据 | 已完成（`IllustrationAssetIT` 5 用例全绿） |
+| S1 | `V10` 迁移 + 种子数据（**准备即可，执行随部署**） | 无 | H2 与真实 MySQL 都能执行成功；21 行与素材一致；**重复执行不失败** | 已完成：H2 上随契约测试执行通过（`migrationIsIdempotent` 还把它再执行一遍并断言行数不变）；真实 MySQL 待部署时验证 |
+| S2 | 公开读接口 + 后端测试 | S1 | 匿名 200、字段完整、无用户数据 | 已完成（`IllustrationAssetIT` 6 用例全绿） |
 | S3 | 前端 store + 解析处改签名 + 单测 | S2 的响应形状 | 三态状态机、超时回退、localStorage 复用均有断言 | 已完成（store 8 用例 + 解析 6 用例 + 组件 12 用例） |
 | S4 | `IllustrationFrame` 状态机改造 + 浏览器验收 | S3 | §11.4 的量化结论 + 现有占位/淡入/CLS 断言全绿 | 已完成（真实 COS 域名 320/390/1440，70 项全绿） |
 | S5 | 工具链改造（§8） | S1/S2 | 三方一致检查能真的抓出"改了图没重新上传/没更新库" | 已完成（`--from-api` 三方核对 + 产物零绝对地址检查，后者做过负向探针） |
 | S6 | 管理员写接口 | S2 | ADMIN 才能写；非 https/非白名单 host/非白名单名字被拒；写后读接口立刻生效 | 已完成（同一 IT 覆盖 401/403/200 与 10 组非法输入） |
-| S7 | **CSP 修法 A**（本轮新增） | 无 | 响应头里没有 `Content-Security-Policy`，其余安全头不受影响 | 已完成（含负向探针：加回空 lambda 即变红）；部署后需核对线上响应头 |
+| S7 | **CSP 修法 A** | 无 | 响应头里没有 `Content-Security-Policy`，其余安全头不受影响 | 已完成（含负向探针：加回空 lambda 即变红）；部署后需核对线上响应头 |
+| S8 | **解码失败并入同一条回退链**（Codex review #1） | S4 | 远端图解码失败时改用本地资源、只失败一次 | 已完成（新增用例 + 负向探针：改回"直接兜底"即变红） |
+| S9 | **建表交回 Flyway 并做成幂等**（Codex review #2） | S1 | 新环境部署即建表；已人工建表的库重复执行不失败 | 已完成（`migrationIsIdempotent` + 负向探针：改成普通 `CREATE TABLE` 即报 `Table already exists`） |
 
 **与初稿的差异（实现时定的，都是实现细节，语义未变）**
 
@@ -260,13 +268,15 @@ PUT  /api/v3/platform/illustrations      # 仅 ADMIN；整批校验、整批生�
 
 | 验证 | 命令 | 结果 |
 | --- | --- | --- |
-| 交付件 SQL + 读/写接口 + 响应头 | `mvn.cmd test -Dtest=IllustrationAssetIT` | **5/5 通过**（H2 上执行交付件 SQL；真实 MySQL 由你在服务器执行） |
+| 迁移 + 读/写接口 + 响应头 | `mvn.cmd test -Dtest=IllustrationAssetIT` | **6/6 通过**（H2 上 Flyway 应用 V10；真实 MySQL 待部署时验证） |
+| 迁移幂等 | 同上的 `migrationIsIdempotent` | 迁移被再执行一遍后行数仍为 21（负向探针：改成普通 `CREATE TABLE` 即报 `Table "illustration_asset" already exists`） |
 | CSP 回归负向探针 | 把空 lambda 加回 `SecurityConfig` 再跑上面这条 | **如预期变红**（响应头出现 `Content-Security-Policy: default-src 'self'`），改回后转绿 |
-| 前端单测 | `npm.cmd test` | **47 文件 / 1006 用例通过** |
-| 后端测试子集（排除三类真实 MySQL IT） | `mvn.cmd test "-Dtest=*,!AccountSqlDialectMySqlIT,!AiSqlDialectMySqlIT,!ConcurrencyMySqlIT"` | **383 用例通过 / 0 失败**（1 跳过） |
+| 解码失败回退负向探针 | 把解码失败改回"直接兜底"再跑组件用例 | **如预期变红**（`expected 'primary' to be 'local-fallback'`），改回后转绿 |
+| 前端单测 | `npm.cmd test` | **47 文件 / 1007 用例通过**（新增解码失败回退 1 条） |
+| 后端测试子集（排除三类真实 MySQL IT） | `mvn.cmd test "-Dtest=*,!AccountSqlDialectMySqlIT,!AiSqlDialectMySqlIT,!ConcurrencyMySqlIT"` | **385 用例通过 / 0 失败**（1 跳过） |
 | 类型检查 / 构建 | `npm.cmd run typecheck` / `npm.cmd run build` | 0 退出码 |
-| 生成产物一致 | `node scripts/gen-image-publish.mjs --check` | 21 张、2,622,284 字节与素材一致 |
-| 交付件可重现 | `node scripts/gen-image-publish.mjs --emit-sql --out <临时>` 后比对 | 与仓库交付件**逐字节一致** |
+| 生成产物一致 | `node scripts/gen-image-publish.mjs --check` | 21 张、2,622,284 字节与素材一致（清单文件本身未变；顺带修掉 CRLF 误报，负向探针：手改一行即报错） |
+| 迁移可重现 | `--emit-sql --out <迁移> --force` 后比对 | 与仓库里的 `V10` **逐字节一致** |
 | 产物零绝对地址 | `node scripts/check-bundled-image-urls.mjs` | 通过（负向探针能抓出写死的域名） |
 | **真实 COS 浏览器验收** | `TYPEME_LABEL=dbmap-real python scripts/browser-verify-real-images.py` | **PASS 70 / FAIL 0**；21 个插画位全部来自 COS、无本地回退、CLS≈0.002、`high=1 / lazy=20`；冷启动占位 434–524ms、缓存命中 199–247ms |
 | 本地模拟域名（失败分支） | `TYPEME_LABEL=dbmap-mock python scripts/browser-verify-image-cdn.py` | **PASS 152 / FAIL 0** |
@@ -278,7 +288,8 @@ PUT  /api/v3/platform/illustrations      # 仅 ADMIN；整批校验、整批生�
 
 **硬边界**
 
-- 数据库默认只读：交付件 SQL 由**你**在服务器上执行；本次改动不含任何数据库写入。
+- 数据库默认只读：本次改动**只写迁移文件**，没有连接任何数据库、没有执行任何 DDL/DML；
+  执行发生在部署时由 Flyway 完成（迁移本身已在 H2 上随测试跑通）。
 - 不进库的内容：报告、答题记录、账号信息、任何按用户归属的资源。发布白名单是唯一允许的名字集合。
 - 凭据不进前端/仓库/日志；上传脚本沿用现有 `TYPEME_COS_*` 与凭据文件纪律。
 - 不新增云资源、不改桶配置、不发版（CSP 的代码改动要等一次正常部署才生效）。
@@ -294,6 +305,9 @@ PUT  /api/v3/platform/illustrations      # 仅 ADMIN；整批校验、整批生�
 | `localStorage` 缓存导致"改地址后老访客仍是旧图" | 低 | 缓存带 `version`，启动即以接口 `version` 决定是否替换；且旧地址失效时有一次性本地回退 |
 | 交付件 SQL 未执行时读接口 500（表不存在） | 低 | 前端按"读表失败"用本地素材，页面正常；如果你希望安静一点，可让读接口在表不存在时返回空表（尚未做） |
 
+| 建表迁移在"人工已建过表"的库上重复执行 | 中 | 迁移写成幂等（`IF NOT EXISTS` + `INSERT IGNORE`），并由 `IllustrationAssetIT#migrationIsIdempotent` 钉住；负向探针确认非幂等写法会红 |
+| 迁移执行失败（例如真实 MySQL 语法差异）会导致应用起不来 | 低 | 迁移已被 6 条契约用例在 H2 上执行过、且被重复执行一次；真实 MySQL 的方言差异要在**首次部署时**盯一眼启动日志（目前无人执行过真实 MySQL 迁移） |
+
 **未决项**
 
 1. ~~写路径：只做 W1 还是 W1+W2~~ → **已定：W1+W2**（你选的 `w2`），已实现。
@@ -301,17 +315,18 @@ PUT  /api/v3/platform/illustrations      # 仅 ADMIN；整批校验、整批生�
    域名允许清单在服务端配置项 `typeme.illustration.allowed-hosts` 里，换域名不必改 Java）。
 3. ~~首屏取舍（甲/乙/丙）~~ → **已定：甲**（启动读一次小接口 + 1.2s 上限 + `localStorage` 复用）。
 4. ~~CSP 修法 A / B~~ → **已定：A，已改**（空 lambda 已删）。
-5. ~~是否授权执行建表 SQL~~ → **已定：改成手工交付件**（`docs/2026-09-20/illustration-asset.sql`），
-   由你在服务器上执行；它不进 `db/migration`，因此不会被 Flyway 自动执行。
-   执行前读接口 500（表不存在）→ 前端用本地素材，页面正常。
-6. 可选加固（未做）：COS 防盗链白名单、外网下行流量告警、把 `check-bundled-image-urls.mjs` 接进
-   `prebuild`（现在只是手动/CI 可跑）、表不存在时读接口返回空表而不是 500。
+5. ~~建表怎么执行~~ → **已定：`V10` Flyway 迁移，随部署执行；幂等，兼容人工建过表的库**
+   （Codex review #2 指出"手工步骤会让新环境功能不可用"，已采纳）。
+6. ~~解码失败不回退本地~~ → **已修**（Codex review #1），与网络失败共用同一条回退。
+7. 可选加固（未做）：COS 防盗链白名单、外网下行流量告警、把 `check-bundled-image-urls.mjs` 接进
+   `prebuild`（现在只是手动/CI 可跑）。
 
 ## 13. 回滚
 
 - 前端：读取失败/接口下线时自动退回本地素材，不需要发版回滚；
 - 后端：接口保留但返回 404/关闭时，前端按"未命中"处理；
 - 数据：`illustration_asset` 删行或整表回退（`DROP TABLE` 需授权），对象存储里的对象不受影响；
+  注意删表后 Flyway 记录里 `V10` 仍是"已应用"，重新建表要新加一个迁移，不会自动重放 `V10`；
 - CSP：把那个空的 `.contentSecurityPolicy(csp -> {})` 加回 `SecurityConfig.headers(...)` 即可
   （但那会重新拦掉跨域图片，等于回滚本次迁移）；
 - 完全回退到"构建期域名"：删除前端 store 接线，恢复构建期清单路径（现有代码在 git 历史里完整可查）。

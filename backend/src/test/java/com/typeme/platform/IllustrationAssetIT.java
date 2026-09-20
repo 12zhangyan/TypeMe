@@ -3,17 +3,14 @@ package com.typeme.platform;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typeme.account.AccountIntegrationTestBase;
 import com.typeme.account.TestAccounts;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,12 +23,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * 公开插画地址（`illustration_asset` 表）的契约测试（H2 内存库 + 交付件 SQL 的种子数据）。
+ * 公开插画地址（`illustration_asset` 表）的契约测试（H2 内存库 + Flyway 迁移的种子数据）。
  *
- * <p><b>表从哪来</b>：`docs/2026-09-20/illustration-asset.sql` —— 那是**手工交付件**，
- * 生产上由人在服务器执行；这里在 H2 上执行同一份文件，所以 DDL/DML 只有一处事实来源，
- * 不会出现"SQL 改了、测试没跟上"。它**不是** Flyway 迁移（刻意不放在 db/migration 下），
- * 因此本类的 {@link BeforeEach} 要自己建表、自己播种。
+ * <p><b>表从哪来</b>：`V10__illustration_asset.sql`，由 Flyway 在测试上下文启动时执行，
+ * 与生产部署走的是同一条路径 —— 这样"迁移本身能不能在 H2 上跑通"也被每个用例顺带验证。
+ * 该迁移是幂等的（`CREATE TABLE IF NOT EXISTS` + `INSERT IGNORE`），因为有些库里表可能
+ * 已经由人工建好过（人工执行不留 `flyway_schema_history` 记录）。
  *
  * <p>钉住五件事：
  * <ol>
@@ -50,41 +47,36 @@ class IllustrationAssetIT extends AccountIntegrationTestBase {
     private static final String HOST = "yan-public-1407914221.cos.ap-beijing.myqcloud.com";
     private static final String RELEASE = "2026-09-20";
 
-    /** 交付件 SQL：服务器上手工执行的就是这一份；测试在 H2 上执行同一份。 */
-    private static Path deliverySql() {
-        Path fromModuleDir = Path.of("..", "docs", "2026-09-20", "illustration-asset.sql");
-        return Files.exists(fromModuleDir)
-                ? fromModuleDir
-                : Path.of("docs", "2026-09-20", "illustration-asset.sql");
-    }
-
-    /**
-     * 每个用例都从"交付件 SQL 刚执行完"的状态开始。
-     *
-     * <p>删行再执行是为了幂等：同一个类的多个用例共用一个 H2 库，
-     * 而交付件里的 21 条 INSERT 是普通 INSERT（重复执行会主键冲突）。
-     */
-    @BeforeEach
-    void seedFromDeliverySql() throws Exception {
-        Path sql = deliverySql();
-        assertThat(sql).as("缺少交付件 SQL：%s", sql.toAbsolutePath().normalize()).exists();
-        if (tableExists()) {
-            invitationJdbc.update("DELETE FROM illustration_asset");
-        }
-        try (var connection = invitationJdbc.getDataSource().getConnection()) {
-            ScriptUtils.executeSqlScript(connection, new FileSystemResource(sql));
-        }
-    }
-
-    private boolean tableExists() {
-        Integer count = invitationJdbc.queryForObject(
-                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE UPPER(TABLE_NAME) = 'ILLUSTRATION_ASSET'",
-                Integer.class);
-        return count != null && count > 0;
-    }
+    /** 迁移文件本身：从 classpath 读，不猜工作目录，也不复制一份到测试资源里。 */
+    private static final ClassPathResource MIGRATION =
+            new ClassPathResource("db/migration/V10__illustration_asset.sql");
 
     private TestAccounts testAccounts() {
         return new TestAccounts(mockMvc, objectMapper, userRepository, invitationJdbc);
+    }
+
+    private int rowCount() {
+        Integer count = invitationJdbc.queryForObject("SELECT COUNT(*) FROM illustration_asset", Integer.class);
+        return count == null ? -1 : count;
+    }
+
+    /* ── 迁移本身 ───────────────────────────────────────────────────────── */
+
+    @Test
+    @DisplayName("迁移是幂等的：库里已经建过表、插过这 21 行时，再执行一次既不报错也不重复插入")
+    void migrationIsIdempotent() throws Exception {
+        // 为什么必须有这条：有些库（联调库、或有人照文档手工执行过同一份 SQL 的库）里表和行
+        // 已经存在，而人工执行不会在 flyway_schema_history 留记录 —— Flyway 之后照样会应用
+        // 这个版本。若 DDL/DML 不是幂等的，那些库会在部署时"表已存在 / 主键冲突"直接起不来，
+        // 而且要等到部署那一刻才发现。这里在 H2 上把"再执行一遍"提前跑掉。
+        assertThat(MIGRATION.exists()).as("缺少迁移文件：%s", MIGRATION).isTrue();
+        assertThat(rowCount()).as("Flyway 已经应用了 V10 并种下 21 行").isEqualTo(21);
+
+        try (var connection = invitationJdbc.getDataSource().getConnection()) {
+            ScriptUtils.executeSqlScript(connection, MIGRATION);
+        }
+
+        assertThat(rowCount()).as("第二次执行不能把行数变成 42").isEqualTo(21);
     }
 
     /* ── 响应头：不能有 CSP ─────────────────────────────────────────────── */

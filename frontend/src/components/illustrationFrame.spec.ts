@@ -130,7 +130,7 @@ describe('插画帧：占位、淡入、失败与换图竞态', () => {
     expect(wrapper.get('img').classes()).toContain('is-revealed')
   })
 
-  it('解码失败按失败处理：退出加载态、显示兜底，换图后能恢复', async () => {
+  it('解码失败且没有本地资源可退时按失败处理：退出加载态、显示兜底，换图后能恢复', async () => {
     settleAddresses()
     const wrapper = mount(IllustrationFrame, { props: { name: 'type-infp' }, slots: { default: '<svg data-fallback />' } })
     await wrapper.get('img').trigger('load')
@@ -247,6 +247,34 @@ describe('插画帧：远端地址失败后的一次受控本地回退', () => {
     expect(wrapper.attributes('data-artwork-attempt')).toBe('local-fallback')
     expect(wrapper.attributes('data-artwork-state')).toBe('loading')
     expect(wrapper.attributes('data-artwork-source')).toBe('image')
+    expect(wrapper.get('img').attributes('src')).toBe('/local-assets/type-infp.webp')
+
+    await wrapper.get('img').trigger('load')
+    await flushPromises()
+    expect(wrapper.attributes('data-artwork-state')).toBe('ready')
+    expect(wrapper.get('img').classes()).toContain('is-revealed')
+  })
+
+  it('远端图加载成功但解码失败时，同样改用本地资源（而不是直接兜底 SVG）', async () => {
+    useRemote()
+    // 第一张（远端）解码被拒；换成本地那张后解码正常 —— 模拟"HTTP 200 但字节坏了"。
+    let decodeCalls = 0
+    Object.defineProperty(HTMLImageElement.prototype, 'decode', {
+      configurable: true,
+      writable: true,
+      value: vi.fn(() => (++decodeCalls === 1 ? Promise.reject(new Error('decode failed')) : Promise.resolve())),
+    })
+    const wrapper = mount(IllustrationFrame, { props: { name: 'type-infp' }, slots: { default: '<svg data-fallback />' } })
+    expect(wrapper.get('img').attributes('src')).toBe(`${CDN}/type-infp.4583aa734b96.webp`)
+
+    await wrapper.get('img').trigger('load')
+    await flushPromises()
+
+    // 关键断言：没有掉到兜底 SVG，而是走了和"网络失败"完全相同的那一次本地回退。
+    expect(wrapper.attributes('data-artwork-attempt')).toBe('local-fallback')
+    expect(wrapper.attributes('data-artwork-state')).toBe('loading')
+    expect(wrapper.attributes('data-artwork-source')).toBe('image')
+    expect(wrapper.find('[data-fallback]').exists()).toBe(false)
     expect(wrapper.get('img').attributes('src')).toBe('/local-assets/type-infp.webp')
 
     await wrapper.get('img').trigger('load')

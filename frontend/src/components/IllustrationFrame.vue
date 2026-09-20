@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<{ name: string; alt?: string; eager?: boo
  *   1. 未就绪时不透明度为 0，容器由各消费者既有的尺寸/比例撑住（不塌陷、不改布局）；
  *   2. `load` 且 `decode()` 完成后淡入约 200ms，只改透明度，不缩放、不位移；
  *   3. 异步回调绑定"当前这次 name"的令牌——换图后旧请求晚到不会覆盖新选择；
- *      加载或解码失败立刻退出加载态，交给现成的兜底 SVG，不无限等待、不反复重试。
+ *      加载失败或解码失败都走同一条受控回退（见下），不无限等待、不反复重试。
  *
  * 兜底 SVG 仍然只在"没有素材"或"加载失败"时渲染：正常加载阶段不再拿 SVG 顶替，
  * 免得出现"先默认 SVG、后突然换位图"的二次跳变。
@@ -87,6 +87,33 @@ function adoptCached(): void {
   }
 }
 
+/**
+ * 当前地址**用不了**时唯一的处理路径：换成本地同名图再试一次，本地也不行（或本来就用本地）
+ * 才交给兜底 SVG。
+ *
+ * 网络失败（`error`）与"加载成功但解码失败"（`decode()` 被拒）都归到这里，因为对用户而言
+ * 结果一样：现在这张地址的图**显示不出来**。曾经把解码失败单独处理成"直接进兜底"，于是
+ * 字节损坏 / 编码不支持的远端图不会回退到随包的本地同名图 —— 明明本地那张能正常解码，
+ * 用户却看到最差的兜底 SVG。同一个组件对两类失败给出两种体验，是实现漏了一条路径。
+ * （Codex review 指出，2026-09-20 修。）
+ */
+function fallbackToLocalOrFail(): void {
+  ticket += 1
+  clearDecodeTimer()
+  // `retrySrc` 只可能被写成非空一次：本地再失败就直接进兜底，不回到远端、不重试第三次。
+  const fallback = retrySrc.value === null ? fallbackSrc.value : undefined
+  if (fallback) {
+    retrySrc.value = fallback
+    failed.value = false
+    revealed.value = false
+    // 本地那张图可能已经在内存缓存里：走和挂载时一样的"缓存直出"判断，不演动画。
+    void nextTick(adoptCached)
+    return
+  }
+  failed.value = true
+  revealed.value = false
+}
+
 function onLoad(event: Event): void {
   const img = event.target as HTMLImageElement
   const expected = src.value
@@ -100,9 +127,8 @@ function onLoad(event: Event): void {
       failed.value = false
       revealed.value = true
     } else {
-      // 解码失败等同加载失败：退出 loading 交给兜底，不把解不开的图留在页面上。
-      failed.value = true
-      revealed.value = false
+      // 解码失败等同加载失败：交给上面那条受控回退，而不是把解不开的图留在页面上。
+      fallbackToLocalOrFail()
     }
   }
   if (typeof img.decode !== 'function') {
@@ -117,20 +143,7 @@ function onLoad(event: Event): void {
 function onError(event: Event): void {
   const img = event.target as HTMLImageElement
   if (src.value && img.getAttribute('src') !== src.value) return
-  ticket += 1
-  clearDecodeTimer()
-  // 远端地址失败 → 换成本地地址再试一次；本地也失败（或本来就用本地）→ 交给兜底 SVG。
-  const fallback = retrySrc.value === null ? fallbackSrc.value : undefined
-  if (fallback) {
-    retrySrc.value = fallback
-    failed.value = false
-    revealed.value = false
-    // 本地那张图可能已经在内存缓存里：走和挂载时一样的"缓存直出"判断，不演动画。
-    void nextTick(adoptCached)
-    return
-  }
-  failed.value = true
-  revealed.value = false
+  fallbackToLocalOrFail()
 }
 
 /**
