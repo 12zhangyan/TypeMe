@@ -3,6 +3,25 @@
 > 每轮记录：做了什么、验证命令与结果、遗留问题、下一步与所需权限。
 > 结论只写实测结果；未验证的部分明确标注。
 
+## 第21–26轮补记与当前复核（2026-09-18）
+
+本节为本次文档回写。轮次按交接指定顺序补记；下面的测试与浏览器数字全部**转述各轮 REPORT，未在本次重跑**，不能与旧轮数字相加，也不代表当前工作区验收。后续视觉轮次可能替代前轮设计。
+
+| 轮次 | 工作与现有代码锚点 | 历史验证记录及边界 |
+|---|---|---|
+| 21 readable | 通俗 AI v3 / analysis-readable-v2；Jung 与大五投影、版本闸门；大五量程与报告阅读层次。当前已复核 `ReadableReportInput`、`ReportInputBuilder`、`AiAnalysisPanel`，大五能力已有实现，仅旧提示词保留400 | [REPORT](verification/2026-09-18-readable/REPORT.md)：前端完整898项，其后相关四文件32项；后端子集321项（320通过、1跳过），其后47项配置收尾；浏览器119项。不是一次最终全量测试，浏览器API模拟，无真实AI |
+| 22 visual | 暖白/森林绿主题、共用 InstrumentCard、答题与报告布局、键盘焦点；当前组件存在，视觉后续已迭代 | [REPORT](verification/2026-09-18-visual/REPORT.md)：前端901项，构建通过，浏览器101与131项；320/390/1440，API拦截模拟 |
+| 23 editorial | 编辑式首页与账号表单、报告版式；当前 PlatformIntro/InstrumentCard 保留后续演进结构 | [REPORT](verification/2026-09-18-editorial/REPORT.md)：前端901项、聚焦117项，构建通过，浏览器131与105项；合成报告、模拟API，无真实后端验收 |
+| 24 admin | 邀请注册、管理员查看进度/报告、用户AI额度。当前 `AdminAccessController` 管理端点和ADMIN守卫存在；权限与事务测试结果仅转述 | [REPORT](verification/2026-09-18-admin/REPORT.md)：后端332项（331通过、1跳过，排除3类真实MySQL IT），前端902项，浏览器65项；H2/mock、模拟API，无现有库迁移 |
+| 25 atelier | 本地插画框、人物图鉴和场景素材接入；当前 PlatformIntro / PersonalityGallery / IllustrationFrame 代码存在，加载失败回退 | [REPORT](verification/2026-09-18-atelier/REPORT.md)：前端905项、typecheck/build通过，浏览器105与85项；当时是SVG占位，素材状态随后由第26轮更新 |
+| 26 generated-images | 21张WebP接入本地素材目录；当前 IllustrationFrame/素材映射存在，不把历史图像质量判断称为本次逐图验收 | [REPORT](verification/2026-09-18-generated-images/REPORT.md)：构建通过、聚焦5项、浏览器265与105项；API全部模拟；该轮未重跑后端或前端全量 |
+
+当前裁决状态：阈值数值、版本决策、真人研究投入与真实AI试验仍由用户决定。大五AI“能力未做”已经过期；v3真实语言质量与成本没有本次新证据。不能从待审校字段独立推出世界范围内不存在真人反馈。
+
+本次新增证据：只读核验源码/内容/留存日志，纯内存调用当前TS计分器与v2包的六个阈值样例，exit 0。发现旧阈值对比表混用触发T与最终边界B；n=12/S=2、n=9/S=1当前为REFERENCE。具体选项、代价、缺口与证据位置见 [开放裁决项复核与建议](../handoffs/2026-09-18/open-decisions-review.md)。本次未跑浏览器、完整业务测试、数据库或真实AI。
+
+report-paper 是另一会话的在途工作，不计入这六轮补记，也不纳入本次验证。下方各轮“下一步”“未完成”与测试计数均按历史阅读；除本次明确核验的条目外，不批量宣布闭环。
+
 ## 第 0 轮：环境与基线（2026-09-17）
 
 ### 做了什么
@@ -2038,6 +2057,8 @@ H2 侧 `AccountDeletionIT#repeatedDeletionRequestInsertIsIdempotent` 与真实 M
 
 ## 五、这一轮没做到 / 没验到
 
+> 此节仅记录第20轮结束时的缺口；第1、2项在第21轮已有实现，不是当前待办。见文首补记。
+
 1. **AI 通俗化输出契约没有动**。现状核实：`typeme-ai-prompt-v2.txt` 要求 800–1200 字、2–6 段，
    `ReportAnalysisValidator` 按 9 条校验、`schemaVersion` 固定 `"1"`。方案（`题目报告与AI易读性改造.md` §4）
    已经把目标契约写清楚：新 schema `analysis-readable-v2`、字段 `summary`/`observations[]`（含
@@ -2064,7 +2085,9 @@ H2 侧 `AccountDeletionIT#repeatedDeletionRequestInsertIsIdempotent` 与真实 M
 
 ---
 
-## 当前汇总（截至第 20 轮结束）
+## 历史汇总（截至第 20 轮结束）
+
+> 以下为当时状态，AI 通俗契约与大五能力的缺口已由第21轮实现；当前复核见文首补记。
 
 | 项 | 状态 |
 |---|---|
@@ -2081,7 +2104,7 @@ H2 侧 `AccountDeletionIT#repeatedDeletionRequestInsertIsIdempotent` 与真实 M
 
 ---
 
-## 当前汇总（截至第 19 轮结束）
+## 历史汇总（截至第 19 轮结束）
 
 | 项 | 状态 |
 |---|---|
@@ -2098,6 +2121,3 @@ H2 侧 `AccountDeletionIT#repeatedDeletionRequestInsertIsIdempotent` 与真实 M
 | 第 19 轮未闭环 | A53 ③⑥、A58（`GET /catalog/*` 契约说公开、实现要认证）、A40（页面间距节奏，依旧有意不改） |
 | 仍需授权/决定 | A54 带来的窄屏顶栏 88→93px 是否接受；后台是否开放"改角色/禁用"；A58 是否把内容 GET 放开为公开 |
 | 仍然缺证据的地方 | A53 ③⑥ 未复现；`ConcurrencyMySqlIT` 只到服务对象层（HTTP 层由 H2 的 `SubmitReportIT` 覆盖）；弱网/超时/429/截断的 AI 分支仍只有 mock 证据；`submit` 是否也走 `IdempotencyGuard` 只给了结论（见第八节前的说明）；账号页 320/1440 只量布局未跑完整表单交互；`fetchAiStatus` 缺失字段的默认值没有 API 层测试 |
-
-
-

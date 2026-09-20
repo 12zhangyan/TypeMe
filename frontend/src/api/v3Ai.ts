@@ -60,6 +60,21 @@ export const AI_CONSENT_POLICY_VERSION = 'typeme-ai-consent-v1'
  */
 export const AI_SCOPE_VERSION = 'typeme-ai-scope-v3'
 
+/**
+ * 「可读版分析契约」对应的提示词版本。
+ *
+ * 与后端 `com.typeme.ai.input.ReadableReportInput.PROMPT_VERSION` 一致：只有这个版本的
+ * 提示词才会产出可读版结构（一句话结论 / 为什么这样说 / 可以试一次 / 哪些还不能确定），
+ * 大五报告也只有在这个版本下才允许生成。
+ *
+ * **刻意用"等于"而不是"大于等于"**：未来新增提示词版本时，它的输出结构是否仍满足这份契约
+ * 需要人**明确确认**，不能靠版本号猜。因此升版时三件事必须一起做：更新后端常量、更新这里、
+ * 并让后端 `PromptVersionClassificationTest`（枚举 prompts 目录）与前端
+ * `aiAnalysisPanel` 的用例一起给出信号。写在一个常量里也是为了不让面板里出现第二份字面量 ——
+ * 两份字面量一旦漂开，界面就会一边说"不支持"、一边又按新版渲染。
+ */
+export const READABLE_PROMPT_VERSION = 'typeme-ai-prompt-v3'
+
 /* ── 解析工具 ───────────────────────────────────────────────────────────── */
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -1,4 +1,38 @@
 /* Picture-book surfaces. Images remain decorative; questionnaires and stored scores are unchanged. */
+.reading-example { margin: 18px 0 14px; padding: 15px 18px; border-left: 2px solid #a3b295; background: #f1f2e9; color: #4b5848; font-size: 14px; line-height: 1.9; border-radius: 0 5px 5px 0; }
+.reading-example > span { display: block; margin-bottom: 5px; font-size: 11px; color: #6c765f; letter-spacing: .06em; }
+.plain-report-list { display: grid; gap: 16px; margin-top: 20px; }
+.plain-report-list h2 { font-size: 12px; color: #8a785f; margin-bottom: 4px; }
+.plain-report-list p { font-size: 14px; line-height: 1.85; }
+[data-report-overview].report-paper { display: grid; grid-template-columns: minmax(0,1fr) 240px; column-gap: 32px; padding: 36px; background: #fcfaf5; color: #303e36; border: 1px solid #e5e1d7; border-radius: 12px; box-shadow: 0 8px 30px #514b3610; }
+[data-report-overview].report-paper[data-status='TIED'] { grid-template-columns: minmax(0,1fr); }
+.report-paper-label { grid-column: 1/-1; padding-bottom: 19px; margin-bottom: 25px; border-bottom: 1px solid #e4e0d5; color: #76756a; font-size: 10px; letter-spacing: .18em; }
+.report-paper-status { grid-column: 1/-1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; color: #697367; font-size: 12px; line-height: 1.8; }
+.report-paper-status .chip { background: #edf0e5; color: #526449; border: 1px solid #dce2d2; font-weight: 500; }
+.report-paper-identity { grid-column: 1; grid-row: 3; padding-top: 18px; min-width: 0; }
+[data-report-overview].report-paper [data-type-code] { margin: 0 0 16px; font: 400 clamp(62px,6.5vw,92px)/1.1 Georgia,serif; letter-spacing: -.045em; color: #365a46; }
+[data-report-overview].report-paper h1 { font: 400 25px/1.65 'Songti SC','SimSun',serif; color: #343e35; }
+.report-paper-name { margin-top: 6px; font-size: 13px; color: #8a785f; letter-spacing: .12em; }
+.report-paper-notice { grid-column: 1; padding: 13px 16px; margin-top: 24px; border-left: 2px solid #c2b08b; background: #f3efe6; border-radius: 0 6px 6px 0; font-size: 13px; line-height: 1.9; color: #72634d; }
+.report-paper-summary { grid-column: 1; margin-top: 23px; font-size: 15px; line-height: 2; color: #566054; }
+.report-paper .report-character-study { grid-column: 2; grid-row: 3/6; display: flex; flex-direction: column; align-self: start; gap: 16px; margin: 25px 0 0; padding: 0 0 0 22px; background: transparent; border-left: 1px solid #e4e0d5; border-radius: 0; }
+.report-paper .report-character-study > .personality-portrait { width: 100%; max-width: 210px; flex: none; }
+.report-paper .report-character-study figcaption { width: 100%; color: #68735f; }
+.report-paper .report-character-study figcaption > span { font-size: 10px; color: #8a785f; }
+.report-paper .report-character-study figcaption p { font: 400 17px/1.9 'Songti SC','SimSun',serif; margin: 10px 0; }
+.report-paper .report-character-study small { display: block; font-size: 10px; line-height: 1.8; color: #777b70; }
+@media(max-width:1023px) {
+  [data-report-overview].report-paper { grid-template-columns: minmax(0,1fr); padding: 26px; }
+  .report-paper .report-character-study { grid-column: 1; grid-row: auto; flex-direction: row; align-items: center; border-left: 0; border-top: 1px solid #e4e0d5; padding: 20px 0 0; gap: 18px; }
+  .report-paper .report-character-study > .personality-portrait { width: 115px; flex: 0 0 115px; }
+}
+@media(max-width:389px) {
+  [data-report-overview].report-paper { padding: 22px 19px; }
+  [data-report-overview].report-paper h1 { font-size: 22px; }
+  .report-paper .report-character-study { gap: 12px; }
+  .report-paper .report-character-study > .personality-portrait { width: 85px; flex-basis: 85px; }
+  .report-paper .report-character-study figcaption p { font-size: 15px; }
+}
 .atelier-platform { --atelier-paper: #f8f5ed; --atelier-green: #274c3c; }
 .atelier-platform .discovery-hero { grid-template-columns: 1.02fr 1fr; column-gap: 44px; min-height: 0; }
 .atelier-platform .discovery-copy { padding: 46px 0 48px; }

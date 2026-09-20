@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import InstrumentArtwork from '@/components/InstrumentArtwork.vue'
+import { plainBigFiveRow } from '@/domain/plainReport'
 import { computed, watch, onBeforeUnmount, ref } from 'vue'
 import AiAnalysisPanel from '@/components/AiAnalysisPanel.vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
@@ -179,7 +180,7 @@ function distanceLeft(distance: number, rangeLow: number, rangeHigh: number): nu
             :data-dimension="dimension.dimension"
           >
             <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h3 class="text-[17px] font-semibold leading-snug text-ink">{{ dimension.name }}</h3>
+              <h3 class="text-[17px] font-semibold leading-snug text-ink">{{ plainBigFiveRow(dimension)?.title ?? dimension.name }}</h3>
               <p class="caption">{{ dimension.question }}</p>
             </div>
 
@@ -191,12 +192,16 @@ function distanceLeft(distance: number, rangeLow: number, rangeHigh: number): nu
                 </span>
               </div>
 
-              <p v-if="dimension.description" class="mt-3 max-w-prose text-[14.5px] leading-relaxed text-ink">
-                {{ dimension.description }}
-              </p>
+              <div v-if="plainBigFiveRow(dimension)" class="mt-3 text-[14.5px] leading-relaxed text-ink" data-plain-report>
+                <p>{{ plainBigFiveRow(dimension)?.result }}</p>
+                <p class="mt-2 text-ink-soft">{{ plainBigFiveRow(dimension)?.example }}</p>
+                <p class="mt-2 text-[12px] text-ink-soft">例子只帮助理解；这不是能力、人品或人群排名。</p>
+              </div>
+              <p v-else-if="dimension.description" class="mt-3 text-[14.5px] leading-relaxed text-ink">{{ dimension.description }}</p>
 
               <details class="mt-3">
                 <summary class="cursor-pointer text-[13.5px] font-medium text-ink-soft">查看分数、例子与判断依据</summary>
+                <p v-if="dimension.description" class="mt-3 text-[14.5px] leading-relaxed text-ink">{{ dimension.name }}：{{ dimension.description }}</p>
               <!-- 距离条：以中点为 0，两端为这次作答可能到达的极值 -->
               <div class="mt-4">
                 <div v-if="!hasHistoricalRangeError" class="relative h-2 w-full rounded-full bg-line">
@@ -255,7 +260,7 @@ function distanceLeft(distance: number, rangeLow: number, rangeHigh: number): nu
       <section class="mt-8" aria-labelledby="bigfive-coverage">
         <h2 id="bigfive-coverage" class="section-title flex items-center gap-2">
           <AppIcon name="shield" :size="18" class="text-primary-600" />
-          这次结果可靠到什么程度
+          哪些方面答得够，哪些还看不清
         </h2>
         <div class="card mt-3 max-w-prose" data-bigfive-coverage>
           <ul class="grid gap-1.5 text-[14px] leading-relaxed text-ink-soft">

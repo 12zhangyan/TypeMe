@@ -19,6 +19,9 @@ def check(ok, label):
 
 def capture(page, name, width, selector=None):
     page.locator('.illustration-frame img').evaluate_all("async items => { await Promise.all(items.map(async img => { img.loading = 'eager'; await img.decode(); })); }")
+    # 插画帧改为"解码完成后淡入 200ms"（2026-09-18 图片加载体验修复）：截图前要等淡入结束，
+    # 否则会拍到半透明的中间帧，把过渡误记成"图片没显示"。
+    page.wait_for_function("() => [...document.querySelectorAll('.illustration-frame img')].every(img => Number(getComputedStyle(img).opacity) >= 0.99)")
     check(page.evaluate('document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1'), f'{width}/{name}: no overflow')
     page.evaluate('document.activeElement?.blur()')
     if selector:

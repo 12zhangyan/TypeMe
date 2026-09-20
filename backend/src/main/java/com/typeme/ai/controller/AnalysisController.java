@@ -117,6 +117,14 @@ public class AnalysisController {
      *
      * <p>刻意只给 host（不给完整 baseUrl、不给路径、**绝不给 key**），
      * 并显式给出 {@code apiKeySource}：管理员后台配置（db）/环境变量（env）/未配置（none）。
+     *
+     * <p><b>当前只有登录用户能拿到它。</b>{@code SecurityConfig} 把 {@code /api/v3/**} 整体
+     * 设为 {@code authenticated()}，而本路径不在放行清单里，所以匿名请求在过滤器链上就被
+     * 401 拦掉，下面那个 {@code UNAUTHENTICATED} 分支在生产链下**取不到值**。
+     * 它留着只是防御性兜底（若哪天把本路径加入放行清单，它就能直接生效），
+     * 不能当成"登录页已经能判断 AI 是否可用"的依据 —— 2026-09-18 的
+     * {@code AiThroughRealSessionIT#statusNeverLeaksKeyUnderRealChain} 钉住了当前真实行为。
+     * 是否让登录页也能探测 AI 可用性属于待决事项（会扩大匿名可见的配置信息面）。
      */
     @GetMapping("/ai/status")
     public ResponseEntity<Map<String, Object>> status() {
@@ -124,7 +132,7 @@ public class AnalysisController {
         try {
             view = analyses.status(AiCurrentUser.requireUserId());
         } catch (AiException ex) {
-            // 未登录时也给出"能不能用"的基础信息（前端登录页需要判断是否显示 AI 入口）。
+            // 防御性兜底：仅当本路径被加入放行清单时才会走到这里（见方法注释）。
             if (!"UNAUTHENTICATED".equals(ex.code())) {
                 throw ex;
             }

@@ -6,6 +6,7 @@ import AppIcon from '@/components/AppIcon.vue'
 import LikertScale from '@/components/LikertScale.vue'
 import { onSessionExpired, type ErrorDisplay } from '@/api/v3'
 import { BIG_FIVE_ANCHORS } from '@/domain/answers'
+import { questionExample } from '@/domain/readingCompanion'
 import type { ItemView } from '@/api/platformV3'
 import { useBigFiveStore } from '@/stores/bigFiveV3'
 
@@ -50,6 +51,7 @@ const attemptId = computed(() => {
 const attempt = computed(() => store.attempt)
 const items = computed<ItemView[]>(() => attempt.value?.items ?? [])
 const current = computed<ItemView | null>(() => items.value[index.value] ?? null)
+const readingExample = computed(() => questionExample(attempt.value?.packageId, current.value))
 
 /** 本题当前的作答（rating / unknown / 未处理）。 */
 const currentAnswer = computed(() => {
@@ -368,7 +370,12 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
             :statement="current.statement ?? ''"
             :anchors="BIG_FIVE_ANCHORS as unknown as string[]"
             @update:model-value="choose"
-          />
+          >
+            <template #reading-help>
+              <p v-if="readingExample" class="reading-example" data-question-example><span>这句话在问什么</span>{{ readingExample }}</p>
+              <p class="mt-3 text-[13px] leading-relaxed text-ink-soft">按整句话是否像你来选，包括“很少”“不喜欢”这些词。按真实习惯回答。</p>
+            </template>
+          </LikertScale>
         </div>
 
         <!-- 「说不好」与数字档分开：它不是第 6 档，也不代表中立 -->
@@ -384,7 +391,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
             {{ isUnknown ? '已记「说不好」（再点一次撤销）' : '说不好' }}
           </button>
           <p class="caption max-w-prose">
-            选「说不好」的题不会被算成中间档，也不会替你补一个分数；它只是不计入这一维。
+            “说不好”是没经历过或暂时无法判断，不计分。中间档表示有时符合、有时不符合，它会计分。
           </p>
         </div>
 

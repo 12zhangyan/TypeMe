@@ -135,6 +135,7 @@ def main():
                 if report_id.startswith('bigfive'):
                     check('/reports/big-five/' in page.url, f'{width}/{report_id}: generic link dispatch')
                     check(page.locator('[data-dimension]').count() == 5, f'{width}/{report_id}: five dimensions')
+                    check(page.locator('[data-plain-report]').count() == 5, f'{width}/{report_id}: five plain readings')
                     details = page.locator('[data-dimension]').first.locator('details')
                     check(details.get_attribute('open') is None, f'{width}/{report_id}: score details initially collapsed')
                     details.locator('summary').focus()
@@ -144,6 +145,9 @@ def main():
                     check(page.locator('[data-historical-range-warning]').count() == (1 if report_id.endswith('old') else 0),
                           f'{width}/{report_id}: historical range warning')
                 else:
+                    check(page.locator('[data-plain-report] .plain-report-list li').count() == 4, f'{width}/{report_id}: four plain readings')
+                    if report_id == 'jung-tied':
+                        check('更偏向' not in page.locator('[data-plain-report]').inner_text().split('查看保存时')[0], f'{width}/{report_id}: plain reading preserves tied directions')
                     check(page.locator('[data-report-overview]').get_attribute('data-status') == ('TIED' if report_id == 'jung-tied' else 'TENTATIVE'),
                           f'{width}/{report_id}: uncertainty status preserved')
                     if report_id != 'jung-tied':
