@@ -384,7 +384,6 @@ CLS 0.002、`preload=0 high=1 lazy=20`；冷启动占位窗口 434–524ms（含
 二次加载 199–247ms（≈淡入 200ms 本身，说明地址表已从 `localStorage` 直接读到、没有多等一轮 RTT）。
 
 ### 13.2 CSP 复现（修法 A 之前的现象；该问题已修）
-
 `dbmap-csp/summary-csp.json`：20 条发往 COS 的请求**全部** `blockedReason: csp`（41 条 CSP 报错），
 页面实际显示的来源是 `{"127.0.0.1:5197": 21}`、19 条回退到本地资源 —— 页面看上去完全正常，
 所以**只看页面是发现不了的**。地址改成库驱动之后，修法 B（写死 `img-src` 白名单）的代价更高了：
@@ -396,10 +395,11 @@ CLS 0.002、`preload=0 high=1 lazy=20`；冷启动占位窗口 434–524ms（含
 
 ### 13.3 本轮**没有**覆盖的（需要你执行或真实环境）
 
-- **真实 MySQL 上执行建表 SQL**：交付件 `docs/2026-09-20/illustration-asset.sql` 由你在服务器执行；
-  H2 上由 `IllustrationAssetIT` 执行**同一份文件**（5/5 通过），所以语法与内容每次跑测试都被验证一次。
+- **真实 MySQL 上执行建表迁移**：`V10__illustration_asset.sql` 随部署由 Flyway 执行。本机只在 H2 上
+  验证过（Flyway 应用 v10、并把同一份脚本**再执行一遍**证明幂等）；真实 MySQL 的方言差异要等首次
+  部署时看启动日志确认 —— 目前还没有人在真实 MySQL 上执行过它。
 - **真实后端 + 真实库的端到端**：本轮浏览器验收的地址表来自接口 mock（形状与后端 IT 断言的完全一致），
-  真实链路（MySQL → 后端 → 浏览器）要在执行 SQL、后端重新部署后跑一次：
+  真实链路（MySQL → 后端 → 浏览器）要在后端重新部署后跑一次：
   `node scripts/check-remote-images.mjs --from-api=<服务地址>`，
   再核对线上响应头（§12.4），并在真实响应头下重跑一次浏览器验收。
 - 防盗链、COS 下行告警、`check-bundled-image-urls.mjs` 接入 `prebuild` —— 都未做。

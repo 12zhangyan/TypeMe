@@ -6,12 +6,15 @@
 > `VITE_IMAGE_BASE_URL` 决定，而是**运行期读数据库表 `illustration_asset`**
 > （`GET /api/v3/platform/illustrations`，改地址用 `PUT`，仅 ADMIN）。
 > 因此本文档里所有"设置 `VITE_IMAGE_BASE_URL` 再构建"的步骤**都已作废**，
-> 替换为"生成手工交付 SQL → 在服务器上执行一次"；`illustrationPublish.json` 已删除，
+> 替换为"生成 `V10` 迁移 → 随部署由 Flyway 执行"；`illustrationPublish.json` 已删除，
 > `check-image-base-url.mjs` 已由 `check-bundled-image-urls.mjs` 取代。
 > 方案、依据与验证证据见 **`docs/2026-09-20/图片URL入库方案.md`**。
 > **前置问题已修**：后端那条 `default-src 'self'` CSP（空 `contentSecurityPolicy` lambda 的意外产物）
 > 已按修法 A 删除，回归断言在 `IllustrationAssetIT#noContentSecurityPolicyHeader`；
 > **要等后端重新部署后才在生产生效**，部署后请核对一次响应头（见 `REPORT.md` §12 与本目录 §10）。
+> **建表也交回 Flyway 了**（2026-09-20 晚再修一轮）：`V10__illustration_asset.sql` 随部署自动建表并播种，
+> 且写成幂等（`CREATE TABLE IF NOT EXISTS` + `INSERT IGNORE`），所以"人工已经建过表"的库也不会在
+> 部署时因主键冲突起不来。原先"手工执行 SQL"的做法会让新环境上读接口 500、前端只能用本地素材。
 
 本轮做三件事：① 把 21 张公开插画传到对象存储并匿名核对字节；
 ② 让前端在"本地资源 / 远端地址"之间正确切换，并保证远端失败时只回退一次；
@@ -281,19 +284,17 @@
 而是"把地址写进库表 + 前端启动时读一次"。原来的两种切换方式（环境变量 / `.env.production`）
 **已作废**，下面是现在的做法。
 
-现在的切换 = 三步：
+现在的切换 = 两步：
 
 ```powershell
-# ① 生成手工交付 SQL（只写文件，不连库、不动数据库）
-node scripts/gen-image-publish.mjs --emit-sql --out docs/2026-09-20/illustration-asset.sql
-# ② 你在服务器上执行一次（它刻意不在 db/migration 下，所以不会被 Flyway 自动执行）
-#     mysql -h <主机> -u <用户> -p <库名> < illustration-asset.sql
-# ③ 后端重新构建部署（让 CSP 那条改动生效），然后用下面的命令核对
+# ① 生成入库迁移（只写文件，不连库、不动数据库）
+node scripts/gen-image-publish.mjs --emit-sql --out backend/src/main/resources/db/migration/V10__illustration_asset.sql
+#    该迁移是幂等的：库里已经人工建过表/插过行时重复执行也不会失败
+# ② 后端重新构建部署：Flyway 会应用 V10（建表 + 21 行种子），CSP 那条改动同时生效
 ```
 
-执行后：匿名访客打开首页即可拿到远端地址；想只改某一张图的地址，用
+部署后：匿名访客打开首页即可拿到远端地址；想只改某一张图的地址，用
 `PUT /api/v3/platform/illustrations`（仅 ADMIN），**不需要发版**。
-执行前读接口返回 500（表不存在），页面继续用本地素材 —— 这是设计好的降级，不是故障。
 
 切换/回退都不需要改前端代码，也不需要重新构建前端：
 把库表清空（或删表）就等于回退到"全部用本地素材"。
@@ -345,7 +346,7 @@ curl.exe -sI <站点地址>/ | Select-String 'Content-Security-Policy'   # 应�
 
 | 文件 | 作用 |
 | --- | --- |
-| `docs/2026-09-20/illustration-asset.sql` | 库表 `illustration_asset` + 21 行种子：**手工交付件，不是 Flyway 迁移**（不在 db/migration 下，部署不会自动执行；由人在服务器跑一次）。由 `--emit-sql` 生成，与仓库文件逐字节一致 |
+| `backend/src/main/resources/db/migration/V10__illustration_asset.sql` | 库表 `illustration_asset` + 21 行种子，**随部署由 Flyway 执行**；幂等写法（`IF NOT EXISTS` + `INSERT IGNORE`）兼容人工建过表的库。由 `--emit-sql` 生成，与生成器输出逐字节一致 |
 | `backend/.../platform/service/IllustrationAssetService.java` | 读（`list`）/写（`update`）与**安全边界校验**：名字白名单、https、域名允许清单、sha256 形状、整批拒绝 |
 | `backend/.../platform/api/PlatformController.java` | `GET /api/v3/platform/illustrations`（公开）+ `PUT`（方法级 `@PreAuthorize("hasRole('ADMIN')")`） |
 | `backend/.../security/SecurityConfig.java` | 该路径只放开 `GET`；**已删除**那个空的 `contentSecurityPolicy(...)`（见 §10 与 §13.0） |
@@ -353,9 +354,9 @@ curl.exe -sI <站点地址>/ | Select-String 'Content-Security-Policy'   # 应�
 | `frontend/src/stores/illustrationAssetsV3.ts` | 启动时读一次地址表：`hydrate()` 同步读 `localStorage`、`load()` 带 1.2s 等待预算、`settled` 决定组件是否可以开始解析 |
 | `frontend/src/design/illustrationAssets.ts` | **唯一**解析处：地址表里没有 / 地址不可用 → 本地打包资源 |
 | `frontend/src/design/remoteImageUrl.ts` | 地址校验（只接受 https，回环允许 http 供本地模拟，禁凭据、去片段） |
-| `frontend/src/components/IllustrationFrame.vue` | 地址表未就绪 → 占位；就绪后 → 远端失败回退本地**一次** → 兜底 SVG；`data-artwork-{state,attempt,source}` 供验收 |
+| `frontend/src/components/IllustrationFrame.vue` | 地址表未就绪 → 占位；就绪后 → 远端失败（含解码失败）回退本地**一次** → 兜底 SVG；`data-artwork-{state,attempt,source}` 供验收 |
 | `frontend/src/api/platformV3.ts` | `fetchIllustrations()`：严格按契约解析，字段缺失即抛 `UNEXPECTED_RESPONSE` |
-| `scripts/gen-image-publish.mjs` | 从真实素材生成上传清单与**手工交付 SQL**（`--emit-sql`），支持 `--check` |
+| `scripts/gen-image-publish.mjs` | 从真实素材生成上传清单与**入库迁移 SQL**（`--emit-sql`），支持 `--check` |
 | `scripts/upload-image-manifest.mjs` / `cos-upload-images.mjs` | 上传计划与执行器（`--plan` / `--verify-key` / `--execute`），自带 COS 签名 |
 | `scripts/check-bundled-image-urls.mjs` | 产物里**不得**出现任何绝对图片地址或图片主机（取代 `check-image-base-url.mjs`） |
 | `scripts/check-remote-images.mjs` | 匿名核对已上传对象；`--from-api=<服务地址>` 做**库 ↔ 本地素材 ↔ 远端对象**三方核对 |
