@@ -118,7 +118,7 @@ const adminNavReady = computed(
 watch(
   () => (auth.isAuthenticated ? auth.profile?.userId ?? '' : ''),
   (userId) => {
-    if (userId) void refreshAdminProbe()
+    if (userId) void refreshAdminProbe(userId)
   },
   { immediate: true },
 )

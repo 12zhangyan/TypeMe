@@ -192,4 +192,49 @@ describe('顶栏导航（App.vue）', () => {
     expect(wrapper.find('[data-admin-nav]').exists()).toBe(false)
     expect(fetchAdminAiSettings).toHaveBeenCalledTimes(2)
   })
+
+  it('管理员探测未完成就换成普通账号：过期的 200 不会让顶栏出现「管理」', async () => {
+    let resolveAdmin: ((value: { enabled: boolean; mockMode: boolean }) => void) | undefined
+    fetchAdminAiSettings.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveAdmin = resolve
+        }),
+    )
+    const auth = useAuthStore()
+    auth.status = 'authenticated'
+    auth.profile = {
+      userId: 'u1',
+      username: 'admin',
+      nickname: null,
+      createdAt: '2026-09-17T00:00:00Z',
+      passwordChangedAt: null,
+    }
+    const { wrapper } = await mountApp('/about')
+    await flushPromises()
+    expect(wrapper.find('[data-admin-nav]').exists()).toBe(false)
+
+    fetchAdminAiSettings.mockRejectedValue(
+      new V3ApiError(
+        { code: 'FORBIDDEN', message: '需要更高的权限', requestId: 'rq-9', details: {} },
+        { status: 403 },
+      ),
+    )
+    auth.applyAnonymous()
+    auth.applyProfile({
+      userId: 'u2',
+      username: 'normal',
+      nickname: null,
+      createdAt: '2026-09-18T00:00:00Z',
+      passwordChangedAt: null,
+    })
+    await flushPromises()
+    expect(wrapper.find('[data-admin-nav]').exists()).toBe(false)
+
+    resolveAdmin?.({ enabled: true, mockMode: true })
+    await flushPromises()
+    expect(wrapper.find('[data-admin-nav]').exists(), '过期探测不能让普通用户顶栏出现管理入口').toBe(
+      false,
+    )
+  })
 })

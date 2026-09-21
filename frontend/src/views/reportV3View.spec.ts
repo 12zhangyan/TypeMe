@@ -994,9 +994,37 @@ describe('报告页：「这份报告是怎么来的」不展示内部版本号'
     expect(text).toContain('自行撰写')
     expect(text).toContain('最终结论以这份报告为准')
     expect(wrapper.find('[data-delete-report]').exists()).toBe(true)
+    const thresholds = wrapper.find('[data-method-thresholds]')
+    expect(thresholds.exists()).toBe(true)
+    expect(thresholds.text()).toContain('每个方向至少有 9 道有效数字答案')
+    expect(thresholds.text()).toContain('有效作答每 10 题，两边差距不超过 2')
+    expect(thresholds.text()).not.toContain('2/10 规则')
     for (const token of INTERNAL_TOKENS) {
       expect(text, `方法节不该出现「${token}」`).not.toContain(token)
     }
+  })
+
+  it('门槛数字跟这份快照走，不是页面写死的', async () => {
+    api.detail = () => ({
+      status: 200,
+      body: {
+        report: {
+          ...REFERENCE,
+          methodology: {
+            ...METHODOLOGY,
+            minBaseRatingsPerDimension: 7,
+            boundaryNumerator: 3,
+            boundaryDenominator: 8,
+          },
+        },
+      },
+    })
+    const { wrapper } = await mountReport()
+    const text = wrapper.find('[data-method-thresholds]').text()
+    expect(text).toContain('每个方向至少有 7 道有效数字答案')
+    expect(text).toContain('有效作答每 8 题，两边差距不超过 3')
+    expect(text).not.toContain('每个方向至少有 9 道有效数字答案')
+    expect(text).not.toContain('typeme-jung48-score')
   })
 
   it('旧快照同样不露出内部版本占位', async () => {
