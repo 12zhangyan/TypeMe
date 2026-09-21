@@ -70,6 +70,7 @@ function makeRouter(): Router {
       { path: '/account', name: 'account', component: { template: '<div />' } },
       { path: '/login', name: 'login', component: { template: '<div />' } },
       { path: '/admin', name: 'admin', component: AdminView },
+      { path: '/admin/members', name: 'admin-members', component: { template: '<div />' } },
     ],
   })
 }

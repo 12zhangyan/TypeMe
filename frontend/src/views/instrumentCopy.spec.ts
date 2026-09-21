@@ -357,9 +357,9 @@ describe('方法页（AboutView.vue）：只留用户需要的事实', () => {
       expect(text, `${id} 抄了旧包的偏向门槛`).not.toContain(
         `|偏移| ≥ ${pkg.interpretation.markedDistance} 分`,
       )
-      // 但「略偏」这件事必须讲清楚，并指出确切数值写在哪
+      // 但「略偏」这件事必须讲清楚，且不把内部规则版本号指到报告页去
       expect(text, `${id} 门槛说明`).toContain('「略偏」也不是一条写死的分数线')
-      expect(text, `${id} 门槛数值出处`).toContain('这份报告是怎么来的')
+      expect(text, `${id} 不抄固定数字`).toContain('这里不抄一个固定数字')
     }
   })
 

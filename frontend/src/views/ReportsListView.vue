@@ -114,8 +114,7 @@ async function confirmDelete(): Promise<void> {
     <header class="max-w-prose">
       <h1 class="text-[26px] font-semibold leading-snug text-ink tablet:text-[30px]">历史报告</h1>
       <p class="mt-3 text-[15.5px] leading-relaxed text-ink-soft">
-        每一次提交都会留下一份按当时内容版本冻结的报告。报告不会因为规则更新而被重算，
-        所以旧报告可能与新做的报告口径不同 —— 这一点在每份报告里都会写明。
+        每一次提交都会留下一份当时的报告。规则以后若有更新，旧报告仍按当时那次解释，不会被重算。
       </p>
       <p v-if="!loading && items.length > 0" class="caption mt-2" data-report-counts>
         共 {{ items.length }} 份：十六型 {{ jungCount }} 份、大五 {{ bigFiveCount }} 份。

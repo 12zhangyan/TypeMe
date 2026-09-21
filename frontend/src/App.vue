@@ -10,6 +10,7 @@ import { fetchMeta } from '@/api/client'
 import { applyDevSeed } from '@/dev/seed'
 import { useInstrumentV3Store } from '@/stores/instrumentV3'
 import { isLegacyEngineRoute, legacyInstrumentTagline } from '@/utils/instrumentNaming'
+import { useAdminProbe } from '@/composables/useAdminProbe'
 
 /**
  * 公共壳 —— `docs/2026-09-15/...重构开发文档.md` §4.5 / §10.4。
@@ -37,6 +38,7 @@ const instrument = useInstrumentV3Store()
 const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
+const { isAdmin, refresh: refreshAdminProbe } = useAdminProbe()
 
 /** 退出请求进行中：按钮要有明确的状态，不能点了没反应。 */
 const loggingOut = ref(false)
@@ -104,6 +106,22 @@ const quizActive = computed(() => route.name === 'quiz' || route.name === 'asses
  * 渲染指向未注册路由的链接只会让 vue-router 报一堆警告、用户看到一个点了没反应的入口。
  */
 const assessmentRoutesReady = computed(() => router.hasRoute('assess') && router.hasRoute('reports'))
+
+/** 管理后台入口：只在确认是管理员、且路由已注册时出现。普通用户顶栏不该有这条。 */
+const adminNavReady = computed(
+  () =>
+    auth.isAuthenticated
+    && isAdmin.value
+    && router.hasRoute('admin-members'),
+)
+
+watch(
+  () => (auth.isAuthenticated ? auth.profile?.userId ?? '' : ''),
+  (userId) => {
+    if (userId) void refreshAdminProbe()
+  },
+  { immediate: true },
+)
 
 /**
  * 「开始测评」指向哪一页。
@@ -280,6 +298,14 @@ function navPill(active: boolean): string {
               class="btn-ghost btn-sm"
               :class="navPill(route.name === 'reports' || route.name === 'report-detail')"
               >历史报告</RouterLink
+            >
+            <RouterLink
+              v-if="adminNavReady"
+              to="/admin/members"
+              class="btn-ghost btn-sm"
+              data-admin-nav
+              :class="navPill(route.name === 'admin' || route.name === 'admin-members')"
+              >管理</RouterLink
             >
             <!--
               导航项写的是**目标**的名字，与当前停在哪一页无关。

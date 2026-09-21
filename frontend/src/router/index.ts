@@ -71,9 +71,9 @@ export const router = createRouter({
       component: AccountView,
       meta: { title: '账号与数据 · TypeMe', requiresAuth: true },
     },
-    // 管理后台。**不在导航里露出**：这一页是否可用由服务端判定（非管理员得到
-    // 403 → 页面显示"你没有权限"），所以隐藏入口不是为了"安全靠隐蔽"，
-    // 而是不让每个普通用户在顶栏看到一个点进去必然没用的链接。
+    // 管理后台。顶栏只对**已确认的管理员**露出「管理」；普通用户看不到。
+    // 权限仍由服务端判定（非管理员得到 403），入口隐藏不是为了"安全靠隐蔽"。
+    // 默认落到成员 / 邀请 / 报告（`/admin/members`），AI 设置在 `/admin`。
     {
       path: '/admin/members',
       name: 'admin-members',

@@ -101,14 +101,18 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    /** 记下一份有效资料（登录 / 注册 / 拉取 /me 都走这里）。 */
+    /** 记下一份有效资料（登录 / 注册 / 拉取 /me / 改昵称都走这里）。 */
     applyProfile(profile: AccountProfile) {
+      const previousUserId = this.profile?.userId ?? null
       this.profile = profile
       this.status = 'authenticated'
       this.sessionNotice = null
-      // 身份换了：上一个账号的"是不是管理员"必须作废，否则共用设备上会把后台入口
-      // 留给下一个登录的人（第 17 轮）。
-      resetAdminProbe()
+      // 管理员探针缓存的是**这个 userId** 的答案。同一人改昵称/改密也会走这里，
+      // 若每次都清掉，顶栏「管理」会在资料保存后消失（登录态没变，壳层不会再探一次）。
+      // 只有换成另一个账号才作废。退出走 applyAnonymous，那边每次都清。
+      if (previousUserId !== profile.userId) {
+        resetAdminProbe()
+      }
       // 换账号（含 A 退出、B 登录）时，上一个账号的草稿状态必须清掉：
       // 大五答题页的题目与答案都在 store 里，留着会让 B 在极短的一瞬看到 A 的答案，
       // 更糟的是 `saveNow()` 会拿 A 的 revision 去打 B 的账号。

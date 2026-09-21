@@ -689,14 +689,15 @@ describe('答题页：会话在作答过程中失效', () => {
 
     expect(wrapper.find('[data-assess-restart]').exists()).toBe(true)
     expect(wrapper.text()).toContain('重新开始一次测评')
-    expect(wrapper.text()).toContain('在服务端已经不存在')
+    expect(wrapper.text()).toContain('已经不存在了')
   })
 
-  it('内容包已下线（409 PACKAGE_UNAVAILABLE）：如实说明原因，并给出重新开始的路', async () => {
+  it('测评已下线（409 PACKAGE_UNAVAILABLE）：如实说明原因，并给出重新开始的路', async () => {
     const { wrapper } = await mountAssessWithStatus(409, 'PACKAGE_UNAVAILABLE', '这份内容包已经不能用了。')
 
     expect(wrapper.find('[data-assess-restart]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('内容包已经不能用了')
+    expect(wrapper.text()).toContain('这次测评已经下线')
+    expect(wrapper.text()).not.toContain('内容包')
   })
 })
 

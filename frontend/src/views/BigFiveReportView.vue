@@ -9,7 +9,6 @@ import AppIcon from '@/components/AppIcon.vue'
 import { describeError, type ErrorDisplay } from '@/api/v3'
 import {
   fetchPlatformReport,
-  isEnvelopedReport,
   parseBigFiveReport,
   type BigFiveReportView,
   type ReportDetailView,
@@ -54,8 +53,6 @@ const createdAtText = computed(() => {
   const raw = detail.value?.createdAt
   return raw ? raw.replace('T', ' ').slice(0, 19) : ''
 })
-
-const isEnveloped = computed(() => (detail.value ? isEnvelopedReport(detail.value.report) : false))
 
 /** 哪几维这次没给出方向。 */
 const undecided = computed(
@@ -153,7 +150,6 @@ function distanceLeft(distance: number, rangeLow: number, rangeHigh: number): nu
         <InstrumentArtwork kind="big_five" />
         <p class="caption">
           {{ detail.instrumentTitle }} · {{ createdAtText }}
-          <template v-if="isEnveloped"> · 按当时绑定的内容版本生成</template>
         </p>
         <h1 class="mt-2 text-[24px] font-semibold leading-snug text-ink tablet:text-[28px]">
           {{ report.profileTitle }}

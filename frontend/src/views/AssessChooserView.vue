@@ -239,9 +239,6 @@ function minutesText(card: InstrumentCard): string {
           </div>
           <p class="caption mt-1.5">
             上次动过：{{ formatTime(draft.updatedAt) }}
-            <template v-if="draft.reportContentVersion">
-              · 内容版本 {{ draft.reportContentVersion }}
-            </template>
           </p>
           <div class="mt-3 flex flex-wrap gap-2">
             <button

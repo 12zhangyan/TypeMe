@@ -1123,53 +1123,16 @@ function jumpToSection(id: string): void {
           <span class="section-index" aria-hidden="true">10</span>
           <h2 id="report-method-title" class="section-title">这份报告是怎么来的</h2>
         </div>
-        <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft">
-          量表：<strong class="font-medium text-ink">{{ instrument.facts.title }}</strong>。下面这些
-          版本号与指纹来自报告自己的 <code class="text-[12.5px]">methodology</code> 字段；量表名来自
-          <code class="text-[12.5px]">/api/v3/catalog/current</code>（报告正文里不重复下发包标题）。
-        </p>
-        <ul class="mt-2 space-y-1 text-[13px] leading-relaxed text-ink-faint">
-          <li>计分版本：{{ view.methodology.scoringVersion }}（规则版本 {{ view.methodology.policyVersion }}）</li>
-          <li>内容版本：{{ view.methodology.reportContentVersion }}（{{ view.methodology.contentStatus }}）</li>
-          <li>内容包：{{ view.methodology.packageId }} · 指纹 {{ view.methodology.contentSha256.slice(0, 12) }}…</li>
-          <!--
-            过程层用的是**另一份内容**（过程文案包）和**另一套推导规则**，
-            所以它们的版本与指纹必须也列在这里 —— 这个区块的意义就是"让用户能自己核对
-            这份报告是按哪一版规则和内容生成的"，少列了这两行它就是不完整的。
-            旧快照没有这两个键（`null`），如实写"这份快照没有记录"，不编一个版本号顶上。
-          -->
-          <li data-method-process-copy>
-            过程内容：
-            <template v-if="view.methodology.processCopyVersion">
-              {{ view.methodology.processCopyVersion }}
-              <template v-if="view.methodology.processCopySha256">
-                · 指纹 {{ view.methodology.processCopySha256.slice(0, 12) }}…
-              </template>
-            </template>
-            <template v-else>这份快照没有记录（生成时还没有过程层）</template>
-          </li>
-          <li data-method-dynamics-version>
-            过程推导版本：
-            {{ view.methodology.dynamicsVersion ?? '这份快照没有记录（生成时还没有过程层）' }}
-          </li>
-          <li>提交时间：{{ view.methodology.submittedAt }}</li>
-          <li>报告指纹：{{ view.reportHash.slice(0, 16) }}…（内容被改过就对不上）</li>
-          <li>
-            未答/无法判断的处理：每维至少
-            {{ view.methodology.minBaseRatingsPerDimension }} 题可计分才会给出方向；
-            边界判定用 {{ view.methodology.boundaryNumerator }}/{{ view.methodology.boundaryDenominator }} 规则。
-          </li>
-        </ul>
         <!--
           署名：报告页过去由公共壳统一写「题目基于 IPIP … 属公有领域」，而这份报告其实是
-          十六型量表算出来的（浏览器验收报告问题 2）。这里如实写清新测自己的来源，
-          不再引用旧内容包的许可。
+          十六型量表算出来的（浏览器验收报告问题 2）。这里只写人能读的来源与权威口径，
+          不把包 ID、指纹、内部版本号或接口字段名印给普通用户。
         -->
-        <p class="mt-3 text-[13px] leading-relaxed text-ink-soft" data-instrument-attribution>
-          {{ instrument.facts.title }}的题目与报告文案为本项目自行撰写；本站
+        <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft" data-instrument-attribution>
+          这是「<strong class="font-medium text-ink">{{ instrument.facts.title }}</strong>」提交时留下的快照，
+          题目与报告文案为本项目自行撰写；本站
           <strong class="font-medium text-ink">不隶属</strong>
-          任何商业人格测评机构，也不是任何机构的官方测评。浏览器里那点即时倾向只用于答题时预览，
-          最终结论一律以这份服务端报告为准。
+          任何商业人格测评机构，也不是任何机构的官方测评。答题时的即时倾向只作预览，最终结论以这份报告为准。
         </p>
         <div class="mt-4 flex flex-wrap gap-2">
           <RouterLink to="/reports" class="btn-secondary">回到历史报告</RouterLink>
@@ -1179,8 +1142,7 @@ function jumpToSection(id: string): void {
 
       <!-- 页脚固定声明 -->
       <p class="mt-8 rounded-control bg-paper-soft px-4 py-3 text-[12.5px] leading-relaxed text-ink-soft" data-disclaimer>
-        这是参考测评，不是心理诊断，也不用于招聘或任何筛选。内容仍在内部审校中
-        （contentStatus = {{ view.methodology.contentStatus }}）。如果这些描述让你不舒服，
+        这是参考测评，不是心理诊断，也不用于招聘或任何筛选。内容仍在内部审校中。如果这些描述让你不舒服，
         以你自己的感受为准。
       </p>
     </template>

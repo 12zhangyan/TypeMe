@@ -643,14 +643,15 @@ describe('报告页：REFERENCE', () => {
     expect(dot.attributes('style')).toContain('62.5%')
   })
 
-  it('页脚固定声明写明"参考测评、不是诊断、内容仍在内部审校中"', async () => {
+  it('页脚固定声明写明"参考测评、不是诊断、内容仍在内部审校中"，不露出内部状态码', async () => {
     api.detail = () => ({ status: 200, body: { report: REFERENCE } })
     const { wrapper } = await mountReport()
     const disclaimer = wrapper.find('[data-disclaimer]').text()
     expect(disclaimer).toContain('参考测评')
     expect(disclaimer).toContain('不是心理诊断')
     expect(disclaimer).toContain('内容仍在内部审校中')
-    expect(disclaimer).toContain('draft_review_pending')
+    expect(disclaimer).not.toContain('draft_review_pending')
+    expect(disclaimer).not.toContain('contentStatus')
   })
 })
 
@@ -968,27 +969,46 @@ describe('报告页：过程层（由四字母推导，不是测量）', () => {
   })
 })
 
-describe('报告页：「这份报告是怎么来的」列出过程层的版本', () => {
-  it('过程文案包版本与指纹、过程推导版本都在列表里', async () => {
+describe('报告页：「这份报告是怎么来的」不展示内部版本号', () => {
+  const INTERNAL_TOKENS = [
+    'typeme-jung48-score',
+    'typeme-type-report',
+    'typeme-jung48-zh',
+    'typeme-process-copy',
+    'typeme-jung48-dynamics',
+    'draft_review_pending',
+    'methodology',
+    '/api/v3/catalog',
+    '指纹',
+    'contentStatus',
+  ]
+
+  it('只写人能读的来源与权威口径，不把包 ID、指纹、接口字段名印出来', async () => {
     api.detail = () => ({ status: 200, body: { report: REFERENCE } })
     const { wrapper } = await mountReport()
 
-    const processCopy = wrapper.find('[data-method-process-copy]').text()
-    expect(processCopy).toContain('typeme-process-copy-zh-v1')
-    expect(processCopy).toContain(`指纹 ${'c'.repeat(12)}…`)
-
-    const dynamicsVersion = wrapper.find('[data-method-dynamics-version]').text()
-    expect(dynamicsVersion).toContain('typeme-jung48-dynamics-v1')
+    const method = wrapper.find('#report-method')
+    expect(method.exists()).toBe(true)
+    const text = method.text()
+    expect(text).toContain('十六型人格参考测评')
+    expect(text).toContain('自行撰写')
+    expect(text).toContain('最终结论以这份报告为准')
+    expect(wrapper.find('[data-delete-report]').exists()).toBe(true)
+    for (const token of INTERNAL_TOKENS) {
+      expect(text, `方法节不该出现「${token}」`).not.toContain(token)
+    }
   })
 
-  it('旧快照如实写"没有记录"，不编一个版本号顶上', async () => {
+  it('旧快照同样不露出内部版本占位', async () => {
     api.detail = () => ({ status: 200, body: { report: withoutProcessLayer(REFERENCE) } })
     const { wrapper } = await mountReport()
 
-    expect(wrapper.find('[data-method-process-copy]').text()).toContain('这份快照没有记录')
-    expect(wrapper.find('[data-method-dynamics-version]').text()).toContain('这份快照没有记录')
-    // 既有几行不受影响
-    expect(wrapper.find('[data-method-process-copy]').text()).not.toContain('typeme-process-copy-zh-v1')
+    const text = wrapper.find('#report-method').text()
+    expect(text).toContain('自行撰写')
+    expect(text).not.toContain('这份快照没有记录')
+    for (const token of INTERNAL_TOKENS) {
+      expect(text, `旧快照方法节不该出现「${token}」`).not.toContain(token)
+    }
   })
 })
 

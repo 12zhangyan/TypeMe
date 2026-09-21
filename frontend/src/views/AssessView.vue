@@ -262,10 +262,10 @@ async function bootstrap(): Promise<void> {
     } else if (loadUnrecoverable.value) {
       loadFailure.value =
         loadErrorCode.value === 'PACKAGE_UNAVAILABLE'
-          ? '这次测评用的内容包已经不能用了，所以它没法继续。可以重新开始一次。'
+          ? '这次测评已经下线，没法继续。可以重新开始一次。'
           : loadErrorCode.value === 'FORBIDDEN'
             ? '这份测评不属于当前登录的账号，所以打不开。'
-            : '这份测评在服务端已经不存在了（可能已经被删除，或这个链接不是本机的）。'
+            : '这份测评已经不存在了（可能已经被删除，或这个链接不是本机的）。'
     } else {
       loadFailure.value = error instanceof Error ? error.message : '这份测评没能载入。'
     }

@@ -74,8 +74,10 @@ export function useAdminProbe(): { isAdmin: typeof isAdmin; refresh: () => Promi
  * `cached = true` 会让后台入口出现在普通用户面前；点进去虽然会 403，
  * 但这个入口存在本身就已经泄露了"这台站有后台"（本文件开头写明普通用户根本不该知道）。
  *
- * <p>所有"身份变了"的路径都汇到 `auth` 的 `applyAnonymous` / `applyProfile`，
- * 所以由它们调用；散在页面里写一定会漏（退出、注销、恢复密码、会话过期、换账号各是一条）。
+ * <p>所有"身份变了"的路径都汇到 `auth` 的 `applyAnonymous` / `applyProfile`。
+ * `applyAnonymous` 每次都清；`applyProfile` **只在 userId 变了时清** ——
+ * 同一人改昵称/改密也会 applyProfile，清了就会让顶栏「管理」消失。
+ * 散在页面里写一定会漏（退出、注销、恢复密码、会话过期、换账号各是一条）。
  */
 export function resetAdminProbe(): void {
   inflight = null
