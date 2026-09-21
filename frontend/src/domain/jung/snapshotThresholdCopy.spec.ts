@@ -43,13 +43,25 @@ describe('describeSnapshotThresholds', () => {
     }
   })
 
-  it('scoringVersion 优先于 policyVersion', () => {
+  it('policyVersion 是权威：与 scoringVersion 不一致时仍按政策版本解释', () => {
     const mixed = describeSnapshotThresholds({
       ...V1,
       scoringVersion: 'typeme-jung48-score-v3',
       policyVersion: 'typeme-jung48-score-v1',
     })
-    expect(mixed.boundary).toContain('两边差距不超过 2 就记为略偏')
+    expect(mixed.boundary).toContain('再收紧一档才记为略偏')
+    expect(mixed.boundary).toContain('这份快照不会标成略偏')
+    expect(mixed.boundary).not.toContain('两边差距不超过 2 就记为略偏')
+  })
+
+  it('policyVersion 未知时不拿 scoringVersion 猜公式', () => {
+    const copy = describeSnapshotThresholds({
+      ...V3,
+      policyVersion: 'typeme-jung48-score-v9',
+    })
+    expect(copy.boundary).toContain('按提交当时的规则判定')
+    expect(copy.boundary).not.toContain('两边差距不超过 2 就记为略偏')
+    expect(copy.boundary).not.toContain('再收紧一档')
   })
 
   it('比例跟快照走，不是写死 2/10', () => {
