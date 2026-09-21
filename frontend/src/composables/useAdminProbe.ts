@@ -16,51 +16,76 @@ import { isForbidden, isSessionExpired } from '@/api/v3'
  * `AccountView` 与 `AdminView` 可能在同一次导航里都要问一次（例如从账号页点进去）。
  * 再加一次 `GET /admin/ai-settings` 没有意义，所以这里用模块级 promise 合并飞行中的请求，
  * 并在成功后缓存结果（角色在一次会话里几乎不会变）。
+ *
+ * ## 为什么必须绑世代 / 账号
+ *
+ * `resetAdminProbe()` 只能丢掉 **inflight 引用**，不能取消已经发出去的 HTTP。
+ * 管理员探测还没回来就退出、再登录一个普通账号时：新账号的 403 可能先落地，
+ * 旧的 200 随后写入模块级 `cached` —— 顶栏和账号页会把普通用户标成管理员。
+ * 每次身份变化抬高世代，响应落地前核对世代与 userId，对不上就丢弃。
  */
 
+let generation = 0
+let ownerUserId: string | null = null
 let inflight: Promise<boolean> | null = null
+let inflightGeneration = -1
 let cached: boolean | null = null
 
 const isAdmin = ref(false)
 
-async function probe(): Promise<boolean> {
+function stillCurrent(startedGeneration: number, startedUserId: string | null): boolean {
+  return startedGeneration === generation && startedUserId === ownerUserId
+}
+
+async function probe(startedGeneration: number, startedUserId: string | null): Promise<boolean> {
+  let decided: boolean | null = null
   try {
     await fetchAdminAiSettings()
-    cached = true
+    decided = true
   } catch (error) {
     if (isForbidden(error)) {
-      cached = false
+      decided = false
     } else if (isSessionExpired(error)) {
-      // 会话失效：**不缓存**。这不是"这个账号不是管理员"，而是"这次没问到"。
-      // 缓存 false 的后果是：用户在同一页里重新登录之后，后台入口仍然不出现
-      // （页面不刷新就永远看不到），而本文件的注释一直写着"失败不缓存"（第 17 轮）。
-      isAdmin.value = false
+      if (stillCurrent(startedGeneration, startedUserId)) isAdmin.value = false
       return false
     } else {
-      // 没问到：不缓存，下次再问。
       return false
     }
   }
-  isAdmin.value = cached
-  return cached
+  if (!stillCurrent(startedGeneration, startedUserId) || decided === null) {
+    return false
+  }
+  cached = decided
+  isAdmin.value = decided
+  return decided
 }
 
 /**
  * 问一次（或复用缓存）。返回的 ref 会在有结果后更新，页面直接 `v-if="isAdmin"`。
  *
  * 失败一律当作"没有入口"，但**不缓存失败** —— 后端恢复后刷新页面就能看到入口。
+ * `userId` 用来绑定这次探测属于谁：账号切换后，上一个账号的响应不得写入缓存。
  */
-export function useAdminProbe(): { isAdmin: typeof isAdmin; refresh: () => Promise<boolean> } {
+export function useAdminProbe(): {
+  isAdmin: typeof isAdmin
+  refresh: (userId?: string) => Promise<boolean>
+} {
   return {
     isAdmin,
-    refresh: async () => {
+    refresh: async (userId?: string) => {
+      if (userId !== undefined) ownerUserId = userId
       if (cached !== null) {
         isAdmin.value = cached
         return cached
       }
-      inflight ??= probe().finally(() => {
-        inflight = null
-      })
+      const startedGeneration = generation
+      const startedUserId = ownerUserId
+      if (!inflight || inflightGeneration !== startedGeneration) {
+        inflightGeneration = startedGeneration
+        inflight = probe(startedGeneration, startedUserId).finally(() => {
+          if (inflightGeneration === startedGeneration) inflight = null
+        })
+      }
       return inflight
     },
   }
@@ -78,8 +103,12 @@ export function useAdminProbe(): { isAdmin: typeof isAdmin; refresh: () => Promi
  * `applyAnonymous` 每次都清；`applyProfile` **只在 userId 变了时清** ——
  * 同一人改昵称/改密也会 applyProfile，清了就会让顶栏「管理」消失。
  * 散在页面里写一定会漏（退出、注销、恢复密码、会话过期、换账号各是一条）。
+ *
+ * <p>清缓存会抬高世代：飞行中的旧请求回来时对不上，结果直接丢弃。
  */
 export function resetAdminProbe(): void {
+  generation += 1
+  ownerUserId = null
   inflight = null
   cached = null
   isAdmin.value = false

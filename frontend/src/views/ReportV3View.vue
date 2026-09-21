@@ -371,6 +371,22 @@ const TOC = computed(() => {
   return items
 })
 
+/**
+ * 这份快照自己记下的计分门槛。
+ *
+ * 包 ID、指纹、规则版本号不给普通用户看；但「每维至少几题才计分、略偏按什么比例」
+ * 必须能从这份报告对上号——About 页只讲规则形状、不抄固定数字，数字只属于快照。
+ */
+const methodThresholds = computed(() => {
+  const methodology = view.value?.methodology
+  if (!methodology) return null
+  return {
+    minRatings: methodology.minBaseRatingsPerDimension,
+    numerator: methodology.boundaryNumerator,
+    denominator: methodology.boundaryDenominator,
+  }
+})
+
 /** 目录跳转：滚动 + 把焦点交给目标区块（键盘与读屏用户才不会"跳完不知道到哪了"）。 */
 function jumpToSection(id: string): void {
   const target = document.getElementById(id)
@@ -1133,6 +1149,19 @@ function jumpToSection(id: string): void {
           题目与报告文案为本项目自行撰写；本站
           <strong class="font-medium text-ink">不隶属</strong>
           任何商业人格测评机构，也不是任何机构的官方测评。答题时的即时倾向只作预览，最终结论以这份报告为准。
+        </p>
+        <p
+          v-if="methodThresholds"
+          class="mt-3 text-[13.5px] leading-relaxed text-ink-soft"
+          data-method-thresholds
+        >
+          这份快照按提交当时的规则计分：每个方向至少有
+          <strong class="font-medium text-ink">{{ methodThresholds.minRatings }}</strong>
+          道有效数字答案才会给出倾向。未作答和明确「说不好」都不算。
+          「略偏」按当时记下的比例判定：有效作答每
+          {{ methodThresholds.denominator }} 题，两边差距不超过
+          {{ methodThresholds.numerator }} 就记为略偏；题数不足时按同一比例向下取整。
+          所以略偏不是信息不够，也不是一条对所有题数都相同的分数线。
         </p>
         <div class="mt-4 flex flex-wrap gap-2">
           <RouterLink to="/reports" class="btn-secondary">回到历史报告</RouterLink>

@@ -101,7 +101,8 @@ const { isAdmin, refresh: refreshAdminProbe } = useAdminProbe()
 onMounted(() => {
   auth.clearError()
   nickname.value = profile.value?.nickname ?? ''
-  void refreshAdminProbe()
+  const userId = profile.value?.userId
+  if (userId) void refreshAdminProbe(userId)
 })
 
 /** ISO 时间 → 本地时间；服务端给的时间一律按 UTC 存，展示要按用户时区。 */
