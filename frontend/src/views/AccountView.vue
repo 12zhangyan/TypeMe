@@ -305,6 +305,22 @@ function goHome() {
         {{ auth.sessionNotice }}
       </p>
 
+      <!--
+        管理入口必须在改密 / 导出 / 删除之前：它夹在「删除数据」和「注销账号」中间时，
+        看起来像危险操作，管理员也要滚过一整页个人设置才能进去。
+        默认落到成员与邀请页，AI 设置是次要入口。
+      -->
+      <section v-if="isAdmin" class="notice-info mt-8 max-w-prose" aria-labelledby="account-admin-heading" data-admin-entry>
+        <h2 id="account-admin-heading" class="text-[15.5px] font-semibold text-ink">管理后台</h2>
+        <p class="mt-1.5 text-[14px] leading-relaxed text-ink-soft">
+          成员、邀请码和报告在这里；AI 分析参数在另一页。
+        </p>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <RouterLink to="/admin/members" class="btn-secondary btn-sm" data-admin-entry-link>打开管理后台</RouterLink>
+          <RouterLink to="/admin" class="btn-ghost btn-sm">AI 设置</RouterLink>
+        </div>
+      </section>
+
       <!-- ① 账号信息 -->
       <section class="mt-8" aria-labelledby="account-profile-heading">
         <h2 id="account-profile-heading" class="section-title flex items-center gap-2">
@@ -614,18 +630,6 @@ function goHome() {
           它不在这里删 —— 那属于
           <RouterLink to="/about" class="link">本地记录</RouterLink>，清不清由你决定。
         </p>
-      </section>
-
-      <!-- ⑦ 管理入口：只有确认过是管理员才出现 -->
-      <section v-if="isAdmin" class="section-rule mt-8" aria-labelledby="account-admin-heading" data-admin-entry>
-        <h2 id="account-admin-heading" class="section-title flex items-center gap-2">
-          <AppIcon name="sliders" :size="18" class="text-primary-600" />
-          管理后台
-        </h2>
-        <p class="mt-2 prose-sm max-w-prose">
-          你的账号有管理员权限，可以配置 AI 分析的运行参数、查看账号概览。
-        </p>
-        <RouterLink to="/admin" class="btn-secondary mt-3" data-admin-entry-link>打开管理后台</RouterLink>
       </section>
 
       <!-- ⑥ 注销账号 -->

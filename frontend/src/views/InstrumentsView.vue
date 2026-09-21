@@ -91,8 +91,7 @@ function start(slug: string): void {
       class="notice-neutral mt-6 max-w-prose text-[14px] leading-relaxed"
       data-instruments-empty
     >
-      现在还没有可用的测评。这通常是内容包还没登记到服务端 ——
-      请稍后再试，或到
+      现在还没有可用的测评。请稍后再试，或到
       <RouterLink to="/about" class="link">方法说明</RouterLink>
       看看本站的题目与计分口径。
     </div>

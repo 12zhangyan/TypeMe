@@ -204,43 +204,13 @@ const loginTo = computed(() => ({ name: 'login', query: { redirect: route.fullPa
       </section>
 
       <section class="mt-8 max-w-prose" aria-labelledby="method-versions">
-        <h2 id="method-versions" class="section-title">题目与计分规则版本</h2>
-        <p class="caption mt-1">
-          每份报告都绑定生成时的那一版题目与计分规则，历史报告不会用新版本重算。
+        <h2 id="method-versions" class="section-title">报告怎么对应题目</h2>
+        <p class="mt-3 text-[14.5px] leading-relaxed text-ink-soft" data-method-versions>
+          这项测评目前是 {{ detail.instrument.baseItemCount }} 题<template
+            v-if="detail.instrument.clarificationItemCount > 0"
+          >，最多 {{ detail.instrument.clarificationItemCount }} 道补充题</template>。
+          每份报告都按提交当时的题目与计分规则生成，之后更新不会回头改写旧报告。
         </p>
-        <div class="card mt-3 overflow-x-auto">
-          <table class="w-full min-w-[30rem] border-collapse text-left text-[13.5px]">
-            <caption class="sr-only">这项测评的内容版本</caption>
-            <thead>
-              <tr class="border-b border-line-strong text-[13px] text-ink-soft">
-                <th scope="col" class="py-2 pr-3 font-medium">内容版本</th>
-                <th scope="col" class="py-2 pr-3 font-medium">题数</th>
-                <th scope="col" class="py-2 pr-3 font-medium">计分规则</th>
-                <th scope="col" class="py-2 font-medium">状态</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="version in detail.versions"
-                :key="version.packageId"
-                class="border-b border-line last:border-b-0"
-              >
-                <td class="py-2 pr-3">
-                  <span class="font-mono text-[12.5px]">{{ version.packageId }}</span>
-                  <span v-if="version.isDefault" class="chip chip-primary ml-2">当前默认</span>
-                </td>
-                <td class="py-2 pr-3">
-                  {{ version.baseItemCount }}
-                  <template v-if="version.clarificationItemCount > 0">
-                    + 最多 {{ version.clarificationItemCount }}
-                  </template>
-                </td>
-                <td class="py-2 pr-3 font-mono text-[12px]">{{ version.scoringVersion }}</td>
-                <td class="py-2">{{ statusText(version.contentStatus) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
       </section>
 
       <div class="mt-9 flex flex-wrap items-center gap-2">

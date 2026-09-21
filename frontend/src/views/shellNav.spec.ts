@@ -1,10 +1,13 @@
 // @vitest-environment jsdom
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import { flushPromises, mount } from '@vue/test-utils'
 import App from '@/App.vue'
 import LandingView from '@/views/LandingView.vue'
+import { useAuthStore } from '@/stores/auth'
+import { resetAdminProbeForTests } from '@/composables/useAdminProbe'
+import { V3ApiError } from '@/api/v3'
 
 /**
  * 公共壳（`App.vue`）顶栏导航的守卫。
@@ -24,6 +27,16 @@ import LandingView from '@/views/LandingView.vue'
  * 后者会随实现变动，前者才是用户实际看到的东西。
  */
 
+const fetchAdminAiSettings = vi.fn()
+
+vi.mock('@/api/v3Admin', async () => {
+  const actual = await vi.importActual<typeof import('@/api/v3Admin')>('@/api/v3Admin')
+  return {
+    ...actual,
+    fetchAdminAiSettings: (...args: unknown[]) => fetchAdminAiSettings(...args),
+  }
+})
+
 function makeRouter(): Router {
   return createRouter({
     history: createMemoryHistory(),
@@ -38,6 +51,8 @@ function makeRouter(): Router {
       { path: '/register', name: 'register', component: { template: '<div />' } },
       { path: '/about', name: 'about', component: { template: '<div />' } },
       { path: '/quiz', name: 'quiz', component: { template: '<div />' } },
+      { path: '/admin', name: 'admin', component: { template: '<div />' } },
+      { path: '/admin/members', name: 'admin-members', component: { template: '<div />' } },
     ],
   })
 }
@@ -61,6 +76,9 @@ async function mountApp(path: string) {
 
 beforeEach(() => {
   setActivePinia(createPinia())
+  resetAdminProbeForTests()
+  fetchAdminAiSettings.mockReset()
+  fetchAdminAiSettings.mockRejectedValue(new Error('not probed in this case'))
   localStorage.clear()
 })
 
@@ -88,5 +106,90 @@ describe('顶栏导航（App.vue）', () => {
     const { wrapper } = await mountApp('/about')
     expect(navLinksTo(wrapper, '/login')).toHaveLength(1)
     expect(navLinksTo(wrapper, '/register')).toHaveLength(1)
+  })
+
+  it('未登录时顶栏没有「管理」', async () => {
+    const { wrapper } = await mountApp('/about')
+    expect(wrapper.find('[data-admin-nav]').exists()).toBe(false)
+    expect(navLinksTo(wrapper, '/admin/members')).toHaveLength(0)
+  })
+
+  it('管理员登录后顶栏有恰好一个「管理」，指向成员页', async () => {
+    fetchAdminAiSettings.mockResolvedValue({ enabled: true, mockMode: true })
+    const auth = useAuthStore()
+    auth.status = 'authenticated'
+    auth.profile = {
+      userId: 'u1',
+      username: 'admin',
+      nickname: null,
+      createdAt: '2026-09-17T00:00:00Z',
+      passwordChangedAt: null,
+    }
+    const { wrapper } = await mountApp('/about')
+    await flushPromises()
+    const links = navLinksTo(wrapper, '/admin/members')
+    expect(links).toHaveLength(1)
+    expect(links[0]!.text()).toBe('管理')
+  })
+
+  it('同一账号更新资料后顶栏「管理」仍在，且不再打探测', async () => {
+    fetchAdminAiSettings.mockResolvedValue({ enabled: true, mockMode: true })
+    const auth = useAuthStore()
+    auth.status = 'authenticated'
+    auth.profile = {
+      userId: 'u1',
+      username: 'admin',
+      nickname: null,
+      createdAt: '2026-09-17T00:00:00Z',
+      passwordChangedAt: null,
+    }
+    const { wrapper } = await mountApp('/about')
+    await flushPromises()
+    expect(navLinksTo(wrapper, '/admin/members')).toHaveLength(1)
+    expect(fetchAdminAiSettings).toHaveBeenCalledTimes(1)
+
+    auth.applyProfile({
+      userId: 'u1',
+      username: 'admin',
+      nickname: '新昵称',
+      createdAt: '2026-09-17T00:00:00Z',
+      passwordChangedAt: null,
+    })
+    await flushPromises()
+    expect(navLinksTo(wrapper, '/admin/members')).toHaveLength(1)
+    expect(fetchAdminAiSettings, '改昵称不该让管理入口消失或再探一次').toHaveBeenCalledTimes(1)
+  })
+
+  it('已登录时换成另一个账号：顶栏按新账号重新探测', async () => {
+    fetchAdminAiSettings.mockResolvedValue({ enabled: true, mockMode: true })
+    const auth = useAuthStore()
+    auth.status = 'authenticated'
+    auth.profile = {
+      userId: 'u1',
+      username: 'admin',
+      nickname: null,
+      createdAt: '2026-09-17T00:00:00Z',
+      passwordChangedAt: null,
+    }
+    const { wrapper } = await mountApp('/about')
+    await flushPromises()
+    expect(navLinksTo(wrapper, '/admin/members')).toHaveLength(1)
+
+    fetchAdminAiSettings.mockRejectedValue(
+      new V3ApiError(
+        { code: 'FORBIDDEN', message: '需要更高的权限', requestId: 'rq-9', details: {} },
+        { status: 403 },
+      ),
+    )
+    auth.applyProfile({
+      userId: 'u2',
+      username: 'normal',
+      nickname: null,
+      createdAt: '2026-09-18T00:00:00Z',
+      passwordChangedAt: null,
+    })
+    await flushPromises()
+    expect(wrapper.find('[data-admin-nav]').exists()).toBe(false)
+    expect(fetchAdminAiSettings).toHaveBeenCalledTimes(2)
   })
 })

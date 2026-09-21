@@ -256,12 +256,13 @@ describe('页面上的其它事实', () => {
     expect(text).not.toContain('draft_review_pending')
   })
 
-  it('版本表标出"当前默认"', async () => {
+  it('不把内部包 ID 或计分版本号给普通用户看', async () => {
     const wrapper = await mountMethod('/instruments/bigfive50/method')
-    const rows = wrapper.findAll('table tbody tr')
-    expect(rows).toHaveLength(1)
-    expect(rows[0]!.text()).toContain('当前默认')
-    // 包 ID 是给排障用的，但它必须与"哪一版是默认"分开呈现
-    expect(rows[0]!.text()).toContain('typeme-bigfive50-zh-v1')
+    const text = wrapper.text()
+    expect(wrapper.find('[data-method-versions]').text()).toContain('按提交当时的题目与计分规则生成')
+    expect(text).not.toContain('typeme-bigfive50-zh-v1')
+    expect(text).not.toContain('typeme-bigfive50-score-v1')
+    expect(text).not.toContain('当前默认')
+    expect(wrapper.find('table').exists()).toBe(false)
   })
 })

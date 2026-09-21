@@ -41,6 +41,7 @@ function makeRouter(): Router {
       { path: '/', name: 'landing', component: { template: '<div />' } },
       { path: '/account', name: 'account', component: AccountView },
       { path: '/admin', name: 'admin', component: { template: '<div />' } },
+      { path: '/admin/members', name: 'admin-members', component: { template: '<div />' } },
     ],
   })
 }
@@ -74,7 +75,7 @@ describe('账号页 · 管理后台入口', () => {
     fetchAdminAiSettings.mockReset()
   })
 
-  it('服务端回 200 → 显示入口，链接指向 /admin', async () => {
+  it('服务端回 200 → 显示入口，链接指向成员页，且不夹在删除/注销中间', async () => {
     fetchAdminAiSettings.mockResolvedValue({ enabled: true, mockMode: true })
     const wrapper = await mountAccount()
     await flushPromises()
@@ -84,8 +85,16 @@ describe('账号页 · 管理后台入口', () => {
     // RouterLink 渲染的是路由路径本身；hash 前缀（`#`）是 createWebHashHistory 在
     // 浏览器地址栏层面加的，不在 `href` 里。这里断言路径，别断言 `#/admin`。
     const link = entry.find('[data-admin-entry-link]')
-    expect(link.attributes('href')).toBe('/admin')
+    expect(link.attributes('href')).toBe('/admin/members')
     expect(link.text()).toContain('打开管理后台')
+
+    const html = wrapper.html()
+    const adminAt = html.indexOf('data-admin-entry')
+    const deleteAt = html.indexOf('account-delete-data-heading')
+    const logoutAt = html.indexOf('account-delete-heading')
+    expect(adminAt).toBeGreaterThan(0)
+    expect(adminAt, '管理入口要在删除数据之前').toBeLessThan(deleteAt)
+    expect(adminAt, '管理入口要在注销账号之前').toBeLessThan(logoutAt)
   })
 
   it('服务端回 403 → 不显示入口，且账号页其它内容照常显示', async () => {
@@ -171,5 +180,25 @@ describe('账号页 · 管理后台入口', () => {
     const isAdmin = await refresh()
     expect(isAdmin, '不能把上一个账号的"是管理员"留给下一个登录的人').toBe(false)
     expect(fetchAdminAiSettings, '身份变了必须重新问一次，而不是复用缓存').toHaveBeenCalledTimes(2)
+  })
+
+  it('同一账号保存资料（applyProfile 同一 userId）不会清掉管理入口', async () => {
+    fetchAdminAiSettings.mockResolvedValue({ enabled: true, mockMode: true })
+    const wrapper = await mountAccount()
+    await flushPromises()
+    expect(wrapper.find('[data-admin-entry]').exists()).toBe(true)
+    expect(fetchAdminAiSettings).toHaveBeenCalledTimes(1)
+
+    useAuthStore().applyProfile({
+      userId: 'u1',
+      username: 'someone',
+      nickname: '新昵称',
+      createdAt: '2026-09-17T00:00:00Z',
+      passwordChangedAt: null,
+    })
+    await flushPromises()
+
+    expect(wrapper.find('[data-admin-entry]').exists()).toBe(true)
+    expect(fetchAdminAiSettings, '同一人改资料不该再打一次后台探测').toHaveBeenCalledTimes(1)
   })
 })
