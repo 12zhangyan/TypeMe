@@ -21,8 +21,8 @@ import java.util.Optional;
  *
  * <p>几个刻意的选择：
  * <ul>
- *   <li>{@code status} 用 UUID v7 风格的 {@code lease_owner} 标识进程/实例，而不是内存计数器；
- *       多实例部署时 lease 必须能被别的实例看见（这就是"不要用内存信号量代替持久化 lease"）。</li>
+ *   <li>{@code lease_owner} 标识一次执行，每次认领均换新；写回必须携带原认领标识，
+ *       防止过期执行覆盖同一任务的新一轮重试。</li>
  *   <li>所有时间戳由 {@link AiClock} 产生（UTC {@code LocalDateTime}），SQL 里不出现 {@code NOW()}：
  *       MySQL 与 H2 的 NOW() 语义不同，而测试必须能推进时间。</li>
  * </ul>
@@ -159,63 +159,64 @@ public class AnalysisJobRepository {
     public boolean claim(String jobId, String leaseOwner, Instant leaseUntil) {
         int updated = jdbcTemplate.update("""
                 UPDATE ai_analysis_job
-                   SET status = 'RUNNING', lease_owner = ?, lease_until = ?, attempt_count = attempt_count + 1
+                   SET status = 'RUNNING', lease_owner = ?, lease_until = ?, attempt_count = attempt_count + 1,
+                       requested_at = NULL
                  WHERE id = ? AND status = 'QUEUED'
                 """, leaseOwner, ts(AiClock.toUtc(leaseUntil)), jobId);
         return updated == 1;
     }
 
     /** 发出上游请求**之前**写 requested_at：此后任何崩溃都必须按"结果未知"处理。 */
-    public boolean markRequested(String jobId, Instant requestedAt) {
+    public boolean markRequested(String jobId, String executionOwner, Instant requestedAt) {
         int updated = jdbcTemplate.update("""
                 UPDATE ai_analysis_job SET requested_at = ?
-                 WHERE id = ? AND status = 'RUNNING'
-                """, ts(AiClock.toUtc(requestedAt)), jobId);
+                 WHERE id = ? AND status = 'RUNNING' AND lease_owner = ? AND lease_until > ?
+                """, ts(AiClock.toUtc(requestedAt)), jobId, executionOwner, ts(AiClock.toUtc(requestedAt)));
         return updated == 1;
     }
 
-    /** 写回成功结果：条件里带 status='RUNNING'，避免覆盖被取消/被恢复逻辑改过的行。 */
-    public boolean markSucceeded(String jobId, String responseJson, String usageJson,
+    /** 写回成功结果：状态与执行标识同时匹配，避免旧执行覆盖新一轮重试。 */
+    public boolean markSucceeded(String jobId, String executionOwner, String responseJson, String usageJson,
                                 String modelReturned, Instant finishedAt) {
         int updated = jdbcTemplate.update("""
                 UPDATE ai_analysis_job
                    SET status = 'SUCCEEDED', response_json = ?, usage_json = ?, model_returned = ?,
                        error_code = NULL, finished_at = ?, lease_owner = NULL, lease_until = NULL
-                 WHERE id = ? AND status = 'RUNNING'
-                """, responseJson, usageJson, modelReturned, ts(AiClock.toUtc(finishedAt)), jobId);
+                 WHERE id = ? AND status = 'RUNNING' AND lease_owner = ?
+                """, responseJson, usageJson, modelReturned, ts(AiClock.toUtc(finishedAt)), jobId, executionOwner);
         return updated == 1;
     }
 
     /** 写回明确失败（含校验失败）：这些错误不自动重试，用户可主动重试。 */
-    public boolean markFailed(String jobId, String errorCode, String message, Instant finishedAt) {
+    public boolean markFailed(String jobId, String executionOwner, String errorCode, String message, Instant finishedAt) {
         int updated = jdbcTemplate.update("""
                 UPDATE ai_analysis_job
                    SET status = 'FAILED', error_code = ?, usage_json = ?, finished_at = ?,
                        lease_owner = NULL, lease_until = NULL
-                 WHERE id = ? AND status = 'RUNNING'
-                """, errorCode, message, ts(AiClock.toUtc(finishedAt)), jobId);
+                 WHERE id = ? AND status = 'RUNNING' AND lease_owner = ?
+                """, errorCode, message, ts(AiClock.toUtc(finishedAt)), jobId, executionOwner);
         return updated == 1;
     }
 
     /** 执行状态未知（超时/断流/5xx）：保留 requested_at 与预算预留，绝不自动重发。 */
-    public boolean markUnknown(String jobId, String errorCode, String message, Instant finishedAt) {
+    public boolean markUnknown(String jobId, String executionOwner, String errorCode, String message, Instant finishedAt) {
         int updated = jdbcTemplate.update("""
                 UPDATE ai_analysis_job
                    SET status = 'UNKNOWN', error_code = ?, usage_json = ?, finished_at = ?,
                        lease_owner = NULL, lease_until = NULL
-                 WHERE id = ? AND status = 'RUNNING'
-                """, errorCode, message, ts(AiClock.toUtc(finishedAt)), jobId);
+                 WHERE id = ? AND status = 'RUNNING' AND lease_owner = ?
+                """, errorCode, message, ts(AiClock.toUtc(finishedAt)), jobId, executionOwner);
         return updated == 1;
     }
 
     /** 报告/账号已不存在：晚到结果必须被丢弃（不重建已删数据）。 */
-    public boolean markCancelled(String jobId, String reason, Instant finishedAt) {
+    public boolean markCancelled(String jobId, String executionOwner, String reason, Instant finishedAt) {
         int updated = jdbcTemplate.update("""
                 UPDATE ai_analysis_job
                    SET status = 'CANCELLED', error_code = COALESCE(error_code, ?), finished_at = ?,
                        lease_owner = NULL, lease_until = NULL
-                 WHERE id = ? AND status IN ('RUNNING', 'QUEUED')
-                """, reason, ts(AiClock.toUtc(finishedAt)), jobId);
+                 WHERE id = ? AND status = 'RUNNING' AND lease_owner = ?
+                """, reason, ts(AiClock.toUtc(finishedAt)), jobId, executionOwner);
         return updated == 1;
     }
 
@@ -248,13 +249,13 @@ public class AnalysisJobRepository {
      * <p>{@code error_code} 被用作标记位（V4 已外发，不加列）：值为 {@code UPSTREAM_429} 表示
      * "这一行已经用过自动重试"，下一次 429 直接判失败。
      */
-    public boolean requeueRunningAfterBackoff(String jobId, String marker, Instant nextRunAt) {
+    public boolean requeueRunningAfterBackoff(String jobId, String executionOwner, String marker, Instant nextRunAt) {
         int updated = jdbcTemplate.update("""
                 UPDATE ai_analysis_job
                    SET status = 'QUEUED', next_run_at = ?, error_code = ?, finished_at = NULL,
                        lease_owner = NULL, lease_until = NULL
-                 WHERE id = ? AND status = 'RUNNING'
-                """, ts(AiClock.toUtc(nextRunAt)), marker, jobId);
+                 WHERE id = ? AND status = 'RUNNING' AND lease_owner = ?
+                """, ts(AiClock.toUtc(nextRunAt)), marker, jobId, executionOwner);
         return updated == 1;
     }
 

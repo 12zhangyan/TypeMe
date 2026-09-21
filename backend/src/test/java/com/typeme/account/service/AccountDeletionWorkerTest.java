@@ -42,6 +42,11 @@ class AccountDeletionWorkerTest {
         }
 
         @Override
+        public java.util.Optional<DeletionJobRecord> findByIdForUpdate(String id) {
+            return java.util.Optional.of(job());
+        }
+
+        @Override
         public void markRunning(String id) {
             runningCount += 1;
         }
@@ -68,7 +73,10 @@ class AccountDeletionWorkerTest {
             }
         };
         // 第一个参数是 AccountService；processOne 不碰它。
-        return new AccountDeletionService(null, dataDeletion, jobs);
+        var transactions = org.mockito.Mockito.mock(org.springframework.transaction.PlatformTransactionManager.class);
+        org.mockito.Mockito.when(transactions.getTransaction(org.mockito.ArgumentMatchers.any()))
+                .thenReturn(new org.springframework.transaction.support.SimpleTransactionStatus());
+        return new AccountDeletionService(null, dataDeletion, jobs, transactions);
     }
 
     @Test

@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
 import java.util.List;
@@ -33,13 +35,16 @@ public class AccountDeletionService {
     private final AccountService accountService;
     private final AccountDataDeletionService dataDeletion;
     private final DeletionJobRepository jobs;
+    private final TransactionTemplate transaction;
 
     public AccountDeletionService(AccountService accountService,
                                   AccountDataDeletionService dataDeletion,
-                                  DeletionJobRepository jobs) {
+                                  DeletionJobRepository jobs,
+                                  PlatformTransactionManager transactionManager) {
         this.accountService = accountService;
         this.dataDeletion = dataDeletion;
         this.jobs = jobs;
+        this.transaction = new TransactionTemplate(transactionManager);
     }
 
     /**
@@ -89,10 +94,14 @@ public class AccountDeletionService {
      */
     void processOne(DeletionJobRecord job) {
         try {
-            jobs.markRunning(job.id());
-            dataDeletion.cleanup(job.userId());
-            jobs.markDone(job.id(), Instant.now());
-            log.info("account deletion job done attempts={}", job.attemptCount() + 1);
+            transaction.executeWithoutResult(status -> {
+                DeletionJobRecord current = jobs.findByIdForUpdate(job.id()).orElse(null);
+                if (current == null || "DONE".equals(current.status())) return;
+                // RUNNING、清理和 DONE 原子提交；进程中断会回滚，旧版遗留 RUNNING 也可重入。
+                jobs.markRunning(current.id());
+                dataDeletion.cleanup(current.userId());
+                jobs.markDone(current.id(), Instant.now());
+            });
         } catch (RuntimeException ex) {
             // 只记异常类型与任务 id：清理过程中经手的是个人数据，异常消息可能带上这些内容。
             log.error("account deletion job failed jobId={} exception={}", job.id(), ex.getClass().getName());

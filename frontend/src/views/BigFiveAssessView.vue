@@ -121,6 +121,7 @@ onBeforeUnmount(() => {
 /* ── 作答 ───────────────────────────────────────────────────────────────── */
 
 function choose(rating: number): void {
+  if (store.submitting || isSubmitted.value || store.conflict) return
   const item = current.value
   if (!item) return
   store.setAnswer(item.id, 'RATING', rating)
@@ -129,6 +130,7 @@ function choose(rating: number): void {
 }
 
 function chooseUnknown(): void {
+  if (store.submitting || isSubmitted.value || store.conflict) return
   const item = current.value
   if (!item) return
   if (isUnknown.value) {
@@ -142,6 +144,7 @@ function chooseUnknown(): void {
 }
 
 async function go(delta: number): Promise<void> {
+  if (store.saving || store.submitting) return
   const next = index.value + delta
   if (next < 0 || next >= items.value.length) return
   // 换题时顺手保存：这是最自然的自动保存时机，且不需要额外的定时器。
@@ -151,6 +154,7 @@ async function go(delta: number): Promise<void> {
 }
 
 async function jumpTo(index2: number): Promise<void> {
+  if (store.saving || store.submitting) return
   if (index2 === index.value) return
   await flush(true)
   index.value = index2
@@ -218,6 +222,7 @@ async function submit(): Promise<void> {
  * 会被截断，而"会丢多少条"正是用户判断的依据。
  */
 onBeforeRouteLeave(async () => {
+  if (store.submitting) return false
   if (!attempt.value || isSubmitted.value) return true
   if (store.unsavedCount === 0 && !store.conflict) {
     // 没有未保存的改动，但仍记一下"做到哪一题"，方便下次继续。
@@ -366,6 +371,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
         <div id="bigfive-question" class="mt-4">
           <LikertScale
             :model-value="currentRating"
+            :disabled="store.submitting || store.conflict || isSubmitted"
             format="agreement"
             :statement="current.statement ?? ''"
             :anchors="BIG_FIVE_ANCHORS as unknown as string[]"
@@ -385,6 +391,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
             class="btn-ghost btn-sm"
             :aria-pressed="isUnknown"
             data-bigfive-unknown
+            :disabled="store.submitting || store.conflict || isSubmitted"
             @click="chooseUnknown"
           >
             <AppIcon :name="isUnknown ? 'check' : 'question'" :size="16" />
@@ -408,7 +415,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
         <button
           type="button"
           class="btn-secondary btn-sm"
-          :disabled="index === 0"
+          :disabled="index === 0 || store.saving || store.submitting"
           data-bigfive-prev
           @click="go(-1)"
         >
@@ -417,7 +424,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
         <button
           type="button"
           class="btn-primary btn-sm"
-          :disabled="index >= totalCount - 1"
+          :disabled="index >= totalCount - 1 || store.saving || store.submitting"
           data-bigfive-next
           @click="go(1)"
         >
@@ -443,6 +450,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
               ]"
               :aria-label="`第 ${itemIndex + 1} 题${store.answers[item.id] ? '，已处理' : '，未处理'}`"
               :aria-current="itemIndex === index ? 'true' : undefined"
+              :disabled="store.saving || store.submitting"
               @click="jumpTo(itemIndex)"
             >
               {{ itemIndex + 1 }}
