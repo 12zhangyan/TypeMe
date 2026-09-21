@@ -179,28 +179,32 @@ public class AnalysisWorker {
     public void execute(AnalysisJobRepository.JobRow candidate) {
         AiRuntimeSettings settings = settingsProvider.settings();
         Instant now = clock.now();
-        if (!jobs.claim(candidate.id(), leaseOwnerId, now.plus(settings.leaseDuration()))) {
+        // 每轮认领都有独立标识，包括同一实例上的重试；限制在现有 VARCHAR(64) 内。
+        String executionOwner = leaseOwnerId.substring(0, Math.min(27, leaseOwnerId.length()))
+                + "-" + UUID.randomUUID();
+        if (!jobs.claim(candidate.id(), executionOwner, now.plus(settings.leaseDuration()))) {
             return;
         }
         String jobId = candidate.id();
         try {
-            runClaimed(jobId, candidate.topic(), settings, now);
+            runClaimed(jobId, executionOwner, candidate.topic(), settings, now);
         } catch (DeepSeekException ex) {
-            handleUpstreamFailure(jobId, candidate, ex);
+            handleUpstreamFailure(jobId, executionOwner, candidate, ex);
         } catch (AnalysisValidationException ex) {
             // 明确失败：内容不合法/被截断/类型不符……不自动重试（重试大概率又付一次钱拿到同样的坏输出）。
-            finishFailed(jobId, ex.errorCode(), ex.getMessage());
+            finishFailed(jobId, executionOwner, ex.errorCode(), ex.getMessage());
         } catch (RuntimeException ex) {
             // 未预期异常：不确定成本，但确定没拿到结果。保守起见不释放预留，状态记 UNKNOWN 等用户决定。
             log.error("AI 任务 {} 执行时出现未预期异常", jobId, ex);
-            finishUnknown(jobId, DeepSeekException.Codes.UPSTREAM_5XX, ex.toString());
+            finishUnknown(jobId, executionOwner, DeepSeekException.Codes.UPSTREAM_5XX, ex.toString());
         }
     }
 
-    private void runClaimed(String jobId, String topicToken, AiRuntimeSettings settings, Instant startedAt) {
+    private void runClaimed(String jobId, String executionOwner, String topicToken, AiRuntimeSettings settings, Instant startedAt) {
 
         AnalysisJobRepository.JobRow row = jobs.findById(jobId)
                 .orElseThrow(() -> new IllegalStateException("任务刚认领就消失了：" + jobId));
+        if (!executionOwner.equals(row.leaseOwner()) || !"RUNNING".equals(row.status())) return;
 
         AiTopic topic;
         try {
@@ -212,12 +216,12 @@ public class AnalysisWorker {
         // 先做"报告/账号是否还在"的检查，再构造输入：构造输入本身要读报告，
         // 报告已删时它会抛异常，从而把"报告被删"误记成 UNKNOWN（未预期异常）而不是"丢弃"。
         if (snapshots.find(row.reportId()).isEmpty()) {
-            discardLateResult(jobId, row.userId(), "报告已删除，丢弃结果", false);
+            discardLateResult(jobId, executionOwner, row.userId(), "报告已删除，丢弃结果", false);
             return;
         }
         UserLocator.UserState userState = userLocator.locate(row.userId());
         if (userState == UserLocator.UserState.INACTIVE || userState == UserLocator.UserState.ABSENT) {
-            discardLateResult(jobId, row.userId(), "账号已注销/停用，丢弃结果", false);
+            discardLateResult(jobId, executionOwner, row.userId(), "账号已注销/停用，丢弃结果", false);
             return;
         }
 
@@ -227,7 +231,7 @@ public class AnalysisWorker {
         // 写 requested_at（事务 2）：**紧接着真正的外发动作**。
         // 放在这里而不是认领之后，是为了让它的含义精确等于"请求已经可能到达上游"：
         // 若在上面任何一步退出，requested_at 仍为 NULL，lease 过期后可以安全重排而不是判 UNKNOWN。
-        jobs.markRequested(jobId, clock.now());
+        if (!jobs.markRequested(jobId, executionOwner, clock.now())) return;
 
         // 外部 HTTP 调用：**无事务**。
         DeepSeekResponse response = client.complete(DeepSeekRequest.of(
@@ -252,18 +256,18 @@ public class AnalysisWorker {
 
         // 又一道"晚到结果"的闸门：写回前确认 job 没被取消、报告还在。
         AnalysisJobRepository.JobRow latest = jobs.findById(jobId).orElse(null);
-        if (latest == null || !"RUNNING".equals(latest.status())) {
+        if (latest == null || !"RUNNING".equals(latest.status()) || !executionOwner.equals(latest.leaseOwner())) {
             log.warn("AI 任务 {} 在写回前状态已变为 {}，丢弃本次结果（不重建已删数据）。",
                     jobId, latest == null ? "缺失" : latest.status());
             return;
         }
         if (snapshots.find(row.reportId()).isEmpty()) {
-            discardLateResult(jobId, row.userId(), "报告已删除，丢弃结果", true);
+            discardLateResult(jobId, executionOwner, row.userId(), "报告已删除，丢弃结果", true);
             return;
         }
 
         String usageJson = usageJson(usage, client.mock());
-        if (!jobs.markSucceeded(jobId, result.toJson(), usageJson,
+        if (!jobs.markSucceeded(jobId, executionOwner, result.toJson(), usageJson,
                 response.modelReturned() == null ? row.modelRequested() : response.modelReturned(), clock.now())) {
             log.warn("AI 任务 {} 写回结果时状态已被改动，结果被丢弃。", jobId);
         } else {
@@ -275,24 +279,22 @@ public class AnalysisWorker {
 
     /* ── 失败分类 ───────────────────────────────────────────────────────── */
 
-    private void handleUpstreamFailure(String jobId, AnalysisJobRepository.JobRow candidate, DeepSeekException ex) {
+    private void handleUpstreamFailure(String jobId, String executionOwner, AnalysisJobRepository.JobRow candidate, DeepSeekException ex) {
         String code = ex.errorCode();
         if (ex.billableUnknown()) {
             // 超时/断流/5xx：上游可能已经执行并计费 → 保留预留，状态 UNKNOWN，绝不自动重发。
-            finishUnknown(jobId, code, ex.getMessage());
+            finishUnknown(jobId, executionOwner, code, ex.getMessage());
             return;
         }
         if (DeepSeekException.Codes.UPSTREAM_429.equals(code) && !alreadyAutoRetried(jobId)) {
             // 429：最多自动重试一次，退避时间尊重 Retry-After。
             Duration delay = ex.retryAfter() == null ? DEFAULT_RETRY_AFTER : ex.retryAfter();
-            releaseReservation(candidate.userId());
-            requeueAfter(jobId, delay);
+            if (requeueAfter(jobId, executionOwner, delay)) releaseReservation(candidate.userId());
             log.info("AI 任务 {} 命中 429，{} 秒后自动重试一次。", jobId, delay.toSeconds());
             return;
         }
         // 其余明确失败（401/402/其它 4xx/再次 429）：不自动重试，用户可主动重试。
-        releaseReservation(candidate.userId());
-        finishFailed(jobId, code, ex.getMessage());
+        if (finishFailed(jobId, executionOwner, code, ex.getMessage())) releaseReservation(candidate.userId());
     }
 
     private boolean alreadyAutoRetried(String jobId) {
@@ -310,21 +312,25 @@ public class AnalysisWorker {
      * <p>注意起点是 **RUNNING**（429 是在执行中收到的），不是 FAILED：
      * 用只认 FAILED/UNKNOWN 的 requeue 必然 0 行命中，自动重试会静默失效。
      */
-    private void requeueAfter(String jobId, Duration delay) {
+    private boolean requeueAfter(String jobId, String executionOwner, Duration delay) {
         Instant runAt = clock.now().plus(delay);
-        if (!jobs.requeueRunningAfterBackoff(jobId, AUTO_RETRY_MARKER, runAt)) {
+        if (!jobs.requeueRunningAfterBackoff(jobId, executionOwner, AUTO_RETRY_MARKER, runAt)) {
             log.warn("AI 任务 {} 不在 RUNNING，429 自动重试未生效（可能已被取消或恢复逻辑处理）。", jobId);
+            return false;
         }
+        return true;
     }
 
-    private void finishFailed(String jobId, String errorCode, String message) {
-        if (!jobs.markFailed(jobId, errorCode, message, clock.now())) {
+    private boolean finishFailed(String jobId, String executionOwner, String errorCode, String message) {
+        if (!jobs.markFailed(jobId, executionOwner, errorCode, message, clock.now())) {
             log.debug("AI 任务 {} 已是终态，失败回写被忽略（code={}）。", jobId, errorCode);
+            return false;
         }
+        return true;
     }
 
-    private void finishUnknown(String jobId, String errorCode, String message) {
-        if (!jobs.markUnknown(jobId, errorCode, message, clock.now())) {
+    private void finishUnknown(String jobId, String executionOwner, String errorCode, String message) {
+        if (!jobs.markUnknown(jobId, executionOwner, errorCode, message, clock.now())) {
             log.debug("AI 任务 {} 已是终态，UNKNOWN 回写被忽略（code={}）。", jobId, errorCode);
         }
     }
@@ -337,9 +343,9 @@ public class AnalysisWorker {
      * 而**还没发出**就放弃的（{@code sent=false}）必须把预留还回去，
      * 否则用户会因为"删了一份报告"而白白少一次当日额度。
      */
-    private void discardLateResult(String jobId, String userId, String reason, boolean sent) {
-        jobs.markCancelled(jobId, "CANCELLED", clock.now());
-        if (!sent) {
+    private void discardLateResult(String jobId, String executionOwner, String userId, String reason, boolean sent) {
+        boolean cancelled = jobs.markCancelled(jobId, executionOwner, "CANCELLED", clock.now());
+        if (cancelled && !sent) {
             releaseReservation(userId);
         }
         log.info("AI 任务 {} 结果被丢弃（sent={}）：{}", jobId, sent, reason);

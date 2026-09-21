@@ -318,7 +318,7 @@ public class AttemptService {
     public JungDtos.PatchAnswersResponse patchAnswers(
             String userId, String attemptId, JungDtos.PatchAnswersRequest request) {
 
-        Map<String, Object> row = requireRow(userId, attemptId);
+        Map<String, Object> row = requireRowForUpdate(userId, attemptId);
         if ("SUBMITTED".equals(row.get("status"))) {
             throw new JungApiException("ATTEMPT_SUBMITTED", 409,
                     "这份测评已经提交，报告不可修改。想改答案请从旧报告派生一份新的测评。");
@@ -416,7 +416,7 @@ public class AttemptService {
 
         long newRevision = currentRevision + 1;
         LocalDateTime now = time.nowUtc();
-        jdbc.update("""
+        int affected = jdbc.update("""
                 UPDATE assessment_attempt
                    SET revision = ?, current_question_id = COALESCE(?, current_question_id),
                        updated_at = ?, status = ?
@@ -430,11 +430,8 @@ public class AttemptService {
                 userId,
                 currentRevision);
 
-        // 上面的 UPDATE 带 revision 条件；受影响 0 行说明并发插入抢先，按冲突返回
-        Integer affected = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM assessment_attempt WHERE id = ? AND revision = ?",
-                Integer.class, attemptId, newRevision);
-        if (affected == null || affected == 0) {
+        // 必须检查本次 UPDATE 的结果，不能把别人的新版本当作本次写入成功。
+        if (affected != 1) {
             throw JungApiException.conflict("另一台设备已经更新了这份草稿，请先读取最新版本再合并。",
                     Map.of("currentRevision", currentRevision));
         }
@@ -458,7 +455,7 @@ public class AttemptService {
      */
     @Transactional
     public JungDtos.ReviewResponse review(String userId, String attemptId) {
-        Map<String, Object> row = requireRow(userId, attemptId);
+        Map<String, Object> row = requireRowForUpdate(userId, attemptId);
         if ("SUBMITTED".equals(row.get("status"))) {
             throw new JungApiException("ATTEMPT_SUBMITTED", 409, "这份测评已经提交。");
         }
@@ -513,7 +510,7 @@ public class AttemptService {
 
     @Transactional
     public void deleteDraft(String userId, String attemptId) {
-        Map<String, Object> row = requireRow(userId, attemptId);
+        Map<String, Object> row = requireRowForUpdate(userId, attemptId);
         if ("SUBMITTED".equals(row.get("status"))) {
             throw new JungApiException("ATTEMPT_SUBMITTED", 409,
                     "已提交的测评不能删除。要删除已生成的报告，请使用报告删除入口。");
@@ -532,12 +529,21 @@ public class AttemptService {
      * 各自复制的 owner 校验只要有一处漏掉 {@code user_id} 就是越权。
      */
     public Map<String, Object> requireRow(String userId, String attemptId) {
+        return requireRow(userId, attemptId, false);
+    }
+
+    /** 写流程必须在事务内调用：同一草稿的读答案、改答案和提交共用这把行锁。 */
+    public Map<String, Object> requireRowForUpdate(String userId, String attemptId) {
+        return requireRow(userId, attemptId, true);
+    }
+
+    private Map<String, Object> requireRow(String userId, String attemptId, boolean lock) {
         List<Map<String, Object>> rows = jdbc.queryForList("""
                 SELECT id, user_id, package_id, status, revision, current_question_id,
                        clarification_dimensions, clarification_skipped, base_attempt_id,
                        started_at, updated_at, submitted_at
                   FROM assessment_attempt WHERE id = ? AND user_id = ?
-                """, attemptId, userId);
+                """ + (lock ? " FOR UPDATE" : ""), attemptId, userId);
         if (rows.isEmpty()) {
             throw JungApiException.notFound("这份测评");
         }

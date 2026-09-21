@@ -165,6 +165,7 @@ public final class PlatformDtos {
             List<ResponseInput> responses) {
     }
 
+    /** RATING / UNKNOWN 写入作答；CLEAR 删除作答（rating 必须为空），不作为持久化答案种类。 */
     public record ResponseInput(String questionId, String kind, Integer rating) {
     }
 

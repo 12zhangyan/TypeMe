@@ -86,9 +86,15 @@ public class DeletionJobRepository {
                 .stream().findFirst();
     }
 
+    /** 与清理和完成标记共用事务；另一个 worker 等待后必须重新检查 DONE。 */
+    public Optional<DeletionJobRecord> findByIdForUpdate(String id) {
+        return jdbc.query("SELECT " + COLUMNS + " FROM account_deletion_job WHERE id = ? FOR UPDATE",
+                MAPPER, id).stream().findFirst();
+    }
+
     /** worker 取一批待处理任务；按申请时间先到先服务。 */
     public List<DeletionJobRecord> findPending(int limit) {
-        return jdbc.query("SELECT " + COLUMNS + " FROM account_deletion_job WHERE status IN ('PENDING', 'FAILED') "
+        return jdbc.query("SELECT " + COLUMNS + " FROM account_deletion_job WHERE status IN ('PENDING', 'FAILED', 'RUNNING') "
                 + "ORDER BY requested_at ASC LIMIT ?", MAPPER, limit);
     }
 
@@ -103,7 +109,7 @@ public class DeletionJobRepository {
     }
 
     public void markFailed(String id, String errorCode) {
-        jdbc.update("UPDATE account_deletion_job SET status = 'FAILED', last_error_code = ? WHERE id = ?",
+        jdbc.update("UPDATE account_deletion_job SET status = 'FAILED', last_error_code = ? WHERE id = ? AND status <> 'DONE'",
                 errorCode, id);
     }
 

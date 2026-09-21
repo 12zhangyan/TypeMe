@@ -1,0 +1,123 @@
+{
+  "checks": [
+    {
+      "label": "320: resume and edit during save persist latest answer",
+      "passed": true
+    },
+    {
+      "label": "320: saves serialized with confirmed revision",
+      "passed": true
+    },
+    {
+      "label": "320: clearing persisted unknown reaches server",
+      "passed": true
+    },
+    {
+      "label": "320: cleared answer stays empty after refresh",
+      "passed": true
+    },
+    {
+      "label": "320: failed save retains answer and keyboard retry succeeds",
+      "passed": true
+    },
+    {
+      "label": "320: conflict blocks further writes",
+      "passed": true
+    },
+    {
+      "label": "320: conflict action keyboard reachable",
+      "passed": true
+    },
+    {
+      "label": "320: main action visible within viewport",
+      "passed": true
+    },
+    {
+      "label": "320: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390: resume and edit during save persist latest answer",
+      "passed": true
+    },
+    {
+      "label": "390: saves serialized with confirmed revision",
+      "passed": true
+    },
+    {
+      "label": "390: clearing persisted unknown reaches server",
+      "passed": true
+    },
+    {
+      "label": "390: cleared answer stays empty after refresh",
+      "passed": true
+    },
+    {
+      "label": "390: failed save retains answer and keyboard retry succeeds",
+      "passed": true
+    },
+    {
+      "label": "390: conflict blocks further writes",
+      "passed": true
+    },
+    {
+      "label": "390: conflict action keyboard reachable",
+      "passed": true
+    },
+    {
+      "label": "390: main action visible within viewport",
+      "passed": true
+    },
+    {
+      "label": "390: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: resume and edit during save persist latest answer",
+      "passed": true
+    },
+    {
+      "label": "1440: saves serialized with confirmed revision",
+      "passed": true
+    },
+    {
+      "label": "1440: clearing persisted unknown reaches server",
+      "passed": true
+    },
+    {
+      "label": "1440: cleared answer stays empty after refresh",
+      "passed": true
+    },
+    {
+      "label": "1440: failed save retains answer and keyboard retry succeeds",
+      "passed": true
+    },
+    {
+      "label": "1440: conflict blocks further writes",
+      "passed": true
+    },
+    {
+      "label": "1440: conflict action keyboard reachable",
+      "passed": true
+    },
+    {
+      "label": "1440: main action visible within viewport",
+      "passed": true
+    },
+    {
+      "label": "1440: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "no uncaught browser errors",
+      "passed": true
+    },
+    {
+      "label": "all API requests mocked",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "unexpectedApis": [],
+  "scope": "Chromium, Vite source, synthetic API; no database or AI"
+}

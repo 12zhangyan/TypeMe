@@ -73,7 +73,7 @@ public class ReportService {
     public JungDtos.SubmitResponse submit(
             String userId, String attemptId, JungDtos.SubmitRequest request) {
 
-        Map<String, Object> row = attempts.requireRow(userId, attemptId);
+        Map<String, Object> row = attempts.requireRowForUpdate(userId, attemptId);
         String status = (String) row.get("status");
         long revision = ((Number) row.get("revision")).longValue();
 

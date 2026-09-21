@@ -244,7 +244,7 @@ public class BigFiveAttemptService {
     @Transactional
     public PlatformDtos.PatchAnswersResponse patchAnswers(
             String userId, String attemptId, PlatformDtos.PatchAnswersRequest request) {
-        Map<String, Object> row = attempts.requireRow(userId, attemptId);
+        Map<String, Object> row = attempts.requireRowForUpdate(userId, attemptId);
         if ("SUBMITTED".equals(row.get("status"))) {
             throw new JungApiException("ATTEMPT_SUBMITTED", 409,
                     "这份测评已经提交，报告不可修改。想改答案请从旧报告派生一份新的测评。");
@@ -268,6 +268,7 @@ public class BigFiveAttemptService {
         List<PlatformDtos.ResponseInput> inputs =
                 request.responses() == null ? List.of() : request.responses();
         List<JungAnswer> toWrite = new ArrayList<>(inputs.size());
+        List<String> toClear = new ArrayList<>();
         Set<String> seen = new LinkedHashSet<>();
 
         for (PlatformDtos.ResponseInput input : inputs) {
@@ -294,8 +295,13 @@ public class BigFiveAttemptService {
                     throw JungApiException.invalid("「说不上符合或不符合」不能同时带分值：" + input.questionId());
                 }
                 toWrite.add(JungAnswer.unknown(input.questionId()));
+            } else if ("CLEAR".equals(kind)) {
+                if (input.rating() != null) {
+                    throw JungApiException.invalid("清空作答不能带分值：" + input.questionId());
+                }
+                toClear.add(input.questionId());
             } else {
-                throw JungApiException.invalid("kind 只能是 RATING 或 UNKNOWN：" + input.questionId());
+                throw JungApiException.invalid("kind 只能是 RATING、UNKNOWN 或 CLEAR：" + input.questionId());
             }
         }
 
@@ -303,6 +309,10 @@ public class BigFiveAttemptService {
             throw JungApiException.invalid("currentQuestionId 不是本内容包的题目：" + request.currentQuestionId());
         }
 
+        for (String questionId : toClear) {
+            jdbc.update("DELETE FROM assessment_answer WHERE attempt_id = ? AND question_id = ?",
+                    attemptId, questionId);
+        }
         for (JungAnswer answer : toWrite) {
             jdbc.update("""
                     INSERT INTO assessment_answer (attempt_id, question_id, kind, rating, updated_at)
@@ -313,7 +323,7 @@ public class BigFiveAttemptService {
         }
 
         long newRevision = currentRevision + 1;
-        jdbc.update("""
+        int affected = jdbc.update("""
                 UPDATE assessment_attempt
                    SET revision = ?, current_question_id = COALESCE(?, current_question_id), updated_at = ?
                  WHERE id = ? AND user_id = ? AND revision = ?
@@ -325,10 +335,7 @@ public class BigFiveAttemptService {
                 userId,
                 currentRevision);
 
-        Integer affected = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM assessment_attempt WHERE id = ? AND revision = ?",
-                Integer.class, attemptId, newRevision);
-        if (affected == null || affected == 0) {
+        if (affected != 1) {
             throw JungApiException.conflict("另一台设备已经更新了这份草稿，请先读取最新版本再合并。",
                     Map.of("currentRevision", currentRevision));
         }
@@ -406,14 +413,14 @@ public class BigFiveAttemptService {
     }
 
     /**
-     * 按 owner 读 attempt 行并把"这不是大五草稿"提前拦掉。
+     * 提交事务内按 owner 锁定 attempt 行并把"这不是大五草稿"提前拦掉。
      *
      * <p>提交路径用它而不是 {@code attempts.requireRow}：前者只保证"这是本人的草稿"，
      * 而报告服务写的是**大五**的 report_json，错把十六型草稿提交进来会写出一份
      * 结构对不上的报告。
      */
     public Map<String, Object> requireBigFiveRow(String userId, String attemptId) {
-        Map<String, Object> row = attempts.requireRow(userId, attemptId);
+        Map<String, Object> row = attempts.requireRowForUpdate(userId, attemptId);
         requireBigFiveRelease(row);
         return row;
     }

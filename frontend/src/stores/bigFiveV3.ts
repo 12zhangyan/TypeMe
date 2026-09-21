@@ -71,7 +71,12 @@ export interface BigFiveState {
   lastSavedLocalRevision: number
   /** 下一次保存要写入的"当前题"（用于换设备后继续在正确的位置）。 */
   pendingCurrentQuestionId: string | null
+  /** 撤销也是待保存的修改，不能从待发集合中消失。 */
+  pendingClears: Record<string, number>
+  generation: number
 }
+
+const saves = new WeakMap<object, Promise<boolean>>()
 
 function localFrom(attempt: AttemptView): Record<string, LocalAnswer> {
   const answers: Record<string, LocalAnswer> = {}
@@ -101,6 +106,8 @@ export const useBigFiveStore = defineStore('bigFive', {
     nextLocalRevision: 0,
     lastSavedLocalRevision: 0,
     pendingCurrentQuestionId: null,
+    pendingClears: {},
+    generation: 0,
   }),
 
   getters: {
@@ -123,13 +130,14 @@ export const useBigFiveStore = defineStore('bigFive', {
      * 已答数根本不变 —— 两种判据都会把"未保存"显示成"已保存"。
      */
     hasUnsaved(state): boolean {
+      if (Object.keys(state.pendingClears).length > 0) return true
       for (const answer of Object.values(state.answers)) {
         if (answer.localRevision > state.lastSavedLocalRevision) return true
       }
       return false
     },
     unsavedCount(state): number {
-      let count = 0
+      let count = Object.keys(state.pendingClears).length
       for (const answer of Object.values(state.answers)) {
         if (answer.localRevision > state.lastSavedLocalRevision) count += 1
       }
@@ -176,9 +184,15 @@ export const useBigFiveStore = defineStore('bigFive', {
 
     /** 用服务端的 attempt 覆盖本地状态。 */
     adopt(attempt: AttemptView): void {
+      this.generation += 1
+      saves.delete(this)
+      this.saving = false
       this.attempt = attempt
       this.answers = localFrom(attempt)
       this.lastSavedLocalRevision = maxLocalRevisionOf(this.answers)
+      this.nextLocalRevision = this.lastSavedLocalRevision
+      this.pendingClears = {}
+      this.pendingCurrentQuestionId = null
       this.lastSavedAt = null
       this.lastSaveError = null
       this.conflict = false
@@ -197,6 +211,7 @@ export const useBigFiveStore = defineStore('bigFive', {
      */
     setAnswer(questionId: string, kind: AnswerKind, rating: number | null): void {
       this.nextLocalRevision += 1
+      delete this.pendingClears[questionId]
       this.answers = {
         ...this.answers,
         [questionId]: { kind, rating, localRevision: this.nextLocalRevision },
@@ -211,6 +226,8 @@ export const useBigFiveStore = defineStore('bigFive', {
       const next = { ...this.answers }
       delete next[questionId]
       this.answers = next
+      this.nextLocalRevision += 1
+      this.pendingClears[questionId] = this.nextLocalRevision
       this.lastSaveError = null
     },
 
@@ -220,47 +237,61 @@ export const useBigFiveStore = defineStore('bigFive', {
      * @returns 是否保存成功；失败时 `lastSaveError` 有可读原因，本地答案**保留**
      */
     async saveNow(currentQuestionId?: string | null): Promise<boolean> {
-      const attempt = this.attempt
-      if (!attempt) return false
-      if (this.conflict) {
-        // 冲突未解决前不发请求：拿旧 revision 重试只会一直 409，而"重试到成功"
-        // 等于绕过乐观锁去覆盖另一台设备的修改。
-        return false
+      if (currentQuestionId !== undefined) this.pendingCurrentQuestionId = currentQuestionId
+      if (!this.attempt || this.conflict) return false
+      const inFlight = saves.get(this)
+      if (inFlight) return inFlight
+      const task = this.drainPending()
+      saves.set(this, task)
+      try {
+        return await task
+      } finally {
+        if (saves.get(this) === task) saves.delete(this)
       }
-      const pending = Object.entries(this.answers)
-        .filter(([, answer]) => answer.localRevision > this.lastSavedLocalRevision)
-        .map(([questionId, answer]) => ({
-          questionId,
-          kind: answer.kind,
-          rating: answer.rating,
-        }))
-      const nextCurrent =
-        currentQuestionId === undefined ? this.pendingCurrentQuestionId : currentQuestionId
-      if (pending.length === 0 && !nextCurrent) return true
+    },
 
+    /** 一个请求完成后再发送其间产生的修改；所有调用者等待同一轮保存完成。 */
+    async drainPending(): Promise<boolean> {
+      const generation = this.generation
       this.saving = true
       this.lastSaveError = null
       try {
-        const response = await patchPlatformAnswers(attempt.attemptId, {
-          expectedRevision: attempt.revision,
-          currentQuestionId: nextCurrent,
-          responses: pending,
-        })
-        // 保存成功后把 attempt 的 revision 推进到服务端返回值：
-        // 用本地推算的 revision 会在并发编辑时立刻失真。
-        this.attempt = {
-          ...attempt,
-          revision: response.revision,
-          status: response.status,
-          answeredCount: response.answeredCount,
-          answerComplete: response.answerComplete,
-          currentQuestionId: response.currentQuestionId,
+        while (this.attempt && !this.conflict && generation === this.generation) {
+          const attempt = this.attempt
+          const sentRevision = this.nextLocalRevision
+          const nextCurrent = this.pendingCurrentQuestionId
+          const pending: { questionId: string; kind: AnswerKind | 'CLEAR'; rating: number | null }[] =
+            Object.entries(this.answers)
+              .filter(([, answer]) => answer.localRevision > this.lastSavedLocalRevision)
+              .map(([questionId, answer]) => ({ questionId, kind: answer.kind, rating: answer.rating }))
+          for (const questionId of Object.keys(this.pendingClears)) {
+            pending.push({ questionId, kind: 'CLEAR', rating: null })
+          }
+          if (pending.length === 0 && !nextCurrent) return true
+          const response = await patchPlatformAnswers(attempt.attemptId, {
+            expectedRevision: attempt.revision,
+            currentQuestionId: nextCurrent,
+            responses: pending,
+          })
+          if (generation !== this.generation) return false
+          this.attempt = {
+            ...attempt,
+            revision: response.revision,
+            status: response.status,
+            answeredCount: response.answeredCount,
+            answerComplete: response.answerComplete,
+            currentQuestionId: response.currentQuestionId,
+          }
+          this.lastSavedLocalRevision = sentRevision
+          for (const [questionId, revision] of Object.entries(this.pendingClears)) {
+            if (revision <= sentRevision) delete this.pendingClears[questionId]
+          }
+          this.lastSavedAt = new Date().toISOString()
+          if (this.pendingCurrentQuestionId === nextCurrent) this.pendingCurrentQuestionId = null
         }
-        this.lastSavedLocalRevision = maxLocalRevisionOf(this.answers)
-        this.lastSavedAt = new Date().toISOString()
-        this.pendingCurrentQuestionId = null
-        return true
+        return false
       } catch (error) {
+        if (generation !== this.generation) return false
         if (isPlatformError(error) && error.status === 409) {
           this.conflict = true
           this.conflictMessage =
@@ -271,7 +302,7 @@ export const useBigFiveStore = defineStore('bigFive', {
         this.lastSaveError = describe(error)
         return false
       } finally {
-        this.saving = false
+        if (generation === this.generation) this.saving = false
       }
     },
 
@@ -298,12 +329,12 @@ export const useBigFiveStore = defineStore('bigFive', {
     /** 提交并生成报告。 */
     async submit(): Promise<SubmitResponse | null> {
       const attempt = this.attempt
-      if (!attempt) return null
+      if (!attempt || this.submitting) return null
       this.submitting = true
       this.submitError = null
       try {
         // 提交前先尝试保存：否则"我明明答完了"与"服务端还缺几题"会同时出现。
-        if (this.unsavedCount > 0) {
+        {
           const saved = await this.saveNow()
           if (!saved) {
             this.submitError = this.conflict
@@ -323,7 +354,7 @@ export const useBigFiveStore = defineStore('bigFive', {
         }
         this.incompleteQuestionIds = []
         if (result.reportId) {
-          this.attempt = { ...attempt, status: 'SUBMITTED', reportId: result.reportId }
+          this.attempt = { ...this.attempt!, status: 'SUBMITTED', reportId: result.reportId }
         }
         return result
       } catch (error) {
@@ -341,6 +372,8 @@ export const useBigFiveStore = defineStore('bigFive', {
 
     /** 离开页面时清掉这一份的状态，避免串到下一份测评上。 */
     reset(): void {
+      this.generation += 1
+      saves.delete(this)
       this.attempt = null
       this.answers = {}
       this.loading = false
@@ -357,6 +390,7 @@ export const useBigFiveStore = defineStore('bigFive', {
       this.nextLocalRevision = 0
       this.lastSavedLocalRevision = 0
       this.pendingCurrentQuestionId = null
+      this.pendingClears = {}
     },
   },
 })

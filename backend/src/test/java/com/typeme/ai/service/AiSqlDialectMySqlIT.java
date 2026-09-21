@@ -85,9 +85,10 @@ class AiSqlDialectMySqlIT {
             jobs.insert(newJob("22222222-2222-2222-2222-222222222222", "it-key", "a"));
             assertTrue(jobs.claim("22222222-2222-2222-2222-222222222222", "it-worker",
                     clock.now().plusSeconds(120)), "首次认领必须成功");
-            assertTrue(jobs.markRequested("22222222-2222-2222-2222-222222222222", clock.now()),
+            assertTrue(jobs.markRequested("22222222-2222-2222-2222-222222222222", "it-worker", clock.now()),
                     "写 requested_at 必须成功");
             assertTrue(jobs.markSucceeded("22222222-2222-2222-2222-222222222222",
+                    "it-worker",
                     "{\"schemaVersion\":\"1\"}", "{\"promptTokens\":1}", "deepseek-flash", clock.now()),
                     "写回结果必须成功");
             assertEquals("SUCCEEDED", jobs.findById("22222222-2222-2222-2222-222222222222")
@@ -97,7 +98,7 @@ class AiSqlDialectMySqlIT {
             jobs.insert(newJob("44444444-4444-4444-4444-444444444444", "it-key-2", "b"));
             assertTrue(jobs.claim("44444444-4444-4444-4444-444444444444", "it-worker",
                     clock.now().minusSeconds(600)));
-            assertTrue(jobs.markRequested("44444444-4444-4444-4444-444444444444", clock.now().minusSeconds(590)));
+            assertTrue(jobs.markRequested("44444444-4444-4444-4444-444444444444", "it-worker", clock.now().minusSeconds(610)));
             assertEquals(1, jobs.markExpiredAsUnknown(clock.now()), "过期且已发出的 lease 必须转 UNKNOWN");
             assertEquals("UNKNOWN", jobs.findById("44444444-4444-4444-4444-444444444444")
                     .orElseThrow().status());

@@ -621,7 +621,7 @@ export async function patchPlatformAnswers(
   input: {
     expectedRevision: number
     currentQuestionId?: string | null
-    responses: { questionId: string; kind: AnswerKind; rating?: number | null }[]
+    responses: { questionId: string; kind: AnswerKind | 'CLEAR'; rating?: number | null }[]
   },
 ): Promise<PatchAnswersResponse> {
   const path = `${BASE}/attempts/${encodeURIComponent(attemptId)}/answers`
