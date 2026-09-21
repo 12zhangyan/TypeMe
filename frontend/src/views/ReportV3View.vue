@@ -376,7 +376,7 @@ const TOC = computed(() => {
  * 这份快照自己记下的计分门槛。
  *
  * 包 ID、指纹、规则版本号不给普通用户看；但覆盖条件和略偏公式必须跟这份快照的
- * 计分版本走——v1/v2 会再收紧一档，不能用 v3 的句子去解释旧报告。
+ * 政策版本走——v1/v2 会再收紧一档，不能用 v3 的句子去解释旧报告。
  */
 const methodThresholds = computed(() => {
   const methodology = view.value?.methodology

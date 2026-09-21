@@ -5,11 +5,12 @@ import {
 } from './types'
 
 /**
- * 报告方法节用的门槛说明：数字来自快照，公式跟这份快照的计分版本走。
+ * 报告方法节用的门槛说明：数字来自快照，公式跟这份快照的 **policyVersion** 走。
  *
  * 不把 `typeme-jung48-score-v1` 这类版本号印给用户；只把「这份报告当时怎么判」说成人话。
- * v1/v2 的略偏是 `B(n) = max(0, T(n) − 1)`，v3 才是 `B(n) = T(n)`。
- * 若按 v3 的句子去解释旧快照，10 道有效答案、两边差距为 2 会被说成略偏，而当时根本不会标。
+ * 计分实际调用的是 `scoringPolicy.isBoundary`，快照把该策略版本写进 `policyVersion`。
+ * `scoringVersion` 是内容包上的另一栏，加载器并不保证两者一致；两者冲突时以政策版本为准。
+ * 政策版本未知时不猜测公式，避免用 v3 的句子去解释按旧规则算出来的报告。
  */
 export interface SnapshotScoringFacts {
   scoringVersion: string
@@ -24,15 +25,13 @@ export interface SnapshotThresholdCopy {
   boundary: string
 }
 
-function scoringVersionOf(facts: SnapshotScoringFacts): string {
-  if (KNOWN_SCORING_VERSIONS.includes(facts.scoringVersion)) return facts.scoringVersion
-  if (KNOWN_SCORING_VERSIONS.includes(facts.policyVersion)) return facts.policyVersion
-  return facts.scoringVersion || facts.policyVersion
+function policyVersionOf(facts: SnapshotScoringFacts): string | null {
+  return KNOWN_SCORING_VERSIONS.includes(facts.policyVersion) ? facts.policyVersion : null
 }
 
 function policyFromFacts(facts: SnapshotScoringFacts): ScoringPolicy | null {
-  const version = scoringVersionOf(facts)
-  if (!KNOWN_SCORING_VERSIONS.includes(version)) return null
+  const version = policyVersionOf(facts)
+  if (!version) return null
   return {
     version,
     minBaseRatingsPerDimension: facts.minBaseRatingsPerDimension,
