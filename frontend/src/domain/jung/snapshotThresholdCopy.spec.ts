@@ -15,6 +15,13 @@ const V3 = {
   policyVersion: 'typeme-jung48-score-v3',
 }
 
+const V4 = {
+  ...V1,
+  scoringVersion: 'typeme-jung48-score-v4',
+  policyVersion: 'typeme-jung48-score-v4',
+  boundaryDenominator: 5,
+}
+
 describe('describeSnapshotThresholds', () => {
   it('覆盖说明把未作答和「说不好」分成两种效果', () => {
     const copy = describeSnapshotThresholds(V3)
@@ -33,6 +40,15 @@ describe('describeSnapshotThresholds', () => {
     expect(boundary).not.toContain('typeme-jung48-score')
   })
 
+  it('v4 快照：文案跟着分母走（每 5 题差距不超过 2），不写死旧版比例', () => {
+    const { boundary } = describeSnapshotThresholds(V4)
+    expect(boundary).toContain('有效作答每 5 题，两边差距不超过 2 就记为略偏')
+    expect(boundary, '不能把 v3 的 10 题说成 v4 的门槛').not.toContain('每 10 题')
+    expect(boundary).not.toContain('再收紧一档')
+    expect(boundary).not.toContain('不会标成略偏')
+    expect(boundary).not.toContain('typeme-jung48-score')
+  })
+
   it('v1/v2 快照：同一组数字不会被说成略偏', () => {
     for (const version of ['typeme-jung48-score-v1', 'typeme-jung48-score-v2'] as const) {
       const { boundary } = describeSnapshotThresholds({ ...V1, scoringVersion: version, policyVersion: version })
@@ -45,7 +61,7 @@ describe('describeSnapshotThresholds', () => {
 
   it('policyVersion 是权威：与 scoringVersion 不一致时仍按政策版本解释', () => {
     const mixed = describeSnapshotThresholds({
-      ...V1,
+      ...V4,
       scoringVersion: 'typeme-jung48-score-v3',
       policyVersion: 'typeme-jung48-score-v1',
     })

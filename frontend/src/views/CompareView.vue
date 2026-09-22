@@ -276,7 +276,14 @@ onMounted(async () => {
         两份选的是同一份报告，换一份再比。
       </p>
 
-      <div class="mt-4 flex flex-wrap items-center gap-2">
+      <!--
+        间距节奏与账号页取齐（A40）：
+        「一行提示 → 紧随其后的操作按钮」以及「操作 → 它的结果提示」都用 mt-3（12px），
+        账号页的表单反馈一直是这个节奏（caption / notice-success / notice-error + 按钮都是 mt-3），
+        这里原先写 mt-4（16px），两页并排看会觉得节奏对不上。
+        分节之间的大间距（mt-4 以上、卡片与区块）不在此列，仍按原来的层级走。
+      -->
+      <div class="mt-3 flex flex-wrap items-center gap-2">
         <button
           type="button"
           class="btn-primary btn-sm"
@@ -289,7 +296,7 @@ onMounted(async () => {
         <RouterLink to="/reports" class="btn-ghost btn-sm">回到历史报告</RouterLink>
       </div>
 
-      <div v-if="compareError" class="notice-error mt-4" role="alert" data-compare-error>
+      <div v-if="compareError" class="notice-error mt-3" role="alert" data-compare-error>
         <p class="flex items-start gap-2 text-[14.5px] font-medium leading-relaxed">
           <AppIcon name="alert" :size="17" class="mt-0.5" />
           <span>{{ compareError.message }}</span>

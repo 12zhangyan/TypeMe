@@ -32,6 +32,15 @@ public class AnalysisExceptionHandler {
                 .body(body(ex.code(), ex.getMessage(), ex.details()));
     }
 
+    /**
+     * 共用的平台能力（限流）抛出的账号模块异常；理由同 `JungExceptionHandler#handleSharedApi`。
+     */
+    @ExceptionHandler(com.typeme.common.ApiException.class)
+    public ResponseEntity<Map<String, Object>> handleSharedApi(com.typeme.common.ApiException ex) {
+        return ResponseEntity.status(ex.httpStatus())
+                .body(body(ex.code(), ex.getMessage(), ex.details()));
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> handleUnreadable(HttpMessageNotReadableException ex) {
         return ResponseEntity.badRequest()

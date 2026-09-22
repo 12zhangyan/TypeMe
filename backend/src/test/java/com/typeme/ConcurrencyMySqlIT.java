@@ -100,9 +100,15 @@ class ConcurrencyMySqlIT {
     private static boolean mysqlAvailable;
 
     static {
-        try {
-            if (canConnect()) {
+        if (!canConnect()) {
+            // 环境缺失（没装 MySQL / 端口不通）不是"代码坏了"：整类跳过而不是红。
+            mysqlAvailable = false;
+            System.out.println("[ConcurrencyMySqlIT] 本机 3306 没有可连的 MySQL，跳过真实并发验证");
+        } else {
+            try {
                 createDatabase();
+                // 建库成功后立刻登记清理：下面迁移若失败，也不能把临时库留在服务器上。
+                Runtime.getRuntime().addShutdownHook(new Thread(ConcurrencyMySqlIT::dropDatabaseQuietly));
                 DriverManagerDataSource ds = new DriverManagerDataSource(
                         "jdbc:mysql://" + HOST + ":" + PORT + "/" + DATABASE
                                 + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
@@ -115,12 +121,19 @@ class ConcurrencyMySqlIT {
                         .migrate();
                 dataSource = ds;
                 mysqlAvailable = true;
-                Runtime.getRuntime().addShutdownHook(new Thread(ConcurrencyMySqlIT::dropDatabaseQuietly));
+            } catch (Exception ex) {
+                // 临时库必须在这里显式清掉：迁移失败时 JVM 会带着 ExceptionInInitializerError 退出，
+                // Surefire 的 fork 在异常退出路径上不保证跑 shutdown hook —— 实测会留下
+                // typeme_concurrency_* 库越积越多。
+                dropDatabaseQuietly();
+                // 已经连上 MySQL 却建库/迁移失败 = 迁移脚本本身的问题，必须红。
+                // 曾经这里把"迁移失败"和"连不上"一起吞成"整类跳过"，于是一份在真实 MySQL 上
+                // 根本无法应用的迁移（V10 用了保留字 release）只表现为"跳过 3 条"，报告里看不出
+                // 任何异常，缺陷就这样藏了一整轮。只有 canConnect() 为假时才是环境问题。
+                throw new IllegalStateException(
+                        "[ConcurrencyMySqlIT] 已连上真实 MySQL，但建库/迁移失败（这是迁移脚本的问题，不是环境问题）：",
+                        ex);
             }
-        } catch (Exception ex) {
-            // 环境缺失（没装 MySQL / 端口不通）不是"代码坏了"：整类跳过而不是红。
-            mysqlAvailable = false;
-            System.out.println("[ConcurrencyMySqlIT] 跳过真实 MySQL 并发验证：" + ex);
         }
     }
 

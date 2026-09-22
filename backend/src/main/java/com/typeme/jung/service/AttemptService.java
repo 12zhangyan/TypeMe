@@ -344,7 +344,6 @@ public class AttemptService {
         List<JungDtos.ResponseInput> inputs = request.responses() == null ? List.of() : request.responses();
         List<JungAnswer> toWrite = new ArrayList<>(inputs.size());
         boolean touchesBase = false;
-        boolean touchesClarification = false;
         Set<String> seen = new LinkedHashSet<>();
 
         for (JungDtos.ResponseInput input : inputs) {
@@ -376,10 +375,10 @@ public class AttemptService {
             } else {
                 throw JungApiException.invalid("kind 只能是 RATING 或 UNKNOWN：" + input.questionId());
             }
+            // 只关心「动没动主测题」：澄清答案是否被改动不需要额外的标记，
+            // 它由下游直接读答案本身判断（第 34 轮删掉了一个只写不读的同名变量）。
             if (item.stage() == JungStage.BASE) {
                 touchesBase = true;
-            } else {
-                touchesClarification = true;
             }
         }
 

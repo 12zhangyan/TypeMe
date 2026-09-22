@@ -1,0 +1,191 @@
+{
+  "base": "http://127.0.0.1:5321",
+  "rhythm_px": 12.0,
+  "checks": [
+    {
+      "label": "对比页 320x568: 无横向溢出（scroll 320 <= 320 + 1）",
+      "passed": true,
+      "detail": "scroll=320 client=320"
+    },
+    {
+      "label": "对比页 320x568: 操作组（[data-compare-run] 的容器）: 元素有可见尺寸",
+      "passed": true,
+      "detail": "{'x': 16, 'y': 676.734375, 'width': 288, 'height': 44}"
+    },
+    {
+      "label": "对比页 320x568: 比较失败的提示: 元素有可见尺寸",
+      "passed": true,
+      "detail": "{'x': 16, 'y': 732.734375, 'width': 288, 'height': 77.125}"
+    },
+    {
+      "label": "对比页 320x568: 操作组上间距 = 12.0px（与账号页同一节奏）",
+      "passed": true,
+      "detail": "实际 12"
+    },
+    {
+      "label": "对比页 320x568: 错误提示上间距 = 12.0px",
+      "passed": true,
+      "detail": "实际 12"
+    },
+    {
+      "label": "账号页 320x568: 无横向溢出（scroll 320 <= 320 + 1）",
+      "passed": true,
+      "detail": "scroll=320 client=320"
+    },
+    {
+      "label": "账号页 320x568: 「保存昵称」按钮: 元素有可见尺寸",
+      "passed": true,
+      "detail": "{'x': 16, 'y': 801.578125, 'width': 102, 'height': 48}"
+    },
+    {
+      "label": "账号页 320x568: 提示→按钮上间距 = 12.0px",
+      "passed": true,
+      "detail": "实际 12"
+    },
+    {
+      "label": "320x568: 对比页操作组与账号页按钮的上间距**相等**（A40 的\"节奏一致\"）",
+      "passed": true,
+      "detail": "对比页 12 vs 账号页 12"
+    },
+    {
+      "label": "320x568: 量到的间距",
+      "passed": true,
+      "detail": {
+        "compare_action_group": 12,
+        "compare_error_notice": 12,
+        "account_save_button": 12
+      }
+    },
+    {
+      "label": "对比页 390x844: 无横向溢出（scroll 390 <= 390 + 1）",
+      "passed": true,
+      "detail": "scroll=390 client=390"
+    },
+    {
+      "label": "对比页 390x844: 操作组（[data-compare-run] 的容器）: 元素有可见尺寸",
+      "passed": true,
+      "detail": "{'x': 16, 'y': 650.484375, 'width': 358, 'height': 44}"
+    },
+    {
+      "label": "对比页 390x844: 比较失败的提示: 元素有可见尺寸",
+      "passed": true,
+      "detail": "{'x': 16, 'y': 706.484375, 'width': 358, 'height': 53.5625}"
+    },
+    {
+      "label": "对比页 390x844: 操作组上间距 = 12.0px（与账号页同一节奏）",
+      "passed": true,
+      "detail": "实际 12"
+    },
+    {
+      "label": "对比页 390x844: 错误提示上间距 = 12.0px",
+      "passed": true,
+      "detail": "实际 12"
+    },
+    {
+      "label": "账号页 390x844: 无横向溢出（scroll 390 <= 390 + 1）",
+      "passed": true,
+      "detail": "scroll=390 client=390"
+    },
+    {
+      "label": "账号页 390x844: 「保存昵称」按钮: 元素有可见尺寸",
+      "passed": true,
+      "detail": "{'x': 16, 'y': 774.921875, 'width': 102, 'height': 48}"
+    },
+    {
+      "label": "账号页 390x844: 提示→按钮上间距 = 12.0px",
+      "passed": true,
+      "detail": "实际 12"
+    },
+    {
+      "label": "390x844: 对比页操作组与账号页按钮的上间距**相等**（A40 的\"节奏一致\"）",
+      "passed": true,
+      "detail": "对比页 12 vs 账号页 12"
+    },
+    {
+      "label": "390x844: 量到的间距",
+      "passed": true,
+      "detail": {
+        "compare_action_group": 12,
+        "compare_error_notice": 12,
+        "account_save_button": 12
+      }
+    },
+    {
+      "label": "对比页 1440x900: 无横向溢出（scroll 1440 <= 1440 + 1）",
+      "passed": true,
+      "detail": "scroll=1440 client=1440"
+    },
+    {
+      "label": "对比页 1440x900: 操作组（[data-compare-run] 的容器）: 元素有可见尺寸",
+      "passed": true,
+      "detail": "{'x': 152, 'y': 541.8125, 'width': 1136, 'height': 44}"
+    },
+    {
+      "label": "对比页 1440x900: 比较失败的提示: 元素有可见尺寸",
+      "passed": true,
+      "detail": "{'x': 152, 'y': 597.8125, 'width': 1136, 'height': 53.5625}"
+    },
+    {
+      "label": "对比页 1440x900: 操作组上间距 = 12.0px（与账号页同一节奏）",
+      "passed": true,
+      "detail": "实际 12"
+    },
+    {
+      "label": "对比页 1440x900: 错误提示上间距 = 12.0px",
+      "passed": true,
+      "detail": "实际 12"
+    },
+    {
+      "label": "账号页 1440x900: 无横向溢出（scroll 1440 <= 1440 + 1）",
+      "passed": true,
+      "detail": "scroll=1440 client=1440"
+    },
+    {
+      "label": "账号页 1440x900: 「保存昵称」按钮: 元素有可见尺寸",
+      "passed": true,
+      "detail": "{'x': 368, 'y': 621.421875, 'width': 102, 'height': 48}"
+    },
+    {
+      "label": "账号页 1440x900: 提示→按钮上间距 = 12.0px",
+      "passed": true,
+      "detail": "实际 12"
+    },
+    {
+      "label": "1440x900: 对比页操作组与账号页按钮的上间距**相等**（A40 的\"节奏一致\"）",
+      "passed": true,
+      "detail": "对比页 12 vs 账号页 12"
+    },
+    {
+      "label": "1440x900: 量到的间距",
+      "passed": true,
+      "detail": {
+        "compare_action_group": 12,
+        "compare_error_notice": 12,
+        "account_save_button": 12
+      }
+    },
+    {
+      "label": "没有未定义的接口调用（否则上面的断言可能只是\"页面没渲染出来\"）",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "页面没有未捕获的 JS 异常",
+      "passed": true,
+      "detail": ""
+    }
+  ],
+  "failures": [],
+  "unexpected_apis": [],
+  "console_errors": [
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+    "Failed to load resource: the server responded with a status of 409 (Conflict)",
+    "Failed to load resource: the server responded with a status of 409 (Conflict)",
+    "Failed to load resource: the server responded with a status of 409 (Conflict)"
+  ],
+  "page_errors": [],
+  "passed": 32,
+  "total": 32
+}

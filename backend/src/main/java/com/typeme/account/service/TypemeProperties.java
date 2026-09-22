@@ -54,12 +54,16 @@ public record TypemeProperties(
     }
 
     /** 限流：每个操作一个窗口与上限。 */
-    public record RateLimit(boolean enabled, Window register, Login login, Window recover, Login ai) {
+    public record RateLimit(boolean enabled, Window register, Login login, Window recover, Login ai, Window catalog) {
         public RateLimit {
             register = register == null ? new Window(Duration.ofHours(1), 5, 0) : register;
             login = login == null ? new Login(Duration.ofMinutes(15), 20, 10) : login;
             recover = recover == null ? new Window(Duration.ofHours(1), 10, 0) : recover;
             ai = ai == null ? new Login(Duration.ofHours(1), 30, 20) : ai;
+            // 匿名目录的窗口（见 RateLimitService.OP_CATALOG 的取舍说明）：
+            // 缺项时按最严格的一侧兜底 —— 这是唯一一条**匿名**可打的接口，
+            // 失败方向必须是"拦得太紧"而不是"完全不拦"。
+            catalog = catalog == null ? new Window(Duration.ofMinutes(5), 120, 0) : catalog;
         }
 
         static RateLimit defaults() {
@@ -67,7 +71,8 @@ public record TypemeProperties(
                     new Window(Duration.ofHours(1), 5, 0),
                     new Login(Duration.ofMinutes(15), 20, 10),
                     new Window(Duration.ofHours(1), 10, 0),
-                    new Login(Duration.ofHours(1), 30, 20));
+                    new Login(Duration.ofHours(1), 30, 20),
+                    new Window(Duration.ofMinutes(5), 120, 0));
         }
     }
 
@@ -165,7 +170,7 @@ public record TypemeProperties(
             baseUrl = baseUrl == null ? "" : baseUrl.trim();
             apiKey = apiKey == null ? "" : apiKey.trim();
             model = model == null || model.isBlank() ? "deepseek-chat" : model;
-            promptVersion = promptVersion == null || promptVersion.isBlank() ? "typeme-ai-prompt-v3" : promptVersion;
+            promptVersion = promptVersion == null || promptVersion.isBlank() ? "typeme-ai-prompt-v4" : promptVersion;
             dailyLimitPerUser = dailyLimitPerUser <= 0 ? 10 : dailyLimitPerUser;
             retryLimitPerHour = retryLimitPerHour <= 0 ? 5 : retryLimitPerHour;
             globalDailyCallBudget = globalDailyCallBudget <= 0 ? 500 : globalDailyCallBudget;
@@ -177,7 +182,7 @@ public record TypemeProperties(
         }
 
         static Ai defaults() {
-            return new Ai(false, "", "", "deepseek-chat", "typeme-ai-prompt-v3",
+            return new Ai(false, "", "", "deepseek-chat", "typeme-ai-prompt-v4",
                     10, 5, 500, 2_000_000L, 4, 5_000, 60_000, 2_000, false);
         }
     }

@@ -107,6 +107,15 @@ typeme:
     recover:
       window: 1h
       ip-limit: 10
+    # 匿名目录（`GET /api/v3/catalog/current` 与 `/catalog/current/package`）。
+    # 这两条 2026-09-21 从"要登录"放开为公开，这里是放开访问边界的**配套代价**：
+    # 匿名请求按 IP 计数（已登录用户不计入，见 RateLimitService#checkCatalogRead）。
+    # 取 5m/120 的理由：匿名访客读目录是"进站时读一次"，不是高频行为；
+    # 120 次/5 分钟足够覆盖共享出口（公司/学校 NAT）下的正常浏览，
+    # 同时把"循环拉整份题库"压到每分钟 24 次以内。
+    catalog:
+      window: 5m
+      ip-limit: 120
     ai:
       window: 1h
       ip-limit: 30
@@ -141,7 +150,7 @@ typeme:
     # 主名沿用官方约定 DEEPSEEK_API_KEY；TYPEME_AI_API_KEY 作为兼容别名（若已注入则优先）。
     api-key: ${DEEPSEEK_API_KEY:${TYPEME_AI_API_KEY:}}
     model: ${TYPEME_AI_MODEL:deepseek-flash}
-    prompt-version: ${TYPEME_AI_PROMPT_VERSION:typeme-ai-prompt-v3}
+    prompt-version: ${TYPEME_AI_PROMPT_VERSION:typeme-ai-prompt-v4}
     # 连接超时 5s；单次总 deadline 90s（部署超时（网关/Nginx）必须一起校验）。
     connect-timeout: ${TYPEME_AI_CONNECT_TIMEOUT:5s}
     request-deadline: ${TYPEME_AI_REQUEST_DEADLINE:90s}

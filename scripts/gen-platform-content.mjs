@@ -25,7 +25,12 @@
  *      16 型报告文案的新版本：逐字含 v1 的八个章节与三条行动（不删内容），
  *      另加 `readableSummary` / `readableFirstSteps` 两个**首屏易懂字段**。
  *
- *   3. `backend/src/main/resources/content/bigfive50-zh-v1.json`
+ *   3. `backend/src/main/resources/content/typeme-jung48-zh-v4.json`
+ *      十六型内容包的**下一代阈值政策**。题目与维度文案逐字沿用 v3，只有
+ *      `scoringPolicy` 的 `boundaryDenominator` 从 10 改成 5（`T(n) = B(n) = floor(2n/5)`）。
+ *      这是产品阈值取舍，**不提高测量准确性**；v1/v2/v3 一个字节都不改。
+ *
+ *   4. `backend/src/main/resources/content/bigfive50-zh-v1.json`
  *      大五（IPIP-50）服务端内容包：50 题、五维、正反计分键、维度解释、
  *      缺答政策与来源/许可说明。题面与逐题解释取自仓库既有的
  *      `backend/src/main/resources/assessment-packages/ipip50-zh1.yml`
@@ -63,6 +68,10 @@ const V2_CONTENT_STATUS = 'draft_review_pending'
 const V3_PACKAGE_PATH = join(CONTENT_OUT_DIR, 'typeme-jung48-zh-v3.json')
 const V3_PACKAGE_ID = 'typeme-jung48-zh-v3'
 const V3_SCORING_VERSION = 'typeme-jung48-score-v3'
+
+const V4_PACKAGE_PATH = join(CONTENT_OUT_DIR, 'typeme-jung48-zh-v4.json')
+const V4_PACKAGE_ID = 'typeme-jung48-zh-v4'
+const V4_SCORING_VERSION = 'typeme-jung48-score-v4'
 /*
  * v3 只换计分口径（边界与触发同尺度），**不改任何题目与报告文案**，因此复用一个已有的报告文案版本。
  *
@@ -74,6 +83,13 @@ const V3_SCORING_VERSION = 'typeme-jung48-score-v3'
  * 判断依据是运行期**按包声明的版本解析**（取不到即启动失败），不是任何默认常量。
  */
 const V3_REPORT_CONTENT_VERSION = 'typeme-type-report-zh-v1'
+
+/*
+ * v4 与 v3 一样**只换计分口径、不改任何题目与报告文案**，所以同样复用 v1 报告文案。
+ * 复用理由与 v3 相同：v2 报告文案带 readableSummary / readableFirstSteps，会在服务端把
+ * "八段 + 3 条成长行动"换成"一句话摘要 + 1 个可观察动作" —— 那是另一条在途的易读性改造。
+ */
+const V4_REPORT_CONTENT_VERSION = 'typeme-type-report-zh-v1'
 
 const IPIP_PACKAGE_ID = 'typeme-bigfive50-zh-v1'
 const IPIP_INSTRUMENT_ID = 'ipip50'
@@ -418,6 +434,90 @@ function buildJungV3(v2) {
   if (JSON.stringify(pkg.dimensions) !== JSON.stringify(v2.dimensions)) {
     fail('v3 应逐字沿用 v2 的维度文案：本次是计分口径调整，不允许夹带文案改动')
   }
+  pkg.sha256 = jungSha256(pkg)
+  return pkg
+}
+
+/* ── 十六型 v4：只换阈值（边界与触发同尺度，分母 10 → 5） ───────────────── */
+
+/**
+ * 十六型 v4：**只改阈值政策的数值**（`boundaryDenominator` 从 `10` 到 `5`，
+ * 即 `T(n) = B(n) = floor(2n/5)`），题目、维度文案、报告文案一律不动。
+ *
+ * <p>为什么是 5 而不是把分子改成 4：`floor(2n/5)` 与 `floor(4n/10)` 在整数上恒等，
+ * 但后者会让"分母恒为 10"这条隐含约定出现在内容包里，与 `v1/v2/v3` 的写法不一致。
+ * 这里直接写 `2/5`，与契约 §4.1 的 `T(n) = B(n) = floor(2n/5)` 逐字对应。
+ *
+ * <p>为什么需要新包而不是原地改 v3：`assessment_package` 按 `packageId + sha256` 登记，
+ * 内容包一旦被草稿/报告绑定就不能静默替换。计分规则由 `scoringVersion` 分派，
+ * 所以"换规则"必须落在一个新的 `scoringVersion` 上，并且要有一个声明它的内容包。
+ *
+ * <p><b>本次改动不提高测量准确性</b>：0.20 是产品阈值取舍，没有本次可核验的
+ * 信度/效度依据；文档必须如实写明这一点，不得写成"更准"。
+ *
+ * @param {object} v3 buildJungV3() 的结果（必须是同一份会被写盘的字节来源）
+ */
+function buildJungV4(v3) {
+  if (v3.questions.length !== 64) fail(`v4 题目总数应沿用 v3 的 64，实际 ${v3.questions.length}`)
+  requireTypeReportVersion(V4_REPORT_CONTENT_VERSION, 'v4')
+  if (v3.scoringPolicy.boundaryNumerator !== 2 || v3.scoringPolicy.boundaryDenominator !== 10) {
+    fail('v4 的前置假设不成立：v3 的边界尺度应为 2/10')
+  }
+
+  const pkg = {
+    // 先整体沿用 v3，再覆盖与版本/阈值有关的字段：v3 将来新增字段不会被 v4 悄悄丢掉。
+    ...v3,
+    packageId: V4_PACKAGE_ID,
+    instrument: {
+      ...v3.instrument,
+      revision: 'v4',
+      scoringVersion: V4_SCORING_VERSION,
+      reportContentVersion: V4_REPORT_CONTENT_VERSION,
+    },
+    contentStatus: v3.contentStatus,
+    scoringPolicy: {
+      ...v3.scoringPolicy,
+      version: V4_SCORING_VERSION,
+      // floor(2n/5)：触发与边界共用这一条尺度（与 v3 同口径，只换数值）。
+      boundaryNumerator: 2,
+      boundaryDenominator: 5,
+    },
+    dimensions: v3.dimensions.map((dimension) => ({ ...dimension })),
+    questions: v3.questions.map((question) => ({ ...question })),
+  }
+  delete pkg.sha256
+
+  // 本次不改题面、不改维度文案、不改可读层：派生结果必须与 v3 逐字相同。
+  if (JSON.stringify(pkg.questions) !== JSON.stringify(v3.questions)) {
+    fail('v4 应逐字沿用 v3 的题目：本次是阈值调整，不允许夹带题面改动')
+  }
+  if (JSON.stringify(pkg.dimensions) !== JSON.stringify(v3.dimensions)) {
+    fail('v4 应逐字沿用 v3 的维度文案：本次是阈值调整，不允许夹带文案改动')
+  }
+  if (JSON.stringify(pkg.readable) !== JSON.stringify(v3.readable)) {
+    fail('v4 应逐字沿用 v3 的可读层：本次是阈值调整，不允许夹带文案改动')
+  }
+
+  // 阈值政策只允许在这些字段上区别于 v3 —— 多改一个字节都说明"顺手夹带"。
+  const allowedPolicyDifference = new Set(['version', 'boundaryDenominator'])
+  const policyKeys = new Set([...Object.keys(v3.scoringPolicy), ...Object.keys(pkg.scoringPolicy)])
+  for (const key of policyKeys) {
+    if (v3.scoringPolicy[key] === pkg.scoringPolicy[key]) continue
+    if (!allowedPolicyDifference.has(key)) {
+      fail(`v4 的 scoringPolicy.${key} 与 v3 不同：本次只允许改 version 与 boundaryDenominator`)
+    }
+  }
+  if (pkg.scoringPolicy.minBaseRatingsPerDimension !== 9 || pkg.scoringPolicy.ratingMin !== 1
+    || pkg.scoringPolicy.ratingMax !== 5 || pkg.scoringPolicy.ratingNeutral !== 3) {
+    fail('v4 不得改动覆盖下限与量表端点：这些不属于本次阈值调整')
+  }
+
+  // 触发/边界跳档点按 floor(2n/5) 写死：改错分母时生成期先红，而不是等测试。
+  const expectedThreshold = (n) => (n <= 0 ? 0 : Math.floor((2 * n) / 5))
+  for (const [n, expected] of [[9, 3], [12, 4], [16, 6], [5, 2], [4, 1], [3, 1], [2, 0]]) {
+    if (expectedThreshold(n) !== expected) fail(`v4 契约表不自洽：floor(2*${n}/5) 应为 ${expected}`)
+  }
+
   pkg.sha256 = jungSha256(pkg)
   return pkg
 }
@@ -882,13 +982,15 @@ const checkOnly = process.argv.includes('--check')
 
 let jungV2
 let jungV3
+let jungV4
 let typeReportsV2
 let bigFive
 try {
   jungV2 = buildJungV2()
-  // 先生成 v2 报告：v3 包要复用它的报告文案版本，requireTypeReportVersion 会去核对那份文件。
+  // 先生成 v2 报告：v3/v4 包要复用报告文案版本，requireTypeReportVersion 会去核对那份文件。
   typeReportsV2 = buildJungV2TypeReports()
   jungV3 = buildJungV3(jungV2)
+  jungV4 = buildJungV4(jungV3)
   bigFive = buildBigFivePackage()
 } catch (error) {
   console.error(`内容生成失败：${error.message}`)
@@ -905,6 +1007,7 @@ const results = [
   writeOrCheck(V2_PACKAGE_PATH, jungV2),
   writeOrCheck(V2_TYPE_REPORT_PATH, typeReportsV2),
   writeOrCheck(V3_PACKAGE_PATH, jungV3),
+  writeOrCheck(V4_PACKAGE_PATH, jungV4),
   writeOrCheck(IPIP_PACKAGE_PATH, bigFive),
 ]
 
@@ -917,5 +1020,6 @@ if (!checkOnly) {
   console.log(`\n十六型 v2 指纹：${jungV2.sha256.slice(0, 12)}…（包）`)
   console.log(`16 型报告 v2 指纹：${typeReportsV2.sha256.slice(0, 12)}…`)
   console.log(`十六型 v3 指纹：${jungV3.sha256.slice(0, 12)}…（包；报告文案沿用 ${V3_REPORT_CONTENT_VERSION}）`)
+  console.log(`十六型 v4 指纹：${jungV4.sha256.slice(0, 12)}…（包；报告文案沿用 ${V4_REPORT_CONTENT_VERSION}）`)
   console.log(`大五（IPIP-50）指纹：${bigFive.sha256.slice(0, 12)}…`)
 }

@@ -22,6 +22,515 @@
 
 report-paper 是另一会话的在途工作，不计入这六轮补记，也不纳入本次验证。下方各轮“下一步”“未完成”与测试计数均按历史阅读；除本次明确核验的条目外，不批量宣布闭环。
 
+## 第 27 轮：A53 ③⑥ 闭环 + `fetchAiStatus` 接口层守卫（2026-09-21）
+
+### 起点事实（先看，再改）
+
+- `git status --short` 有 31 个已修改文件与若干未跟踪文件，其中包含**前一会话**的两项在途工作，本轮未删改：
+  - `docs/optimization/verification/2026-09-21-ai-prompt-v4/`：提示词 v4 接入、前后端显式登记 v3/v4、默认版本改 v4；
+  - `docs/optimization/verification/2026-09-21-review-fixes/`：7 项审查修复（大五恢复/保存竞态、悲观锁取代 `COUNT` 判成功、AI 旧执行栅栏、`CLEAR` 撤销持久化、注销 `RUNNING` 恢复等）。
+  这两项**没有**写入本 progress/backlog。本轮把它们当作**既有基线**复跑验证（见下），但**不把它们的成果计为本轮工作**。
+- 第 20 轮之后，backlog 仍开着的可独立推进项只有 A53③⑥、A40、A58。本轮取其中不依赖用户决策、不触碰安全边界的两条（A53③⑥）。
+
+### 本轮做了什么
+
+| ID | 问题 | 实施 | 判别力 / 证据 |
+|---|---|---|---|
+| A53⑥ | 429 自动重试重新入队时退掉了额度预留，而重试不会再预留 → `reserved_calls` 比实际外发少一次（当日额度被多算出来一次） | `AnalysisWorker.handleUpstreamFailure`：`requeueAfter` 成功时**保留**预留，只记录日志；若重试始终没发出去（取消/注销）由 `discardLateResult(sent=false)` 退 | `AnalysisFlowTest#rateLimitedRetriesAtMostOnce` +2 条断言（入队后 user/global 各 1；重试再次 429 后归 0）。改回旧写法精确红 1 条（见验证表） |
+| A53③ | `ReportService#exportData` 是**无调用方**的死代码，且把 `BadSqlGrammarException` 静默吞成空数组，与账号模块 `degradedSections` 的降级语义不一致；`JungController` 还留着“由报告模块复用”的过时注释 | 删除该死方法，导出只剩 `account/service/DataExportService` 一处定义；把 `JungController` 注释改成如实描述 | 全仓 grep 复核：除定义处外无调用方；后端全量子集编译并测试通过 |
+| — | `fetchAiStatus` 缺字段默认值只有 store 层行为测试，接口层输入路径无测试（第 19 轮登记的缺口） | `frontend/src/api/v3Ai.spec.ts` +2 条：缺 `remainingToday` → `-1`（不是 0）；明确给 0 → 保留 0；并断言请求打到 `/api/v3/ai/status` | 前端该文件 **20 项通过**（+2） |
+
+### 验证命令与结果
+
+| 命令 | 结果 |
+|---|---|
+| 内容一致性 6 条（`gen-fallback` / `rewrite-types` / `check-type-duplication` / `convert-jung` / `gen-jung-fixtures` / `gen-platform-content`，均 `--check`） | 全部 exit 0 |
+| `frontend: npm.cmd run typecheck` | exit 0 |
+| `frontend: node node_modules/vitest/vitest.mjs run` | **50 文件 / 1038 条通过**（本轮起点 1036，+2） |
+| `frontend: npm.cmd run build` | exit 0（index js 649.92 kB / gzip 245.72；产物地址检查通过） |
+| `backend: mvn.cmd test '-Dtest=*,!AccountSqlDialectMySqlIT,!AiSqlDialectMySqlIT,!ConcurrencyMySqlIT'` | **400 通过 / 0 失败 / 0 错误 / 1 跳过**，BUILD SUCCESS（跳过项为既有 `AssessmentPackageLoadingTest` 空目录假设） |
+| 判别力：把 A53⑥ 改回 `releaseReservation(...)` | `AnalysisFlowTest#rateLimitedRetriesAtMostOnce` 在新增断言处**精确红 1 条**，还原后复跑转绿 |
+| `git diff --check` | 通过（仅有既存的 CRLF 提示） |
+
+### 边界与未覆盖
+
+- **未运行三类真实 MySQL 测试**（`AccountSqlDialectMySqlIT` / `AiSqlDialectMySqlIT` / `ConcurrencyMySqlIT`）：需要建库/删库授权，本轮不代跑。
+- **未做真实浏览器验收**：本轮只改后端 quota 分支、删除死代码、补一条前端接口测试，没有可观察的页面行为变化。前一会话的两份浏览器证据（v4 50 项、review-fixes 29 项，均模拟 API）仍是对应代码的证据，但**不是**本轮新跑。
+- **未做真实 AI 外发**（不消耗付费服务）；A53⑥ 的验证全部走 mock 上游。
+- `frontend/dist` 已由本轮 build 重写，但**未重新打包整站 jar、未部署**。
+- 本轮**未**更新第 21–26 轮补记里明确标注为“未重跑”的历史数字。
+- 后端验证用 `work/run-backend-tests.cmd`（工作目录脚本，`/work/` 已在 `.gitignore` 内）以固定 `JAVA_HOME=jdk-21` 并清空 `DEEPSEEK_API_KEY`/`TYPEME_AI_API_KEY` 后运行。
+
+### 下一步优先级（承接 backlog 未闭环项）
+
+1. **A58**：`GET /catalog/*` 契约说公开、实现要认证 —— 改成公开是**放宽**安全边界，需单独决策。
+2. **A40**：账号页/对比页提示与按钮间距节奏，等下一次动那两页时一起收口。
+3. 第 19 轮登记、至今仍只有 mock 证据的：弱网/超时/429/截断的 AI 分支（`fetchAiStatus` 已在本轮补上接口层）。
+4. 前一会话在途的两项（AI v4、review-fixes）尚未提交；若要发布需先决定提交与部署，且 review-fixes 的前后端需**配套发布**才能用 CLEAR 撤销持久化。
+
+## 第 28 轮：真实 MySQL 授权后的方言复盘 —— V10 保留字（A72 / A73）（2026-09-21）
+
+### 起点事实（先看，再改）
+
+- 用户本轮授权“在我本地测试”，即允许跑会自动建库/删库的**三类真实 MySQL 测试**。实测本机 MySQL 为 **8.4.0**；`typeme_dev` 的 `flyway_schema_history` 停在 **V8**，且全机**没有任何 `illustration_asset` 表**。
+- 此前 400 项后端全绿的子集**恰恰排除了这三类 IT**，所以第 21–26 轮与第 27 轮的全部“后端通过”都不含真实方言验证。
+
+### 本轮发现了什么（不是假设，是运行输出）
+
+| ID | 问题 | 证据 | 影响 | 状态 |
+|---|---|---|---|---|
+| A72 | **`V10__illustration_asset.sql` 在任何 MySQL 上都无法应用**：列名 `release` 是 MySQL 8 保留字（`RELEASE SAVEPOINT`），裸写进 DDL 直接语法错；而同一份迁移又用了 MySQL 8 专有的 `COLLATE utf8mb4_0900_as_cs`，5.7 也没有它 | 真实 MySQL 8.4 上 `Migration V10__illustration_asset.sql failed / Error Code 1064 ... near 'release    VARCHAR(32)  NOT NULL,'`；H2 的 MySQL 模式不把 `release` 当保留字，所以 H2 上的 400 项全绿照不出来 | 任何尚未应用 V10 的库（含当前 `typeme_dev`）下次启动时 Flyway 失败，**整个后端起不来** | 已闭环（本轮） |
+| A73 | **`ConcurrencyMySqlIT` 把“迁移失败”当成“环境缺失”整类跳过**，失败时还会留下临时库 | 修复前跑真实 MySQL IT 的原文：`Tests run: 3, ..., Skipped: 3` —— V10 的 1064 被吞成“跳过”；机器上留下 `typeme_concurrency_5ecd0b6e9cbf8`、`typeme_concurrency_5ee552215ac8c` 两个库 | 正是它把 A72 藏了一整轮；另外失败退出路径不跑 shutdown hook，临时库每失败一次多一个 | 已闭环（本轮） |
+
+### 本轮做了什么
+
+| 文件 | 改动 |
+|---|---|
+| `backend/src/main/resources/db/migration/V10__illustration_asset.sql` | 列名 `release` → `release_tag`；头部补一段说明（为什么带 `_tag`、为什么这里必须**原地**修而不是追加 V11）。因为该迁移既用了 MySQL 8 专有 COLLATE、又撞 MySQL 8 保留字，**不可能在任何 MySQL 上成功过**，也就不存在“已应用 V10 的库” |
+| `backend/src/main/java/com/typeme/platform/service/IllustrationAssetService.java` | `SELECT` / `UPDATE ... SET` / `INSERT` 三处列名与 `row.get("release_tag")` 同步；JSON 字段仍叫 `release`（对外契约不变） |
+| `scripts/gen-image-publish.mjs` | `--emit-sql` 模板同步；**实测其输出与 V10 逐字一致**（diff 为空） |
+| `docs/2026-09-20/图片URL入库方案.md` | DDL 示例与“`release` 列”表述同步 |
+| `backend/src/test/java/com/typeme/platform/IllustrationAssetIT.java` | 列名断言 `release` → `release_tag` |
+| `backend/src/test/java/com/typeme/ConcurrencyMySqlIT.java` | 只有 `canConnect()` 为假才算环境缺失（跳过）；**连上后建库/迁移失败改抛 `IllegalStateException` 变红**；`createDatabase()` 后立刻登记清理钩子，并在 `catch` 里再显式 `dropDatabaseQuietly()` |
+
+### 验证（命令退出码 + 输出 + 报告）
+
+| 项 | 命令 | 结果 |
+|---|---|---|
+| 真实 MySQL 三类 IT | `mvn test -Dtest=AccountSqlDialectMySqlIT,AiSqlDialectMySqlIT,ConcurrencyMySqlIT`（`JAVA_HOME=jdk-21`） | **8 通过 / 0 失败 / 0 错误 / 0 跳过**，BUILD SUCCESS（修复前：5 errors + 3 skipped） |
+| 修复后重跑（确认可重复） | 同上 | 再次 8/8、0 跳过，BUILD SUCCESS |
+| **判别力**（把 V10 列名改回 `release`） | `mvn test -Dtest=ConcurrencyMySqlIT` | `Tests run: 3, ..., Errors: 3, Skipped: 0` —— 从“跳过 3 条”变成**红 3 条**；错误直指 `Migration V10__illustration_asset.sql failed` + `1064`；且失败后**无残留库** |
+| 生成器与迁移一致性 | `node scripts/gen-image-publish.mjs --emit-sql --out work/v10-regen.sql` + `diff` | 与 V10 **IDENTICAL** |
+| 后端全量子集（排除 3 类真实 MySQL IT） | `mvn test -Dtest=*,!AccountSqlDialectMySqlIT,!AiSqlDialectMySqlIT,!ConcurrencyMySqlIT` | **400 通过 / 0 失败 / 0 错误 / 1 跳过**，BUILD SUCCESS（含 H2 上的 `IllustrationAssetIT`，与基线数字一致、无回归） |
+| 临时库清理 | 探测脚本查 `information_schema.tables` | 成功后与**失败后**均无 `typeme_concurrency_*` 残留；此前留下的两个已手工删除 |
+
+未改动前端源码（对外 JSON 字段仍是 `release`），因此本轮不重跑前端测试。
+
+### 边界与未覆盖
+
+- 本轮**只在本机 MySQL 8.4.0** 上验证；未覆盖 MySQL 5.7/8.0 或任何远端/生产库。
+- **未把 V10 应用到 `typeme_dev`**，也未执行任何现有库上的迁移（虽已获测试授权，但那是“跑会自动建/删临时库的 IT”的授权，不等于允许改现有库）；因此“部署时 V10 能否成功”只由**临时库上跑通同一份迁移**推出。
+- 未做真实浏览器验收（无可观察的页面变化）；未做真实 AI 外发。
+- 前一会话在途的两项（AI v4、review-fixes）仍未提交，本轮未动。
+
+### 下一步优先级（承接 backlog 未闭环项）
+
+1. **A58**：`GET /catalog/*` 契约说公开、实现要认证 —— 改成公开是**放宽**安全边界，需单独决策。
+2. **A34**：`ReportService.submit` 在覆盖检查前就写 `clarification_skipped=1`；当前 UI 不可达，等出现回退覆盖能力时再修。
+3. **A40**：账号页/对比页提示与按钮间距节奏，等下一次动那两页时一起收口。
+4. 第 19 轮登记、至今仍只有 mock 证据的：弱网/超时/429/截断的 AI 分支。
+5. ~~`backlog.md` 的 **A33 状态滞后**~~：本轮已复核代码与 `AnswerRevisionConflictIT`，把台账从“未闭环”改为“已闭环（前一会话 review-fixes 改动）”。
+6. 新发现（P3 证据缺口）：`IllustrationAssetService` 的三条运行期 DML（SELECT/UPDATE/INSERT）**只有 H2 覆盖**（`IllustrationAssetIT` 跑在 H2），真实 MySQL 上没有任何 IT 跑过它们。本次改名已消除保留字风险，但这三条 SQL 的方言仍无实测证据。
+
+## 第 29 轮：A58 —— 把 `GET /catalog/*` 按契约放开为公开（连带修掉 A74 / A75）（2026-09-21）
+
+### 起点事实
+
+- 契约 §7 把 `GET /catalog/current`、`GET /catalog/current/package` 归在“公开内容 GET”（§7.2 两张表“请求”列都是 `—`），而 `SecurityConfig` 只对 `auth/*` 开了口子，`/api/v3/**` 一律 `authenticated()` → 未登录拿到 **401**。
+- 用户本轮说“按你的建议来”。上一轮列出的 9 项待决中，只有 **A58** 是既明确、又不需要额外授权的一项；其余（阈值语气 / 真人研究 / AI 真实试验 / 审计台账 DDL / Redis / LangChain4j / v4 默认值 / 提交部署）本轮**一项未动**，原因见文末。
+- 建议原文是“放开 GET **+ 限流**；否则改前端走已公开路径”。选的是前者。
+
+### 本轮做了什么
+
+| 文件 | 改动 |
+|---|---|
+| `backend/.../security/SecurityConfig.java` | `permitAll` 新增 `GET /api/v3/catalog/current`、`/catalog/current/package`，注释写清放开范围与应对（限流） |
+| `backend/.../jung/api/JungController.java` | 两个 GET 加 `HttpServletRequest` 参数 + `catalogReadAllowed(request)` 匿名限流入口 |
+| `backend/.../security/RateLimitService.java` | 新增 `OP_CATALOG` 与 `checkCatalogRead(ip, authenticated)`：**仅匿名计数** |
+| `backend/.../account/service/TypemeProperties.java` | `RateLimit` 新增第 6 个分量 `catalog`（缺项兜底 `5m/120`） |
+| `backend/src/main/resources/application.yml` | `typeme.ratelimit.catalog: {window: 5m, ip-limit: 120}` |
+| `frontend/.../stores/instrumentV3.ts` | 注释纠正（“匿名会 401”→“公开；读不到 = 离线/失败/被限流”）；`refresh()` 的旧注释也按现状改了（原来写的是“首页读过一次 401”这个已不成立的路径） |
+| `frontend/.../stores/instrumentsV3.ts` | 注释纠正（`/platform/instruments` 早已 `permitAll`，“需要登录”是过时描述） |
+| 测试 | `SecurityBoundaryIT` +2、`RateLimitIT` +2；`AccountSqlDialectMySqlIT` 适配 record 新字段；`SubmitReportIT` 注释更新 |
+
+### 被新测试撞出来的两个真问题（不修则 A58 不成立）
+
+见 `backlog.md` A74 / A75。简要说：
+
+- **A74**：`RateLimitService` 在 `com.typeme.security`、抛的是 `com.typeme.common.ApiException`，而 jung/platform/ai 三个 advice 都只认自己的异常类型 → 匿名限流命中时变成裸 `ServletException`（不是 429，也没有 `retryAfterSeconds`）。**A58 之前没有任何非账号控制器会抛这个类型**，所以缺口一直没被触发。修法：两处各加一条显式 `@ExceptionHandler(com.typeme.common.ApiException.class)`（不扩 `basePackages`）。
+- **A75**：`CurrentUser.requireUserId()` 只判 `isAuthenticated()`，而 Spring 的匿名主体 `AnonymousAuthenticationToken.isAuthenticated()` 是 **true** → 匿名访客被当成已登录，匿名限流一次都没发生（新用例拿到 200 而不是 429）。修法：`jung/api/CurrentUser` 与 `ai/controller/AiCurrentUser` 都排除匿名主体。
+
+### 验证
+
+| 项 | 结果 |
+|---|---|
+| 定向（含新用例）`-Dtest=RateLimitIT,SecurityBoundaryIT,SubmitReportIT,BigFivePlatformIT,InvitationAdminIT` | **35 通过 / 0 失败 / 0 错误 / 0 跳过**，BUILD SUCCESS |
+| **判别力 1**（撤掉 `CurrentUser` 两处匿名判定） | `RateLimitIT#anonymousCatalogReadsAreRateLimited` **仅此一条**红（`200 != 429`），`SecurityBoundaryIT` 9/9 绿 |
+| **判别力 2**（撤掉 `SecurityConfig` 新增的两条 `permitAll`） | `SecurityBoundaryIT#anonymousCanReadCatalog` 红（`expected:<200> but was:<401>`） |
+| **判别力 3**（把 `/api/v3/**` 从 `authenticated()` 放宽为 `permitAll()`，对偶检查“放开是否真的只放开了目录”） | `SecurityBoundaryIT#anonymousCatalogRelaxationDoesNotOpenUserData` 红 1 条 |
+| 后端全量（**排除** 3 个真实 MySQL IT） | **404 通过 / 0 失败 / 0 错误 / 1 跳过**，BUILD SUCCESS（＝第 28 轮 400 + 本轮新增 4） |
+| 前端 `typecheck` + `vitest run` | 均 exit 0；**50 文件 / 1038 条通过**（与第 27 轮一致；本轮前端只改注释） |
+| 内容一致性 `convert-jung-content.mjs --check` | “内容包与 YAML 一致。”（exit 0） |
+
+原始输出：`verification/2026-09-21-a58-public-catalog/`。
+
+### 限流口径（放开边界的代价）
+
+`OP_CATALOG`：`ip` 维度、`5m/120`、**已登录用户不计数**（公共壳每页都读一次目录，计入会让正常浏览把自己挡在 429 上）；桶键 `catalog:<scope>:<value>:<windowStart>` 与 `register`/`login` 分开，避免“浏览目录”消耗“注册”额度。未加 `Retry-After` 头 —— 与既有登录限流一致，只在 `details.retryAfterSeconds` 给值。
+
+### 边界与未覆盖（诚实交代）
+
+1. **未跑真实浏览器**。“未登录首页现在真的显示服务端口径”目前只有 H2 + MockMvc 证据（前端确实消费该路径：`instrumentV3.load()` 从“必然 401”变成“真能读到”）。补验证很轻（dev 起前端 + 未登录窗口看首屏题数/维度名），本轮未做。
+2. **未跑 3 个真实 MySQL IT**（本轮无 DDL/DML 变化，与它们无关；授权也未覆盖现有库迁移）。
+3. **A74 的 AI 分支无触发路径**（`RateLimitService.checkAiCreate` 全仓无调用方），属对称补齐，不算端到端验证。
+4. **`5m/120` 是判断值**，无真实流量调优证据；共享出口（NAT）下是否误伤未验证。
+5. **A75 未做全仓扫描**：是否还有别处“只看 `isAuthenticated()` 就断定已登录”，本轮只改了已定位的两处。
+6. **未提交、未部署**；`frontend/dist` 未重建，jar 未重打包。**`typeme_dev` 等现有库未做任何写入**。
+
+### 本轮明确没做的事（以及为什么）
+
+| 待决项 | 本轮为何不动 |
+|---|---|
+| 阈值 `0.20` vs `0.10`（dev-plan 那条最终分界） | 这是“产品语气（果断 vs 保守）”的选择，不是技术缺陷；选错方向会让不同人群拿到的类型结论优先度改变，必须用户定 |
+| 真人试读 / 信度效度 | 需要先定目标（题面可读性 vs 测量质量主张），再投入；AI 无法代替 |
+| AI 真实调用试验 | 是**外发真实数据 + 付费资源**，必须显式授权；也不允许为了造 429 证据去压上游 |
+| 可审计的同意/设置台账 | 需要 DDL（新表/新列），而用户授权只覆盖“自动建/删临时库的 IT”，不覆盖现有库结构变更 |
+| 后台“改角色 / 禁用”入口 | 需要先回答“是否补一个解禁能力”（禁用不可逆），是产品决定 |
+| Redis / LangChain4j | 仓库开发提示词写成硬边界“不引入”，且已有明确结论；不推翻 |
+| AI v4 是否设为默认 / review-fixes 是否发布 | 两者都在途未提交；review-fixes 的 CLEAR 取消端点要求**前后端同发**，发布节奏由用户定 |
+| 提交 / 部署 | 未获授权 |
+
+## 第 30 轮：阈值方案 B（`0.20`）—— 新计分版本 v4（2026-09-22）
+
+> 本轮范围由用户指定：**实现阈值方案 B** —— 澄清触发与最终「倾向较轻」边界都改成归一化偏移
+> `0.20`，即 `T(n) = B(n) = floor(2n/5)`。这是**产品政策变更**，不是缺陷修复，
+> **不宣称提高测量准确性**。本轮：不改题面、不改 AI 提示词、不改报告文案版本。
+
+### 起点事实（先看，再改）
+
+- 用户此前已两次裁决这条阈值：2026-09-18 选「规则 D」（`floor(2n/10)`、`B = T`）→ `score-v3`；
+  本轮改选决策文档 §3 表格里的 **B 方案**（`floor(0.4n)`）→ 新版本。
+- `git status --short` 含**前一会话**两项在途工作（AI v4、review-fixes），本轮**未删改**。
+- 结构上先确认 `score-v3` / `zh-v3` 已被占用，**没有 v4** → 新标识只能取 `typeme-jung48-score-v4`
+  / `typeme-jung48-zh-v4`（复用旧 ID 会 UPSERT 覆盖历史内容）。
+- **先跑基线**：6 条内容脚本 `--check` 全绿（`gen-jung-fixtures` 当时 `sha256=00acde79…`），
+  确认起点干净后才改源。
+
+### 机制（为什么"分母 5"而不是"分子 4"）
+
+- `floor(2n/5)` 与 `floor(4n/10)` 在整数上等价，但契约 §4.1 原文就是 `floor(2n/5)`；
+  而且 `boundaryNumerator=4` 会与「分子 4 + 但仍是 `B=T−1`」这条**第三套口径**混淆。
+  所以取 `{boundaryNumerator: 2, boundaryDenominator: 5}`。
+- 生成器 `buildJungV4(v3)` 里把「v4 与 v3 只允许 `version` 与 `boundaryDenominator` 不同」写成
+  **生成期断言**（题目/维度/可读层逐字深比较，多改一个字节即失败），并另写一张跳档表自检
+  `[9→3, 12→4, 16→6, 5→2, 4→1, 3→1, 2→0]`。这样"顺手夹带"在生成阶段就红，不用等测试。
+
+### 改了什么
+
+| 层 | 文件 | 改动 |
+|---|---|---|
+| 内容源 | `scripts/gen-platform-content.mjs`（CRLF） | 新增 `V4_PACKAGE_ID` / `V4_SCORING_VERSION` / `V4_REPORT_CONTENT_VERSION` 与 `buildJungV4(v3)`；报告文案**沿用 v1**（与 v3 同） |
+| 生成产物 | `backend/src/main/resources/content/typeme-jung48-zh-v4.json`（新） | 声明 `sha256=a5208fcd387c34d2…`；64 题、维度、可读层与 v3 逐字相同 |
+| 后端分发 | `jung/domain/JungScoringPolicy.java` | `UNIFIED_SCALE_VERSIONS` 加入 `…-v4`；注释写明 v4 与 v3 的差别与代价 |
+| 后端默认包 | `jung/content/JungPackageLoader.java` | `CURRENT_PACKAGE_ID` → `typeme-jung48-zh-v4`（新草稿默认绑定） |
+| 后端注释 | `jung/scoring/JungScorer.java` | javadoc 不再硬写版本与常量 |
+| 前端版本表 | `frontend/src/domain/jung/types.ts` | `UNIFIED_BOUNDARY_SCALE_VERSIONS` 加入 v4 |
+| 夹具 | `scripts/gen-jung-fixtures.mjs` + 3 份 `score-cases.json` | 绑定 v4 包；`sha256=96943e4bbc1e…`、**25 例**（新增 4 例 v4 专有：`\|S\|=B` 等号、`\|S\|=B+1` 越出、负向对称、合并题集越出） |
+| 断言 | `JungScoringPolicyTest`(9)、`JungLegacyScoringRegressionTest`(9)、`JungReportCopyBaselineTest`(4)、`JungReportSchemaTest`(15)、`thresholds.spec.ts`、`scoring.fixture.spec.ts`、`snapshotThresholdCopy.spec.ts`、`readingCompanion.spec.ts`、`reportV3View.spec.ts` | v4 逐点表 + v3/v1/v2 冻结表 + 未知版本拒绝；报告"逐字段相同"比较补入 `boundaryNumerator`/`boundaryDenominator`（它们本来就该随版本不同） |
+| 页面验收 | `scripts/browser-verify-score-v4.py`（新） | 自带静态服务、全部 `/api/**` 拦截、320/390/1440；**同一张报告页按快照自己声明的政策渲染不同口径** |
+
+**为什么报告"逐字段相同"的基线用例从 CASE-12 换成 CASE-01**：CASE-12 在 v4 下从 `REFERENCE`
+变成 `TENTATIVE`，状态一变换，报告正文本来就该不同；继续用它只会证明"状态也变了"，
+失去"除版本字段外文案一致"这个要证明的东西。CASE-01 在 v1 与 v4 下都是 `REFERENCE`。
+
+### 用户可见变化（两件，与 v3 不同：这次都变大）
+
+1. **触发集合扩大**：`T(9)` 1→3、`T(12)` 2→4、`T(16)` 3→6 ⇒ **原本不安排补充题的维度可能多出 4 道题**。
+2. **边界带扩大**：同一份作答可能从 `REFERENCE` 变 `TENTATIVE` 并多出候选；含 `\|S\| = B(n)` 等号格。
+
+代表例（夹具内、逐条实测）：CASE-05 的 EI 维 `n=9, \|S\|=2` v3 不安排澄清、v4 新触发且跳过即 `TENTATIVE`；
+CASE-12 的 EI `n=12, \|S\|=4` v3 是 `REFERENCE`、v4 是等号格 `TENTATIVE`；CASE-25 `n=16, \|S\|=7` 两版都是 `REFERENCE`。
+
+### 验证
+
+| 项 | 结果 |
+|---|---|
+| 内容一致性（6 条 `--check`） | 全绿：`gen-fallback-content`、`rewrite-types-content`（0 处）、`check-type-duplication`（0 处）、`convert-jung-content`、`gen-jung-fixtures`（**sha256=96943e4bbc1e**）、`gen-platform-content`（v2/v3/v4/report-v2/bigfive 五份"与源一致"） |
+| 后端定向（评分/夹具/报告 5 类） | **41 / 0 / 0 / 0**，BUILD SUCCESS |
+| 前端定向（5 个 spec） | **5 文件 / 243 条通过** |
+| 后端全量（**排除** 3 个真实 MySQL IT） | **406 run / 0 fail / 0 error / 1 skip**，BUILD SUCCESS |
+| 前端 `typecheck` + 全量 `vitest` | exit 0；**50 文件 / 1072 条通过**（第 29 轮 1038，+34） |
+| 前端 `vite build` | 构建到**隔离目录** `work/v4-verify-dist`（未覆盖 `frontend/dist`），exit 0 |
+| **真实浏览器** 320/390/1440 | **197 / 197 通过 / 0 未捕获异常 / 0 未登记接口**；12 张截图；`NEEDS_REVIEW` 走"报告 404 → 空态"分支 |
+| 判别力 1（内容分母 5→10 并重生成） | 内容 `--check` 红；后端定向 **41 run / 9 failures / 0 errors**（`JungScoringPolicyTest` 1、`JungLegacyScoringRegressionTest` 4、`JungScoringFixtureTest` 2、`JungReportCopyBaselineTest` 2），原文含 `expected: <TENTATIVE> but was: <REFERENCE>`、`denominator expected: <5> but was: <10>`、夹具哈希不符；`gen-jung-fixtures --check` 在 `CASE-25` 直接失败 |
+| 判别力 2（前端契约表 `/5`→`/10`） | 前端定向**精确 4 条红**（逐点表、等号格、与开发方案对比两条），其余 239 绿 |
+| 判别力 3（夹具 `v4-boundary.json` 分母 5→10） | 浏览器验收**首条即红**（"方法节写明 v4 的口径（每 5 题）"） |
+| 全部变异已还原 | 4 份内容/夹具与 `JungScoringPolicy.java` 逐字节回到基线，`--check` 全绿，后端定向 41/41、前端定向 243/243、浏览器 197/197 复跑通过 |
+
+原始输出：`docs/optimization/verification/2026-09-22-threshold-v4/`（`REPORT.md`、`browser-results.json`、12 张 PNG）。
+
+### 边界与未覆盖（诚实交代）
+
+1. **没有真人数据**。`0.20` 与 `0.10` 都没有信度/效度依据；**带宽翻倍不等于补充题数量翻倍**，
+   实际多出多少取决于答卷 `\|S\|` 分布，本轮**无样本**，不能由公式反推（记 A78）。
+2. **未登记数据库**。`typeme-jung48-zh-v4` 需要在部署时由 `JungPackageRegistrar` UPSERT 进
+   `assessment_package`。本写入属**现有库变更，需单独授权**；本轮**没有把后端启动到任何库**。
+   不登记时新草稿会因外键失败，**上线前必须做**。
+3. **未跑 3 个真实 MySQL IT**（与本次改动无关，且属现有库范围）。
+4. **浏览器验收是"合成报告 + 全量模拟接口"**：报告 JSON 由生产计分器与报告构造器生成，
+   但 API 全部被拦截 —— 不覆盖真实登录、提交/保存、数据库与 AI。
+5. **截图未做人工目视**（执行模型无图像输入），以"有布局盒 / 有可见尺寸 / 横向不越界 / 无横向溢出"替代。
+6. **`frontend/dist` 未重建、jar 未重打包、未提交、未部署**。旧包 v1/v2/v3 全部冻结未动。
+7. **`fetchScoringPolicy` 的缺省值仍是 `2/10`**（前端防御性兜底）：只在报告缺字段时生效；
+   已确认当前后端一定下发这两个字段，本轮**未改**（改了会让"字段缺失"这件事被静默掩盖）。
+
+## 第 31 轮：真实全栈验收 —— 真 jar + 真 MySQL + 真会话（A80–A83）（2026-09-22）
+
+### 起点事实
+
+第 30 轮的 v4 验证有三层：计分/夹具层、报告构造层、**把 `/api/**` 全 mock 的**浏览器层。
+中间缺一段：没有任何证据看过真实 `GET /api/v3/reports/{id}` 的 `methodology`。
+后端一旦漏发 `boundaryNumerator`/`boundaryDenominator`，前端会退回缺省 `2/10`，
+报告页显示“每 10 题…”—— 而三层测试全绿。
+
+本轮在用户“全部授权”下把这条补掉，并把判别力从夹具层推到**部署产物层**。
+
+### 做了什么
+
+| 事项 | 结果 |
+|---|---|
+| 重建产物 | `npm run build`（`frontend/dist`）+ `mvn -o package -DskipTests`；核对 jar 里确实有 `content/typeme-jung48-zh-v4.json`、`db/migration/V10__illustration_asset.sql`、新 `static/assets/index-*.js` |
+| 隔离库部署 | 新建 `typeme_r31_e2e` → Flyway **V1–V10 全部从零迁移成功** → `JungPackageRegistrar` 登记 v1/v2/v3/**v4** + 大五 |
+| API 级真实全栈 | 新增 `work/r31_e2e.py`：真实注册（真邀请码/CSRF/会话）→ 建测评 → 读题 → 构造答卷 → review → 跳过补充题交卷 → 读报告。**16/16** |
+| 真实浏览器 | 新增 `scripts/browser-verify-real-stack-v4.py`：真表单注册 → 选择页点开始 → 46+1 题 → 跳过补充题 → 交卷 → 报告页三档宽度。**19/19** |
+| 判别力（部署层） | 内容源分母 5→10 → 重打包重启（包哈希 `4923071243f5…`）→ API 级 **12/16（4 红）**、浏览器级 **14/19（5 红）**；还原后两条各自复跑回 **16/16** 与 **19/19** |
+| 清理 | `DROP DATABASE typeme_r31_e2e` / `typeme_r31_disc`；停掉 8099 上的临时 jar |
+
+**判别力设计的要点**：造一份 **v3 与 v4 结论不同**的答卷（EI `|S|=3, n=12`）。
+v3 `B(12)=2` → REFERENCE；v4 `B(12)=4` → **TENTATIVE**。
+所以“后端跑的是不是 v4”由**报告状态本身**证明，而不是断言某个字段存在。
+变异时这条断言精确翻成 REFERENCE —— 这是本轮最有价值的一条证据。
+
+### 验证命令与结果
+
+```powershell
+# 1. 真实 MySQL IT（与上轮同一命令，本轮复跑确认无回归）
+work\run-backend-mysql-it.cmd          → 8 run / 0 fail / 0 error / 0 skip，BUILD SUCCESS
+# 2. 产物
+work\run-r31-deploy.cmd                → 前端 build + mvn package，BUILD SUCCESS
+# 3. 真实全栈
+work\start-r31-e2e.cmd（起 8099）
+C:\Python314\python.exe work\r31_e2e.py                        → 16/16
+C:\Python314\python.exe scripts\browser-verify-real-stack-v4.py → 19/19
+```
+
+### 本轮新增发现（4 条）
+
+- **A80（P1，已闭环）**：报告接口的政策字段只被 mock 覆盖；本轮补齐并做了部署层判别力。
+- **A81（P3，已处置）**：注册 IP 限流（实测 `429, retryAfterSeconds=2370`）会把重复验收挡成假红；脚本改为只清隔离库里 `register:%` 一个桶。限流本身未改。
+- **A82（P3，已记录）**：`/assess` 已是选择页（要在页上点 `[data-start='jung48']`），两条历史脚本仍按“进去就建草稿”写。
+- **A83（P2，已记录并核对）**：**WSL→Windows 互操作不透传自定义环境变量** → 我本意指向隔离库、实际让 jar 连到了 `typeme_dev`，对其执行了 **V9/V10 迁移并登记 v3/v4**。在“全部授权”范围内，且结果与待执行的部署步骤一致；已核对 `assessment_attempt` 9→9、`assessment_report` 5→5 未变。后续一律用带 `set TYPEME_DB_URL=…` 的 `.cmd` 启动。
+
+### 遗留问题与下一步
+
+1. **未提交、未推送、未部署**；`frontend/dist` 与 `typeme-backend-1.0.0.jar` 已重建但未发布。
+2. **A78 仍未解**：v4 到底会让多少人多答补充题，只有公式、没有真人分布。
+3. **A40 / A34** 仍未处理；`IllustrationAssetService` 的 DML 仍只有 H2 覆盖。
+4. 两上一会话在途轮（AI prompt v4、review-fixes）仍未提交；后者需前后端**成对发布**（CLEAR 解绑）。
+5. 真实 MySQL 的三个 IT 本轮已跑，但 `typeme_dev` 的 V9/V10 是**非预期**执行的（见 A83），部署队应与环境负责人对齐现有库的实际版本。
+
+## 第 32 轮：PR #17 的 Codex 评审闭环（A84、A85）（2026-09-22）
+
+### 起点事实
+
+- 第 31 轮把分支推成 PR #17 后，Codex 自动评审提了两条：① `V10__illustration_asset.sql` 原地改列名应当改为
+  增量迁移；② `requeueForRetry` 把 `SUCCEEDED` 也纳入重新入队，会让「再生成失败」不再呈现上一份成功结果。
+- 两条都在**已被 #16 覆盖的分支基线上**讨论，所以先读代码确认当前行为，再决定「改/不改、以及要不要补证据」。
+
+### 做了什么（按两条建议分别处置）
+
+**② 重新生成失败不应抹掉上一次正文（A84）—— 判定为真缺陷，已修（P1）**
+
+- 判定依据（读代码，不靠印象）：`AnalysisJobRepository.requeueForRetry` 的条件是
+  `status IN ('FAILED','UNKNOWN','SUCCEEDED')`（`:229`），而**全仓库只有 `markSucceeded` 会写 `response_json`**（`:183`）——
+  重新入队与 `markFailed`/`markUnknown` 都不清这列。所以状态变成 `FAILED` 时，正文仍在库里、也在接口响应里。
+- 但 `AiAnalysisPanel.vue` 把失败卡与结果卡写成同一条 `v-else-if` 链：`succeeded` 为假就不会渲染结果区 →
+  用户点一次「再生成一次」失败，此前能读的分析从界面上消失。这与面板里既有文案「失败不会被算作已经给过你一份分析」自相矛盾。
+- 修法（只在展示层，不动数据模型、不动状态机）：模板拆成两条独立 `v-if`；新增
+  `staleResult = failed && result != null` 与 `showResult = succeeded || staleResult`；失败时继续渲染结果区，
+  并加 `[data-ai-stale]` 明确写「这份是上一次成功生成的内容，本次重新生成没有成功，所以它没有被替换」。
+- `result != null` 能推出「历史上成功过至少一次」是**由代码保证的**（只有 `markSucceeded` 写这列），不是猜测；
+  据此反向用例也成立：从未成功过时不渲染结果区。
+
+**① V10 是否该改成增量迁移（A85）—— 结论不变，但把推理补成证据（P3）**
+
+- 评审的前提是「旧版脚本在仓库支持的 H2 MySQL 模式下可以成功执行」，于是担心「已应用过旧版 V10 的库」。
+- 我没有直接照改，而是先把「是否存在这样的库」查清楚：
+  1. 在真实 MySQL 8.4 上执行**原版** V10（`git show 6bc09ca^:…V10…sql`）→ `ERROR 1064 … near 'release VARCHAR(32) …'`，
+     且该库**一条语句都没成功**（表都没建出来）；
+  2. 全机三个 TypeMe 库的 `flyway_schema_history` 里 `version>=9` 只有 `typeme_dev` 的 9/10 两条，`typeme_show`/`typeme_test` 为空；
+  3. 全库 `illustration_asset` 只有 `typeme_dev` 一张，列名已是 `release_tag`，没有 `release`；
+  4. 两个被忽略的 H2 文件库（`output/*.mv.db`）迁移停在 V8，且 0 处 `illustration_asset` 字样；
+  5. 旧版 DDL 在 H2 MySQL 模式下确实能执行成功（复现评审的前提），所以「H2 能过、MySQL 不能」成立。
+- 结论：**不追加 V11**（V10 失败时 V11 永远轮不到；且不存在需要兼容的历史库），
+  但把这条从「注释里的推理」升级为可复现证据，存档在 `docs/optimization/verification/2026-09-22-pr17-review/`。
+
+### 验证与证据
+
+| 命令 | 结果 |
+| --- | --- |
+| `npx vitest run src/components/aiAnalysisPanel.spec.ts`（修复态） | **15/15 通过**（新增 2 条） |
+| 同一条，把 `showResult` 退回 `succeeded`（判别力） | **1 failed / 14 passed**，且失败点正是新用例（`expected false to be true`） |
+| `npm run typecheck` | 退出 0 |
+| `npx vitest run`（全量） | **50 文件 / 1074 条通过**（第 31 轮为 1072，+2） |
+| 原版 V10 打真实 MySQL 8.4 | `ERROR 1064`，表未建出（`mysql8-original-v10-rejected.txt`） |
+| 旧版 DDL 打 H2 MySQL 模式 | 退出 0（`h2-old-v10-accepted-by-h2.txt`） |
+| 全库 flyway 历史 / 列名盘点 | 见 `mysql-flyway-history-and-column.txt` |
+
+### 遗留 / 未覆盖
+
+- **A84 的上游残留（数据模型层面，本轮未改）**：`ai_analysis_job` 上同一份发送范围只允许一行
+  （`uk_ai_job_request`），也只有一份 `response_json`。所以本轮修好的是「重新生成**失败**时不再隐藏旧正文」；
+  而「重新生成**成功**」会原地覆盖上一份正文，没有历史版本可回退。要保留多份结果需要新表/新列与迁移，
+  属需用户决定项（见 backlog「需用户决定的事项」）。
+- 未做真实浏览器回归：本轮只动了前端一个组件与两个单测（未跑真实 AI 调用，也拿不到真实 429/超时），
+  浏览器级证据仍以第 31 轮的 19/19 为基础；如需页面级确认应另行授权一次真实 AI 调用。
+- `V10` 的处置仍是「原地修正」，若将来有库真的应用过某个中间版本 V10，Flyway checksum 冲突会先报出来（这是期望行为）。
+
+## 第 33 轮：A34 与 A40 闭环（2026-09-22）
+
+### 起点事实
+
+- 第 32 轮把 PR #17 的评审处置完（A84 已修、A85 结论不变），当时**开着的可独立推进项**只剩 A34 与 A40。
+- 两条都被历轮记成「低价值/不可达/有意不改」，所以本轮第一步不是改，而是**先验证原判断对不对**。
+- 分支仍在 `wip/score-v4-and-a58`（PR #17），本轮延续在这个分支上收口。
+
+### 做了什么
+
+**A34：覆盖不足的那次「跳过补充题」把草稿锁死了（原判「不可达」，实测可达）**
+
+- 原记录的推理是「要撞上需要覆盖率在 review 与 submit 之间由 ok 变回不 ok」，据此标成「不可达」。
+  复核 `ReportService.submit` 发现前提不成立：那句 `UPDATE assessment_attempt SET clarification_skipped = 1`
+  紧接覆盖检查之前执行，**与草稿是否已经进入澄清阶段无关**。
+- 因此真实路径更短：带 `clarificationSkipped: true` 且覆盖不足 → 写库 1 并返回 `200 + NEEDS_REVIEW`（**没有报告**）；
+  草稿仍是 `BASE_IN_PROGRESS`，之后补答主测题**不会**触发 `AttemptService.patchAnswers` 的 `resetClarification`
+  （那条只在 `CLARIFICATION_IN_PROGRESS` 且改主测答案时才清标记）。用户回头老实答完补充题再交卷，
+  会被 `400 已选择跳过补充题，就不应该再有补充题答案` 顶回，而那次提交没有产生报告、也无法派生新测评绕开。
+- 修法：把落库推迟到「确定要写报告」之后 —— 移到报告 INSERT 成功之后、`status='SUBMITTED'` 之前，同一事务。
+  不加新列、不改状态机，因为问题实质是**写入时机**。
+
+**A40：账号页 / 对比页的提示与按钮间距节奏不统一**
+
+- 先定基准：账号页自己的表单反馈一直是 `mt-3`（12px，`caption` / `notice-success` / `notice-error` 与其后按钮），
+  对比页是多出来的那一侧（操作组 `mt-4`、比较失败提示 `mt-4`）。所以改对比页，向账号页既有节奏靠。
+- `CompareView.vue`：操作组与比较失败提示 `mt-4` → `mt-3`，并写注释固定这条节奏规则，避免下一次又被改回去。
+  分节层级间距（`mt-5/6/8`、卡片）不动 —— 那不是「提示与按钮」。
+
+### 验证与证据
+
+| 命令 / 脚本 | 结果 |
+| --- | --- |
+| `mvn test -Dtest=SubmitReportIT`（修复态） | **3 passed**（新增 `skipChoiceIsNotPersistedWhenTheSubmitProducesNoReport`） |
+| 同一条，把落库位置改回覆盖检查之前（判别力） | **1 failed / 2 passed**，失败点即新用例：`Expecting value to be false but was true` |
+| `mvn test '-Dtest=*,!AccountSqlDialectMySqlIT,!AiSqlDialectMySqlIT,!ConcurrencyMySqlIT'` | **407 通过 / 0 失败 / 0 错误 / 1 跳过**，BUILD SUCCESS（第 32 轮 406，+1） |
+| `npx vitest run src/views/compareView.spec.ts` | **10 通过**（新增 1 条）；撤掉修复 → **1 failed / 9 passed** |
+| `npx vitest run`（全量）+ `npm run typecheck` | **50 文件 / 1075 通过**（第 32 轮 1074，+1）；typecheck 退出 0 |
+| `npm run build` → `scripts/browser-verify-spacing.py`（真实 dist + 打桩 API） | **32/32 通过**（320/390/1440 三个宽度：两页均无横向溢出，对比页操作组=12px、错误提示=12px、账号页按钮=12px，且两页数字相等） |
+| 同一条脚本，**撤掉修复重新构建产物**再跑（判别力做到构建产物层） | **23/32**，9 条精确红且全是同一原因「对比页 16 vs 账号页 12」，**无任何溢出失败** |
+
+证据目录：`docs/optimization/verification/2026-09-22-a34-a40/`（含 12 张 320/390/1440 截图与两份 `result*.json`）。
+
+### 遗留 / 未覆盖
+
+- **A40 的浏览器验收走打桩 `/api/**`**：它回答「布局与 CSS 是否生效」，不回答「真后端返回真数据时页面长什么样」；
+  真后端同类走查由第 16 轮的 `scripts/browser-verify-compare.py` 覆盖，本轮未重跑（需要真后端 + 两份完整测评）。
+- **截图未经人工目视**：执行环境没有图像输入能力，本轮不声称「看过截图」；断言全部是机器可判定的数字。
+- **A34 未覆盖并发下的同一草稿**（那由 `ConcurrencyMySqlIT` 在真实 MySQL 上覆盖，本轮未跑）。
+- 未运行三类真实 MySQL IT（需要建库/删库授权）；未做真实 AI 外发。
+- 顺手发现、**本轮未动**：`AttemptService.patchAnswers` 里 `touchesClarification` 只赋值未被读取（死变量，与 A34/A40 无关）。
+
+## 第 35 轮：在上面的可发布基线上继续开发（2026-09-22）
+
+前提：第 34 轮已经证明「从当前源码能产出一个已验证的产物」。本轮在这条基线上做两件**不需要产品决策**的开发，
+并保持「每一步都能重新打包 + 全量测试绿」。
+
+### 一、A71 剩下最关键的一块：账号接口层从 0 到 25 条测试
+
+`frontend/src/api/v3.ts`（862 行，登录/注册/恢复密码/资料/导出/注销的**全部**账号端点）在本轮之前**一条测试都没有**。
+它之所以危险，是因为它恰好是「页面测试全绿而路径可能是错的」那一层：页面测试打的是打桩的 `fetch`，
+stub 认哪个路径，测出来就"对"；真正决定线上能不能登录的是这一层拼出来的路径与方法。
+
+新增 `frontend/src/api/v3.spec.ts` 28 条，按四组钉：
+
+| 组 | 钉什么 | 为什么 |
+| --- | --- | --- |
+| 请求形状 | 逐字断言路径与方法（`/auth/login`、`/auth/register`、`/me`、`/me/password`、`/me/recovery-codes`、`/me/export`、`DELETE /me`）；空昵称不得出现在请求体里；读操作不预取 CSRF | 路径写错在页面上看不出来（stub 会“配合”）；把空昵称写进库是脏数据 |
+| 响应解析 | 缺 `userId` 抛 `UNEXPECTED_RESPONSE`（**不**造一个空账号）；毫秒时间戳转 ISO；重建恢复码但响应无码时抛错；注册无码时不报错（账号已建好）；导出正文的降级段落读出来 | “少一个字段”不能让页面白屏或显示成“未设置”；恢复码那一条关乎用户能不能找回账号 |
+| 错误映射 | `403 FORBIDDEN` 与 `401 UNAUTHENTICATED` 必须分开 | 混起来会让有权限的人在会话抖动时被当成越权，或反之被反复弹回登录页 |
+| CSRF 重试 | 撞 `CSRF_INVALID` 时重取 token 并**只**重试一次（第二次带上新 token；再被拒就把错误报出来；GET 不重试） | 契约要求「重试一次」。不重试 = 用户吃一个本可自愈的失败，重试多次 = 一次点击放大成一串请求 |
+
+判别力（真跑）：把 `/me/password` 改成 `/me/passwd`、并把空昵称也写进请求体 → **3 failed / 22 passed**，
+红的正是这两族用例；还原后 28/28 绿。另做一次判别力：把 CSRF 重试分支关掉（`if (false && …)`）→ **2 failed / 26 passed**，红的正是两条重试用例。
+
+### 二、删掉 `AttemptService.patchAnswers` 里的只写不读变量
+
+`touchesClarification` 在第 382 行被赋值，全仓无读取处。先查“它本来是不是该用在什么地方”，
+而不是直接删 —— 最可能的用途是「用户开始答澄清题时把 `clarification_skipped` 清掉」，
+那正好是 A34 锁死的**历史草稿**的唯一解票。所以先查库：
+
+| 库 | `status` × `clarification_skipped` |
+| --- | --- |
+| `typeme_dev`（9 份） | BASE_IN_PROGRESS 0×4；SUBMITTED 0×5 |
+| `typeme_show`（8 份） | BASE_IN_PROGRESS 0×2；CLARIFICATION_IN_PROGRESS 0×2；SUBMITTED 0×4 |
+| `typeme_test`（0 份） | 空表 |
+
+**没有任何一份草稿被打上过 `clarification_skipped = 1`** ⇒ 不存在需要修补的历史受害者（A34 的修复只需防未来），
+这个变量也没有“未实现的用途”⇒ 删掉，并在原处留一句说明，避免以后又被加回来。
+
+### 验证
+
+| 命令 | 结果 |
+| --- | --- |
+| `vitest run src/api/v3.spec.ts` | **28 通过 / 0 失败**（新增 1 个文件）；两次判别力态 3 failed / 22 passed 与 2 failed / 26 passed |
+| `vitest run`（全量）+ `typecheck` | **51 文件 / 1103 条通过**（第 34 轮 50/1075，+1 文件 +28 条）；typecheck 退出 0 |
+| 后端子集（排除 3 个真实 MySQL IT） | **407 通过 / 0 失败 / 0 错误 / 1 跳过**（删死变量是行为中性的，数量不变） |
+| 库查询（只读） | 上表；未做任何 DML/DDL |
+
+### 遗留
+
+- 仍未覆盖的接口模块：`v3Admin.ts`、`adminMembers.ts`、`client.ts`（旧 v1/v2 内容层）。`csrf.ts` 的重试语义本轮覆盖了，但**取 token 本身**的细节（cookie 优先、头名以服务端为准、取不到时的兑底头名、并发合并）仍无测试。
+- 本轮**未**重新打包 jar（开发还在同一分支上继续，等下一批改动一起打），所以第 34 轮那份产物与当前 HEAD 不是同一份。
+- 用户可见的功能改动（后台改角色/禁用、离线答题、同意台账……）都需要先由用户拍板，本轮未动。
+
+## 第 34 轮：先把「新版本」产出来（可构建 + 可运行 + 已验证）（2026-09-22）
+
+### 起点事实
+
+- 用户的诉求是「先能搞出一个新版本，再在这个前提下开发」—— 所以本轮不碰产品逻辑，先把**从当前源码到可运行产物**这条路走通并留下证据。
+- 起点问题：仓库里可运行的 jar 是第 31 轮 13:25 打的，**不含**其后三个提交（A58 / v4 阈值 / A84 / A34 / A40）。产物与源码不一致是最容易被误当「已经验收过」的状态。
+- 先确认没有进程占着产物：`netstat` 显示 8080/8091 无监听，只有 MySQL 的 3306/33060 ⇒ 可以直接 `mvn clean package`，不需要 taskkill 任何用户进程。
+
+### 做了什么
+
+1. 发布前只读检查：6 条内容一致性脚本全部 `--check` exit 0（夹具 sha256 `96943e4bbc1e`）。
+2. `frontend: npm run build` → `backend: mvn -o clean package`。用 `clean` 是因为要排除「target 里的旧 class 被当成新产物」；
+   这也意味着全量测试（**含三个真实 MySQL IT**）在干净目录上重跑。
+3. 新写 `work/r34-artifact-check.py` 做**产物层**核对（见下表）——重点是那条反汇编检查，用来回答
+   「jar 里的 `ReportService` 到底是哪一版」：时间戳只能证明「刚编译过」，不能证明「编译的是这份源码」，字节码顺序能。
+4. 用隔离库把新 jar 真跑起来：建 `typeme_r31_e2e` → 启动（Flyway 从零迁到 V10）→ API e2e → 真浏览器 → **停进程 + 删库**。
+
+### 验证与证据
+
+| 内容 | 结果 |
+| --- | --- |
+| 后端**全量**（含 3 个真实 MySQL IT） | **415 通过 / 0 失败 / 0 错误 / 1 跳过**，BUILD SUCCESS（子集 407 + 真实 MySQL IT 8） |
+| 前端构建 | exit 0；`index-BlPyPWyL.js` 650.51 kB / gzip 245.89 kB；产物地址检查通过 |
+| 产物核对 `work/r34-artifact-check.py` | **12/12**：jar 内 `index.html` / `index-*.js` / `index-*.css` 与 `frontend/dist` 哈希一致；反汇编 `ReportService.submit` 后「写 `clarification_skipped = 1`」的 `ldc`@983 在 `JungScorer.checkCoverage`@171 **之后** ⇒ jar 里确实是修过的 class |
+| 真实全栈 API e2e（真 jar + 真 MySQL + 真会话） | **16/16**（`work/r31_e2e.py`） |
+| 真实浏览器 · 真实栈 | **19/19**（320/390/1440 无溢出；阈值文案「每 5 题」） |
+| 产物 | `typeme-backend-1.0.0.jar` 35,997,665 B，sha256 `9475273a2a41…`，代码版本 `674bcec` |
+
+证据目录：`docs/optimization/verification/2026-09-22-release-r34/`（含 `RELEASE.md` 版本说明、`artifact-check.json`、
+`api-e2e.txt`、`browser-real-stack.txt`、`backend-full-tests.txt` 与 4 张截图）。
+
+### 边界与未覆盖
+
+- **内部版本号仍是 `1.0.0`**（`pom.xml` / `package.json`）。本轮说的"新版本"指**产物**；要不要改号属项目版本策略，需用户决定。
+- AI 全程未真实外发（key 置空，`enabled=false`）；提示词 v4 与 A84 的失败态呈现仍只有 mock 证据。
+- 真浏览器只走了一条主路径（交卷 → 报告页）；AI 面板 / 账号页 / 后台 / 大五流程未跑。
+- 截图未经人工目视；断言全是机器可判定的数字。
+- 未部署到任何长期运行的环境；临时库与临时进程已清理。
+
 ## 第 0 轮：环境与基线（2026-09-17）
 
 ### 做了什么

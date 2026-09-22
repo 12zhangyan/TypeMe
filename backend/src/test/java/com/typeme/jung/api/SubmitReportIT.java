@@ -81,6 +81,78 @@ class SubmitReportIT extends AccountIntegrationTestBase {
         assertThat(body.path("coverage")).as("必须告诉用户缺哪几维").isNotEmpty();
     }
 
+    /**
+     * A34：覆盖不足的那次交卷点了「跳过补充题」，草稿不能被永久标记为已跳过。
+     *
+     * <p>旧实现把 clarification_skipped = 1 写在**覆盖检查之前**，于是任何一次
+     * 没产生报告的提交（这里就是覆盖不足 → 200 + NEEDS_REVIEW）都会把草稿标记成
+     * 「已跳过」。用户补完主测题、再老实答完补充题交卷时，服务端读到的仍是 1，
+     * 于是走进「已选择跳过补充题，就不应该再有补充题答案」那一支 → 400；
+     * 而那次提交根本没有报告，他也无法靠派生新测评绕开，草稿就此锁死。
+     *
+     * <p>这条测试特意走到「补答 → 重新求澄清 → 答完补充题 → 再交卷」的完整路径，
+     * 而不是只断言那一列的取值：锁死的是用户的下一步动作，不是数据库里的一个字段。
+     */
+    @Test
+    @DisplayName("覆盖不足时点过「跳过补充题」：草稿不被永久标记，补答后仍能正常交卷（A34）")
+    void skipChoiceIsNotPersistedWhenTheSubmitProducesNoReport() throws Exception {
+        RegisteredAccount account = register(uniqueUsername("submit_a34"), "Submit-A34!2026");
+        CsrfContext csrf = csrf(account.session());
+
+        CreatedAttempt attempt = createAttempt(account, csrf);
+        Map<String, List<String>> base = questionIdsByDimension(account, "base");
+        Map<String, List<String>> clarification = questionIdsByDimension(account, "clarification");
+
+        // ① EI 只答 8 题（低于每维最低题数），其余三维答满 → 覆盖必然不足
+        List<Map<String, Object>> responses = new ArrayList<>();
+        base.get("EI").subList(0, 8).forEach(questionId -> responses.add(rating(questionId)));
+        for (String dimension : List.of("SN", "TF", "JP")) {
+            base.get(dimension).forEach(questionId -> responses.add(rating(questionId)));
+        }
+        long revision = putAnswers(account, csrf, attempt.attemptId(), attempt.revision(), responses);
+
+        // ② 带着「跳过补充题」交卷：这次没有报告，只有 NEEDS_REVIEW
+        MvcResult shortSubmit = submit(account, csrf, attempt.attemptId(), revision, true);
+        assertThat(shortSubmit.getResponse().getStatus())
+                .as("覆盖不足仍是 200，不是错误状态码；响应体：%s", shortSubmit.getResponse().getContentAsString())
+                .isEqualTo(200);
+        assertThat(body(shortSubmit).path("status").asText()).isEqualTo("NEEDS_REVIEW");
+
+        // ③ 没有报告，就不该留下「已跳过补充题」的标记 —— 旧实现在这里必红
+        assertThat(persistedClarificationSkipped(attempt.attemptId()))
+                .as("覆盖不足的提交没有产生报告，草稿必须保持「还没决定跳过」的样子")
+                .isFalse();
+
+        // ④ 补完 EI 剩下的题，覆盖达标
+        List<Map<String, Object>> remaining = new ArrayList<>();
+        base.get("EI").subList(8, base.get("EI").size())
+                .forEach(questionId -> remaining.add(rating(questionId)));
+        revision = putAnswers(account, csrf, attempt.attemptId(), revision, remaining);
+
+        // ⑤ 重新求澄清安排，并把安排的补充题全部答完（第 ⑥ 步不再选「跳过」）
+        MvcResult review = mockMvc.perform(withCsrf(post("/api/v3/attempts/{id}/review", attempt.attemptId())
+                .session(account.session()), csrf)).andReturn();
+        assertThat(review.getResponse().getStatus()).isEqualTo(200);
+        List<String> scheduled = new ArrayList<>();
+        body(review).path("clarificationDimensions").forEach(node -> scheduled.add(node.asText()));
+        assertThat(scheduled)
+                .as("这组答案（全选同一档）应当需要澄清；若不需要，这条测试就走不到补充题分支")
+                .isNotEmpty();
+
+        List<Map<String, Object>> clarificationAnswers = new ArrayList<>();
+        for (String dimension : scheduled) {
+            clarification.get(dimension).forEach(questionId -> clarificationAnswers.add(rating(questionId)));
+        }
+        revision = putAnswers(account, csrf, attempt.attemptId(), revision, clarificationAnswers);
+
+        // ⑥ 这次没有选跳过：必须能交卷（旧实现会被第 ③ 步留下的标记顶成 400）
+        MvcResult submitted = submit(account, csrf, attempt.attemptId(), revision, false);
+        assertThat(submitted.getResponse().getStatus())
+                .as("补答补充题后交卷必须是 201；响应体：%s", submitted.getResponse().getContentAsString())
+                .isEqualTo(201);
+        assertThat(body(submitted).path("reportId").asText()).isNotBlank();
+    }
+
     /* ── 小工具 ─────────────────────────────────────────────────────────── */
 
     private record CreatedAttempt(String attemptId, long revision) {
@@ -121,6 +193,50 @@ class SubmitReportIT extends AccountIntegrationTestBase {
         return patchAnswers(account, csrf, attempt, responses);
     }
 
+    /**
+     * 直接读草稿上的「已跳过补充题」标记。
+     *
+     * <p>断言看的是**库里的真实状态**，不是响应体：这个标记的影响发生在下一次提交，
+     * 只看本次响应看不出问题。
+     */
+    private boolean persistedClarificationSkipped(String attemptId) {
+        Integer value = invitationJdbc.queryForObject(
+                "SELECT clarification_skipped FROM assessment_attempt WHERE id = ?", Integer.class, attemptId);
+        return value != null && value == 1;
+    }
+
+    /** 按维度取题号（stage = base / clarification），不写死题号，内容包换版时不会跟着烂掉。 */
+    private Map<String, List<String>> questionIdsByDimension(RegisteredAccount account, String stage)
+            throws Exception {
+        MvcResult result = mockMvc.perform(get("/api/v3/catalog/current/package")
+                .session(account.session())).andReturn();
+        assertThat(result.getResponse().getStatus()).isEqualTo(200);
+        Map<String, List<String>> grouped = new LinkedHashMap<>();
+        for (JsonNode question : body(result).path("questions")) {
+            if (stage.equals(question.path("stage").asText())) {
+                grouped.computeIfAbsent(question.path("dimension").asText(), key -> new ArrayList<>())
+                        .add(question.path("id").asText());
+            }
+        }
+        return grouped;
+    }
+
+    private long putAnswers(RegisteredAccount account, CsrfContext csrf, String attemptId,
+                            long expectedRevision, List<Map<String, Object>> responses) throws Exception {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("expectedRevision", expectedRevision);
+        payload.put("responses", responses);
+        MvcResult result = mockMvc.perform(withCsrf(patch("/api/v3/attempts/{id}/answers", attemptId)
+                        .session(account.session())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(payload)), csrf)).andReturn();
+        assertThat(result.getResponse().getStatus())
+                .as("批量作答应返回 200，实际 %d，响应体：%s",
+                        result.getResponse().getStatus(), result.getResponse().getContentAsString())
+                .isEqualTo(200);
+        return body(result).path("revision").asLong();
+    }
+
     private MvcResult submit(RegisteredAccount account, CsrfContext csrf, String attemptId,
                              long expectedRevision, boolean skipped) throws Exception {
         Map<String, Object> payload = new LinkedHashMap<>();
@@ -143,9 +259,9 @@ class SubmitReportIT extends AccountIntegrationTestBase {
     /**
      * 从内容包里取主测题号 —— 不写死题号，内容包换版时这条测试不会跟着烂掉。
      *
-     * <p>带会话请求：`/api/v3/**` 目前一律要认证（`SecurityConfig`），
-     * 而契约 §7 把 `GET /catalog/*` 归在"公开内容 GET"里。这个不一致另案登记，
-     * 本条测试不替它做决定 —— 只按现状用已登录身份取题号。
+     * <p>2026-09-21 起 `/api/v3/catalog/*` 是公开的（`SecurityConfig` 单独 `permitAll`，
+     * 见 `SecurityBoundaryIT#anonymousCanReadCatalog`），本条带会话只是为了复用已注册账号，
+     * 不再是为了绕过 401。
      */
     private List<String> baseQuestionIds(RegisteredAccount account) throws Exception {
         MvcResult result = mockMvc.perform(get("/api/v3/catalog/current/package")

@@ -1,0 +1,22 @@
+# 所有 TypeMe 库的 flyway 历史（version>=9），用于核验「是否存在应用过旧版 V10 的库」
+# 命令：mysql -h127.0.0.1 -uroot -p*** -e "SELECT version, script, success, installed_on FROM <db>.flyway_schema_history WHERE CAST(version AS UNSIGNED)>=9 ORDER BY installed_rank;"
+# 采集时间：2026-09-22T15:16:25+08:00
+--- typeme_dev ---
+9	V9__invitations_and_user_ai_limit.sql	1	2026-09-22 13:10:49
+10	V10__illustration_asset.sql	1	2026-09-22 13:10:49
+(以上为空 = 该库没有 V9/V10 记录)
+--- typeme_show ---
+(以上为空 = 该库没有 V9/V10 记录)
+--- typeme_test ---
+(以上为空 = 该库没有 V9/V10 记录)
+--- 所有含 flyway_schema_history 的库 ---
+typeme_dev
+typeme_show
+typeme_test
+yanai_learn
+--- typeme_dev.illustration_asset 列名 ---
+asset_name
+url
+sha256
+release_tag
+updated_at

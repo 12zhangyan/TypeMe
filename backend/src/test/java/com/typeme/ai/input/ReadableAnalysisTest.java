@@ -20,6 +20,10 @@ class ReadableAnalysisTest {
     private final ReportAnalysisValidator validator = new ReportAnalysisValidator(mapper);
 
     private AiReportInput input(boolean bigFive, boolean envelope, String owner) {
+        return input(bigFive, envelope, owner, ReadableReportInput.PROMPT_VERSION);
+    }
+
+    private AiReportInput input(boolean bigFive, boolean envelope, String owner, String version) {
         ObjectNode report = mapper.createObjectNode();
         report.put("status", bigFive ? "PROFILE" : "TIED");
         report.put("processLayer", "MUST_NOT_SEND");
@@ -46,7 +50,7 @@ class ReadableAnalysisTest {
                 null, "hash", "PRIVATE_ATTEMPT", null, "package", "SECRET_QUESTION_TEXT",
                 Map.of("q1", new AiReportSnapshot.Answer("q1", "RATING", 5)), root.toString());
         return new ReportInputBuilder(id -> Optional.of(snapshot), mapper)
-                .build("PRIVATE_REPORT", owner, AiTopic.OVERALL, "", ReadableReportInput.PROMPT_VERSION, "mock");
+                .build("PRIVATE_REPORT", owner, AiTopic.OVERALL, "", version, "mock");
     }
 
     @Test void bothInstrumentsAndHistoricalEnvelopesHaveOnlyDimensionEvidence() throws Exception {
@@ -60,6 +64,19 @@ class ReadableAnalysisTest {
             assertEquals(bigFive ? 5 : 4, input.evidenceIds().size());
             assertTrue(input.evidenceIds().stream().allMatch(id -> id.endsWith(":summary")));
             assertEquals("typeme-ai-scope-v3", input.scopeVersion());
+        }
+    }
+
+    @Test void promptUpgradeKeepsPayloadScopeAndHistoricalVersionButGetsItsOwnDedupKey() {
+        for (boolean bigFive : List.of(false, true)) for (boolean envelope : List.of(false, true)) {
+            var oldInput = input(bigFive, envelope, "PRIVATE_OWNER", "typeme-ai-prompt-v3");
+            var enhanced = input(bigFive, envelope, "PRIVATE_OWNER", "typeme-ai-prompt-v4");
+            assertEquals("typeme-ai-prompt-v3", oldInput.promptVersion());
+            assertEquals("typeme-ai-prompt-v4", enhanced.promptVersion());
+            assertEquals(oldInput.payload(), enhanced.payload());
+            assertEquals(oldInput.scopeVersion(), enhanced.scopeVersion());
+            assertNotEquals(oldInput.requestHash(), enhanced.requestHash());
+            assertEquals(oldInput.requestHash(), input(bigFive, envelope, "PRIVATE_OWNER", "typeme-ai-prompt-v3").requestHash());
         }
     }
 

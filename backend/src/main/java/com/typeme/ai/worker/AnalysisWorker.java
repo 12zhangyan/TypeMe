@@ -248,7 +248,7 @@ public class AnalysisWorker {
         // 校验并写回（写回必须在事务 3 里带 status='RUNNING' 条件）。
         ReportAnalysisValidator.MapResult result = validator.validate(
                 response, input.computedTypeCode(), input.evidenceIds(), settings.maxTokens());
-        String expectedSchema = com.typeme.ai.input.ReadableReportInput.PROMPT_VERSION.equals(row.promptVersion())
+        String expectedSchema = com.typeme.ai.input.ReadableReportInput.supports(row.promptVersion())
                 ? com.typeme.ai.input.ReadableReportInput.SCHEMA_VERSION : "1";
         if (!expectedSchema.equals(result.node().path("schemaVersion").asText())) {
             throw AnalysisValidationException.invalidJson("分析输出版本与本次任务不一致。");
@@ -289,8 +289,17 @@ public class AnalysisWorker {
         if (DeepSeekException.Codes.UPSTREAM_429.equals(code) && !alreadyAutoRetried(jobId)) {
             // 429：最多自动重试一次，退避时间尊重 Retry-After。
             Duration delay = ex.retryAfter() == null ? DEFAULT_RETRY_AFTER : ex.retryAfter();
-            if (requeueAfter(jobId, executionOwner, delay)) releaseReservation(candidate.userId());
-            log.info("AI 任务 {} 命中 429，{} 秒后自动重试一次。", jobId, delay.toSeconds());
+            if (requeueAfter(jobId, executionOwner, delay)) {
+                /*
+                 * 重新入队成功时**保留**预留，不退：
+                 * 这次 429 本身没有被上游计费，但重新入队后还会再发一次请求，那条预留正是留给它的。
+                 * 在这里退掉会让 reserved_calls 比实际外发数少一次 —— 重试成功时 finishSuccess
+                 * 只把 actual_calls +1，额度会凭空多出一次（A53⑥ 的漂移）。
+                 * 若重试始终没有发出去（被取消 / 账号注销），由 discardLateResult(sent=false) 退。
+                 */
+                log.info("AI 任务 {} 命中 429，{} 秒后自动重试一次（保留本次预留给重试）。",
+                        jobId, delay.toSeconds());
+            }
             return;
         }
         // 其余明确失败（401/402/其它 4xx/再次 429）：不自动重试，用户可主动重试。

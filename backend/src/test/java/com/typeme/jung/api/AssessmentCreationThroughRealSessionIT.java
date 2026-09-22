@@ -77,7 +77,7 @@ class AssessmentCreationThroughRealSessionIT extends AccountIntegrationTestBase 
         assertThat(created.path("attemptId").asText()).isNotBlank();
         assertThat(created.path("packageId").asText())
                 .as("内容包必须已播种，否则这里拿不到 packageId；新测评绑定的是当前默认包")
-                .isEqualTo("typeme-jung48-zh-v3");
+                .isEqualTo("typeme-jung48-zh-v4");
 
         // 关键一步：建出来的测评必须真的挂在**这个用户**名下。
         // 若主体没带 getUserId()，要么插入失败（撞外键），要么（在宽松的库里）

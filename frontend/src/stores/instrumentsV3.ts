@@ -15,11 +15,13 @@ import { describeError } from '@/api/v3'
  * - `instrumentV3` 只回答"十六型参考测评叫什么、多少题"，给公共壳（顶栏副标题、
  *   页脚署名）用。它读的是 `/api/v3/catalog/current`，**未登录也能拿内置口径**。
  * - 这个 store 回答"站点上有哪几项测评、每项是什么"，给发现页、详情页、
- *   "我的测评"用。它读 `/api/v3/platform/instruments`，**需要登录**
- *   （目录接口在 `/api/v3/**` 之下，未登录返回 401）。
+ *   "我的测评"用。它读 `/api/v3/platform/instruments`，**公开**
+ *   （`SecurityConfig` 里对 GET 单独 permitAll，与十六型目录同口径）。
  *
- * 刻意不合并：合并会让公共壳在未登录时依赖一个必然 401 的请求，
- * 于是首页副标题要么闪一下、要么退回硬编码 —— 两者都是这次改造要消掉的东西。
+ * 那为什么还不合并？两个 store 的**失效模式**不同：
+ *   - `instrumentV3` 需要"接口失败也能给出新测自己的口径"（它自带内置副本）；
+ *   - 这个 store 需要"列表为空/加载中/失败"三种可区分的界面状态。
+ * 合并会把两种语义压进一个 store，让公共壳又去依赖"列表就绪"这个条件。
  */
 export interface InstrumentListState {
   items: InstrumentCard[]

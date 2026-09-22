@@ -116,12 +116,12 @@ describe('AI 分析面板', () => {
     retryAnalysis.mockReset()
   })
 
-  it('大五遇到旧提示词时禁用生成并解释原因，切换新版后可用', async () => {
+  it.each(['typeme-ai-prompt-v3', 'typeme-ai-prompt-v4'])('大五遇到旧提示词时禁用生成并解释原因，切换 %s 后可用', async (version) => {
     const wrapper = await mountPanel(true)
     expect(wrapper.get('[data-ai-start]').attributes('disabled')).toBeDefined()
     expect(wrapper.get('[data-ai-unsupported]').text()).toContain('还不支持大五报告')
     wrapper.unmount()
-    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v3' }))
+    fetchAiStatus.mockResolvedValue(status({ promptVersion: version }))
     const readable = await mountPanel(true)
     expect(readable.get('[data-ai-start]').attributes('disabled')).toBeUndefined()
     expect(readable.text()).toContain('最多两条解释')
@@ -129,9 +129,9 @@ describe('AI 分析面板', () => {
   })
 
   it('提示词版本兼容：未知/更新的版本按旧版处理，且「能否走大五」与「确认区列哪套范围」必须同源', async () => {
-    // 后端对未知版本一律落到旧版输入；前端不能"乐观地"把 v4 当成新版：
+    // 后端对未知版本一律落到旧版输入；前端不能"乐观地"把 v999 当成新版：
     // 否则会出现"按钮说暂不支持大五、确认区却按新版列发送范围"这种自相矛盾。
-    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v4' }))
+    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v999' }))
     const unknownOnJung = await mountPanel()
     await unknownOnJung.find('[data-ai-start]').trigger('click')
     const unknownText = unknownOnJung.find('[data-ai-consent]').text()
@@ -144,8 +144,8 @@ describe('AI 分析面板', () => {
     expect(unknownOnBigFive.get('[data-ai-unsupported]').text()).toContain('还不支持大五报告')
     unknownOnBigFive.unmount()
 
-    // v3 是唯一被认可的可读版：两条路径同时切换过去。
-    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v3' }))
+    // v4 延用可读版契约：两条路径同时切换过去。
+    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v4' }))
     const readableOnJung = await mountPanel()
     await readableOnJung.find('[data-ai-start]').trigger('click')
     const readableText = readableOnJung.find('[data-ai-consent]').text()
@@ -202,6 +202,17 @@ describe('AI 分析面板', () => {
     expect(wrapper.find('[data-ai-questions]').text()).toContain('被谁的想法点亮')
     expect(wrapper.find('[data-ai-boundaries]').text()).toContain('不构成诊断')
     expect(wrapper.text()).toContain('不改变上面那份固定报告')
+    expect(wrapper.find('[data-ai-regenerate]').exists()).toBe(true)
+    expect(wrapper.find('[data-ai-start]').text()).toContain('再生成一次')
+  })
+
+  it('成功后点「再生成一次」会打开确认范围，而不是没有入口', async () => {
+    fetchReportAnalyses.mockResolvedValue([job()])
+    const wrapper = await mountPanel()
+
+    await wrapper.find('[data-ai-start]').trigger('click')
+    expect(wrapper.find('[data-ai-consent]').exists()).toBe(true)
+    expect(wrapper.find('[data-ai-submit]').exists()).toBe(true)
   })
 
   it('mock 输出必须显著标注"没有调用真实模型"', async () => {
@@ -242,6 +253,35 @@ describe('AI 分析面板', () => {
     expect(retryAnalysis).toHaveBeenCalledWith('j-1')
     // 重试后回到"进行中"，而不是继续显示失败
     expect(wrapper.find('[data-ai-running]').exists()).toBe(true)
+  })
+
+  it('重新生成失败：上一次成功的正文不能被藏起来，并要标明"这是上一次的"（A84）', async () => {
+    // 同一行任务被重新生成：服务端不会清 response_json，所以 FAILED 时 result 仍带着旧正文
+    fetchReportAnalyses.mockResolvedValue([
+      job({ status: 'FAILED', errorCode: 'TIMEOUT', attemptCount: 1 }),
+    ])
+    const wrapper = await mountPanel()
+
+    // 失败提示与重试入口照旧
+    expect(wrapper.find('[data-ai-failed]').exists()).toBe(true)
+    expect(wrapper.find('[data-ai-retry]').exists()).toBe(true)
+    // 但旧正文必须还在，而且说清它是哪一次留下的
+    expect(wrapper.find('[data-ai-result]').exists()).toBe(true)
+    const stale = wrapper.find('[data-ai-stale]')
+    expect(stale.exists()).toBe(true)
+    expect(stale.text()).toContain('上一次成功生成')
+    expect(wrapper.find('[data-ai-summary]').text()).toContain('你倾向于先把可能性铺开')
+  })
+
+  it('确实一次都没成功过时，失败分支不凭空渲染结果区（A84 反向）', async () => {
+    fetchReportAnalyses.mockResolvedValue([
+      job({ status: 'FAILED', errorCode: 'TIMEOUT', result: null, resultProblems: [] }),
+    ])
+    const wrapper = await mountPanel()
+
+    expect(wrapper.find('[data-ai-failed]').exists()).toBe(true)
+    expect(wrapper.find('[data-ai-result]').exists()).toBe(false)
+    expect(wrapper.find('[data-ai-stale]').exists()).toBe(false)
   })
 
   it('额度用完：按钮说明原因并禁用，不让人白点', async () => {

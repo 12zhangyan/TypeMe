@@ -9,6 +9,7 @@ import examples from '@/content/readingCompanion.json'
 import v1 from '../../../backend/src/main/resources/content/typeme-jung48-zh-v1.json'
 import v2 from '../../../backend/src/main/resources/content/typeme-jung48-zh-v2.json'
 import v3 from '../../../backend/src/main/resources/content/typeme-jung48-zh-v3.json'
+import v4 from '../../../backend/src/main/resources/content/typeme-jung48-zh-v4.json'
 import big from '../../../backend/src/main/resources/content/bigfive50-zh-v1.json'
 
 /**
@@ -27,11 +28,16 @@ const jungPackages = readdirSync(CONTENT_DIR)
 
 describe('题目阅读说明与历史版本', () => {
   it('每一版十六型的 64 题和大五 50 题均匹配实际题面', () => {
-    // 178 = 十六型 v1 64 + v2 64 + 大五 50。v3 复用 v2 的记录（题面逐字相同，见下一条），
-    // 所以这里不因 v3 变多；真要给 v3 补自己的记录时，改这个数字并去掉复用声明。
+    // 178 = 十六型 v1 64 + v2 64 + 大五 50。v3 与 v4 复用 v2 的记录（题面逐字相同，见下一条），
+    // 所以这里不因它们变多；真要给某一版补自己的记录时，改这个数字并去掉复用声明。
     expect(examples).toHaveLength(178)
     expect(jungPackages.map((pkg) => pkg.packageId)).toEqual(
-      expect.arrayContaining(['typeme-jung48-zh-v1', 'typeme-jung48-zh-v2', 'typeme-jung48-zh-v3']),
+      expect.arrayContaining([
+        'typeme-jung48-zh-v1',
+        'typeme-jung48-zh-v2',
+        'typeme-jung48-zh-v3',
+        'typeme-jung48-zh-v4',
+      ]),
     )
     for (const pkg of jungPackages) for (const question of pkg.questions) {
       expect(questionExample(pkg.packageId, question), `${pkg.packageId}/${question.id}`).toBeTruthy()
@@ -43,13 +49,16 @@ describe('题目阅读说明与历史版本', () => {
     for (const copy of examples) expect(known.has(copy.packageId), copy.packageId).toBe(true)
   })
   it('复用另一版的说明只在题面逐字相同时成立，不按版本号"认亲"', () => {
-    // 这是"v3 可以复用 v2 的说明"这个前提本身：v3 与 v2 的差别只在 scoringPolicy。
-    // 一旦有人改了 v3 的题面，这里先红，提示要么给 v3 补自己的记录，要么重新核对后
+    // 这是"v3/v4 可以复用 v2 的说明"这个前提本身：两者与 v2 的差别只在 scoringPolicy。
+    // 一旦有人改了题面，这里先红，提示要么给那一版补自己的记录，要么重新核对后
     // 再声明复用 —— 而不是让页面继续拿旧说法解释一道已经改过的题。
+    expect(v4.questions).toEqual(v2.questions)
     expect(v3.questions).toEqual(v2.questions)
-    const item = v3.questions[0]
-    expect(questionExample(v3.packageId, { ...item, scenario: `${item.scenario}（改过的题面）` })).toBeNull()
-    expect(questionExample(v3.packageId, { ...item, textRight: '改过的另一端' })).toBeNull()
+    for (const pkg of [v3, v4]) {
+      const item = pkg.questions[0]
+      expect(questionExample(pkg.packageId, { ...item, scenario: `${item.scenario}（改过的题面）` })).toBeNull()
+      expect(questionExample(pkg.packageId, { ...item, textRight: '改过的另一端' })).toBeNull()
+    }
   })
   it('不拿旧说明解释另一个版本、被改过的题面或缺失的题', () => {
     const item = v1.questions[0]

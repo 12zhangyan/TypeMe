@@ -33,6 +33,16 @@
 > 决定记录见 `docs/2026-09-16/implementation/_contracts/01-新测契约-v1.md` §4.1（v1.2）。
 > **这不是"更准"的改动**：`0.10` 仍然没有信度/效度依据，本次只是把两处不一致改一致、并让
 > "跳过追问"不再改变"倾向是否算轻"。下面 §「已知事实」与实测表记录的是**决策前**的状态，保留以便追溯。
+>
+> **再已决（2026-09-21）**：改用本文对应决策文档 §3 表格里的 **B 方案** ——
+> `scoringVersion = typeme-jung48-score-v4`，`T(n) = B(n) = floor(2n/5)`（约 `|m| <= 0.20`），
+> 最终边界同样要求 `n > 0`；新草稿默认绑定 `typeme-jung48-zh-v4`；v1/v2/**v3 全部冻结**。
+> **与规则 D 不同，这一版会扩大触发集合**（`T(9)` 1→3、`T(12)` 2→4、`T(16)` 3→6），
+> 所以"没有任何人多答题"这句**只对 v3 成立**，不适用于 v4。
+> 决定记录见契约 §4.1（v1.3）；隔离验证与真实浏览器证据见
+> `docs/optimization/verification/2026-09-22-threshold-v4/`。
+> 同样**不宣称提高测量准确性**：`0.20` 与 `0.10` 一样没有信度/效度依据，
+> 且**带宽翻倍不等于补充题数量翻倍**（实际多出多少取决于答卷分布，本轮无样本）。
 
 ### 已知事实（决策前）
 
@@ -319,3 +329,40 @@
   修改仅限该节与本节这一条，未改动该文件其他内容，也未改代码、内容包或数据库。
   （本文件 §6.2 末条那句"等落定后再补"是当时的记录，保留原文，其待办以本条为准。）
 - 两处无调用方法（`JungReportBuilder.build(loader, …)` 重载、`AttemptService.answersByDimension`）按指示保留；已核对不在生产调用路径上。
+
+---
+
+## 9. v4 阈值（方案 B）追加记录（2026-09-22，仅追加，不改上文）
+
+**交付状态（与 v3 同级，明确边界）**：v4 的**代码、内容包、夹具、断言与隔离验证已完成**；
+**尚未**登记数据库、**尚未**部署、**尚未**完成真实环境验收。**未**提交、推送、写库或发布；
+本轮**没有**把后端启动到任何现有库。
+
+| 要回答的问题 | 证据（路径相对仓库根） |
+|---|---|
+| 规则是什么、为什么这么定 | 契约 `docs/2026-09-16/implementation/_contracts/01-新测契约-v1.md` §4.1（v1.3 决策记录，含 `T(n)=B(n)=floor(2n/5)` 全文与新旧版本并存）；`docs/2026-09-18-platform-plan/阈值政策对比与决策请求.md`（归档：两次决定、答复表）；`题目审校与版本决策.md` §5 版本状态块 |
+| 跑的是哪套代码/内容 | `JungScoringPolicy.java`（`UNIFIED_SCALE_VERSIONS` 含 `…-v4`）、`JungPackageLoader.CURRENT_PACKAGE_ID`、`backend/src/main/resources/content/typeme-jung48-zh-v4.json`（声明 sha256 `a5208fcd387c34d2…`，题目/维度/可读层与 v3 逐字相同、只差 `version` 与 `boundaryDenominator`）、`scripts/gen-platform-content.mjs` 的 `buildJungV4`（内含"只允许这两个字段不同"的生成期断言）、`scripts/gen-jung-fixtures.mjs`、3 份 `score-cases.json`（sha256 `96943e4bbc1e…`，25 例） |
+| 阈值与状态对不对 | `JungScoringPolicyTest`(9)、`thresholds.spec.ts`、`JungLegacyScoringRegressionTest`(9)、`JungScoringFixtureTest`(4)、`JungReportSchemaTest`(15)、`JungReportCopyBaselineTest`(4)；后端定向 **41/41**，前端定向 **243/243** |
+| 报告文案有没有换版 | `JungReportCopyBaselineTest#v1PackageReportCopyIsStillTheDefault`：v4 与 v1 声明**同一版** `typeme-type-report-zh-v1`；`sameAnswersAndStatusProduceIdenticalReportBodies`（CASE-01，v1 与 v4 均 `REFERENCE`）证明除版本/哈希/阈值字段外逐字段相同 |
+| 用户看到什么 | 本轮浏览器验收 `docs/optimization/verification/2026-09-22-threshold-v4/`（`browser-results.json` **197/197**、12 张截图、`REPORT.md`）。**同一张报告页按快照自己声明的政策渲染不同口径**：v4 快照显示「每 5 题，两边差距不超过 2」，v1 历史快照仍显示「再收紧一档」 |
+| 断言是不是"照抄实现" | 三条变异验证（均已还原）：① `gen-platform-content.mjs` 内 `boundaryDenominator` 5→10 并重生成 → 内容 `--check` 红 + 后端定向 **9 失败**；② `thresholds.spec.ts` 的契约表 `/5`→`/10` → 前端定向 **精确 4 条红**；③ 夹具 `v4-boundary.json` 的 `boundaryDenominator` 5→10 → 浏览器验收**首条即红**（「方法节写明 v4 的口径」） |
+| 全量回归 | 后端（**排除** 3 个真实 MySQL IT）**406 run / 0 fail / 0 error / 1 skip，BUILD SUCCESS**；前端 `typecheck` 0、`vitest` **50 文件 / 1072 项**；`vite build`（隔离目录 `work/v4-verify-dist`，未覆盖 `frontend/dist`）0；内容一致性 6 条 `--check` exit 0 |
+
+**与 v3 那次的关键差别（不得混为一谈）**
+
+- v3 只改了"最终算不算轻"（触发口径不变 ⇒ **没有人多答题**）；**v4 同时扩大触发集合**
+  （`T(9)` 1→3、`T(12)` 2→4、`T(16)` 3→6），所以**会有人多答补充题**，最多可能多出若干维 × 4 题。
+- **带宽翻倍不等于补充题数量翻倍**：实际多出多少取决于真实答卷的 `|S|` 分布，本轮**没有任何真人样本**。
+- `0.20` 不是概率、置信度、准确率或匹配度，只是规则里的一个门槛；v4 **不宣称提高测量准确性**。
+
+**剩余限制（与证据同级，不得省略）**
+
+- **未登记数据库**：`typeme-jung48-zh-v4` 需在部署时由 `JungPackageRegistrar` 写进 `assessment_package`
+  （按 `packageId` UPSERT）。该写入属现有库变更，**需要单独授权**；不登记时新草稿会因外键失败，**上线前必须做**。
+- **真实 MySQL 未验证**：3 个 `*MySqlIT` 本轮未跑（与本次改动无关，且属现有库范围）。
+- **浏览器验收是"合成报告 + 全量模拟接口"**：报告 JSON 由生产计分器与报告构造器生成
+  （`JungReportCopyBaselineTest#writeBrowserFixtures` 写入 `backend/target/score-v4-browser-fixtures/`），
+  但 API 全部在浏览器层被拦截 —— **不覆盖**真实登录会话、真实提交/保存、数据库与 AI；
+  `NEEDS_REVIEW` 只验证"报告接口 404 之后的页面"，不能当作"服务端不落报告"的运行证据。
+- **截图未做人工目视**（执行模型无图像输入），以"元素有布局盒 / 有可见尺寸 / 横向不越界"等几何断言替代。
+- **未做真人试测**：`TENTATIVE` 占比上升多少、`REFERENCE` 减少多少，目前**只有公式，没有样本**。

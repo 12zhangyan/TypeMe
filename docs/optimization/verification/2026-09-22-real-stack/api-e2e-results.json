@@ -1,0 +1,88 @@
+{
+ "scope": "real jar + real MySQL (isolated DB typeme_r31_e2e) + real session",
+ "base": "http://127.0.0.1:8099",
+ "checks": [
+  {
+   "label": "公开目录的默认内容包是 typeme-jung48-zh-v4",
+   "passed": true,
+   "detail": "typeme-jung48-zh-v4"
+  },
+  {
+   "label": "公开目录下发的 scoringVersion 是 typeme-jung48-score-v4",
+   "passed": true,
+   "detail": "typeme-jung48-score-v4"
+  },
+  {
+   "label": "整包接口下发的边界口径是 2/5（不是 2/10）",
+   "passed": true,
+   "detail": "{'version': 'typeme-jung48-score-v4', 'minBaseRatingsPerDimension': 9, 'boundaryNumerator': 2, 'boundaryDenominator': 5, 'ratingMin': 1, 'ratingMax': 5, 'ratingNeutral': 3}"
+  },
+  {
+   "label": "整包接口下发的 scoringPolicy.version 是 v4",
+   "passed": true,
+   "detail": "typeme-jung48-score-v4"
+  },
+  {
+   "label": "真实注册返回 201 且带 userId",
+   "passed": true,
+   "detail": "ffaf3232-c70c-481c-81be-07ab8e27a7f4"
+  },
+  {
+   "label": "新建测评绑定 typeme-jung48-zh-v4",
+   "passed": true,
+   "detail": "typeme-jung48-zh-v4"
+  },
+  {
+   "label": "主测题为 48 道",
+   "passed": true,
+   "detail": "48"
+  },
+  {
+   "label": "EI 维度正负极题目都可识别",
+   "passed": true,
+   "detail": "plus=6 minus=6"
+  },
+  {
+   "label": "v4 下 EI（|S|=3 <= T(12)=4）被安排补充题",
+   "passed": true,
+   "detail": "review={\"status\": \"CLARIFICATION_IN_PROGRESS\", \"needsReview\": false, \"clarificationDimensions\": [\"EI\"], \"coverage\": [{\"dimension\": \"EI\", \"baseRatingCount\": 12, \"baseUnknownCount\": 0, \"baseUnprocessedCount\": "
+  },
+  {
+   "label": "交卷建出报告（201 + reportId）",
+   "passed": true,
+   "detail": "3b34c53e-e61e-30c0-8a53-e0ec32a6a16d"
+  },
+  {
+   "label": "报告状态是 TENTATIVE —— 这正是 v4 与 v3 的分歧点（v3 会同卷判 REFERENCE）",
+   "passed": true,
+   "detail": "TENTATIVE"
+  },
+  {
+   "label": "报告 methodology.scoringVersion = typeme-jung48-score-v4",
+   "passed": true,
+   "detail": "typeme-jung48-score-v4"
+  },
+  {
+   "label": "报告 methodology.packageId = typeme-jung48-zh-v4",
+   "passed": true,
+   "detail": "typeme-jung48-zh-v4"
+  },
+  {
+   "label": "报告 methodology.boundaryNumerator / boundaryDenominator = 2 / 5",
+   "passed": true,
+   "detail": "{'boundaryNumerator': 2, 'boundaryDenominator': 5}"
+  },
+  {
+   "label": "报告 JSON 里含边界口径字段名（防止前端只能吃缺省值）",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "隔离库里每份报告都还绑着它自己那份 scoring_version（本轮全部是新报告）",
+   "passed": true,
+   "detail": "SUBMITTED\ttypeme-jung48-score-v4\t8 | "
+  }
+ ],
+ "passed": 16,
+ "failed": 0
+}

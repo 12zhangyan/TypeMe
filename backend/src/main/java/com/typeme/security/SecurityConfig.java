@@ -96,9 +96,19 @@ public class SecurityConfig {
                         // 1b) 测评目录：公开。它只包含产品定义（有哪些测评、每项问什么、
                         //     当前绑定哪一版内容），不含任何用户数据 —— 用户在决定
                         //     "要不要注册"之前有权知道站点上有什么。
-                        //     ⚠️ 只放开这两条只读路径：`/api/v3/platform/attempts`
+                        //     ⚠️ 只放开这些只读路径：`/api/v3/platform/attempts`
                         //     与 `/reports` 仍然落在下面的 authenticated 规则里。
                         .requestMatchers(HttpMethod.GET,
+                                // 十六型目录：摘要与完整内容包。
+                                // 2026-09-21：这两条原本落在 2) 的 authenticated 里，
+                                // 而契约 §7 一直把 "公开内容 GET" 写为不需要会话 ——
+                                // 实现与契约不一致（未登录 401，首页只能退到前端内置口径）。
+                                // 放开后与上面 platform 那一组口径一致：同为产品定义、
+                                // 同样不含用户数据、同样支持匿名首屏。
+                                // 代价的应对在 JungController#catalogReadAllowed：
+                                // 匿名请求按 IP 限流（已登录用户不计入）。
+                                "/api/v3/catalog/current",
+                                "/api/v3/catalog/current/package",
                                 "/api/v3/platform/instruments",
                                 "/api/v3/platform/instruments/*",
                                 // 公开插画地址：首页是匿名页，首屏出图不能要求先登录。

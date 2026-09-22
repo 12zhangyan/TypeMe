@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useAiAnalysisStore } from '@/stores/aiAnalysisV3'
-import { ANALYSIS_TOPICS, READABLE_PROMPT_VERSION, topicLabel, type AnalysisTopic } from '@/api/v3Ai'
+import { ANALYSIS_TOPICS, isReadablePromptVersion, topicLabel, type AnalysisTopic } from '@/api/v3Ai'
 import AppIcon from '@/components/AppIcon.vue'
 
 /**
@@ -87,16 +87,35 @@ const otherJobRunning = computed(() => ai.hasRunning && !running.value)
 const succeeded = computed(() => job.value?.status === 'SUCCEEDED')
 const failed = computed(() => job.value?.status === 'FAILED' || job.value?.status === 'UNKNOWN')
 
+/**
+ * 上一次成功留下的正文，而这一次重新生成没有成功（A84）。
+ *
+ * 服务端「重新入队」复用同一行任务，并且**不会**清掉 `response_json`：
+ * `AnalysisJobRepository.requeueForRetry` 只改状态与调度字段，`markFailed`/`markUnknown` 也不动它。
+ * 所以状态已经是 FAILED/UNKNOWN 时，`result` 仍可能是上一次成功的正文。
+ * 原来的模板把失败与结果写成同一条 `v-else-if` 链，会把这块正文整片挡掉 ——
+ * 用户点一次「再生成一次」失败，此前能读的分析就从界面上消失了（数据其实还在库里）。
+ *
+ * 反过来推也成立：只有 `markSucceeded` 会写 `response_json`，所以 `result` 非空
+ * 就意味着历史上成功过至少一次 —— 那正是「上一次成功」这个说法的依据，不是猜的。
+ */
+const staleResult = computed(() => failed.value && job.value?.result != null)
+/** 结果区要不要渲染：本次成功，或本次失败但还留着上一次成功的正文。 */
+const showResult = computed(() => succeeded.value || staleResult.value)
+
+/** 成功之后仍要能再生成：同一主题走重试，换主题才建新任务。 */
+const showGenerator = computed(() => !job.value || failed.value || succeeded.value)
+
 /** 额度用完：按钮禁用，并说清"什么时候能再来"。 */
 const outOfQuota = computed(() => ai.remainingToday !== null && ai.remainingToday <= 0)
 /**
- * 服务端当前提示词版本是否就是"可读版契约"那一版。
+ * 服务端当前提示词版本是否支持可读版契约（v3 / v4）。
  *
  * 用**同一个** `readable` 同时驱动三件事：大五是否禁用、结构预览用哪一套、确认区列举的
  * 发送范围用哪一套。此前模板里另写了一份 `=== 'typeme-ai-prompt-v3'` 字面量 ——
  * 两处一旦漂开，界面会出现"按钮说暂不支持、确认区却按新版列范围"这种自相矛盾。
  */
-const readable = computed(() => ai.status?.promptVersion === READABLE_PROMPT_VERSION)
+const readable = computed(() => isReadablePromptVersion(ai.status?.promptVersion))
 const supported = computed(() => !props.requiresReadable || readable.value)
 
 watch(() => ai.status?.promptVersion, () => { consentChecked.value = false })
@@ -369,9 +388,14 @@ function pickTopic(value: AnalysisTopic): void {
           </button>
         </div>
 
-        <!-- 失败：说清原因 + 给下一步，不显示原始错误码 -->
+        <!--
+          失败与结果**不互斥**（A84）：服务端重新入队不会清 response_json，所以 status=FAILED 时
+          result 仍可能是上一次成功的正文。这里刻意拆成两条独立的 v-if，
+          再由 staleResult 决定要不要在失败提示下面补上那份旧正文。
+          失败：说清原因 + 给下一步，不显示原始错误码。
+        -->
         <div
-          v-else-if="failed"
+          v-if="failed"
           class="mt-4 rounded-card border border-danger-300/40 bg-danger-500/10 px-4 py-4"
           role="alert"
           data-ai-failed
@@ -381,8 +405,14 @@ function pickTopic(value: AnalysisTopic): void {
             <span class="text-[14.5px] leading-relaxed text-white">{{ ai.failureHint(job) }}</span>
           </p>
           <p class="mt-2 text-[13px] leading-relaxed text-navy-200">
-            失败不会被算作"已经给过你一份分析"：重试用的是同一次任务，不会多占一次新额度以外的记录。
-            上面的固定报告没有受任何影响。
+            <template v-if="staleResult">
+              这次重新生成没有成功，所以下面那份上一次成功生成的内容没有被替换掉。
+              重试用的是同一次任务，不会多占一次新额度以外的记录。上面的固定报告没有受任何影响。
+            </template>
+            <template v-else>
+              失败不会被算作"已经给过你一份分析"：重试用的是同一次任务，不会多占一次新额度以外的记录。
+              上面的固定报告没有受任何影响。
+            </template>
           </p>
           <button
             type="button"
@@ -396,8 +426,17 @@ function pickTopic(value: AnalysisTopic): void {
           </button>
         </div>
 
-        <!-- 成功：一张从深色面板里"浮出来"的纸 -->
-        <div v-else-if="succeeded" class="mt-4" data-ai-result>
+        <!-- 成功：一张从深色面板里"浮出来"的纸。失败但留着上一次正文时也走这一支 -->
+        <div v-if="showResult" class="mt-4" data-ai-result>
+          <p
+            v-if="staleResult"
+            class="notice-uncertain mt-3 text-[14px] leading-relaxed"
+            role="note"
+            data-ai-stale
+          >
+            <span class="font-medium">这份是上一次成功生成的内容</span>：本次重新生成没有成功，
+            所以它没有被替换。你之前的结论与行动项都还在。
+          </p>
           <p v-if="job.mock" class="text-[12.5px] text-navy-200" data-ai-result-mock>
             （演示数据，非真实模型输出）
           </p>
@@ -526,13 +565,12 @@ function pickTopic(value: AnalysisTopic): void {
         </div>
       </div>
 
-      <!-- ④ 生成入口 -->
-      <div v-if="!job || failed" class="mt-6">
+      <!-- ④ 生成入口：还没有任务、失败了、或已经成功（再生成一次） -->
+      <div v-if="showGenerator" class="mt-6">
         <!--
-          生成前先说清"你将得到什么"。这一段只在还没有结果时出现 ——
-          已经有结果的人不需要再被推销一次。
+          生成前先说清"你将得到什么"。已经有结果时不再推销结构，只留「再生成一次」。
         -->
-        <div v-if="!confirmOpen" data-ai-structure>
+        <div v-if="!confirmOpen && !succeeded" data-ai-structure>
           <p class="text-[13.5px] font-medium text-navy-100">你将得到</p>
           <ul class="mt-3 grid gap-2.5 tablet:grid-cols-2 laptop:grid-cols-3">
             <li v-for="item in STRUCTURE_PREVIEW" :key="item.title" class="deep-card">
@@ -547,7 +585,7 @@ function pickTopic(value: AnalysisTopic): void {
           <button
             type="button"
             class="btn-glow mt-4"
-            :disabled="!ai.available || !supported || outOfQuota || ai.creating"
+            :disabled="!ai.available || !supported || outOfQuota || ai.creating || otherJobRunning"
             data-ai-start
             @click="openConfirm"
           >
@@ -556,6 +594,22 @@ function pickTopic(value: AnalysisTopic): void {
           </button>
           <p v-if="!supported && ai.status" class="mt-3 text-[13.5px] text-navy-100" data-ai-unsupported>
             当前 AI 解读版本还不支持大五报告，基础报告可正常阅读。
+          </p>
+        </div>
+
+        <div v-else-if="!confirmOpen && succeeded" data-ai-regenerate>
+          <button
+            type="button"
+            class="btn-on-deep btn-sm"
+            :disabled="!ai.available || !supported || outOfQuota || ai.creating || ai.retrying || otherJobRunning"
+            data-ai-start
+            @click="openConfirm"
+          >
+            <AppIcon name="refresh" :size="16" />
+            {{ outOfQuota ? '今天额度已用完' : '再生成一次' }}
+          </button>
+          <p class="mt-2 text-[12.5px] leading-relaxed text-navy-200">
+            同一主题会再向模型要一份新的，占一次额度；换主题会另外生成一份，旧的仍可在下面切换查看。
           </p>
         </div>
 

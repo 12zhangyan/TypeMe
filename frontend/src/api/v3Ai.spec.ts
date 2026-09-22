@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   ANALYSIS_TOPICS,
   AI_SCOPE_VERSION,
   aiFailureHint,
+  fetchAiStatus,
   isRetryable,
   isRunning,
   parseAnalysisResult,
@@ -211,6 +212,7 @@ describe('aiFailureHint', () => {
   })
 
   it('每个可能落库的错误码都有专门说法（与后端契约测试同一条不变量）', () => {
+
     // 后端 backend/src/test/java/com/typeme/contract/AiErrorCodeContractTest.java 从
     // 本文件的 case 分支反查覆盖度；这里再从"文案是否有区分度"这一侧兜一层：
     // 落到 default 的码必须能被我认出来，所以拿两个已知码的文案互不相等即可反证分支存在。
@@ -221,5 +223,54 @@ describe('aiFailureHint', () => {
     for (const hint of [timeout, truncated, violation]) {
       expect(hint).not.toContain('这次生成没有成功')
     }
+  })
+})
+
+/**
+ * `fetchAiStatus` 的接口层守卫（A53② 的最后一环）。
+ *
+ * store 层已有"remainingToday = -1 时不显示次数"的行为测试，但"服务端漏了
+ * remainingToday 这个字段"这条输入路径一直没有测试 —— 而接口层的默认值正是那次修复的
+ * 关键：缺失字段若按 0 兜底，页面会说"今天用完了"（一个服务端没有下过的结论）。
+ * 这里用请求替身把两侧都钉住：缺字段 → -1，明确给 0 → 保留 0。
+ */
+describe('fetchAiStatus 的字段默认值', () => {
+  const urls: string[] = []
+
+  function jsonResponse(body: unknown): Response {
+    return new Response(JSON.stringify(body), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    })
+  }
+
+  beforeEach(() => {
+    urls.length = 0
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('缺少 remainingToday 时按 -1（算不清），不是 0（用完了）', async () => {
+    vi.stubGlobal('fetch', (async (input: RequestInfo | URL) => {
+      urls.push(typeof input === 'string' ? input : input.toString())
+      // 刻意不返回 remainingToday。
+      return jsonResponse({ enabled: true, mock: false, model: 'x', dailyLimitPerUser: 5 })
+    }) as never)
+
+    const status = await fetchAiStatus()
+
+    expect(status.remainingToday).toBe(-1)
+    expect(status.dailyLimitPerUser).toBe(5)
+    expect(urls.some((url) => url.includes('/api/v3/ai/status'))).toBe(true)
+  })
+
+  it('服务端明确给出 0 时保留 0（"用完了"与"算不清"必须分开）', async () => {
+    vi.stubGlobal('fetch', (async () => jsonResponse({ enabled: true, remainingToday: 0 })) as never)
+
+    const status = await fetchAiStatus()
+
+    expect(status.remainingToday).toBe(0)
   })
 })

@@ -1,0 +1,15 @@
+[ERROR] com.typeme.account.RateLimitIT.anonymousCatalogReadsAreRateLimited -- Time elapsed: 0.033 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+
+[ERROR] com.typeme.account.RateLimitIT.anonymousCatalogReadsAreRateLimited -- Time elapsed: 0.033 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+
+expected: 429
+	at com.typeme.account.RateLimitIT.anonymousCatalogReadsAreRateLimited(RateLimitIT.java:169)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+[ERROR]   RateLimitIT.anonymousCatalogReadsAreRateLimited:169 
+expected: 429
+ but was: 200
+[INFO] 

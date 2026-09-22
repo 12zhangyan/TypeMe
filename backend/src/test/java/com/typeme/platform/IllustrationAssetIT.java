@@ -104,7 +104,7 @@ class IllustrationAssetIT extends AccountIntegrationTestBase {
                         + "WHERE UPPER(table_name) = 'ILLUSTRATION_ASSET'",
                 String.class);
         assertThat(columns).as("列就是迁移里定义的那五个，没有多也没有少")
-                .containsExactlyInAnyOrder("asset_name", "url", "sha256", "release", "updated_at");
+                .containsExactlyInAnyOrder("asset_name", "url", "sha256", "release_tag", "updated_at");
     }
 
     @Test

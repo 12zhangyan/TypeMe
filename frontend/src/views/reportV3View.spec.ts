@@ -1056,6 +1056,29 @@ describe('报告页：「这份报告是怎么来的」不展示内部版本号'
     expect(text).toContain('还没作答会让这一维覆盖不足')
   })
 
+  it('v4 快照按新的分母解释略偏（每 5 题差距不超过 2），且仍不露出版本号', async () => {
+    api.detail = () => ({
+      status: 200,
+      body: {
+        report: {
+          ...REFERENCE,
+          methodology: {
+            ...METHODOLOGY,
+            scoringVersion: 'typeme-jung48-score-v4',
+            policyVersion: 'typeme-jung48-score-v4',
+            boundaryDenominator: 5,
+          },
+        },
+      },
+    })
+    const { wrapper } = await mountReport()
+    const text = wrapper.find('[data-method-thresholds]').text()
+    expect(text).toContain('有效作答每 5 题，两边差距不超过 2 就记为略偏')
+    expect(text, '不能把 v3 的 10 题门槛说到 v4 的快照上').not.toContain('每 10 题')
+    expect(text).not.toContain('再收紧一档')
+    expect(text).not.toContain('typeme-jung48-score')
+  })
+
   it('旧快照同样不露出内部版本占位', async () => {
     api.detail = () => ({ status: 200, body: { report: withoutProcessLayer(REFERENCE) } })
     const { wrapper } = await mountReport()

@@ -137,7 +137,8 @@ public class AnalysisCreationWriter {
                     "limit", settings.globalDailyCallBudget(), "used", globalReserved - 1));
         }
 
-        // 原子去重：并发点两次重试只有一个 UPDATE 命中（条件里 status IN ('FAILED','UNKNOWN')）。
+        // 原子去重：并发点两次重试只有一个 UPDATE 命中
+        // （条件里 status IN ('FAILED','UNKNOWN','SUCCEEDED')）。
         if (!jobs.requeueForRetry(row.id(), now)) {
             // 没抢到 → 这次预留没有换来任何执行，必须还回去。
             budgets.releaseReservation(userScope, date);

@@ -153,11 +153,12 @@ class AnalysisFlowTest {
 
     /* ── 1. 未同意 ─────────────────────────────────────────────────────── */
 
-    @Test
-    void readableJobKeepsItsConsentedVersionAfterSettingsChange() throws Exception {
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"typeme-ai-prompt-v3", "typeme-ai-prompt-v4"})
+    void readableJobKeepsItsConsentedVersionAfterSettingsChange(String version) throws Exception {
         String previous = aiProperties.getPromptVersion();
         try {
-            aiProperties.setPromptVersion("typeme-ai-prompt-v3");
+            aiProperties.setPromptVersion(version);
             settingsProvider.invalidate();
             mockMvc.perform(create(REPORT_1, "k-stale-scope", CREATE_BODY))
                     .andExpect(status().isBadRequest());
@@ -169,7 +170,9 @@ class AnalysisFlowTest {
             runQueued();
             assertEquals("SUCCEEDED", job(jobId).status());
             assertEquals("analysis-readable-v2", mapper.readTree(job(jobId).responseJson()).path("schemaVersion").asText());
-            assertTrue(mock.lastRequest().systemPrompt().contains("250–450"));
+            assertEquals(version, job(jobId).promptVersion());
+            assertTrue(mock.lastRequest().systemPrompt().contains(
+                    "typeme-ai-prompt-v3".equals(version) ? "250–450" : "450–700"));
             assertFalse(mock.lastRequest().userPrompt().contains("processLayer"));
             assertEquals(1, mock.calls());
             // 反向切换也必须重新确认，不能按更小范围的确认去发送更大的旧范围。
@@ -312,6 +315,9 @@ class AnalysisFlowTest {
         assertEquals("QUEUED", afterFirst.status(), "429 应重新排队等待退避");
         assertEquals("UPSTREAM_429", afterFirst.errorCode(), "标记'已自动重试过'");
         assertNotNull(job(jobId).nextRunAt(), "必须写入退避时间（尊重 Retry-After）");
+        // A53⑥：重新入队后那一次重试还没发出去，预留必须留给它；退掉会让当日额度少算一次。
+        assertEquals(1, reservedCalls(U1), "429 重新入队不得退还预留给下一次重试");
+        assertEquals(1, reservedCallsGlobal(), "全局预留同理");
 
         // 退避到点后执行第二次：这一轮不得再自动重试。
         clock.advance(Duration.ofSeconds(5));
@@ -322,6 +328,9 @@ class AnalysisFlowTest {
         assertEquals("FAILED", afterSecond.status());
         assertEquals("UPSTREAM_429", afterSecond.errorCode());
         assertEquals(2, afterSecond.attemptCount());
+        // 重试再次 429：这次明确未计费且不再重试，预留才退。
+        assertEquals(0, reservedCalls(U1), "重试再次 429 后必须退还预留");
+        assertEquals(0, reservedCallsGlobal(), "全局预留同样退还");
 
         // 再驱动一轮也不该再调用（状态已终态）。
         clock.advance(Duration.ofMinutes(1));
@@ -663,9 +672,11 @@ class AnalysisFlowTest {
     }
 
     @Test
-    @DisplayName("重试接口：FAILED → QUEUED（复用同一行，attempt_count+1），未知状态拒绝")
+    @DisplayName("重试接口：FAILED → QUEUED（复用同一行，attempt_count+1）；进行中的任务拒绝")
     void retryReusesSameRow() throws Exception {
         String jobId = createJob("k-retry", CREATE_BODY);
+        mockMvc.perform(post("/api/v3/analyses/{id}/retry", jobId))
+                .andExpect(status().isConflict());
         mock.setFailureMode(MockFailureMode.UNAUTHORIZED);
         runQueued();
         assertEquals("FAILED", job(jobId).status());
@@ -681,10 +692,21 @@ class AnalysisFlowTest {
 
         runQueued();
         assertEquals("SUCCEEDED", job(jobId).status());
+    }
 
-        // 已成功的任务不能再重试。
+    @Test
+    @DisplayName("已成功的任务可以重新生成：复用同一行入队，不新建")
+    void retrySucceededRequeuesSameRow() throws Exception {
+        String jobId = createJob("k-regen", CREATE_BODY);
+        runQueued();
+        assertEquals("SUCCEEDED", job(jobId).status());
+
         mockMvc.perform(post("/api/v3/analyses/{id}/retry", jobId))
-                .andExpect(status().isConflict());
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.jobId").value(jobId))
+                .andExpect(jsonPath("$.status").value("QUEUED"));
+        assertEquals(1, countJobs(), "重新生成也必须复用同一行");
+        assertEquals("QUEUED", job(jobId).status());
     }
 
     @Test

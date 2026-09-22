@@ -51,6 +51,7 @@ class JungLegacyScoringRegressionTest {
     private static JungPackage v1;
     private static JungPackage v2;
     private static JungPackage v3;
+    private static JungPackage v4;
     private static JsonNode fixture;
 
     @BeforeAll
@@ -59,9 +60,11 @@ class JungLegacyScoringRegressionTest {
         v1 = loader.find("typeme-jung48-zh-v1");
         v2 = loader.find("typeme-jung48-zh-v2");
         v3 = loader.find("typeme-jung48-zh-v3");
+        v4 = loader.find("typeme-jung48-zh-v4");
         assertNotNull(v1, "v1 内容包必须仍然可加载：历史草稿与历史报告要按它解释");
         assertNotNull(v2, "v2 内容包必须仍然可加载");
         assertNotNull(v3, "v3 内容包必须可加载");
+        assertNotNull(v4, "v4 内容包必须可加载");
         try (InputStream in = new DefaultResourceLoader()
                 .getResource("classpath:fixtures/score-cases.json").getInputStream()) {
             fixture = MAPPER.readTree(in);
@@ -86,6 +89,8 @@ class JungLegacyScoringRegressionTest {
             // 候选 = 边界维 EI 的两端；cost 是"换一个字母要偏离多少证据"= |S_EI|。
             assertCandidates(result, List.of("ENFP", "INFP"), List.of(0, 1), label);
         }
+        // v4 下同一批作答的候选 cost 仍是 |S_EI|：边界数值变了，cost 的定义没变。
+        assertCandidates(score(v4, "CASE-02"), List.of("ENFP", "INFP"), List.of(0, 1), "v4 CASE-02");
     }
 
     @Test
@@ -107,10 +112,16 @@ class JungLegacyScoringRegressionTest {
         assertEquals("TENTATIVE", unified.status().name(), "v3 下 CASE-09 是 TENTATIVE");
         assertCandidates(unified, List.of("ENFP", "INFP"), List.of(0, 2), "v3 CASE-09");
 
-        // CASE-12：EI n=12、S=3 → 两套口径都不在边界内 → 两版都必须是 REFERENCE。
+        // CASE-12：EI n=12、S=3 → v1/v2 与 v3 都不在边界内、也不安排追问 → REFERENCE。
         assertEquals("REFERENCE", score(v1, "CASE-12").status().name(), "v1 CASE-12");
         assertEquals("REFERENCE", score(v2, "CASE-12").status().name(), "v2 CASE-12");
         assertEquals("REFERENCE", score(v3, "CASE-12").status().name(), "v3 CASE-12");
+        // v4 下 |3| ≤ T(12)=B(12)=4，所以同一批作答改判 TENTATIVE，并补上 2 个候选。
+        JungScoringResult v4Case12 = score(v4, "CASE-12");
+        assertEquals("TENTATIVE", v4Case12.status().name(), "v4 CASE-12（已批准的阈值放宽，不是回归）");
+        assertEquals("ENFP", v4Case12.computedTypeCode().value());
+        assertTrue(v4Case12.dimension(JungDimension.EI).boundary(), "v4 下 |3| ≤ B(12)=4");
+        assertCandidates(v4Case12, List.of("ENFP", "INFP"), List.of(0, 3), "v4 CASE-12");
     }
 
     @Test
@@ -130,6 +141,10 @@ class JungLegacyScoringRegressionTest {
         }
         // v3 的对照：B(9)=1 → 同一格变 TENTATIVE。
         assertEquals("TENTATIVE", score(v3, "CASE-13").status().name(), "v3 CASE-13 是 TENTATIVE");
+        // v4 同理（B(9)=3），候选 cost 仍是 |S_EI|。
+        JungScoringResult v4Case13 = score(v4, "CASE-13");
+        assertEquals("TENTATIVE", v4Case13.status().name(), "v4 CASE-13 是 TENTATIVE");
+        assertCandidates(v4Case13, List.of("ENFP", "INFP"), List.of(0, 1), "v4 CASE-13");
     }
 
     /* ── 旧版补充题 ──────────────────────────────────────────────────────── */
@@ -161,17 +176,67 @@ class JungLegacyScoringRegressionTest {
         assertEquals(5, decisive.dimension(JungDimension.EI).finalS());
         assertFalse(decisive.dimension(JungDimension.EI).boundary());
         assertTrue(decisive.candidates().isEmpty());
+
+        // v4 的对照：B(16)=6，同一批作答（S=5）改为 TENTATIVE —— 这条用例正是
+        // "阈值放宽会让更多维落入带内"的最小可核验样例。
+        JungScoringResult v4Applied = score(v4, "CASE-14");
+        assertEquals("TENTATIVE", v4Applied.status().name(), "v4 CASE-14 状态");
+        assertTrue(v4Applied.dimension(JungDimension.EI).boundary(), "v4 下 |5| ≤ B(16)=6");
+        assertCandidates(v4Applied, List.of("ENFP", "INFP"), List.of(0, 5), "v4 CASE-14");
     }
 
     @Test
-    @DisplayName("追问安排与版本无关：三版对同一作答安排同样的补充题（没有人多答题）")
-    void clarificationSchedulingIsVersionIndependent() {
+    @DisplayName("追问安排与版本无关：四版对同一作答安排同样的补充题？—— v4 起的差异必须显式钉住")
+    void clarificationSchedulingIsVersionIndependentExceptV4() {
+        // v1/v2/v3 的触发尺度都是 floor(2n/10)，所以这三版的追问安排必须逐例相同。
         for (String caseId : List.of("CASE-02", "CASE-09", "CASE-12", "CASE-13", "CASE-14", "CASE-19", "CASE-21")) {
             JsonNode testCase = caseOf(caseId);
             Map<String, JungAnswer> answers = answersOf(testCase);
             List<String> expected = scheduledDimensions(v1, answers);
             assertEquals(expected, scheduledDimensions(v2, answers), caseId + " v2 的追问安排与 v1 不同");
             assertEquals(expected, scheduledDimensions(v3, answers), caseId + " v3 的追问安排与 v1 不同");
+        }
+
+        // v4 把触发尺度改成 floor(2n/5)，追问集合**故意扩大**：这是已批准的产品取舍，
+        // 不是回归。这里把"多出来的那一维"逐例写死，避免它变成没人数得清的副作用。
+        assertEquals(List.of(), scheduledDimensions(v3, answersOf(caseOf("CASE-05"))),
+                "v3 下 CASE-05（EI n=9、|S|=2）不安排澄清");
+        assertEquals(List.of("EI"), scheduledDimensions(v4, answersOf(caseOf("CASE-05"))),
+                "v4 下 T(9)=3，CASE-05 的 EI 新触发澄清");
+        assertEquals(List.of(), scheduledDimensions(v3, answersOf(caseOf("CASE-12"))),
+                "v3 下 CASE-12（EI n=12、|S|=3）不安排澄清");
+        assertEquals(List.of("EI"), scheduledDimensions(v4, answersOf(caseOf("CASE-12"))),
+                "v4 下 T(12)=4，CASE-12 的 EI 新触发澄清");
+        // 原本就触发的维在 v4 下仍是同一批（只增不减：带宽只会变宽）。
+        for (String caseId : List.of("CASE-02", "CASE-09", "CASE-13", "CASE-14", "CASE-21")) {
+            Map<String, JungAnswer> answers = answersOf(caseOf(caseId));
+            assertTrue(scheduledDimensions(v4, answers).containsAll(scheduledDimensions(v3, answers)),
+                    caseId + " v4 的追问集合必须包含 v3 的集合（只增不减）");
+        }
+    }
+
+    @Test
+    @DisplayName("v4 阈值绑定：包声明 2/5，与 v3 只差分母；旧包一律不变")
+    void currentPackageThresholdsAreTwoFifthsAndLegacyPackagesAreUntouched() {
+        assertEquals("typeme-jung48-score-v4", v4.scoringVersion());
+        assertEquals("typeme-jung48-score-v4", v4.scoringPolicy().version());
+        assertEquals("typeme-jung48-score-v3", v3.scoringVersion(), "v3 必须原样冻结");
+        assertEquals("typeme-jung48-score-v3", v3.scoringPolicy().version(), "v3 必须原样冻结");
+        assertEquals(2, v4.scoringPolicy().boundaryNumerator(), "v4 分子");
+        assertEquals(5, v4.scoringPolicy().boundaryDenominator(), "v4 分母：10 → 5");
+        assertEquals(2, v3.scoringPolicy().boundaryNumerator(), "v3 分子不变");
+        assertEquals(10, v3.scoringPolicy().boundaryDenominator(), "v3 分母不变");
+        assertEquals(9, v4.scoringPolicy().minBaseRatingsPerDimension(), "v4 覆盖下限不变");
+        assertEquals(v3.reportContentVersion(), v4.reportContentVersion(),
+                "v4 不得顺带换报告文案版本");
+        for (int n = 0; n <= 40; n++) {
+            int trigger = n <= 0 ? 0 : Math.floorDiv(2 * n, 10);
+            assertEquals(trigger, v3.scoringPolicy().triggerThreshold(n), "v3 T(" + n + ") 冻结");
+            assertEquals(trigger, v3.scoringPolicy().boundaryThreshold(n), "v3 B(" + n + ") 冻结");
+            assertEquals(n <= 0 ? 0 : Math.floorDiv(2 * n, 5), v4.scoringPolicy().triggerThreshold(n),
+                    "v4 T(" + n + ") 必须是 floor(2n/5)");
+            assertEquals(n <= 0 ? 0 : Math.floorDiv(2 * n, 5), v4.scoringPolicy().boundaryThreshold(n),
+                    "v4 B(" + n + ") 必须是 floor(2n/5)");
         }
     }
 
