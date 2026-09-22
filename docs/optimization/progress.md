@@ -439,6 +439,58 @@ C:\Python314\python.exe scripts\browser-verify-real-stack-v4.py → 19/19
 - 未运行三类真实 MySQL IT（需要建库/删库授权）；未做真实 AI 外发。
 - 顺手发现、**本轮未动**：`AttemptService.patchAnswers` 里 `touchesClarification` 只赋值未被读取（死变量，与 A34/A40 无关）。
 
+## 第 35 轮：在上面的可发布基线上继续开发（2026-09-22）
+
+前提：第 34 轮已经证明「从当前源码能产出一个已验证的产物」。本轮在这条基线上做两件**不需要产品决策**的开发，
+并保持「每一步都能重新打包 + 全量测试绿」。
+
+### 一、A71 剩下最关键的一块：账号接口层从 0 到 25 条测试
+
+`frontend/src/api/v3.ts`（862 行，登录/注册/恢复密码/资料/导出/注销的**全部**账号端点）在本轮之前**一条测试都没有**。
+它之所以危险，是因为它恰好是「页面测试全绿而路径可能是错的」那一层：页面测试打的是打桩的 `fetch`，
+stub 认哪个路径，测出来就"对"；真正决定线上能不能登录的是这一层拼出来的路径与方法。
+
+新增 `frontend/src/api/v3.spec.ts` 25 条，按三组钉：
+
+| 组 | 钉什么 | 为什么 |
+| --- | --- | --- |
+| 请求形状 | 逐字断言路径与方法（`/auth/login`、`/auth/register`、`/me`、`/me/password`、`/me/recovery-codes`、`/me/export`、`DELETE /me`）；空昵称不得出现在请求体里；读操作不预取 CSRF | 路径写错在页面上看不出来（stub 会“配合”）；把空昵称写进库是脏数据 |
+| 响应解析 | 缺 `userId` 抛 `UNEXPECTED_RESPONSE`（**不**造一个空账号）；毫秒时间戳转 ISO；重建恢复码但响应无码时抛错；注册无码时不报错（账号已建好）；导出正文的降级段落读出来 | “少一个字段”不能让页面白屏或显示成“未设置”；恢复码那一条关乎用户能不能找回账号 |
+| 错误映射 | `403 FORBIDDEN` 与 `401 UNAUTHENTICATED` 必须分开 | 混起来会让有权限的人在会话抖动时被当成越权，或反之被反复弹回登录页 |
+
+判别力（真跑）：把 `/me/password` 改成 `/me/passwd`、并把空昵称也写进请求体 → **3 failed / 22 passed**，
+红的正是这两族用例；还原后 25/25 绿。
+
+### 二、删掉 `AttemptService.patchAnswers` 里的只写不读变量
+
+`touchesClarification` 在第 382 行被赋值，全仓无读取处。先查“它本来是不是该用在什么地方”，
+而不是直接删 —— 最可能的用途是「用户开始答澄清题时把 `clarification_skipped` 清掉」，
+那正好是 A34 锁死的**历史草稿**的唯一解票。所以先查库：
+
+| 库 | `status` × `clarification_skipped` |
+| --- | --- |
+| `typeme_dev`（9 份） | BASE_IN_PROGRESS 0×4；SUBMITTED 0×5 |
+| `typeme_show`（8 份） | BASE_IN_PROGRESS 0×2；CLARIFICATION_IN_PROGRESS 0×2；SUBMITTED 0×4 |
+| `typeme_test`（0 份） | 空表 |
+
+**没有任何一份草稿被打上过 `clarification_skipped = 1`** ⇒ 不存在需要修补的历史受害者（A34 的修复只需防未来），
+这个变量也没有“未实现的用途”⇒ 删掉，并在原处留一句说明，避免以后又被加回来。
+
+### 验证
+
+| 命令 | 结果 |
+| --- | --- |
+| `vitest run src/api/v3.spec.ts` | **25 通过 / 0 失败**（新增 1 个文件）；判别力态 3 failed / 22 passed |
+| `vitest run`（全量）+ `typecheck` | **51 文件 / 1100 条通过**（第 34 轮 50/1075，+1 文件 +25 条）；typecheck 退出 0 |
+| 后端子集（排除 3 个真实 MySQL IT） | **407 通过 / 0 失败 / 0 错误 / 1 跳过**（删死变量是行为中性的，数量不变） |
+| 库查询（只读） | 上表；未做任何 DML/DDL |
+
+### 遗留
+
+- 仍未覆盖的接口模块：`v3Admin.ts`、`adminMembers.ts`、`client.ts`（旧 v1/v2 内容层）、`csrf.ts`。
+- 本轮**未**重新打包 jar（开发还在同一分支上继续，等下一批改动一起打），所以第 34 轮那份产物与当前 HEAD 不是同一份。
+- 用户可见的功能改动（后台改角色/禁用、离线答题、同意台账……）都需要先由用户拍板，本轮未动。
+
 ## 第 34 轮：先把「新版本」产出来（可构建 + 可运行 + 已验证）（2026-09-22）
 
 ### 起点事实
