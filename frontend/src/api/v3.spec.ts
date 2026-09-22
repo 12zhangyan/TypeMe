@@ -367,3 +367,59 @@ describe('错误映射：没登录 / 已登录但没权限，必须分开', () =
     expect(display.sessionExpired).toBe(false)
   })
 })
+
+/**
+ * `CSRF_INVALID` 的重试语义。
+ *
+ * 契约明确要求「刷新 token 后重试**一次**」。这个「一次」是两边都容易写错的地方：
+ * 不重试会让用户在 token 轮换后看到一个本可以自愈的失败；重试多次（或递归）
+ * 会在服务端持续拒绝时把一次点击放大成一串请求。所以这里把重试次数钉死。
+ */
+describe('CSRF_INVALID：刷新 token 后只重试一次', () => {
+  function csrfAwareResponder(onBusiness: (call: Call, index: number) => Response) {
+    const tokens = ['token-1', 'token-2', 'token-3']
+    let business = 0
+    return (call: Call): Response => {
+      if (call.url === '/api/v3/auth/csrf') {
+        return json({ token: tokens.shift() ?? 'token-n', headerName: 'X-CSRF' })
+      }
+      return onBusiness(call, business++)
+    }
+  }
+
+  it('写操作撞 CSRF_INVALID：重取 token 并重试，第二次带上新的 token', async () => {
+    responder = csrfAwareResponder((_call, index) =>
+      index === 0 ? json({ code: 'CSRF_INVALID', message: '安全校验失败，请重试。' }, 403) : json(PROFILE),
+    )
+
+    const profile = await updateNickname('小艾')
+    const patches = calls.filter((call) => call.method === 'PATCH')
+
+    expect(profile.userId).toBe('u-1')
+    expect(patches).toHaveLength(2)
+    // 第一次还没有 token（取 token 的响应还没回来就发出去了，由服务端说了算），
+    // 第二次必须带上刷新后的那一份
+    expect(patches[1]!.headers['X-CSRF']).toBe('token-2')
+    expect(calls.filter((call) => call.url === '/api/v3/auth/csrf')).toHaveLength(2)
+  })
+
+  it('重试仍被拒：把错误报出来，而不是继续重试', async () => {
+    responder = csrfAwareResponder(() => json({ code: 'CSRF_INVALID', message: '安全校验失败，请重试。' }, 403))
+
+    const error = await catches(updateNickname('小艾'))
+
+    expect(error).toBeInstanceOf(V3ApiError)
+    expect((error as V3ApiError).code).toBe('CSRF_INVALID')
+    // 业务请求恰好两次：一次原始、一次重试。多一次都是「重试语义」被改坏了
+    expect(calls.filter((call) => call.method === 'PATCH')).toHaveLength(2)
+  })
+
+  it('读操作撞 CSRF_INVALID 不重试（GET 本来就不带 CSRF）', async () => {
+    responder = () => json({ code: 'CSRF_INVALID', message: '安全校验失败，请重试。' }, 403)
+
+    const error = await catches(fetchMe())
+
+    expect(error).toBeInstanceOf(V3ApiError)
+    expect(calls.filter((call) => call.method === 'GET')).toHaveLength(1)
+  })
+})

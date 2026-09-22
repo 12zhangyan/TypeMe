@@ -450,16 +450,17 @@ C:\Python314\python.exe scripts\browser-verify-real-stack-v4.py → 19/19
 它之所以危险，是因为它恰好是「页面测试全绿而路径可能是错的」那一层：页面测试打的是打桩的 `fetch`，
 stub 认哪个路径，测出来就"对"；真正决定线上能不能登录的是这一层拼出来的路径与方法。
 
-新增 `frontend/src/api/v3.spec.ts` 25 条，按三组钉：
+新增 `frontend/src/api/v3.spec.ts` 28 条，按四组钉：
 
 | 组 | 钉什么 | 为什么 |
 | --- | --- | --- |
 | 请求形状 | 逐字断言路径与方法（`/auth/login`、`/auth/register`、`/me`、`/me/password`、`/me/recovery-codes`、`/me/export`、`DELETE /me`）；空昵称不得出现在请求体里；读操作不预取 CSRF | 路径写错在页面上看不出来（stub 会“配合”）；把空昵称写进库是脏数据 |
 | 响应解析 | 缺 `userId` 抛 `UNEXPECTED_RESPONSE`（**不**造一个空账号）；毫秒时间戳转 ISO；重建恢复码但响应无码时抛错；注册无码时不报错（账号已建好）；导出正文的降级段落读出来 | “少一个字段”不能让页面白屏或显示成“未设置”；恢复码那一条关乎用户能不能找回账号 |
 | 错误映射 | `403 FORBIDDEN` 与 `401 UNAUTHENTICATED` 必须分开 | 混起来会让有权限的人在会话抖动时被当成越权，或反之被反复弹回登录页 |
+| CSRF 重试 | 撞 `CSRF_INVALID` 时重取 token 并**只**重试一次（第二次带上新 token；再被拒就把错误报出来；GET 不重试） | 契约要求「重试一次」。不重试 = 用户吃一个本可自愈的失败，重试多次 = 一次点击放大成一串请求 |
 
 判别力（真跑）：把 `/me/password` 改成 `/me/passwd`、并把空昵称也写进请求体 → **3 failed / 22 passed**，
-红的正是这两族用例；还原后 25/25 绿。
+红的正是这两族用例；还原后 28/28 绿。另做一次判别力：把 CSRF 重试分支关掉（`if (false && …)`）→ **2 failed / 26 passed**，红的正是两条重试用例。
 
 ### 二、删掉 `AttemptService.patchAnswers` 里的只写不读变量
 
@@ -480,14 +481,14 @@ stub 认哪个路径，测出来就"对"；真正决定线上能不能登录的�
 
 | 命令 | 结果 |
 | --- | --- |
-| `vitest run src/api/v3.spec.ts` | **25 通过 / 0 失败**（新增 1 个文件）；判别力态 3 failed / 22 passed |
-| `vitest run`（全量）+ `typecheck` | **51 文件 / 1100 条通过**（第 34 轮 50/1075，+1 文件 +25 条）；typecheck 退出 0 |
+| `vitest run src/api/v3.spec.ts` | **28 通过 / 0 失败**（新增 1 个文件）；两次判别力态 3 failed / 22 passed 与 2 failed / 26 passed |
+| `vitest run`（全量）+ `typecheck` | **51 文件 / 1103 条通过**（第 34 轮 50/1075，+1 文件 +28 条）；typecheck 退出 0 |
 | 后端子集（排除 3 个真实 MySQL IT） | **407 通过 / 0 失败 / 0 错误 / 1 跳过**（删死变量是行为中性的，数量不变） |
 | 库查询（只读） | 上表；未做任何 DML/DDL |
 
 ### 遗留
 
-- 仍未覆盖的接口模块：`v3Admin.ts`、`adminMembers.ts`、`client.ts`（旧 v1/v2 内容层）、`csrf.ts`。
+- 仍未覆盖的接口模块：`v3Admin.ts`、`adminMembers.ts`、`client.ts`（旧 v1/v2 内容层）。`csrf.ts` 的重试语义本轮覆盖了，但**取 token 本身**的细节（cookie 优先、头名以服务端为准、取不到时的兑底头名、并发合并）仍无测试。
 - 本轮**未**重新打包 jar（开发还在同一分支上继续，等下一批改动一起打），所以第 34 轮那份产物与当前 HEAD 不是同一份。
 - 用户可见的功能改动（后台改角色/禁用、离线答题、同意台账……）都需要先由用户拍板，本轮未动。
 
