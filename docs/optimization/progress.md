@@ -439,6 +439,45 @@ C:\Python314\python.exe scripts\browser-verify-real-stack-v4.py → 19/19
 - 未运行三类真实 MySQL IT（需要建库/删库授权）；未做真实 AI 外发。
 - 顺手发现、**本轮未动**：`AttemptService.patchAnswers` 里 `touchesClarification` 只赋值未被读取（死变量，与 A34/A40 无关）。
 
+## 第 34 轮：先把「新版本」产出来（可构建 + 可运行 + 已验证）（2026-09-22）
+
+### 起点事实
+
+- 用户的诉求是「先能搞出一个新版本，再在这个前提下开发」—— 所以本轮不碰产品逻辑，先把**从当前源码到可运行产物**这条路走通并留下证据。
+- 起点问题：仓库里可运行的 jar 是第 31 轮 13:25 打的，**不含**其后三个提交（A58 / v4 阈值 / A84 / A34 / A40）。产物与源码不一致是最容易被误当「已经验收过」的状态。
+- 先确认没有进程占着产物：`netstat` 显示 8080/8091 无监听，只有 MySQL 的 3306/33060 ⇒ 可以直接 `mvn clean package`，不需要 taskkill 任何用户进程。
+
+### 做了什么
+
+1. 发布前只读检查：6 条内容一致性脚本全部 `--check` exit 0（夹具 sha256 `96943e4bbc1e`）。
+2. `frontend: npm run build` → `backend: mvn -o clean package`。用 `clean` 是因为要排除「target 里的旧 class 被当成新产物」；
+   这也意味着全量测试（**含三个真实 MySQL IT**）在干净目录上重跑。
+3. 新写 `work/r34-artifact-check.py` 做**产物层**核对（见下表）——重点是那条反汇编检查，用来回答
+   「jar 里的 `ReportService` 到底是哪一版」：时间戳只能证明「刚编译过」，不能证明「编译的是这份源码」，字节码顺序能。
+4. 用隔离库把新 jar 真跑起来：建 `typeme_r31_e2e` → 启动（Flyway 从零迁到 V10）→ API e2e → 真浏览器 → **停进程 + 删库**。
+
+### 验证与证据
+
+| 内容 | 结果 |
+| --- | --- |
+| 后端**全量**（含 3 个真实 MySQL IT） | **415 通过 / 0 失败 / 0 错误 / 1 跳过**，BUILD SUCCESS（子集 407 + 真实 MySQL IT 8） |
+| 前端构建 | exit 0；`index-BlPyPWyL.js` 650.51 kB / gzip 245.89 kB；产物地址检查通过 |
+| 产物核对 `work/r34-artifact-check.py` | **12/12**：jar 内 `index.html` / `index-*.js` / `index-*.css` 与 `frontend/dist` 哈希一致；反汇编 `ReportService.submit` 后「写 `clarification_skipped = 1`」的 `ldc`@983 在 `JungScorer.checkCoverage`@171 **之后** ⇒ jar 里确实是修过的 class |
+| 真实全栈 API e2e（真 jar + 真 MySQL + 真会话） | **16/16**（`work/r31_e2e.py`） |
+| 真实浏览器 · 真实栈 | **19/19**（320/390/1440 无溢出；阈值文案「每 5 题」） |
+| 产物 | `typeme-backend-1.0.0.jar` 35,997,665 B，sha256 `9475273a2a41…`，代码版本 `674bcec` |
+
+证据目录：`docs/optimization/verification/2026-09-22-release-r34/`（含 `RELEASE.md` 版本说明、`artifact-check.json`、
+`api-e2e.txt`、`browser-real-stack.txt`、`backend-full-tests.txt` 与 4 张截图）。
+
+### 边界与未覆盖
+
+- **内部版本号仍是 `1.0.0`**（`pom.xml` / `package.json`）。本轮说的"新版本"指**产物**；要不要改号属项目版本策略，需用户决定。
+- AI 全程未真实外发（key 置空，`enabled=false`）；提示词 v4 与 A84 的失败态呈现仍只有 mock 证据。
+- 真浏览器只走了一条主路径（交卷 → 报告页）；AI 面板 / 账号页 / 后台 / 大五流程未跑。
+- 截图未经人工目视；断言全是机器可判定的数字。
+- 未部署到任何长期运行的环境；临时库与临时进程已清理。
+
 ## 第 0 轮：环境与基线（2026-09-17）
 
 ### 做了什么

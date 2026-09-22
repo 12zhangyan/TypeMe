@@ -1,0 +1,114 @@
+{
+ "scope": "真实浏览器 + 真实 jar + 真实 MySQL（隔离库）+ 真实会话；不 mock 任何 /api",
+ "base": "http://127.0.0.1:8099",
+ "database": "typeme_r31_e2e",
+ "widths": [
+  320,
+  390,
+  1440
+ ],
+ "notes": [
+  "启动前清掉隔离库的 register 限流桶（删除前条数 1）—— 限流本身是正确行为，不清理会让重复跑同一条验收时红在 429 上",
+  "注册响应里的恢复码只核对条数，不保存内容",
+  "主测结束时确实安排了补充题，本次按真实路径选择「跳过」"
+ ],
+ "checks": [
+  {
+   "label": "真实后端上注册成功（真实邀请码 + 真实会话）",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "注册后会话可用（/api/v3/me = 200）",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "在选择页点开始 → 真实建出测评并进入 /assess/{id}",
+   "passed": true,
+   "detail": "http://127.0.0.1:8099/#/assess/84e3c804-18ef-4bb9-b732-5f6881ae425d"
+  },
+  {
+   "label": "真实后端把这份草稿绑到 typeme-jung48-zh-v4",
+   "passed": true,
+   "detail": "typeme-jung48-zh-v4"
+  },
+  {
+   "label": "能连续作答到主测结束",
+   "passed": true,
+   "detail": "实际 47 题"
+  },
+  {
+   "label": "交卷后进入报告详情页",
+   "passed": true,
+   "detail": "http://127.0.0.1:8099/#/reports/a8167f93-c657-3e19-8831-9400a0515734"
+  },
+  {
+   "label": "报告页有阈值说明元素（data-method-thresholds）",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "真实后端下报告页写明 v4 口径「有效作答每 5 题」",
+   "passed": true,
+   "detail": "这份快照按提交当时的规则计分：每个方向至少有 9 道有效数字答案，并且这一维的主测题都处理过，才会给出倾向。明确「说不好」不算数字答案，但算已经处理；还没作答会让这一维覆盖不足，即使数字答案已经够数。 「略偏」按当时记下的比例判定：有效作答"
+  },
+  {
+   "label": "真实后端下报告页没有退回缺省口径「每 10 题」",
+   "passed": true,
+   "detail": "这份快照按提交当时的规则计分：每个方向至少有 9 道有效数字答案，并且这一维的主测题都处理过，才会给出倾向。明确「说不好」不算数字答案，但算已经处理；还没作答会让这一维覆盖不足，即使数字答案已经够数。 「略偏」按当时记下的比例判定：有效作答"
+  },
+  {
+   "label": "报告页有状态区（data-report-overview）",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "报告状态是可识别的业务状态（不是空）",
+   "passed": true,
+   "detail": "TIED"
+  },
+  {
+   "label": "报告页有类型码或并列说明（结论层渲染完整）",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "整页没有未捕获的前端异常",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "320 宽无横向溢出",
+   "passed": true,
+   "detail": "{'sw': 320, 'cw': 320}"
+  },
+  {
+   "label": "320 宽阈值文案仍是「每 5 题」",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "390 宽无横向溢出",
+   "passed": true,
+   "detail": "{'sw': 390, 'cw': 390}"
+  },
+  {
+   "label": "390 宽阈值文案仍是「每 5 题」",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "1440 宽无横向溢出",
+   "passed": true,
+   "detail": "{'sw': 1440, 'cw': 1440}"
+  },
+  {
+   "label": "1440 宽阈值文案仍是「每 5 题」",
+   "passed": true,
+   "detail": ""
+  }
+ ],
+ "passed": 19,
+ "failed": 0
+}
