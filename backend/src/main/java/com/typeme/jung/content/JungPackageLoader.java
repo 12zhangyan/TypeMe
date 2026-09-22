@@ -71,8 +71,14 @@ public class JungPackageLoader {
      * {@code scoringVersion = typeme-jung48-score-v3}（边界与触发同尺度）。
      * 计分规则按草稿绑定的 {@code scoringVersion} 分派，所以旧草稿仍走旧规则；
      * 换默认包与换规则是同一个决定的两面，不能只改其中一处。
+     *
+     * <p>2026-09-21：默认版本继续前移到 {@code typeme-jung48-zh-v4}。v4 的题目、维度文案、
+     * 可读层与 v3 逐字相同，差别只在它声明的
+     * {@code scoringVersion = typeme-jung48-score-v4}，以及阈值政策的数值
+     * （{@code boundaryDenominator} 10 → 5，即 {@code T(n) = B(n) = floor(2n/5)}）。
+     * 与 v3 的关系同理：旧草稿继续按自己绑定的版本解释，新草稿改用 v4。
      */
-    public static final String CURRENT_PACKAGE_ID = "typeme-jung48-zh-v3";
+    public static final String CURRENT_PACKAGE_ID = "typeme-jung48-zh-v4";
 
     /**
      * 16 型基础报告文案的**历史默认版本**（v1）。
@@ -80,8 +86,8 @@ public class JungPackageLoader {
      * <p><b>它不是"报告文案怎么取"的权威。</b>运行期解析报告文案用的是**包自己声明的**
      * {@code reportContentVersion}：构造器里 {@code typeReportContents.get(jungPackage.reportContentVersion())}
      * （取不到直接抛异常），报告侧走 {@code findTypeReports(pkg.reportContentVersion())}。
-     * 当前默认包 {@code typeme-jung48-zh-v3} 声明的是 {@code typeme-type-report-zh-v2}，
-     * 所以**不能用这个常量推断某份报告用的是哪版文案**。
+     * 当前默认包 {@code typeme-jung48-zh-v4} 声明的是 {@code typeme-type-report-zh-v1}
+     * （v3 也一样），所以**不能用这个常量推断某份报告用的是哪版文案**。
      *
      * <p>2026-09-18 的说明：这个常量目前只剩两个消费者 —— 已 {@code @Deprecated} 的
      * {@code JungReportBuilder.build(loader, …)} 重载所用的 {@code currentTypeReports()}，

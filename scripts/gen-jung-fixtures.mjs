@@ -33,7 +33,7 @@ const root = resolve(here, '..')
  * YAML → 包的转换本身由 `scripts/convert-jung-content.mjs --check` 与
  * `scripts/gen-platform-content.mjs --check` 各自守住，不靠这里兼管。
  */
-const PACKAGE_SOURCE = join(root, 'backend/src/main/resources/content/typeme-jung48-zh-v3.json')
+const PACKAGE_SOURCE = join(root, 'backend/src/main/resources/content/typeme-jung48-zh-v4.json')
 const OUTPUTS = [
   join(root, 'docs/2026-09-16/implementation/fixtures/score-cases.json'),
   join(root, 'backend/src/test/resources/fixtures/score-cases.json'),
@@ -101,8 +101,10 @@ const triggerThreshold = (n) => (n <= 0 ? 0 : Math.floor((POLICY.boundaryNumerat
 /**
  * 边界与触发**同一条尺度**（`B(n) = T(n)`，不再减一）的计分版本。
  * 与 Java `JungScoringPolicy.UNIFIED_SCALE_VERSIONS`、前端 `types.ts` 同一张表。
+ * 这张表只决定**是否减一**；分子/分母取多少由各包自己的 `scoringPolicy` 声明
+ * （当前 v4 = `2/5`，v3 = `2/10`）。
  */
-const UNIFIED_BOUNDARY_SCALE_VERSIONS = ['typeme-jung48-score-v3']
+const UNIFIED_BOUNDARY_SCALE_VERSIONS = ['typeme-jung48-score-v3', 'typeme-jung48-score-v4']
 
 /** 边界阈值 `B(n) = max(0, T(n) − 1)`（历史）或 `max(0, T(n))`（统一尺度）。 */
 const boundaryThreshold = (n) => {
@@ -490,9 +492,9 @@ function score(index, answers, skipped) {
 const CASES = [
   { id: 'CASE-01', note: '四维都给出明确的一侧：钉住 TF/JP 的正负极方向（与旧 OEJTS 相反）',
     fill: { EI: '+12', SN: '+10', TF: '-12', JP: '-8' } },
-  { id: 'CASE-02', note: 'n=12、|S|=1：落在带内（B(12)=2）而用户**跳过**了补充题 → TENTATIVE。与 CASE-14（同一份主测但完成补充题）构成「跳过 / 完成」对照',
+  { id: 'CASE-02', note: 'n=12、|S|=1：落在带内（v4 的 B(12)=4）而用户**跳过**了补充题 → TENTATIVE。与 CASE-14（同一份主测但完成补充题）构成「跳过 / 完成」对照',
     fill: { EI: '+1', SN: '+10', TF: '+12', JP: '-10' }, skip: ['EI'] },
-  { id: 'CASE-03', note: '补充题与主测同向叠加（不是翻转）：最终方向与边界都必须按合并后的 S 判定，本例落成 n=16、|S|=6',
+  { id: 'CASE-03', note: '补充题与主测同向叠加（不是翻转）：最终方向与边界都必须按合并后的 S 判定，本例落成 n=16、|S|=6 —— v4 下恰好等于 B(16)=6（闭区间等号格），故 TENTATIVE',
     fill: { EI: '+2', SN: '+10', TF: '+12', JP: '-10' },
     clarification: { answers: {
       'EI-C1': { kind: 'rating', rating: 1 }, 'EI-C2': { kind: 'rating', rating: 5 },
@@ -500,10 +502,11 @@ const CASES = [
   { id: 'CASE-04', note: '主测全部中立档：四维 S=0，不得默认给出一个类型',
     fill: { EI: 'neutral', SN: 'neutral', TF: 'neutral', JP: 'neutral' },
     skip: ['EI', 'SN', 'TF', 'JP'] },
-  { id: 'CASE-05', note: '每维恰好 9 个数字回答 + 3 个未知：覆盖达标，n 只数数字回答',
+  { id: 'CASE-05', note: '每维恰好 9 个数字回答 + 3 个未知：覆盖达标，n 只数数字回答。v4 下 EI（n=9、|S|=2 ≤ T(9)=3）**新触发**澄清，跳过 → 仍在 B(9)=3 内 → TENTATIVE',
     fill: { EI: '+4', SN: '+10', TF: '+12', JP: '-10' },
     unknown: { EI: ['EI-10', 'EI-11', 'EI-12'], SN: ['SN-10', 'SN-11', 'SN-12'],
-      TF: ['TF-10', 'TF-11', 'TF-12'], JP: ['JP-10', 'JP-11', 'JP-12'] } },
+      TF: ['TF-10', 'TF-11', 'TF-12'], JP: ['JP-10', 'JP-11', 'JP-12'] },
+    skip: ['EI'] },
   { id: 'CASE-06', note: '每维只有 8 个数字回答：即使没有未处理项也必须回退，不给报告',
     fill: { EI: '+8', SN: '+8', TF: '+8', JP: '+8' },
     unknown: { EI: ['EI-09', 'EI-10', 'EI-11', 'EI-12'], SN: ['SN-09', 'SN-10', 'SN-11', 'SN-12'],
@@ -512,18 +515,18 @@ const CASES = [
     fill: { EI: '+12', SN: '+10', TF: '+12', JP: '-10' }, drop: ['JP-12'] },
   { id: 'CASE-08', note: '单维真实平分 + 其余非零：平分维不参与类型判定',
     fill: { EI: 'alternate', SN: '+10', TF: '+8', JP: '-10' }, skip: ['EI'] },
-  { id: 'CASE-09', note: 'n=12、|S|=2 恰好等于 B(12)=2：跳过补充题、结果仍在带内 → TENTATIVE。这条钉住 v3 的政策要点 —— 跳过不会再让结论显得更明确（旧规则 B=T−1=1 时它是 REFERENCE）',
+  { id: 'CASE-09', note: 'n=12、|S|=2 落在 v4 的 B(12)=4 之内：跳过补充题、结果仍在带内 → TENTATIVE。钉住 v3/v4 共同的政策要点 —— 跳过不会再让结论显得更明确（旧规则 B=T−1=1 时它是 REFERENCE）',
     fill: { EI: '+2', SN: '+10', TF: '+12', JP: '-10' }, skip: ['EI'] },
-  { id: 'CASE-10', note: '平分维与**真边界维**同时出现（EI 平分、JP |S|=1 落在 B(12)=2 之内）：平分优先，状态是 TIED 而不是 TENTATIVE，也不给完整四字母',
+  { id: 'CASE-10', note: '平分维与**真边界维**同时出现（EI 平分、JP |S|=1 落在 v4 的 B(12)=4 之内）：平分优先，状态是 TIED 而不是 TENTATIVE，也不给完整四字母',
     fill: { EI: 'alternate', SN: '+10', TF: '-8', JP: '+1' }, skip: ['EI', 'JP'] },
-  { id: 'CASE-11', note: '四维倾向都极轻（EI/TF/JP 恰好压在 B(12)=2 上、SN |S|=1 在带内）：候选数量应等于各维可选极点的笛卡尔积',
+  { id: 'CASE-11', note: '四维倾向都极轻（EI/TF/JP |S|=2、SN |S|=1，都在 v4 的 B(12)=4 带内）：候选数量应等于各维可选极点的笛卡尔积',
     fill: { EI: '+2', SN: '+1', TF: '-2', JP: '+2' }, skip: ['EI', 'SN', 'TF', 'JP'] },
-  { id: 'CASE-12', note: 'n=12、|S|=3：超过触发阈值 T(12)=2 故不安排补充题，也刚好越出带一格（B(12)=2+1）→ REFERENCE',
-    fill: { EI: '+3', SN: '+10', TF: '+12', JP: '-10' } },
-  { id: 'CASE-13', note: 'n=9、|S|=1 恰好等于 B(9)=1：覆盖下限这一档也有「倾向较轻」区间（旧规则 B(9)=0，任何非零倾向都会被判成明确）→ TENTATIVE',
+  { id: 'CASE-12', note: 'n=12、|S|=3：v3 下不安排补充题且越出带；v4 下 T(12)=4 所以**新触发**澄清，跳过 → 仍在 B(12)=4 内 → TENTATIVE',
+    fill: { EI: '+3', SN: '+10', TF: '+12', JP: '-10' }, skip: ['EI'] },
+  { id: 'CASE-13', note: 'n=9、|S|=1 落在 v4 的 B(9)=3 之内：覆盖下限这一档也有「倾向较轻」区间（旧规则 B(9)=0，任何非零倾向都会被判成明确）→ TENTATIVE',
     fill: { EI: '+1', SN: '+10', TF: '+12', JP: '-10' },
     unknown: { EI: ['EI-10', 'EI-11', 'EI-12'] }, skip: ['EI'] },
-  { id: 'CASE-14', note: '与 CASE-02 同一份主测（EI=+1）但**完成**了补充题：合并后 n=16、|S|=5 越出带（B(16)=3）→ REFERENCE。与 CASE-02 构成「跳过 / 完成」对照',
+  { id: 'CASE-14', note: '与 CASE-02 同一份主测（EI=+1）但**完成**了补充题：合并后 n=16、|S|=5 在 v4 的 B(16)=6 内 → TENTATIVE。与 CASE-03（同批补充题、主测 S=+2 → 合并 |S|=6，等号格）是同一条边界上的两格',
     fill: { EI: '+1', SN: '+10', TF: '+12', JP: '-10' },
     clarification: { answers: {
       'EI-C1': { kind: 'rating', rating: 1 }, 'EI-C2': { kind: 'rating', rating: 5 },
@@ -536,7 +539,7 @@ const CASES = [
   { id: 'CASE-16', note: '四维都真实平分：证明 S 是代数和而不是逐题绝对值累加',
     fill: { EI: 'alternate', SN: 'alternate', TF: 'alternate', JP: 'alternate' },
     skip: ['EI', 'SN', 'TF', 'JP'] },
-  { id: 'CASE-17', note: '两维轻、两维明确：EI |S|=2 与 SN |S|=1 都落在 B(12)=2 之内，候选只发生在这两维上，TF/JP 不进候选',
+  { id: 'CASE-17', note: '两维轻、两维明确：EI |S|=2 与 SN |S|=1 都落在 v4 的 B(12)=4 之内，候选只发生在这两维上，TF/JP 不进候选',
     fill: { EI: '+2', SN: '+1', TF: '+12', JP: '-10' }, skip: ['EI', 'SN'] },
   { id: 'CASE-18', note: '只有 EI 不足 9 个数字回答：覆盖按维判定，其余维充足也要回退',
     fill: { EI: '+8', SN: '+10', TF: '+12', JP: '-10' },
@@ -548,11 +551,29 @@ const CASES = [
   { id: 'CASE-20', note: '覆盖不足与平分、边界同时出现：NEEDS_REVIEW 优先于 TIED 与 TENTATIVE，且不给四字母、不给候选',
     fill: { EI: 'alternate', SN: '+10', TF: '+12', JP: '+1' },
     unknown: { SN: ['SN-09', 'SN-10', 'SN-11', 'SN-12'] }, skip: ['EI', 'JP'] },
-  { id: 'CASE-21', note: 'n=16、|S|=2 落在带内（B(16)=3）：补充题全答中立档，边界在**最终合并题集**上判定，合并后仍算轻 → TENTATIVE',
+  { id: 'CASE-21', note: 'n=16、|S|=2 落在带内（v4 的 B(16)=6）：补充题全答中立档，边界在**最终合并题集**上判定，合并后仍算轻 → TENTATIVE',
     fill: { EI: '+2', SN: '+10', TF: '+12', JP: '-10' },
     clarification: { answers: {
       'EI-C1': { kind: 'rating', rating: 3 }, 'EI-C2': { kind: 'rating', rating: 3 },
       'EI-C3': { kind: 'rating', rating: 3 }, 'EI-C4': { kind: 'rating', rating: 3 } } } },
+
+  /*
+   * 以下用例专门钉住 **v4 的新边界数值**（`T(n) = B(n) = floor(2n/5)`）。
+   * v4 相对 v3 的差别在两端：`B(9)` 1→3、`B(12)` 2→4、`B(16)` 3→6，
+   * 所以「等号格」（`|S| = B(n)`）与「越出格」（`|S| = B(n)+1`）的位置整体外移。
+   * 只靠 v3 时代那几条用例，等号格已经落在带外或带内，看不出新边界到底画在哪。
+   */
+  { id: 'CASE-22', note: 'v4 等号格：n=12、|S|=4 恰好等于 B(12)=4（闭区间含等号）→ TENTATIVE；同时 |S|=T(12)=4 会安排澄清',
+    fill: { EI: '+4', SN: '+10', TF: '+12', JP: '-10' }, skip: ['EI'] },
+  { id: 'CASE-23', note: 'v4 越出格：n=12、|S|=5 已超过 B(12)=4，也超过触发 T(12)=4（不安排澄清）→ REFERENCE',
+    fill: { EI: '+5', SN: '+10', TF: '+12', JP: '-10' } },
+  { id: 'CASE-24', note: 'v4 负向对称：n=12、S=−4 与 S=+4 同格 → TENTATIVE；边界判定必须与 S 的正负无关',
+    fill: { EI: '-4', SN: '+10', TF: '+12', JP: '-10' }, skip: ['EI'] },
+  { id: 'CASE-25', note: 'v4 合并题集越出格：主测 EI=+3、完成 4 道补充题后 n=16、|S|=7 > B(16)=6 → REFERENCE（与 CASE-03 的等号格成对照，证明等号两侧结论不同）',
+    fill: { EI: '+3', SN: '+10', TF: '+12', JP: '-10' },
+    clarification: { answers: {
+      'EI-C1': { kind: 'rating', rating: 1 }, 'EI-C2': { kind: 'rating', rating: 5 },
+      'EI-C3': { kind: 'rating', rating: 1 }, 'EI-C4': { kind: 'rating', rating: 1 } } } },
 ]
 
 /* ── 生成 ─────────────────────────────────────────────────────────────── */

@@ -20,7 +20,7 @@ import { DIMENSIONS, type Answer, type ContentPackage, type Dimension } from '..
 
 /** 夹具绑定的是**当前内容包**（`JungPackageLoader.CURRENT_PACKAGE_ID`）。 */
 const packageJson = JSON.parse(
-  readFileSync(resolve(__dirname, '../../../../backend/src/main/resources/content/typeme-jung48-zh-v3.json'), 'utf8'),
+  readFileSync(resolve(__dirname, '../../../../backend/src/main/resources/content/typeme-jung48-zh-v4.json'), 'utf8'),
 ) as ContentPackage
 
 const fixture = JSON.parse(
@@ -40,7 +40,7 @@ const fixture = JSON.parse(
 const pkgVersion = packageJson.instrument.scoringVersion
 /**
  * 报告文案版本按**包自己声明的**那一版读取，而不是写死一个默认版本：
- * v3 复用了 v2 的报告文案，若写死或只比较常量，就可能"常量对得上、文件对不上"。
+ * v4 复用了 v3 的报告文案（与 v3 一样指向 zh-v1），若写死或只比较常量，就可能"常量对得上、文件对不上"。
  */
 const reportVersion = packageJson.instrument.reportContentVersion
 const reportsJson = JSON.parse(

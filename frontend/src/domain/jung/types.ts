@@ -124,9 +124,11 @@ export const contributionOf = (item: Item, rating: number): number =>
   (item.rightPole === POSITIVE_POLE[item.dimension] ? 1 : -1) * (rating - 3)
 
 /**
- * 触发阈值 `T(n) = floor(2n/10)`；`|S| <= T(n)` 需要追加补充题。
+ * 触发阈值 {@code T(n) = floor(boundaryNumerator * n / boundaryDenominator)}；
+ * {@code |S| <= T(n)} 需要追加补充题。
  *
- * 用整数而不是 `|m| <= 0.2` 这类浮点阈值：0.2 在二进制里不精确，
+ * 具体比值由**内容包声明**：历史版本与 `score-v3` 是 `2/10`，`score-v4` 是 `2/5`。
+ * 用整数而不是 `|m| <= 0.1` 这类浮点阈值：0.1 在二进制里不精确，
  * 边界上会出现"同一份答卷换台机器结论不同"。
  */
 export const triggerThreshold = (policy: ScoringPolicy, n: number): number =>
@@ -137,8 +139,13 @@ export const triggerThreshold = (policy: ScoringPolicy, n: number): number =>
  *
  * 必须与后端 `JungScoringPolicy.UNIFIED_SCALE_VERSIONS` 一致：两侧不一致就会出现
  * "预览说这一维倾向较轻、服务端报告说明确"这种同一份答卷两个结论的问题。
+ * 注意这张表只决定**边界是否减一**；“分子/分母到底取多少”由各包自己的
+ * `scoringPolicy` 声明（v3 = `2/10`，v4 = `2/5`），不在本表里写死。
  */
-const UNIFIED_BOUNDARY_SCALE_VERSIONS: readonly string[] = ['typeme-jung48-score-v3']
+const UNIFIED_BOUNDARY_SCALE_VERSIONS: readonly string[] = [
+  'typeme-jung48-score-v3',
+  'typeme-jung48-score-v4',
+]
 
 /** 边界 `= 触发 − 1` 的历史版本（行为冻结，旧包/旧草稿/旧报告继续走这一套）。 */
 const SEPARATE_BOUNDARY_VERSIONS: readonly string[] = [

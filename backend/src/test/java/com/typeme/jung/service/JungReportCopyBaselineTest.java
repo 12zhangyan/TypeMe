@@ -30,9 +30,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * 报告文案基线与"新包没有顺带换文案"的证据（2026-09-18 阈值调整沿用 v1 报告文案）。
+ * 报告文案基线与"新包没有顺带换文案"的证据（2026-09-21 v4 阈值调整沿用 v3 所声明的 v1 报告文案）。
  *
- * <p>为什么需要它：默认包从 `typeme-jung48-zh-v1` 换到 `typeme-jung48-zh-v3` 时，
+ * <p>为什么需要它：默认包从 `typeme-jung48-zh-v1` 换到 `typeme-jung48-zh-v3`（再换到 v4）时，
  * 报告文案版本也是**由包声明的**。如果新包声明了 `typeme-type-report-zh-v2`，
  * 报告构造器会改用 v2 的 `readableSummary` / `readableFirstSteps`，
  * 把"八段 + 3 条成长行动"换成"一句话摘要 + 1 个可观察动作" ——
@@ -41,25 +41,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * <p>这里证明三件事：
  * <ol>
  *   <li><b>基线是什么</b>：改动前新草稿用的默认包（v1）声明的是 `typeme-type-report-zh-v1`；
- *       当前默认包（v3）声明的也是它 —— 解析路径按包声明走，因此报告文案与改动前逐字相同。</li>
+ *       当前默认包（v4）声明的也是它 —— 解析路径按包声明走，因此报告文案与改动前逐字相同。</li>
  *   <li><b>解析结果确实是 v1 形态</b>：加载器解析出来的 TypeReport 没有 readable 字段、
  *       `nextActions` 是 3 条；同时用 v2 报告内容做反证（它有 readable 字段），
  *       避免"断言恒真"。</li>
- *   <li><b>报告字节没变</b>：同一批作答、同一状态（CASE-12，两版都 REFERENCE）下，
- *       v1 包与 v3 包生成的 report_json 除了 5 个版本/哈希字段外**完全相同**。</li>
+ *   <li><b>报告字节没变</b>：同一批作答、同一状态（CASE-01，四版都 REFERENCE）下，
+ *       v1 包与 v4 包生成的 report_json 除了 7 个版本/哈希/政策字段外**完全相同**。</li>
  * </ol>
  *
  * <p>另外，本类顺带把无数据库的浏览器验收要用的合成报告写到
- * `target/score-v3-browser-fixtures/`（与 `ReadableReportFixturesTest` 同一套做法）。
+ * `target/score-v4-browser-fixtures/`（与 `ReadableReportFixturesTest` 同一套做法）。
  */
 class JungReportCopyBaselineTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private final LocalDateTime now = LocalDateTime.of(2026, 9, 18, 0, 0);
 
-    /** 报告 JSON 里"跟着版本走"的字段：比对文案是否相同时要把它们排除。 */
+    /**
+     * 报告 JSON 里"跟着版本/阈值政策走"的字段：比对文案是否相同时要把它们排除。
+     *
+     * <p>{@code boundaryNumerator} / {@code boundaryDenominator} 属于**计分政策快照**
+     * （v1 是 2/10、v4 是 2/5），它们本来就该随版本不同 —— 本类要证明的是
+     * "报告文案与结构没变"，不是"连政策数值也相同"。把它们留在比对里会让测试
+     * 只能覆盖"政策恰好没改"的版本对，也就失去了对这次阈值调整的意义。
+     */
     private static final List<String> VERSION_BEARING_FIELDS = List.of(
-            "scoringVersion", "packageId", "reportContentVersion", "contentSha256", "policyVersion");
+            "scoringVersion", "packageId", "reportContentVersion", "contentSha256", "policyVersion",
+            "boundaryNumerator", "boundaryDenominator");
 
     private static JungPackageLoader loader;
     private static JsonNode fixture;
@@ -76,12 +84,12 @@ class JungReportCopyBaselineTest {
     /* ── 1. 基线 ─────────────────────────────────────────────────────────── */
 
     @Test
-    @DisplayName("基线：改动前新草稿用的默认包（v1）声明的报告文案，就是当前默认包（v3）声明的那一版")
+    @DisplayName("基线：改动前新草稿用的默认包（v1）声明的报告文案，就是当前默认包（v4）声明的那一版")
     void newDraftsKeepTheSameReportCopyAsBeforeTheChange() {
         JungPackage current = loader.current();
         JungPackage legacyDefault = loader.find("typeme-jung48-zh-v1");
 
-        assertEquals("typeme-jung48-zh-v3", current.packageId(), "当前新草稿默认包");
+        assertEquals("typeme-jung48-zh-v4", current.packageId(), "当前新草稿默认包");
         assertNotNull(legacyDefault, "改动前的默认包必须仍可加载（历史草稿/报告按它解释）");
 
         // 改动前（HEAD）：CURRENT_PACKAGE_ID = typeme-jung48-zh-v1，而 v1 包声明的是
@@ -126,14 +134,14 @@ class JungReportCopyBaselineTest {
     /* ── 3. 报告字节 ─────────────────────────────────────────────────────── */
 
     @Test
-    @DisplayName("报告字节：同作答同状态下，v1 包与 v3 包的报告只差版本/哈希字段")
+    @DisplayName("报告字节：同作答同状态下，v1 包与 v4 包的报告只差版本/哈希字段")
     void sameAnswersAndStatusProduceIdenticalReportBodies() throws Exception {
-        // CASE-12：EI S=3、n=12，两套口径都不在边界内 → 两版都是 REFERENCE（无边界、无候选），
+        // CASE-01：四维都明确、无补充题，v1 与 v4 都是 REFERENCE（无边界、无候选），
         // 所以两份报告应当只有版本字段不同。reportId / attemptId 用同一个值：
         // 它们不是版本字段，若两边不同，说明我在比较时把"标识"混进了"文案"。
-        JsonNode legacyReport = buildReport(loader.find("typeme-jung48-zh-v1"), "CASE-12",
+        JsonNode legacyReport = buildReport(loader.find("typeme-jung48-zh-v1"), "CASE-01",
                 "baseline-report", "synthetic-attempt");
-        JsonNode currentReport = buildReport(loader.current(), "CASE-12",
+        JsonNode currentReport = buildReport(loader.current(), "CASE-01",
                 "baseline-report", "synthetic-attempt");
 
         assertEquals("REFERENCE", legacyReport.path("status").asText());
@@ -145,37 +153,44 @@ class JungReportCopyBaselineTest {
         // 并且差异确实只在那些字段上：改动后 reportContentVersion 仍是 v1。
         assertEquals("typeme-type-report-zh-v1",
                 currentReport.path("methodology").path("reportContentVersion").asText());
-        assertEquals("typeme-jung48-score-v3",
+        assertEquals("typeme-jung48-score-v4",
                 currentReport.path("methodology").path("scoringVersion").asText());
         assertEquals("typeme-jung48-score-v1",
                 legacyReport.path("methodology").path("scoringVersion").asText());
         assertEquals("typeme-type-report-zh-v1",
                 legacyReport.path("methodology").path("reportContentVersion").asText());
+        // 政策数值确实随版本走（这才是这次改动本身），所以它们不在"文案必须相同"的范围内。
+        assertEquals(5, currentReport.path("methodology").path("boundaryDenominator").asInt(),
+                "v4 的分母是 5");
+        assertEquals(10, legacyReport.path("methodology").path("boundaryDenominator").asInt(),
+                "v1 的分母是 10");
+        assertEquals(2, currentReport.path("methodology").path("boundaryNumerator").asInt());
     }
 
     /* ── 浏览器验收用的合成报告 ──────────────────────────────────────────── */
 
     @Test
-    @DisplayName("生成浏览器验收夹具：v3 新边界 / 旧版同答卷 / TIED（无数据库，无真实 AI）")
+    @DisplayName("生成浏览器验收夹具：v4 新边界 / 旧版同答卷 / TIED（无数据库，无真实 AI）")
     void writeBrowserFixtures() throws Exception {
-        // v3 新边界：CASE-09（EI n=12、S=2 跳过补充题）→ TENTATIVE + 2 个候选。
-        JsonNode v3Boundary = buildReport(loader.current(), "CASE-09", "v3-boundary", "synthetic-attempt");
-        assertEquals("TENTATIVE", v3Boundary.path("status").asText());
-        assertEquals(2, v3Boundary.path("candidates").size());
-        save("v3-boundary", v3Boundary);
+        // v4 新边界：CASE-22（EI n=12、S=4 恰好等于 B(12)=4）→ TENTATIVE + 2 个候选。
+        // 等号格是这次阈值放宽最直接的可核验位置：v3 下 B(12)=2，同一份作答会是 REFERENCE。
+        JsonNode v4Boundary = buildReport(loader.current(), "CASE-22", "v4-boundary", "synthetic-attempt");
+        assertEquals("TENTATIVE", v4Boundary.path("status").asText());
+        assertEquals(2, v4Boundary.path("candidates").size());
+        save("v4-boundary", v4Boundary);
 
         // 旧版同答卷：同一批作答走 v1 包（历史快照口径）→ REFERENCE、不给候选。
-        JsonNode legacySame = buildReport(loader.find("typeme-jung48-zh-v1"), "CASE-09",
+        JsonNode legacySame = buildReport(loader.find("typeme-jung48-zh-v1"), "CASE-22",
                 "v1-same-answers", "synthetic-attempt");
         assertEquals("REFERENCE", legacySame.path("status").asText());
         assertEquals(0, legacySame.path("candidates").size());
         save("v1-same-answers", legacySame);
 
         // TIED：CASE-10（EI 平分）→ 不给四字母。
-        JsonNode tied = buildReport(loader.current(), "CASE-10", "v3-tied", "synthetic-attempt");
+        JsonNode tied = buildReport(loader.current(), "CASE-10", "v4-tied", "synthetic-attempt");
         assertEquals("TIED", tied.path("status").asText());
         assertTrue(tied.path("computedTypeCode").isNull(), "TIED 不该有四字母");
-        save("v3-tied", tied);
+        save("v4-tied", tied);
     }
 
     /* ── 工具 ────────────────────────────────────────────────────────────── */
@@ -205,12 +220,13 @@ class JungReportCopyBaselineTest {
             if (!leftFields.get(index).equals(rightFields.get(index))) {
                 differences.add("字段 " + fieldName(leftFields.get(index)) + "：\n"
                         + "  v1 包 = " + abbreviate(leftFields.get(index)) + "\n"
-                        + "  v3 包 = " + abbreviate(rightFields.get(index)));
+                        + "  当前包 = " + abbreviate(rightFields.get(index)));
             }
         }
         assertEquals(leftFields.size(), rightFields.size(), "报告的字段数量不同（结构变了）");
         assertTrue(differences.isEmpty(),
-                "除 " + VERSION_BEARING_FIELDS + " 与 reportHash 外，报告正文必须逐字段相同，实测差异 "
+                "除 " + VERSION_BEARING_FIELDS + " 与 reportHash 外，报告正文必须逐字段相同（boundaryNumerator/"
+                        + "boundaryDenominator 记录的是“当时用哪把尺子”，本就该随版本不同，故一并排除）。实测差异 "
                         + differences.size() + " 处：\n" + String.join("\n", differences));
     }
 
@@ -224,7 +240,7 @@ class JungReportCopyBaselineTest {
     }
 
     private void save(String name, JsonNode report) throws Exception {
-        Path directory = Path.of("target", "score-v3-browser-fixtures");
+        Path directory = Path.of("target", "score-v4-browser-fixtures");
         Files.createDirectories(directory);
         MAPPER.writerWithDefaultPrettyPrinter().writeValue(directory.resolve(name + ".json").toFile(), report);
     }
