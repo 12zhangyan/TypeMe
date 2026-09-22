@@ -255,6 +255,35 @@ describe('AI 分析面板', () => {
     expect(wrapper.find('[data-ai-running]').exists()).toBe(true)
   })
 
+  it('重新生成失败：上一次成功的正文不能被藏起来，并要标明"这是上一次的"（A84）', async () => {
+    // 同一行任务被重新生成：服务端不会清 response_json，所以 FAILED 时 result 仍带着旧正文
+    fetchReportAnalyses.mockResolvedValue([
+      job({ status: 'FAILED', errorCode: 'TIMEOUT', attemptCount: 1 }),
+    ])
+    const wrapper = await mountPanel()
+
+    // 失败提示与重试入口照旧
+    expect(wrapper.find('[data-ai-failed]').exists()).toBe(true)
+    expect(wrapper.find('[data-ai-retry]').exists()).toBe(true)
+    // 但旧正文必须还在，而且说清它是哪一次留下的
+    expect(wrapper.find('[data-ai-result]').exists()).toBe(true)
+    const stale = wrapper.find('[data-ai-stale]')
+    expect(stale.exists()).toBe(true)
+    expect(stale.text()).toContain('上一次成功生成')
+    expect(wrapper.find('[data-ai-summary]').text()).toContain('你倾向于先把可能性铺开')
+  })
+
+  it('确实一次都没成功过时，失败分支不凭空渲染结果区（A84 反向）', async () => {
+    fetchReportAnalyses.mockResolvedValue([
+      job({ status: 'FAILED', errorCode: 'TIMEOUT', result: null, resultProblems: [] }),
+    ])
+    const wrapper = await mountPanel()
+
+    expect(wrapper.find('[data-ai-failed]').exists()).toBe(true)
+    expect(wrapper.find('[data-ai-result]').exists()).toBe(false)
+    expect(wrapper.find('[data-ai-stale]').exists()).toBe(false)
+  })
+
   it('额度用完：按钮说明原因并禁用，不让人白点', async () => {
     fetchAiStatus.mockResolvedValue(status({ remainingToday: 0 }))
     const wrapper = await mountPanel()

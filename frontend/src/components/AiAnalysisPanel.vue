@@ -87,6 +87,22 @@ const otherJobRunning = computed(() => ai.hasRunning && !running.value)
 const succeeded = computed(() => job.value?.status === 'SUCCEEDED')
 const failed = computed(() => job.value?.status === 'FAILED' || job.value?.status === 'UNKNOWN')
 
+/**
+ * 上一次成功留下的正文，而这一次重新生成没有成功（A84）。
+ *
+ * 服务端「重新入队」复用同一行任务，并且**不会**清掉 `response_json`：
+ * `AnalysisJobRepository.requeueForRetry` 只改状态与调度字段，`markFailed`/`markUnknown` 也不动它。
+ * 所以状态已经是 FAILED/UNKNOWN 时，`result` 仍可能是上一次成功的正文。
+ * 原来的模板把失败与结果写成同一条 `v-else-if` 链，会把这块正文整片挡掉 ——
+ * 用户点一次「再生成一次」失败，此前能读的分析就从界面上消失了（数据其实还在库里）。
+ *
+ * 反过来推也成立：只有 `markSucceeded` 会写 `response_json`，所以 `result` 非空
+ * 就意味着历史上成功过至少一次 —— 那正是「上一次成功」这个说法的依据，不是猜的。
+ */
+const staleResult = computed(() => failed.value && job.value?.result != null)
+/** 结果区要不要渲染：本次成功，或本次失败但还留着上一次成功的正文。 */
+const showResult = computed(() => succeeded.value || staleResult.value)
+
 /** 成功之后仍要能再生成：同一主题走重试，换主题才建新任务。 */
 const showGenerator = computed(() => !job.value || failed.value || succeeded.value)
 
@@ -372,9 +388,14 @@ function pickTopic(value: AnalysisTopic): void {
           </button>
         </div>
 
-        <!-- 失败：说清原因 + 给下一步，不显示原始错误码 -->
+        <!--
+          失败与结果**不互斥**（A84）：服务端重新入队不会清 response_json，所以 status=FAILED 时
+          result 仍可能是上一次成功的正文。这里刻意拆成两条独立的 v-if，
+          再由 staleResult 决定要不要在失败提示下面补上那份旧正文。
+          失败：说清原因 + 给下一步，不显示原始错误码。
+        -->
         <div
-          v-else-if="failed"
+          v-if="failed"
           class="mt-4 rounded-card border border-danger-300/40 bg-danger-500/10 px-4 py-4"
           role="alert"
           data-ai-failed
@@ -384,8 +405,14 @@ function pickTopic(value: AnalysisTopic): void {
             <span class="text-[14.5px] leading-relaxed text-white">{{ ai.failureHint(job) }}</span>
           </p>
           <p class="mt-2 text-[13px] leading-relaxed text-navy-200">
-            失败不会被算作"已经给过你一份分析"：重试用的是同一次任务，不会多占一次新额度以外的记录。
-            上面的固定报告没有受任何影响。
+            <template v-if="staleResult">
+              这次重新生成没有成功，所以下面那份上一次成功生成的内容没有被替换掉。
+              重试用的是同一次任务，不会多占一次新额度以外的记录。上面的固定报告没有受任何影响。
+            </template>
+            <template v-else>
+              失败不会被算作"已经给过你一份分析"：重试用的是同一次任务，不会多占一次新额度以外的记录。
+              上面的固定报告没有受任何影响。
+            </template>
           </p>
           <button
             type="button"
@@ -399,8 +426,17 @@ function pickTopic(value: AnalysisTopic): void {
           </button>
         </div>
 
-        <!-- 成功：一张从深色面板里"浮出来"的纸 -->
-        <div v-else-if="succeeded" class="mt-4" data-ai-result>
+        <!-- 成功：一张从深色面板里"浮出来"的纸。失败但留着上一次正文时也走这一支 -->
+        <div v-if="showResult" class="mt-4" data-ai-result>
+          <p
+            v-if="staleResult"
+            class="notice-uncertain mt-3 text-[14px] leading-relaxed"
+            role="note"
+            data-ai-stale
+          >
+            <span class="font-medium">这份是上一次成功生成的内容</span>：本次重新生成没有成功，
+            所以它没有被替换。你之前的结论与行动项都还在。
+          </p>
           <p v-if="job.mock" class="text-[12.5px] text-navy-200" data-ai-result-mock>
             （演示数据，非真实模型输出）
           </p>
