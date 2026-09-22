@@ -397,7 +397,12 @@ CLS 0.002、`preload=0 high=1 lazy=20`；冷启动占位窗口 434–524ms（含
 
 - **真实 MySQL 上执行建表迁移**：`V10__illustration_asset.sql` 随部署由 Flyway 执行。本机只在 H2 上
   验证过（Flyway 应用 v10、并把同一份脚本**再执行一遍**证明幂等）；真实 MySQL 的方言差异要等首次
-  部署时看启动日志确认 —— 目前还没有人在真实 MySQL 上执行过它。
+  部署时看启动日志确认 —— 当时还没有人在真实 MySQL 上执行过它。
+  - **【2026-09-21 补记（第 28 轮）】这条缺口已经补上，而且它真的踩中了**：在本机 MySQL **8.4.0**
+    上执行 V10，Flyway 直接报 `1064`——列名 `release` 是 MySQL 8 保留字（`RELEASE SAVEPOINT`），
+    裸写进 DDL 不合法；H2 的 MySQL 模式不拦，所以“H2 上应用 v10 再执行一遍”证明不了 MySQL 能建表。
+    已把列名改为 `release_tag` 并同步代码/生成器/文档，真实 MySQL 三类 IT 8/8 通过。
+    完整证据：`verification/2026-09-21-mysql-v10-reserved-word/REPORT.md`。
 - **真实后端 + 真实库的端到端**：本轮浏览器验收的地址表来自接口 mock（形状与后端 IT 断言的完全一致），
   真实链路（MySQL → 后端 → 浏览器）要在后端重新部署后跑一次：
   `node scripts/check-remote-images.mjs --from-api=<服务地址>`，

@@ -92,8 +92,9 @@ CREATE TABLE IF NOT EXISTS illustration_asset (
     url         VARCHAR(512) NOT NULL,
     -- 与本地素材一致的字节哈希；用于三方核对（库 ↔ 本地文件 ↔ 远端对象）
     sha256      CHAR(64)     NOT NULL,
-    -- 发布批次，例如 2026-09-20；便于整体回退与审计
-    release     VARCHAR(32)  NOT NULL,
+    -- 发布批次，例如 2026-09-20；便于整体回退与审计。
+    -- 列名带 _tag：release 是 MySQL 8 保留字（RELEASE SAVEPOINT），裸写会报 1064。
+    release_tag VARCHAR(32)  NOT NULL,
     updated_at  DATETIME(6)  NOT NULL,
     CONSTRAINT pk_illustration_asset PRIMARY KEY (asset_name)
 );
@@ -106,7 +107,7 @@ CREATE TABLE IF NOT EXISTS illustration_asset (
   + `CURRENT_TIMESTAMP` 都已在 H2 上实测通过（真实 MySQL 待部署时验证）。
 - 种子数据（21 行）由第 8 节工具从**真实素材**生成（`--emit-sql`），**不手写**；
   迁移文件与生成器输出**逐字节一致**（`--force` 重新生成可核对）。
-- 发布版本仍在库里登记（`release` 列），供人读与整体回退；但**页面地址的事实来源是这张表**，
+- 发布版本仍在库里登记（`release_tag` 列），供人读与整体回退；但**页面地址的事实来源是这张表**，
   仓库里不再保留一份"名字 → 对象键"的运行时映射（`illustrationPublish.json` 已删除，见 §9）。
 
 ## 5. 读接口（公开、只读）

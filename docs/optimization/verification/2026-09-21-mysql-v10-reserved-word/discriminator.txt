@@ -1,0 +1,9 @@
+# 判别力验证：把 V10 列名临时改回保留字 release，只跑 ConcurrencyMySqlIT
+# 期望：从“跳过 3 条”变成红（迁移脚本问题不能被吞成环境缺失）
+
+[ERROR] Tests run: 3, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 2.566 s <<< FAILURE! -- in com.typeme.ConcurrencyMySqlIT
+Caused by: org.flywaydb.core.internal.command.DbMigrate$FlywayMigrateException: Migration V10__illustration_asset.sql failed
+Error Code : 1064
+Error Code : 1064
+[ERROR] Tests run: 3, Failures: 0, Errors: 3, Skipped: 0
+[INFO] BUILD FAILURE

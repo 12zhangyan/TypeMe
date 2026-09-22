@@ -101,7 +101,7 @@ public class IllustrationAssetService {
     /** 全部公开插画；库里为空时返回空列表（前端据此继续用本地素材，不是错误）。 */
     public PlatformDtos.IllustrationListResponse list() {
         List<Map<String, Object>> rows = jdbc.queryForList("""
-                SELECT asset_name, url, sha256, release, updated_at
+                SELECT asset_name, url, sha256, release_tag, updated_at
                   FROM illustration_asset
                  ORDER BY asset_name
                 """);
@@ -119,7 +119,7 @@ public class IllustrationAssetService {
                 newest = updatedAt;
             }
             if (release == null) {
-                release = text(row.get("release"));
+                release = text(row.get("release_tag"));
             }
         }
         // 版本号 = 行数 + 最新更新时间：改一行、加一行、删一行都会让它变。
@@ -147,14 +147,14 @@ public class IllustrationAssetService {
         for (PlatformDtos.IllustrationUpdateItem item : items) {
             int updated = jdbc.update("""
                     UPDATE illustration_asset
-                       SET url = ?, sha256 = ?, release = ?, updated_at = ?
+                       SET url = ?, sha256 = ?, release_tag = ?, updated_at = ?
                      WHERE asset_name = ?
                     """, item.url().trim(), item.sha256().trim(), item.release().trim(), now, item.name().trim());
             if (updated == 0) {
                 // 先 UPDATE、影响 0 行再 INSERT：与 AiSettingRepository 同一理由 ——
                 // ON DUPLICATE KEY UPDATE 不是两个引擎的语法交集（H2 的 MERGE 语义也不同）。
                 jdbc.update("""
-                        INSERT INTO illustration_asset (asset_name, url, sha256, release, updated_at)
+                        INSERT INTO illustration_asset (asset_name, url, sha256, release_tag, updated_at)
                         VALUES (?, ?, ?, ?, ?)
                         """, item.name().trim(), item.url().trim(), item.sha256().trim(), item.release().trim(), now);
             }

@@ -298,16 +298,26 @@ function migrationSql(baseUrl) {
 -- COLLATE 钉 as_cs 的理由同 V1/V6：默认的 *_ai_ci 大小写不敏感会让 'home-hero' 与
 -- 'HOME-HERO' 变成同一个主键值，白名单校验就白做了。COLLATE 只能写在列定义最末尾
 -- （MySQL 与 H2 MySQL 模式的语法交集 —— 后端测试也在 H2 上执行本迁移）。
+--
+-- 列名为什么是 release_tag 而不是 release：release 在 MySQL 8 里是保留字
+-- （RELEASE SAVEPOINT 用），不加引号写进 DDL 会直接报 1064；H2 的 MySQL 模式不拦它，
+-- 所以只跑 H2 的测试照不出这个问题。带后缀的名字比到处加反引号更不容易被后人改回去。
+--
+-- ⚠ 本迁移的早期版本用的列名就是 release，在真实 MySQL 8.4 上无法应用
+--   （Flyway 报 1064）。它既用了 MySQL 8 专有的 COLLATE utf8mb4_0900_as_cs，又撞上
+--   MySQL 8 的保留字，因此任何 MySQL 都不可能成功执行过它（8.x 撞保留字、5.7 无该
+--   COLLATE），也就不存在"已经应用过 V10 的库"——故这里原地修正，而不是追加 V11：
+--   V10 不成功的话，V11 永远轮不到执行。
 CREATE TABLE IF NOT EXISTS illustration_asset (
-    asset_name VARCHAR(64)  NOT NULL COLLATE utf8mb4_0900_as_cs,
-    url        VARCHAR(512) NOT NULL,
-    sha256     CHAR(64)     NOT NULL,
-    release    VARCHAR(32)  NOT NULL,
-    updated_at DATETIME(6)  NOT NULL,
+    asset_name  VARCHAR(64)  NOT NULL COLLATE utf8mb4_0900_as_cs,
+    url         VARCHAR(512) NOT NULL,
+    sha256      CHAR(64)     NOT NULL,
+    release_tag VARCHAR(32)  NOT NULL,
+    updated_at  DATETIME(6)  NOT NULL,
     CONSTRAINT pk_illustration_asset PRIMARY KEY (asset_name)
 );
 
-INSERT IGNORE INTO illustration_asset (asset_name, url, sha256, release, updated_at) VALUES
+INSERT IGNORE INTO illustration_asset (asset_name, url, sha256, release_tag, updated_at) VALUES
 ${rows};
 `
 }
