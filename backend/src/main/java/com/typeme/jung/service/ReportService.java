@@ -108,11 +108,19 @@ public class ReportService {
         Map<String, JungAnswer> answerMap = attempts.answerMap(answers);
 
         JungScorer.CoverageReport coverage = JungScorer.checkCoverage(pkg, answerMap);
-        boolean skipped = request != null && Boolean.TRUE.equals(request.clarificationSkipped());
-        if (request != null && Boolean.TRUE.equals(request.clarificationSkipped())) {
-            jdbc.update("UPDATE assessment_attempt SET clarification_skipped = 1 WHERE id = ? AND user_id = ?",
-                    attemptId, userId);
-        } else {
+        /*
+         * 「用户明确跳过补充题」先只放进内存，不在这里落库（A34）。
+         *
+         * 这一次提交可能根本不产生报告（覆盖不足 → NEEDS_REVIEW，或结果需要复核），
+         * 那时草稿必须保持「还没决定跳过」的样子：原先在这里直接写
+         * clarification_skipped = 1，会让用户之后回来补答补充题时走进下面的 else 分支
+         * （服务端以为他仍然选择跳过），撞上 400「已选择跳过补充题，就不应该再有补充题答案」。
+         * 那一次提交并没有产生报告，用户也无法靠派生新测评绕开，草稿就此锁死。
+         * 所以落库推迟到「确定要写报告」之后，与 status='SUBMITTED' 在同一个事务里一起生效。
+         */
+        boolean skipRequested = request != null && Boolean.TRUE.equals(request.clarificationSkipped());
+        boolean skipped = skipRequested;
+        if (!skipRequested) {
             List<Map<String, Object>> existingSkipped = jdbc.queryForList(
                     "SELECT clarification_skipped FROM assessment_attempt WHERE id = ? AND user_id = ?",
                     attemptId, userId);
@@ -204,6 +212,13 @@ public class ReportService {
                     candidateCodesFromJson((String) existing.get("report_json")),
                     attempts.coverageViews(pkg, coverage),
                     true);
+        }
+
+        // 到这里才确定这次提交会留下一份报告，把「跳过补充题」的选择落库。
+        // 与下面的 status='SUBMITTED' 同一事务：要么报告与标记一起生效，要么都不生效。
+        if (skipRequested) {
+            jdbc.update("UPDATE assessment_attempt SET clarification_skipped = 1 WHERE id = ? AND user_id = ?",
+                    attemptId, userId);
         }
 
         jdbc.update("""

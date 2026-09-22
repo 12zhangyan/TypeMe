@@ -387,6 +387,58 @@ C:\Python314\python.exe scripts\browser-verify-real-stack-v4.py → 19/19
   浏览器级证据仍以第 31 轮的 19/19 为基础；如需页面级确认应另行授权一次真实 AI 调用。
 - `V10` 的处置仍是「原地修正」，若将来有库真的应用过某个中间版本 V10，Flyway checksum 冲突会先报出来（这是期望行为）。
 
+## 第 33 轮：A34 与 A40 闭环（2026-09-22）
+
+### 起点事实
+
+- 第 32 轮把 PR #17 的评审处置完（A84 已修、A85 结论不变），当时**开着的可独立推进项**只剩 A34 与 A40。
+- 两条都被历轮记成「低价值/不可达/有意不改」，所以本轮第一步不是改，而是**先验证原判断对不对**。
+- 分支仍在 `wip/score-v4-and-a58`（PR #17），本轮延续在这个分支上收口。
+
+### 做了什么
+
+**A34：覆盖不足的那次「跳过补充题」把草稿锁死了（原判「不可达」，实测可达）**
+
+- 原记录的推理是「要撞上需要覆盖率在 review 与 submit 之间由 ok 变回不 ok」，据此标成「不可达」。
+  复核 `ReportService.submit` 发现前提不成立：那句 `UPDATE assessment_attempt SET clarification_skipped = 1`
+  紧接覆盖检查之前执行，**与草稿是否已经进入澄清阶段无关**。
+- 因此真实路径更短：带 `clarificationSkipped: true` 且覆盖不足 → 写库 1 并返回 `200 + NEEDS_REVIEW`（**没有报告**）；
+  草稿仍是 `BASE_IN_PROGRESS`，之后补答主测题**不会**触发 `AttemptService.patchAnswers` 的 `resetClarification`
+  （那条只在 `CLARIFICATION_IN_PROGRESS` 且改主测答案时才清标记）。用户回头老实答完补充题再交卷，
+  会被 `400 已选择跳过补充题，就不应该再有补充题答案` 顶回，而那次提交没有产生报告、也无法派生新测评绕开。
+- 修法：把落库推迟到「确定要写报告」之后 —— 移到报告 INSERT 成功之后、`status='SUBMITTED'` 之前，同一事务。
+  不加新列、不改状态机，因为问题实质是**写入时机**。
+
+**A40：账号页 / 对比页的提示与按钮间距节奏不统一**
+
+- 先定基准：账号页自己的表单反馈一直是 `mt-3`（12px，`caption` / `notice-success` / `notice-error` 与其后按钮），
+  对比页是多出来的那一侧（操作组 `mt-4`、比较失败提示 `mt-4`）。所以改对比页，向账号页既有节奏靠。
+- `CompareView.vue`：操作组与比较失败提示 `mt-4` → `mt-3`，并写注释固定这条节奏规则，避免下一次又被改回去。
+  分节层级间距（`mt-5/6/8`、卡片）不动 —— 那不是「提示与按钮」。
+
+### 验证与证据
+
+| 命令 / 脚本 | 结果 |
+| --- | --- |
+| `mvn test -Dtest=SubmitReportIT`（修复态） | **3 passed**（新增 `skipChoiceIsNotPersistedWhenTheSubmitProducesNoReport`） |
+| 同一条，把落库位置改回覆盖检查之前（判别力） | **1 failed / 2 passed**，失败点即新用例：`Expecting value to be false but was true` |
+| `mvn test '-Dtest=*,!AccountSqlDialectMySqlIT,!AiSqlDialectMySqlIT,!ConcurrencyMySqlIT'` | **407 通过 / 0 失败 / 0 错误 / 1 跳过**，BUILD SUCCESS（第 32 轮 406，+1） |
+| `npx vitest run src/views/compareView.spec.ts` | **10 通过**（新增 1 条）；撤掉修复 → **1 failed / 9 passed** |
+| `npx vitest run`（全量）+ `npm run typecheck` | **50 文件 / 1075 通过**（第 32 轮 1074，+1）；typecheck 退出 0 |
+| `npm run build` → `scripts/browser-verify-spacing.py`（真实 dist + 打桩 API） | **32/32 通过**（320/390/1440 三个宽度：两页均无横向溢出，对比页操作组=12px、错误提示=12px、账号页按钮=12px，且两页数字相等） |
+| 同一条脚本，**撤掉修复重新构建产物**再跑（判别力做到构建产物层） | **23/32**，9 条精确红且全是同一原因「对比页 16 vs 账号页 12」，**无任何溢出失败** |
+
+证据目录：`docs/optimization/verification/2026-09-22-a34-a40/`（含 12 张 320/390/1440 截图与两份 `result*.json`）。
+
+### 遗留 / 未覆盖
+
+- **A40 的浏览器验收走打桩 `/api/**`**：它回答「布局与 CSS 是否生效」，不回答「真后端返回真数据时页面长什么样」；
+  真后端同类走查由第 16 轮的 `scripts/browser-verify-compare.py` 覆盖，本轮未重跑（需要真后端 + 两份完整测评）。
+- **截图未经人工目视**：执行环境没有图像输入能力，本轮不声称「看过截图」；断言全部是机器可判定的数字。
+- **A34 未覆盖并发下的同一草稿**（那由 `ConcurrencyMySqlIT` 在真实 MySQL 上覆盖，本轮未跑）。
+- 未运行三类真实 MySQL IT（需要建库/删库授权）；未做真实 AI 外发。
+- 顺手发现、**本轮未动**：`AttemptService.patchAnswers` 里 `touchesClarification` 只赋值未被读取（死变量，与 A34/A40 无关）。
+
 ## 第 0 轮：环境与基线（2026-09-17）
 
 ### 做了什么

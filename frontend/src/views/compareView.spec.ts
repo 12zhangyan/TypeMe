@@ -203,6 +203,34 @@ describe('复测比较页', () => {
     expect(compareReports).not.toHaveBeenCalled()
   })
 
+  /**
+   * A40：同一页里「提示 → 紧随其后的操作」与「操作 → 它的反馈」应当是同一种节奏。
+   *
+   * 账号页的表单反馈一直是 mt-3（12px）：caption / notice-success / notice-error 与
+   * 其后的按钮都用它。对比页此前把操作组与错误提示写成 mt-4（16px），两页并排看节奏对不上。
+   * 这条只锁「同一节奏」这件事本身，不改动任何功能。
+   */
+  it('提示与操作组的垂直间距与账号页同一节奏（A40）', async () => {
+    fetchReports.mockResolvedValue({
+      items: [summary(), summary({ reportId: 'r2' })],
+      page: 0,
+      size: 100,
+      total: 2,
+    })
+    compareReports.mockRejectedValue(new Error('boom'))
+    const { wrapper } = await mountCompare({ a: 'r1', b: 'r2' })
+    await flushPromises()
+
+    const runGroup = wrapper.find('[data-compare-run]').element.parentElement as HTMLElement
+    expect(runGroup.className).toContain('mt-3')
+    expect(runGroup.className).not.toContain('mt-4')
+
+    const errorNotice = wrapper.find('[data-compare-error]')
+    expect(errorNotice.exists()).toBe(true)
+    expect(errorNotice.classes()).toContain('mt-3')
+    expect(errorNotice.classes()).not.toContain('mt-4')
+  })
+
   it('比较失败：显示错误与重试机会，不显示半张表', async () => {
     fetchReports.mockResolvedValue({
       items: [summary(), summary({ reportId: 'r2' })],
