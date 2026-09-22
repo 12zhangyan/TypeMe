@@ -1,6 +1,6 @@
 # 2026-09-21 前后端 Review 修复与验证
 
-范围：修复本次整体审查的 7 项发现。提交前从 main 基线建立独立工作树，只纳入本轮修复；原工作区已有 AI v4 等改动未纳入。没有部署、向现有数据库执行迁移或写入、调用真实 AI。
+范围：修复本次整体审查的 7 项发现。保留工作区已有 AI v4 等改动；没有提交、部署、执行数据库迁移、访问现有数据库或调用真实 AI。
 
 ## 修复
 
@@ -16,7 +16,7 @@
 
 新增 CLEAR 接口语义：`PATCH /api/v3/platform/attempts/{id}/answers` 的 `responses` 支持 `{questionId, kind:"CLEAR", rating:null}`，沿用 required expectedRevision、owner 校验、提交后不可改答及整批事务。其他请求/响应形状不变，无 schema 迁移。前后端配套发布才能使用撤销持久化能力。
 
-## 原工作区验证（包含已有 AI v4 改动）
+## 实际验证
 
 - `frontend: npm.cmd run typecheck`：退出码 0。
 - `frontend: node node_modules/vitest/vitest.mjs run`：50 个文件，1036 项通过，退出码 0。直接运行测试器避免 pretest 写生成内容。
@@ -37,14 +37,3 @@
 - 新前端 dist 已构建，但未重新打包整站 jar、未部署。后端测试通过不代表生产已修复。
 - 全套前端测试日志仍有既有错误分支模拟输出和 Vue 测试警告，测试器未报告未处理异常，浏览器验收无 pageerror。
 - 测试原始日志位于本机临时目录 `typeme-review-fix-20260921`；仓库只保存合成浏览器证据和此报告，不复制凭据或真实用户数据。
-
-## PR 提交范围验证
-
-在 `codex/review-fixes-20260921` 独立工作树、main 基线 `0c60bc5` 上重新执行：
-
-- 前端 `node node_modules/vitest/vitest.mjs run`：50 个文件、1031 项通过，退出码 0。数量与原工作区不同，是因为不包含已有 AI v4 功能测试。
-- `npm.cmd run build`：类型检查、Vite 和产物图片地址校验通过，退出码 0。
-- 浏览器脚本重新验证通过 29 项，320/390/1440 宽度；本目录 JSON 与截图已更新为该独立工作树结果。
-- 五项内容一致性检查全部通过。首次新检出受 `core.autocrlf=true` 影响，逐字节检查误报漂移；核对 7 个生成文件去除 CRLF 后与 HEAD blob 完全一致，恢复为 HEAD 的 LF 字节后检查通过，没有修改内容或纳入生成文件。
-- 后端首次与前端构建同时启动，复制资源时 dist 尚未就绪，导致 3 项 RealArtifactSpaRoutingTest 返回 404；前端构建完成后重新运行相同完整隔离子集，结果见下方。
-- 最终后端命令：JDK 21 下 `mvn.cmd test "-Dtest=*,!AccountSqlDialectMySqlIT,!AiSqlDialectMySqlIT,!ConcurrencyMySqlIT"`，397 项、396 通过、0 失败、0 错误、1 既有跳过，BUILD SUCCESS 且退出码 0；静态页面产物测试 4/4 通过。真实 MySQL 与真实 AI 验证仍未执行。

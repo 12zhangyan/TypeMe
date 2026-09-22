@@ -13,6 +13,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
  *
  * <p>安全语义：取不到就 401（fail-closed）。**绝不**用请求体里的任何 userId 兜底 ——
  * 那等于把越权入口写在代码里。
+ *
+ * <p><b>匿名必须算"取不到"（2026-09-21）：</b>
+ * Spring Security 的 {@code AnonymousAuthenticationFilter} 给匿名请求装的
+ * {@code AnonymousAuthenticationToken} 满足 {@code isAuthenticated() == true}，
+ * 且 {@code getName()} 返回字串 {@code "anonymousUser"}。不显式排除它，
+ * 下面这条 fail-closed 判定就会返回 {@code "anonymousUser"} 当 userId，
+ * 把"将来的安全配置改松"变成静默的匿名访问。
  */
 final class AiCurrentUser {
 
@@ -21,7 +28,8 @@ final class AiCurrentUser {
 
     static String requireUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken) {
             throw AiException.unauthenticated();
         }
         Object principal = authentication.getPrincipal();

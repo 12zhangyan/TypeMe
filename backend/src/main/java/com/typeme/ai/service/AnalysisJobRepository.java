@@ -221,17 +221,17 @@ public class AnalysisJobRepository {
     }
 
     /**
-     * 用户主动重试：**复用同一行**，只允许从 FAILED/UNKNOWN 出发。
+     * 用户主动重试或重新生成：**复用同一行**，允许从 FAILED / UNKNOWN / SUCCEEDED 出发。
      *
-     * <p>条件里带 {@code status IN ('FAILED','UNKNOWN')} 是做"原子去重"：两个窗口同时点重试时，
-     * 只有第一个 UPDATE 会命中，第二个受影响行数为 0，于是只能返回同一个 job。
+     * <p>条件里带这些终态是做"原子去重"：两个窗口同时点时，只有第一个 UPDATE 会命中。
+     * {@code SUCCEEDED} 必须包含在内：同一份发送范围只能有一行任务，再生成只能重新入队。
      */
     public boolean requeueForRetry(String jobId, Instant now) {
         int updated = jdbcTemplate.update("""
                 UPDATE ai_analysis_job
                    SET status = 'QUEUED', next_run_at = ?, lease_owner = NULL, lease_until = NULL,
                        error_code = NULL, finished_at = NULL
-                 WHERE id = ? AND status IN ('FAILED', 'UNKNOWN')
+                 WHERE id = ? AND status IN ('FAILED', 'UNKNOWN', 'SUCCEEDED')
                 """, ts(AiClock.toUtc(now)), jobId);
         return updated == 1;
     }

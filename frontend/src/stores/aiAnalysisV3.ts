@@ -7,6 +7,7 @@ import {
   fetchAnalysis,
   fetchReportAnalyses,
   isRunning,
+  isReadablePromptVersion,
   retryAnalysis,
   type AiStatus,
   type AnalysisJob,
@@ -250,7 +251,9 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
      *
      * 幂等键在这里生成并在**同一次点击**内保持不变：`createAnalysis` 的调用只有一次，
      * 但服务端可能因为超时重发而收到两次，键相同就不会扣两次额度、也不会建两个任务。
-     * 服务端还会对"同一份范围"做去重（`cached=true`），页面据此说明"这次没有重复扣额度"。
+     * 服务端还会对"同一份范围"做去重（`cached=true`）。
+     * 若命中的是**已经成功**的同一份分析，这里接着走重试：同一输入只能有一行，
+     * 再生成必须复用它，而不是告诉用户"已经有了"就停住。
      */
     async create(reportId: string): Promise<void> {
       if (this.creating) return
@@ -267,13 +270,17 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
           reportId,
           topic: this.topic,
           note: this.note,
-          scopeVersion: this.status?.promptVersion === 'typeme-ai-prompt-v3'
+          scopeVersion: isReadablePromptVersion(this.status?.promptVersion)
             ? 'typeme-ai-scope-v3' : 'typeme-ai-scope-v2',
           idempotencyKey: newIdempotencyKey(),
         })
         // 请求在途时用户可能已经离开或换了一份报告：这份结果就不要再写进状态了。
         if (this.reportId !== owner) return
         this.activeJobId = result.jobId
+        if (result.cached && result.status === 'SUCCEEDED') {
+          await this.retry(result.jobId)
+          return
+        }
         // 先放一条占位：界面立刻能看到"已排队"，而不用等第一次轮询。
         this.jobs = [
           {
@@ -307,7 +314,7 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
     },
 
     /**
-     * 重试失败的任务（复用同一行，不新建）。
+     * 重试失败的任务，或把已经成功的同一份分析重新入队（不新建行）。
      *
      * 不需要额外的 `reportId` 参数：**任务必须属于当前报告**才允许重试 ——
      * 这一条是必需的，因为面板共用同一个 store，而 `activeJob` 曾经可能指向别的报告

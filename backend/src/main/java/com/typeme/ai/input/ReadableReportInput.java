@@ -11,7 +11,12 @@ import java.util.Map;
 
 /** 通俗解释只发送固定报告的维度证据；不发送原始答卷或字母推导的过程结构。 */
 public final class ReadableReportInput {
-    public static final String PROMPT_VERSION = "typeme-ai-prompt-v3";
+    public static final String PROMPT_VERSION = "typeme-ai-prompt-v4";
+    public static final java.util.Set<String> PROMPT_VERSIONS = java.util.Set.of("typeme-ai-prompt-v3", PROMPT_VERSION);
+
+    public static boolean supports(String version) {
+        return version != null && PROMPT_VERSIONS.contains(version);
+    }
     public static final String SCHEMA_VERSION = "analysis-readable-v2";
     public static final String SCOPE_VERSION = "typeme-ai-scope-v3";
     private static final Map<String, String> MEANINGS = Map.of(
@@ -28,7 +33,8 @@ public final class ReadableReportInput {
     private ReadableReportInput() { }
 
     public static AiReportInput build(AiReportSnapshot snapshot, JsonNode root, AiTopic topic,
-                                      String note, String model, ObjectMapper mapper) {
+                                      String note, String promptVersion, String model, ObjectMapper mapper) {
+        if (!supports(promptVersion)) throw new IllegalArgumentException("不支持的通俗分析提示词版本");
         JsonNode body = root.has("report") ? root.path("report") : root;
         boolean bigFive = "big_five_profile".equals(root.path("reportKind").asText())
                 || "PROFILE".equals(body.path("status").asText());
@@ -71,9 +77,9 @@ public final class ReadableReportInput {
         payload.put("userNote", normalizedNote);
         payload.put("outputSchema", schema(mapper));
         String hash = AiHashes.sha256(String.join("|", snapshot.userId(), snapshot.reportHash(),
-                PROMPT_VERSION, model, topic.wire(), AiHashes.sha256(normalizedNote), SCOPE_VERSION));
+                promptVersion, model, topic.wire(), AiHashes.sha256(normalizedNote), SCOPE_VERSION));
         return new AiReportInput(snapshot.userId(), snapshot.reportId(), snapshot.reportHash(), type,
-                status, topic, PROMPT_VERSION, model, SCOPE_VERSION, normalizedNote,
+                status, topic, promptVersion, model, SCOPE_VERSION, normalizedNote,
                 List.copyOf(evidence), Map.copyOf(payload), hash,
                 evidence.stream().map(AiReportInput.Evidence::id).toList());
     }

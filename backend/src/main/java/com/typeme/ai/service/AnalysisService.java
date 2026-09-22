@@ -170,16 +170,20 @@ public class AnalysisService {
     /* ── 重试 ───────────────────────────────────────────────────────────── */
 
     /**
-     * 用户主动重试：只允许 {@code FAILED}/{@code UNKNOWN}，复用同一行（不新建），
-     * 受每小时重试上限与预算约束。
+     * 用户主动重试或重新生成：允许 {@code FAILED}/{@code UNKNOWN}/{@code SUCCEEDED}，
+     * 复用同一行（不新建），受每小时重试上限与预算约束。
+     *
+     * <p>同一输入受 {@code uk_ai_job_request} 限制只能有一行，所以"再生成一次"
+     * 不能再建任务，只能把这一行重新入队。成功后再跑一次会重新预留额度。
      */
     public RetryResult retry(String userId, String jobId) {
         AnalysisJobRepository.JobRow row = jobs.findById(jobId)
                 .filter(job -> job.userId().equals(userId))
                 .orElseThrow(() -> AiException.notFound("这条分析任务"));
 
-        if (!"FAILED".equals(row.status()) && !"UNKNOWN".equals(row.status())) {
-            throw AiException.conflict("只有失败或状态未知的任务才能重试（当前 " + row.status() + "）。");
+        if (!"FAILED".equals(row.status()) && !"UNKNOWN".equals(row.status())
+                && !"SUCCEEDED".equals(row.status())) {
+            throw AiException.conflict("进行中的任务不能重试或重新生成（当前 " + row.status() + "）。");
         }
         AiRuntimeSettings settings = settingsProvider.settings();
         if (!settings.enabled() || !settings.hasApiKey()) {

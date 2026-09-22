@@ -81,6 +81,20 @@ describe('AI 分析 store：归属与轮询清理', () => {
     retryAnalysis.mockReset()
   })
 
+  it.each(['typeme-ai-prompt-v3', 'typeme-ai-prompt-v4'])('%s 创建分析发送维度摘要范围', async (version) => {
+    const store = useAiAnalysisStore()
+    fetchAiStatus.mockResolvedValue({ enabled: true, mock: false, promptVersion: version })
+    await store.loadStatus()
+    createAnalysis.mockResolvedValue({ jobId: 'new-job', status: 'SUCCEEDED', cached: false })
+    await store.create(REPORT_A)
+    expect(createAnalysis).toHaveBeenCalledWith(expect.objectContaining({
+      reportId: REPORT_A,
+      scopeVersion: 'typeme-ai-scope-v3',
+    }))
+    expect(retryAnalysis).not.toHaveBeenCalled()
+    store.reset()
+  })
+
   it('换报告时先清空旧任务：新报告的界面不会出现旧报告的分析（哪怕响应还没回来）', async () => {
     const store = useAiAnalysisStore()
 
@@ -222,5 +236,28 @@ describe('AI 分析 store：归属与轮询清理', () => {
     fetchReportAnalyses.mockResolvedValueOnce([job(REPORT_B)])
     await store.loadJobs(REPORT_B)
     expect(store.hasRunning).toBe(false)
+  })
+
+  it('同一范围已有成功分析时，再生成会走重试，而不是停在「没有新建」', async () => {
+    const store = useAiAnalysisStore()
+    fetchReportAnalyses.mockResolvedValueOnce([job(REPORT_A)])
+    await store.loadJobs(REPORT_A)
+
+    createAnalysis.mockResolvedValue({
+      jobId: `j-${REPORT_A}`,
+      status: 'SUCCEEDED',
+      cached: true,
+    })
+    retryAnalysis.mockResolvedValue({
+      jobId: `j-${REPORT_A}`,
+      status: 'QUEUED',
+      attemptCount: 1,
+    })
+
+    await store.create(REPORT_A)
+
+    expect(retryAnalysis).toHaveBeenCalledWith(`j-${REPORT_A}`)
+    expect(store.createCached).toBe(false)
+    expect(store.activeJob?.status).toBe('QUEUED')
   })
 })

@@ -119,8 +119,8 @@ public class ReportInputBuilder {
         }
 
         JsonNode report = readJson(snapshot.reportJson());
-        if (ReadableReportInput.PROMPT_VERSION.equals(promptVersion)) {
-            return ReadableReportInput.build(snapshot, report, topic, note, model, mapper);
+        if (ReadableReportInput.supports(promptVersion)) {
+            return ReadableReportInput.build(snapshot, report, topic, note, promptVersion, model, mapper);
         }
         // 量表判别必须**显式**做，不能靠"找不到 EI 维就抛异常"兜住。
         //
@@ -808,7 +808,7 @@ public class ReportInputBuilder {
     public String scopeSummary(AiReportInput input) {
         List<String> fields = new ArrayList<>(List.of(
                 "topic", "report.status", "report.referenceType", "report.dimensions"));
-        if (ReadableReportInput.PROMPT_VERSION.equals(input.promptVersion())) {
+        if (ReadableReportInput.supports(input.promptVersion())) {
             fields.add("report.instrument");
         } else {
             fields.add("report.candidates");

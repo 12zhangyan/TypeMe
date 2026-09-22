@@ -116,12 +116,12 @@ describe('AI 分析面板', () => {
     retryAnalysis.mockReset()
   })
 
-  it('大五遇到旧提示词时禁用生成并解释原因，切换新版后可用', async () => {
+  it.each(['typeme-ai-prompt-v3', 'typeme-ai-prompt-v4'])('大五遇到旧提示词时禁用生成并解释原因，切换 %s 后可用', async (version) => {
     const wrapper = await mountPanel(true)
     expect(wrapper.get('[data-ai-start]').attributes('disabled')).toBeDefined()
     expect(wrapper.get('[data-ai-unsupported]').text()).toContain('还不支持大五报告')
     wrapper.unmount()
-    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v3' }))
+    fetchAiStatus.mockResolvedValue(status({ promptVersion: version }))
     const readable = await mountPanel(true)
     expect(readable.get('[data-ai-start]').attributes('disabled')).toBeUndefined()
     expect(readable.text()).toContain('最多两条解释')
@@ -129,9 +129,9 @@ describe('AI 分析面板', () => {
   })
 
   it('提示词版本兼容：未知/更新的版本按旧版处理，且「能否走大五」与「确认区列哪套范围」必须同源', async () => {
-    // 后端对未知版本一律落到旧版输入；前端不能"乐观地"把 v4 当成新版：
+    // 后端对未知版本一律落到旧版输入；前端不能"乐观地"把 v999 当成新版：
     // 否则会出现"按钮说暂不支持大五、确认区却按新版列发送范围"这种自相矛盾。
-    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v4' }))
+    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v999' }))
     const unknownOnJung = await mountPanel()
     await unknownOnJung.find('[data-ai-start]').trigger('click')
     const unknownText = unknownOnJung.find('[data-ai-consent]').text()
@@ -144,8 +144,8 @@ describe('AI 分析面板', () => {
     expect(unknownOnBigFive.get('[data-ai-unsupported]').text()).toContain('还不支持大五报告')
     unknownOnBigFive.unmount()
 
-    // v3 是唯一被认可的可读版：两条路径同时切换过去。
-    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v3' }))
+    // v4 延用可读版契约：两条路径同时切换过去。
+    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v4' }))
     const readableOnJung = await mountPanel()
     await readableOnJung.find('[data-ai-start]').trigger('click')
     const readableText = readableOnJung.find('[data-ai-consent]').text()
@@ -202,6 +202,17 @@ describe('AI 分析面板', () => {
     expect(wrapper.find('[data-ai-questions]').text()).toContain('被谁的想法点亮')
     expect(wrapper.find('[data-ai-boundaries]').text()).toContain('不构成诊断')
     expect(wrapper.text()).toContain('不改变上面那份固定报告')
+    expect(wrapper.find('[data-ai-regenerate]').exists()).toBe(true)
+    expect(wrapper.find('[data-ai-start]').text()).toContain('再生成一次')
+  })
+
+  it('成功后点「再生成一次」会打开确认范围，而不是没有入口', async () => {
+    fetchReportAnalyses.mockResolvedValue([job()])
+    const wrapper = await mountPanel()
+
+    await wrapper.find('[data-ai-start]').trigger('click')
+    expect(wrapper.find('[data-ai-consent]').exists()).toBe(true)
+    expect(wrapper.find('[data-ai-submit]').exists()).toBe(true)
   })
 
   it('mock 输出必须显著标注"没有调用真实模型"', async () => {
