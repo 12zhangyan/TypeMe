@@ -425,58 +425,15 @@ public class ReportService {
         return new JungDtos.CompareResponse(summaries, differences, samePackage, notes);
     }
 
-    /* ── 导出 ───────────────────────────────────────────────────────────── */
-
-    /**
-     * 导出本人数据。
+    /*
+     * 这里**不再**提供 `exportData(userId)`。
      *
-     * <p>**不含**密码 hash、恢复码 hash、内部会话、幂等记录。
-     * 这些字段在 SQL 里就不选，而不是查出来再删 —— 少一次"忘了删"的机会。
+     * 账号模块已有唯一的导出实现 `com.typeme.account.service.DataExportService`：
+     * 它把「表还没建」与「查询失败」分开记进 `degradedSections` 并随响应返回，页面据此
+     * 如实告知"这不是完整备份"。此前这里留着一份无调用方的副本，它会把
+     * `BadSqlGrammarException` 静默吞成空数组 —— 两份实现行为不同，谁先被接上谁就决定口径。
+     * 删除它，导出只有一处定义。
      */
-    public Map<String, Object> exportData(String userId) {
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("exportedAt", TimeSource.iso(time.now()));
-        data.put("schemaVersion", 1);
-        data.put("attempts", jdbc.queryForList("""
-                SELECT id, package_id, status, revision, current_question_id,
-                       clarification_dimensions, clarification_skipped, base_attempt_id,
-                       started_at, updated_at, submitted_at
-                  FROM assessment_attempt WHERE user_id = ? ORDER BY started_at
-                """, userId));
-        data.put("answers", jdbc.queryForList("""
-                SELECT aa.attempt_id, aa.question_id, aa.kind, aa.rating, aa.updated_at
-                  FROM assessment_answer aa
-                  JOIN assessment_attempt a ON a.id = aa.attempt_id
-                 WHERE a.user_id = ? ORDER BY aa.attempt_id, aa.question_id
-                """, userId));
-        List<Map<String, Object>> reports = jdbc.queryForList("""
-                SELECT id, attempt_id, status, computed_type_code, score_json, report_json,
-                       report_hash, created_at
-                  FROM assessment_report WHERE user_id = ? ORDER BY created_at
-                """, userId);
-        for (Map<String, Object> report : reports) {
-            Object timestamp = report.get("created_at");
-            if (timestamp instanceof LocalDateTime utc) {
-                report.put("created_at", TimeSource.isoFromUtc(utc));
-            }
-        }
-        data.put("reports", reports);
-        data.put("selfReflections", jdbc.queryForList("""
-                SELECT report_id, self_selected_type_code, note, updated_at
-                  FROM report_self_reflection WHERE user_id = ? ORDER BY updated_at
-                """, userId));
-        try {
-            data.put("aiAnalyses", jdbc.queryForList("""
-                    SELECT id, report_id, topic, prompt_version, model_requested, model_returned,
-                           status, error_code, usage_json, response_json, created_at, finished_at
-                      FROM ai_analysis_job WHERE user_id = ? ORDER BY created_at
-                    """, userId));
-        } catch (org.springframework.jdbc.BadSqlGrammarException ex) {
-            log.warn("AI 相关表尚不可用，导出中 AI 部分为空：{}", ex.getMostSpecificCause().getMessage());
-            data.put("aiAnalyses", List.of());
-        }
-        return data;
-    }
 
     /* ── 内部工具 ───────────────────────────────────────────────────────── */
 

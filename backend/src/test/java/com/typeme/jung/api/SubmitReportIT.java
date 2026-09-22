@@ -143,9 +143,9 @@ class SubmitReportIT extends AccountIntegrationTestBase {
     /**
      * 从内容包里取主测题号 —— 不写死题号，内容包换版时这条测试不会跟着烂掉。
      *
-     * <p>带会话请求：`/api/v3/**` 目前一律要认证（`SecurityConfig`），
-     * 而契约 §7 把 `GET /catalog/*` 归在"公开内容 GET"里。这个不一致另案登记，
-     * 本条测试不替它做决定 —— 只按现状用已登录身份取题号。
+     * <p>2026-09-21 起 `/api/v3/catalog/*` 是公开的（`SecurityConfig` 单独 `permitAll`，
+     * 见 `SecurityBoundaryIT#anonymousCanReadCatalog`），本条带会话只是为了复用已注册账号，
+     * 不再是为了绕过 401。
      */
     private List<String> baseQuestionIds(RegisteredAccount account) throws Exception {
         MvcResult result = mockMvc.perform(get("/api/v3/catalog/current/package")

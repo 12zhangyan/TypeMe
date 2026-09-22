@@ -1,0 +1,7 @@
+[ERROR] Tests run: 6, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 11.15 s <<< FAILURE! -- in com.typeme.account.RateLimitIT
+[ERROR] com.typeme.account.RateLimitIT.anonymousCatalogReadsAreRateLimited -- Time elapsed: 0.033 s <<< FAILURE!
+	at com.typeme.account.RateLimitIT.anonymousCatalogReadsAreRateLimited(RateLimitIT.java:169)
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.030 s -- in com.typeme.account.SecurityBoundaryIT
+[ERROR]   RateLimitIT.anonymousCatalogReadsAreRateLimited:169 
+[ERROR] Tests run: 15, Failures: 1, Errors: 0, Skipped: 0
+[INFO] BUILD FAILURE
