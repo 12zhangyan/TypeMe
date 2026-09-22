@@ -1,0 +1,20 @@
+--- old V10 DDL (column named release) on H2 MySQL mode ---
+OLD_V10_H2_EXIT=0
+--- MySQL8-only COLLATE on H2 ---
+Exception in thread "main" org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "c1" already exists; SQL statement:
+CREATE TABLE c1 (a VARCHAR(8) NOT NULL COLLATE utf8mb4_0900_as_cs) [42101-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:514)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.command.ddl.CreateTable.update(CreateTable.java:91)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:169)
+	at org.h2.command.Command.executeUpdate(Command.java:256)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:262)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:231)
+	at org.h2.tools.RunScript.process(RunScript.java:255)
+	at org.h2.tools.RunScript.process(RunScript.java:186)
+	at org.h2.tools.RunScript.process(RunScript.java:313)
+	at org.h2.tools.RunScript.runTool(RunScript.java:139)
+	at org.h2.tools.RunScript.main(RunScript.java:66)
+COLLATE_H2_EXIT=1

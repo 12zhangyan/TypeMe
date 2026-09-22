@@ -1,0 +1,6 @@
+# 在真实 MySQL 8.4 上执行旧版 V10 的建表语句（列名 release + utf8mb4_0900_as_cs）
+# 命令：mysql -h127.0.0.1 -uroot -p*** <typeme_r32_probe> < h2-old-v10-ddl.sql
+# 采集时间：2026-09-22T15:16:30+08:00
+mysql: [Warning] Using a password on the command line interface can be insecure.
+OLD_V10_ON_MYSQL_EXIT=0
+(探测库已删除)

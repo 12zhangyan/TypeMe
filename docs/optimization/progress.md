@@ -329,6 +329,64 @@ C:\Python314\python.exe scripts\browser-verify-real-stack-v4.py → 19/19
 4. 两上一会话在途轮（AI prompt v4、review-fixes）仍未提交；后者需前后端**成对发布**（CLEAR 解绑）。
 5. 真实 MySQL 的三个 IT 本轮已跑，但 `typeme_dev` 的 V9/V10 是**非预期**执行的（见 A83），部署队应与环境负责人对齐现有库的实际版本。
 
+## 第 32 轮：PR #17 的 Codex 评审闭环（A84、A85）（2026-09-22）
+
+### 起点事实
+
+- 第 31 轮把分支推成 PR #17 后，Codex 自动评审提了两条：① `V10__illustration_asset.sql` 原地改列名应当改为
+  增量迁移；② `requeueForRetry` 把 `SUCCEEDED` 也纳入重新入队，会让「再生成失败」不再呈现上一份成功结果。
+- 两条都在**已被 #16 覆盖的分支基线上**讨论，所以先读代码确认当前行为，再决定「改/不改、以及要不要补证据」。
+
+### 做了什么（按两条建议分别处置）
+
+**② 重新生成失败不应抹掉上一次正文（A84）—— 判定为真缺陷，已修（P1）**
+
+- 判定依据（读代码，不靠印象）：`AnalysisJobRepository.requeueForRetry` 的条件是
+  `status IN ('FAILED','UNKNOWN','SUCCEEDED')`（`:229`），而**全仓库只有 `markSucceeded` 会写 `response_json`**（`:183`）——
+  重新入队与 `markFailed`/`markUnknown` 都不清这列。所以状态变成 `FAILED` 时，正文仍在库里、也在接口响应里。
+- 但 `AiAnalysisPanel.vue` 把失败卡与结果卡写成同一条 `v-else-if` 链：`succeeded` 为假就不会渲染结果区 →
+  用户点一次「再生成一次」失败，此前能读的分析从界面上消失。这与面板里既有文案「失败不会被算作已经给过你一份分析」自相矛盾。
+- 修法（只在展示层，不动数据模型、不动状态机）：模板拆成两条独立 `v-if`；新增
+  `staleResult = failed && result != null` 与 `showResult = succeeded || staleResult`；失败时继续渲染结果区，
+  并加 `[data-ai-stale]` 明确写「这份是上一次成功生成的内容，本次重新生成没有成功，所以它没有被替换」。
+- `result != null` 能推出「历史上成功过至少一次」是**由代码保证的**（只有 `markSucceeded` 写这列），不是猜测；
+  据此反向用例也成立：从未成功过时不渲染结果区。
+
+**① V10 是否该改成增量迁移（A85）—— 结论不变，但把推理补成证据（P3）**
+
+- 评审的前提是「旧版脚本在仓库支持的 H2 MySQL 模式下可以成功执行」，于是担心「已应用过旧版 V10 的库」。
+- 我没有直接照改，而是先把「是否存在这样的库」查清楚：
+  1. 在真实 MySQL 8.4 上执行**原版** V10（`git show 6bc09ca^:…V10…sql`）→ `ERROR 1064 … near 'release VARCHAR(32) …'`，
+     且该库**一条语句都没成功**（表都没建出来）；
+  2. 全机三个 TypeMe 库的 `flyway_schema_history` 里 `version>=9` 只有 `typeme_dev` 的 9/10 两条，`typeme_show`/`typeme_test` 为空；
+  3. 全库 `illustration_asset` 只有 `typeme_dev` 一张，列名已是 `release_tag`，没有 `release`；
+  4. 两个被忽略的 H2 文件库（`output/*.mv.db`）迁移停在 V8，且 0 处 `illustration_asset` 字样；
+  5. 旧版 DDL 在 H2 MySQL 模式下确实能执行成功（复现评审的前提），所以「H2 能过、MySQL 不能」成立。
+- 结论：**不追加 V11**（V10 失败时 V11 永远轮不到；且不存在需要兼容的历史库），
+  但把这条从「注释里的推理」升级为可复现证据，存档在 `docs/optimization/verification/2026-09-22-pr17-review/`。
+
+### 验证与证据
+
+| 命令 | 结果 |
+| --- | --- |
+| `npx vitest run src/components/aiAnalysisPanel.spec.ts`（修复态） | **15/15 通过**（新增 2 条） |
+| 同一条，把 `showResult` 退回 `succeeded`（判别力） | **1 failed / 14 passed**，且失败点正是新用例（`expected false to be true`） |
+| `npm run typecheck` | 退出 0 |
+| `npx vitest run`（全量） | **50 文件 / 1074 条通过**（第 31 轮为 1072，+2） |
+| 原版 V10 打真实 MySQL 8.4 | `ERROR 1064`，表未建出（`mysql8-original-v10-rejected.txt`） |
+| 旧版 DDL 打 H2 MySQL 模式 | 退出 0（`h2-old-v10-accepted-by-h2.txt`） |
+| 全库 flyway 历史 / 列名盘点 | 见 `mysql-flyway-history-and-column.txt` |
+
+### 遗留 / 未覆盖
+
+- **A84 的上游残留（数据模型层面，本轮未改）**：`ai_analysis_job` 上同一份发送范围只允许一行
+  （`uk_ai_job_request`），也只有一份 `response_json`。所以本轮修好的是「重新生成**失败**时不再隐藏旧正文」；
+  而「重新生成**成功**」会原地覆盖上一份正文，没有历史版本可回退。要保留多份结果需要新表/新列与迁移，
+  属需用户决定项（见 backlog「需用户决定的事项」）。
+- 未做真实浏览器回归：本轮只动了前端一个组件与两个单测（未跑真实 AI 调用，也拿不到真实 429/超时），
+  浏览器级证据仍以第 31 轮的 19/19 为基础；如需页面级确认应另行授权一次真实 AI 调用。
+- `V10` 的处置仍是「原地修正」，若将来有库真的应用过某个中间版本 V10，Flyway checksum 冲突会先报出来（这是期望行为）。
+
 ## 第 0 轮：环境与基线（2026-09-17）
 
 ### 做了什么

@@ -1,0 +1,33 @@
+
+ RUN  v2.1.9 D:/develop/develop/code/TypeMe/frontend
+
+ ❯ src/components/aiAnalysisPanel.spec.ts (15 tests | 1 failed) 373ms
+   × AI 分析面板 > 重新生成失败：上一次成功的正文不能被藏起来，并要标明"这是上一次的"（A84） 21ms
+     → expected false to be true // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/aiAnalysisPanel.spec.ts > AI 分析面板 > 重新生成失败：上一次成功的正文不能被藏起来，并要标明"这是上一次的"（A84）
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/components/aiAnalysisPanel.spec.ts:269:55
+    267|     expect(wrapper.find('[data-ai-retry]').exists()).toBe(true)
+    268|     // 但旧正文必须还在，而且说清它是哪一次留下的
+    269|     expect(wrapper.find('[data-ai-result]').exists()).toBe(true)
+       |                                                       ^
+    270|     const stale = wrapper.find('[data-ai-stale]')
+    271|     expect(stale.exists()).toBe(true)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 14 passed (15)
+   Start at  15:16:14
+   Duration  3.80s (transform 377ms, setup 0ms, collect 544ms, tests 373ms, environment 1.43s, prepare 213ms)
+

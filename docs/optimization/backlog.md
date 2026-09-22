@@ -136,6 +136,13 @@
 | A82 | **`/assess` 已是“选择页”，不再是“进去就建一份草稿”**：多量表之后路由注释已写明改因，但两条历史验收脚本（`browser-verify-jung-flow.py`、第 30 轮的 mock 脚本）仍按“跳 `/#/assess` 就建测评”写 | 第 31 轮真实浏览器验收直接跳 `/#/assess` 后 URL 原地不动、0 题可答；真实路径是在选择页点 `[data-start='jung48']` | 用旧假设写的端到端脚本会完全跑不动（看上去像产品坏了），而单元/组件层测试看不出这个问题 | P3 | **已记录（第 31 轮）**：新脚本按真实路径走；**未改历史脚本**（属已归档证据，改它们会串改历史）。后续新增端到端脚本应复用选择页入口 |
 | A83 | **WSL→Windows 互操作不透传自定义环境变量，导致“我以为指向隔离库、实际写到了 `typeme_dev`”** | 用 `export TYPEME_DB_URL=…typeme_r31_e2e && java -jar …` 启动后，日志是 `Database: jdbc:mysql://127.0.0.1:3306/typeme_dev` → `Successfully applied 2 migrations to schema typeme_dev, now at version v10` | 这是**非预期写入**：本意是隔离验证，结果对现有开发库执行了 V9/V10 迁移并登记了 v3/v4。若换成生产库，影响会更重 | P2 | **已记录并核对（第 31 轮）**：在用户“全部授权”范围内，且结果与“待执行的部署步骤”一致；已核对 `assessment_attempt` 9→9、`assessment_report` 5→5 未变。处置：后续一律用带 `set TYPEME_DB_URL=…` 的 `.cmd` 启动（变量在 Windows 侧设置），并在 REPORT 里显式记录 |
 
+## 第 32 轮新增（PR #17 的 Codex 评审，2026-09-22）
+
+| ID | 问题 | 证据 | 影响 | 级别 | 状态 |
+| --- | --- | --- | --- | --- | --- |
+| A84 | **「重新生成失败」会把上一次成功的正文从界面上抹掉**：`requeueForRetry` 允许从 `SUCCEEDED` 重新入队，且全仓库只有 `markSucceeded` 会写 `response_json` —— 重新入队与 `markFailed`/`markUnknown` **都不清它**。而 `AiAnalysisPanel.vue` 把失败卡与结果卡写成同一条 `v-else-if` 链，`status=FAILED` 时整片正文被挡掉 | 评审指出；代码核对：`AnalysisJobRepository.java:229`（`status IN ('FAILED','UNKNOWN','SUCCEEDED')`）、`:183`（唯一写 `response_json` 处）、`markFailed`/`markUnknown` 均未触碰该列；`AiAnalysisPanel.vue` 原 `v-else-if="failed"` / `v-else-if="succeeded"` | 点一次「再生成一次」失败，用户此前可读的分析就从页面消失（数据其实还在库里）。与 `AiAnalysisPanel.vue` 里「失败不消耗一次分析」的既有文案也自相矛盾 | P1 | **已闭环（第 32 轮）**：模板拆成两条独立 `v-if`，新增 `staleResult`/`showResult`，失败时把上一次正文继续显示并加 `[data-ai-stale]` 说明「这份是上一次成功生成的内容，本次未替换」；新增 2 个前端用例（含反向：从未成功过时不渲染结果区）。判别力：把 `showResult` 退回 `succeeded` → 精确红 1 条（`expected false to be true`），还原后 15/15 |
+| A85 | **`V10` 的「不存在已应用过旧版 V10 的库」这一结论，此前只有推理、没有证据**：README/迁移注释/`REPORT.md` 都把「原地改 V10 而不是追加 V11」建立在「没有任何库成功执行过旧版 V10」之上，但从未在真实 MySQL 上验证过 | 评审建议改为增量迁移。补做证据（见 `docs/optimization/verification/2026-09-22-pr17-review/`）：① 原版 V10 在真实 MySQL 8.4 上 **`ERROR 1064`，连表都没建出来**（`mysql8-original-v10-rejected.txt`）；② 全机三个 TypeMe 库的 `flyway_schema_history` 里 `version>=9` 只有 `typeme_dev` 的 9/10 两条，其余全空（`mysql-flyway-history-and-column.txt`）；③ 全库只有 `typeme_dev.illustration_asset` 存在，列名已是 `release_tag`，没有 `release`；④ 两个 H2 文件库迁移停在 V8，且 0 处 `illustration_asset` 字样；⑤ 旧版 DDL 在 H2 MySQL 模式下**可以**成功执行（`h2-old-v10-accepted-by-h2.txt`），所以「H2 能过、MySQL 不能」这句话成立 | 若真有库应用过旧版 V10，原地改会先撞 Flyway checksum 不匹配，再撞「表里只有 `release`、代码查 `release_tag`」。现在这条结论有可复查的证据支撑 | P3 | **已闭环（第 32 轮，证据补齐）**：结论不变（**不追加 V11**），但把「不存在这种库」从推理升级为可复现证据；H2 文件库与 MySQL 全库清单已存档 |
+
 ## 第 29 轮新增（A58 放开目录 GET 时暴露的两个通用缺陷，2026-09-21）
 
 | ID | 问题 | 证据 | 影响 | 优先级 | 状态 |

@@ -1,0 +1,12 @@
+# 在真实 MySQL 8.4 上执行**原版** V10（git 6bc09ca^，列名 release + utf8mb4_0900_as_cs）
+# 库：typeme_r32_probe（临时，跑完即删）；未用 --force，遇错即停
+# 注意：mysql 必须从脚本文件读入，命令行里不要同时再写 </dev/null（否则读空文件假成功）
+# 采集时间：2026-09-22T15:36:03+08:00
+--- 执行原版 V10 ---
+ERROR 1064 (42000) at line 22: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'release    VARCHAR(32)  NOT NULL,
+    updated_at DATETIME(6)  NOT NULL,
+    CONS' at line 5
+MYSQL_EXIT=1
+--- 该库里建出了哪些表 ---
+(以上为空 = 一条语句都没成功)
+(探测库已删除)
