@@ -36,7 +36,8 @@ class PromptVersionClassificationTest {
             "typeme-ai-prompt-v1", false,
             "typeme-ai-prompt-v2", false,
             "typeme-ai-prompt-v3", true,
-            "typeme-ai-prompt-v4", true);
+            "typeme-ai-prompt-v4", true,
+            "typeme-ai-prompt-v5", true);
 
     @Test
     @DisplayName("ai/prompts 下的每个版本都必须在分类表里表态（未登记版本会在这里红）")

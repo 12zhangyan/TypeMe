@@ -26,8 +26,8 @@ public class AiProperties {
 
     private String model = "deepseek-flash";
 
-    /** 默认提示词版本；v4 加强证据解释与行动建议，沿用 v3 的数据范围和输出契约。 */
-    private String promptVersion = "typeme-ai-prompt-v4";
+    /** 默认提示词版本；v5 增加可核对发现与行动理由，沿用维度摘要发送范围。 */
+    private String promptVersion = "typeme-ai-prompt-v5";
 
     private Duration connectTimeout = Duration.ofSeconds(5);
 

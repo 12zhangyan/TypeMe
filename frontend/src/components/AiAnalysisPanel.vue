@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { useAiAnalysisStore } from '@/stores/aiAnalysisV3'
-import { ANALYSIS_TOPICS, isReadablePromptVersion, topicLabel, type AnalysisTopic } from '@/api/v3Ai'
+import { ANALYSIS_TOPICS, evidenceLabels, isReadablePromptVersion, topicLabel, type AnalysisTopic } from '@/api/v3Ai'
 import AppIcon from '@/components/AppIcon.vue'
 
 /**
@@ -63,6 +63,23 @@ const consentId = `ai-consent-${useId()}`
 const confirmOpen = ref(false)
 /** 范围确认勾选。默认不勾（与注册页那条免责声明同一个道理）。 */
 const consentChecked = ref(false)
+const confirmHeading = ref<HTMLElement | null>(null)
+const startButton = ref<HTMLButtonElement | null>(null)
+const TOPIC_CONTEXT: Record<AnalysisTopic, { hint: string; example: string }> = {
+  overall: { hint: '说说你最想理解的一个习惯，或报告里与你的感受不一致的地方。', example: '例如：我喜欢与朋友聊天，但聚会后又很想独处，这两种感受怎么一起理解？' },
+  communication: { hint: '描述一次沟通场景，以及你希望哪一步有所不同。', example: '例如：讨论方案时我习惯先挑问题，对方却觉得我在否定他。我想换一种说法。' },
+  studyWork: { hint: '选一个具体环节：开始任务、获取信息、安排进度或做取舍。', example: '例如：开始任务前我想先弄清所有要求，结果总是迟迟不能动手。' },
+  growth: { hint: '写一个你想尝试的小变化，也可以说说目前的限制。', example: '例如：遇到临时变动我容易打乱节奏，想试一个不需要每天打卡的小方法。' },
+}
+const contextPrompt = computed(() => TOPIC_CONTEXT[ai.topic])
+const noteHelpId = `ai-note-help-` + useId()
+const guided = computed(() => ai.status?.promptVersion === 'typeme-ai-prompt-v5')
+const canRetry = computed(() => ai.available && !ai.creating && !ai.retrying && !ai.hasRunning && !outOfQuota.value)
+function historyDate(value: string | null): string {
+  if (!value) return ''
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
 
 const job = computed(() => ai.activeJob)
 /**
@@ -98,17 +115,17 @@ const failed = computed(() => job.value?.status === 'FAILED' || job.value?.statu
  * 反过来推也成立：只有 `markSucceeded` 会写 `response_json`，所以 `result` 非空
  * 就意味着历史上成功过至少一次 —— 那正是「上一次成功」这个说法的依据，不是猜的。
  */
-const staleResult = computed(() => failed.value && job.value?.result != null)
-/** 结果区要不要渲染：本次成功，或本次失败但还留着上一次成功的正文。 */
-const showResult = computed(() => succeeded.value || staleResult.value)
+const staleResult = computed(() => !succeeded.value && job.value?.result != null)
+/** 当前成功或仍保留旧成功正文时可读；解析错误也需要明确显示。 */
+const showResult = computed(() => succeeded.value || staleResult.value || (job.value?.resultProblems.length ?? 0) > 0)
 
-/** 成功之后仍要能再生成：同一主题走重试，换主题才建新任务。 */
-const showGenerator = computed(() => !job.value || failed.value || succeeded.value)
+/** 成功后可再生成；相同主题和近况复用任务，具体去重由服务端判断。 */
+const showGenerator = computed(() => !ai.jobsLoading && (!ai.jobsError || ai.ownJobs.length > 0) && (!job.value || failed.value || succeeded.value))
 
 /** 额度用完：按钮禁用，并说清"什么时候能再来"。 */
 const outOfQuota = computed(() => ai.remainingToday !== null && ai.remainingToday <= 0)
 /**
- * 服务端当前提示词版本是否支持可读版契约（v3 / v4）。
+ * 服务端当前提示词版本是否支持可读版契约（v3 / v4 / v5）。
  *
  * 用**同一个** `readable` 同时驱动三件事：大五是否禁用、结构预览用哪一套、确认区列举的
  * 发送范围用哪一套。此前模板里另写了一份 `=== 'typeme-ai-prompt-v3'` 字面量 ——
@@ -117,13 +134,15 @@ const outOfQuota = computed(() => ai.remainingToday !== null && ai.remainingToda
 const readable = computed(() => isReadablePromptVersion(ai.status?.promptVersion))
 const supported = computed(() => !props.requiresReadable || readable.value)
 
-watch(() => ai.status?.promptVersion, () => { consentChecked.value = false })
+watch(() => [ai.status?.promptVersion, ai.topic, ai.note], () => { consentChecked.value = false })
 
 const canSubmit = computed(
   () =>
     ai.available &&
     supported.value &&
     !ai.creating &&
+    !ai.retrying &&
+    !ai.jobsLoading &&
     !ai.hasRunning &&
     consentChecked.value &&
     !outOfQuota.value,
@@ -146,8 +165,8 @@ const statusText = computed(() => {
  */
 const STRUCTURE_PREVIEW = computed(() => readable.value ? [
   { icon: 'spark' as const, title: '一句话结论', body: '先说这次回答反映了什么。' },
-  { icon: 'book' as const, title: '为什么这样说', body: '最多两条解释，用生活中的例子帮助理解。' },
-  { icon: 'steps' as const, title: '可以试一次', body: '一件小事：怎么做、何时做、留意什么。' },
+  { icon: 'book' as const, title: '为什么这样说', body: guided.value ? '围绕你的问题，解释相关依据、适用场景和待核对之处。' : '最多两条解释，用生活中的例子帮助理解。' },
+  { icon: 'steps' as const, title: '可以试一次', body: '一件小事：为什么试、怎么做、何时做、留意什么。' },
   { icon: 'alert' as const, title: '哪些还不能确定', body: '说明这次作答和这段解释的限制。' },
 ] : [
   { icon: 'spark' as const, title: '整体印象', body: '把几个维度放一起，先给一段总述。' },
@@ -173,6 +192,8 @@ watch(
   () => props.reportId,
   (reportId) => {
     ai.reset()
+    confirmOpen.value = false
+    consentChecked.value = false
     void ai.loadStatus()
     void ai.loadJobs(reportId)
   },
@@ -191,27 +212,33 @@ function reloadJobs(): void {
 }
 
 function openConfirm(): void {
+  if (job.value && ANALYSIS_TOPICS.some(option => option.value === job.value?.topic)) ai.topic = job.value.topic as AnalysisTopic
   confirmOpen.value = true
   consentChecked.value = false
+  void nextTick(() => confirmHeading.value?.focus())
 }
 
 function cancelConfirm(): void {
   confirmOpen.value = false
   consentChecked.value = false
+  void nextTick(() => startButton.value?.focus())
 }
 
 async function submit(): Promise<void> {
   if (!canSubmit.value) return
-  await ai.create(props.reportId)
-  confirmOpen.value = false
-  consentChecked.value = false
+  const reportId = props.reportId
+  const accepted = await ai.create(reportId)
+  if (accepted && props.reportId === reportId) {
+    confirmOpen.value = false
+    consentChecked.value = false
+  }
 }
 
 async function retry(): Promise<void> {
   const current = job.value
   // 任务必须属于这份报告才允许重试。归属在 store 里已经过滤过一遍，
   // 这里再对一次是因为"点错报告的任务"代价很高：排的是别人的队。
-  if (!current || current.reportId !== props.reportId) return
+  if (!current || current.reportId !== props.reportId || !canRetry.value) return
   await ai.retry(current.jobId)
 }
 
@@ -245,7 +272,7 @@ function pickTopic(value: AnalysisTopic): void {
     </div>
 
     <p class="mt-4 max-w-[44rem] text-[14.5px] leading-[1.75] text-navy-100">
-      根据本报告生成补充解读。发送范围在生成前确认；固定报告无需 AI 即可阅读。
+      把这份报告放进你关心的生活场景，看看哪些解释符合自己，再选一件小事试试。
     </p>
 
     <!-- ① 问不到状态（未登录 / 网络失败）：只说明，不给按钮 -->
@@ -259,8 +286,10 @@ function pickTopic(value: AnalysisTopic): void {
         <span v-if="ai.statusError?.sessionExpired">
           登录状态已经失效，所以现在读不到 AI 能力状态。重新登录后回到这份报告就能继续生成。
         </span>
-        <span v-else>现在问不到这台服务器的 AI 能力状态，暂时不能生成。可以稍后刷新页面再看。</span>
+        <span v-else>暂时无法确认 AI 是否可用。已有分析仍可阅读，你可以重新检查后再生成。</span>
       </p>
+      <button v-if="!ai.statusError?.sessionExpired" type="button" class="btn-on-deep btn-sm mt-3"
+        :disabled="ai.statusLoading" data-ai-status-retry @click="ai.loadStatus()">重新检查</button>
     </div>
     <p v-else-if="ai.statusLoading && !ai.status" class="mt-5 text-[13.5px] text-navy-200">
       正在确认 AI 能力…
@@ -270,11 +299,11 @@ function pickTopic(value: AnalysisTopic): void {
     <div v-else-if="ai.status && !ai.status.enabled" class="deep-card mt-5" role="note" data-ai-disabled>
       <p class="flex items-start gap-2.5">
         <AppIcon name="info" :size="17" class="mt-0.5 text-glow" />
-        <span class="text-[14.5px] font-medium leading-relaxed text-white">AI 解读暂未开放。</span>
+        <span class="text-[14.5px] font-medium leading-relaxed text-white">AI 解读暂未开放，已有分析仍可阅读。固定报告无需 AI 即可阅读。</span>
       </p>
     </div>
 
-    <template v-else>
+    <div>
       <!-- 能力与额度：一条就够，别拆成三处重复 -->
       <div class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <p v-if="statusText" class="flex items-center gap-2 text-[13.5px] text-navy-100" data-ai-quota>
@@ -301,8 +330,7 @@ function pickTopic(value: AnalysisTopic): void {
         <p class="flex items-start gap-2.5">
           <AppIcon name="alert" :size="17" class="mt-0.5 text-danger-200" />
           <span class="text-[14px] leading-relaxed text-white">
-            没能读到这份报告已有的分析记录，所以下面暂时不显示任何既往结果 ——
-            这不代表它没有生成过。基础报告完全不受影响。
+            分析记录暂时没有更新成功。这不代表没有生成过；已读到的内容会继续保留，基础报告不受影响。
           </span>
         </p>
         <p v-if="ai.jobsError.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed text-navy-200">
@@ -320,6 +348,7 @@ function pickTopic(value: AnalysisTopic): void {
         </button>
       </div>
 
+      <p v-if="ai.jobsLoading && !job" class="mt-5 text-sm text-navy-100" role="status">正在读取这份报告的分析记录…</p>
       <!-- ③ 已有任务：展示结果 / 等待 / 失败 -->
       <!--
         `data-ai-job-id` 是给自动化验收用的观测标记：只带 `data-ai-job` 无法区分
@@ -352,7 +381,7 @@ function pickTopic(value: AnalysisTopic): void {
               <span class="h-1.5 w-1.5 animate-breathe rounded-full bg-glow [animation-delay:0.3s]" />
               <span class="h-1.5 w-1.5 animate-breathe rounded-full bg-glow [animation-delay:0.6s]" />
             </span>
-            <p class="text-[14.5px] font-medium leading-relaxed text-white">正在生成</p>
+            <p class="text-[14.5px] font-medium leading-relaxed text-white">{{ job.status === 'QUEUED' ? '已排队，等待生成' : '正在生成' }}</p>
           </div>
           <p class="mt-2 max-w-[42rem] text-[14px] leading-relaxed text-navy-100">
             通常需要十几秒到一分钟。可以留在这个页面，也可以先去别处 —— 回来时进度还在。
@@ -399,22 +428,21 @@ function pickTopic(value: AnalysisTopic): void {
           <p class="mt-2 text-[13px] leading-relaxed text-navy-200">
             <template v-if="staleResult">
               这次重新生成没有成功，所以下面那份上一次成功生成的内容没有被替换掉。
-              重试用的是同一次任务，不会多占一次新额度以外的记录。上面的固定报告没有受任何影响。
+              重试会沿用原主题和原近况，重新占用一次生成额度。固定报告不受影响。
             </template>
             <template v-else>
-              失败不会被算作"已经给过你一份分析"：重试用的是同一次任务，不会多占一次新额度以外的记录。
-              上面的固定报告没有受任何影响。
+              重试会沿用原主题和原近况，重新占用一次生成额度。固定报告不受影响。
             </template>
           </p>
           <button
             type="button"
             class="btn-on-deep btn-sm mt-3"
-            :disabled="ai.retrying"
+            :disabled="!canRetry"
             data-ai-retry
             @click="retry"
           >
             <AppIcon name="refresh" :size="16" />
-            {{ ai.retrying ? '正在重试…' : '再试一次' }}
+            {{ ai.retrying ? '正在重试…' : outOfQuota ? '今天额度已用完' : '再试一次' }}
           </button>
         </div>
 
@@ -426,8 +454,8 @@ function pickTopic(value: AnalysisTopic): void {
             role="note"
             data-ai-stale
           >
-            <span class="font-medium">这份是上一次成功生成的内容</span>：本次重新生成没有成功，
-            所以它没有被替换。你之前的结论与行动项都还在。
+            <span class="font-medium">这份是上一次成功生成的内容</span>：
+            {{ running ? '新分析仍在生成，你可以先继续阅读。' : '本次重新生成没有成功，原有内容仍然保留。' }}
           </p>
           <p v-if="job.mock" class="text-[12.5px] text-navy-200" data-ai-result-mock>
             （演示数据，非真实模型输出）
@@ -451,7 +479,7 @@ function pickTopic(value: AnalysisTopic): void {
             >
               <p class="flex items-center gap-2 text-[12.5px] font-medium text-primary-600">
                 <AppIcon name="spark" :size="15" />
-                整体印象
+                {{ job.result.schemaVersion === 'analysis-guided-v3' ? '先看这次发现' : '整体印象' }}
                 <span v-if="job.result.referenceType" class="chip chip-primary ml-1">
                   基于 {{ job.result.referenceType }}
                 </span>
@@ -479,6 +507,16 @@ function pickTopic(value: AnalysisTopic): void {
                   <p class="mt-1.5 max-w-[42rem] whitespace-pre-line text-[14.5px] leading-[1.75] text-ink-soft">
                     {{ section.body }}
                   </p>
+                  <p v-if="evidenceLabels(section.evidenceIds).length" class="mt-2 text-[12.5px] text-primary-700" data-ai-evidence>
+                    本次报告依据：{{ evidenceLabels(section.evidenceIds).join('、') }}
+                  </p>
+                  <div v-if="section.example" class="mt-3 rounded-card border border-line bg-surface-soft px-4 py-3" data-ai-example>
+                    <p class="text-[12.5px] font-medium text-ink-faint">放到具体场景里看</p>
+                    <p class="mt-1 text-[14px] leading-relaxed text-ink-soft">{{ section.example }}</p>
+                  </div>
+                  <p v-if="section.checkQuestion" class="mt-3 text-[14px] leading-relaxed text-primary-800" data-ai-check-question>
+                    <span class="font-semibold">问问自己：</span>{{ section.checkQuestion }}
+                  </p>
                 </li>
               </ol>
 
@@ -488,14 +526,16 @@ function pickTopic(value: AnalysisTopic): void {
                   <AppIcon name="steps" :size="17" class="text-primary-600" />
                   可以试试的具体做法
                 </h3>
-                <div class="mt-3 grid gap-3 tablet:grid-cols-2">
+                <div class="mt-3 grid gap-3" :class="{ 'tablet:grid-cols-2': job.result.actions.length > 1 }">
                   <article
                     v-for="(action, index) in job.result.actions"
                     :key="`${index}-${action.title}`"
                     class="rounded-question border border-line bg-surface-soft px-4 py-4"
                   >
                     <p class="text-[14.5px] font-semibold text-ink">{{ action.title }}</p>
-                    <ul class="mt-2 space-y-1.5">
+                    <p v-if="action.why" class="mt-2 text-[14px] leading-relaxed text-ink-soft" data-ai-action-why><span class="font-medium text-ink">为什么试：</span>{{ action.why }}</p>
+                    <p v-if="evidenceLabels(action.evidenceIds).length" class="mt-2 text-[12.5px] text-primary-700">本次报告依据：{{ evidenceLabels(action.evidenceIds).join('、') }}</p>
+                    <ul class="mt-3 space-y-3">
                       <li
                         v-for="(step, stepIndex) in action.steps"
                         :key="step"
@@ -506,7 +546,7 @@ function pickTopic(value: AnalysisTopic): void {
                           aria-hidden="true"
                           >{{ stepIndex + 1 }}</span
                         >
-                        <span>{{ step }}</span>
+                        <span><strong v-if="action.stepLabels?.[stepIndex]" class="mb-0.5 block font-semibold text-ink">{{ action.stepLabels[stepIndex] }}</strong>{{ step }}</span>
                       </li>
                     </ul>
                   </article>
@@ -558,7 +598,7 @@ function pickTopic(value: AnalysisTopic): void {
       </div>
 
       <!-- ④ 生成入口：还没有任务、失败了、或已经成功（再生成一次） -->
-      <div v-if="showGenerator" class="mt-6">
+      <div v-if="showGenerator && ai.available" class="mt-6">
         <!--
           生成前先说清"你将得到什么"。已经有结果时不再推销结构，只留「再生成一次」。
         -->
@@ -577,7 +617,8 @@ function pickTopic(value: AnalysisTopic): void {
           <button
             type="button"
             class="btn-glow mt-4"
-            :disabled="!ai.available || !supported || outOfQuota || ai.creating || otherJobRunning"
+            :disabled="!ai.available || !supported || outOfQuota || ai.creating || ai.retrying || otherJobRunning"
+            ref="startButton"
             data-ai-start
             @click="openConfirm"
           >
@@ -601,7 +642,7 @@ function pickTopic(value: AnalysisTopic): void {
             {{ outOfQuota ? '今天额度已用完' : '再生成一次' }}
           </button>
           <p class="mt-2 text-[12.5px] leading-relaxed text-navy-200">
-            同一主题会再向模型要一份新的，占一次额度；换主题会另外生成一份，旧的仍可在下面切换查看。
+            相同主题和近况会重新生成，成功后替换原内容；更换主题或近况会另存一份。每次生成占用一次额度。
           </p>
         </div>
 
@@ -611,7 +652,7 @@ function pickTopic(value: AnalysisTopic): void {
           也让"这一步是需要你确认的动作"与上面的说明区分开。
         -->
         <div v-else class="rounded-question bg-surface px-5 py-5 shadow-deep" data-ai-consent>
-          <h3 class="flex items-center gap-2 text-[15.5px] font-semibold text-ink">
+          <h3 ref="confirmHeading" tabindex="-1" class="flex items-center gap-2 text-[15.5px] font-semibold text-ink">
             <AppIcon name="shield" :size="17" class="text-primary-600" />
             确认要发送的范围
           </h3>
@@ -656,6 +697,7 @@ function pickTopic(value: AnalysisTopic): void {
                     ? 'border-primary-600 bg-primary-50 text-ink shadow-ring'
                     : 'border-line bg-surface text-ink-soft hover:border-primary-300'
                 "
+                :disabled="ai.creating || ai.retrying"
                 :aria-pressed="ai.topic === option.value"
                 :data-ai-topic="option.value"
                 @click="pickTopic(option.value)"
@@ -678,19 +720,24 @@ function pickTopic(value: AnalysisTopic): void {
 
           <div class="mt-5">
             <label :for="noteId" class="block text-[14.5px] font-medium text-ink">
-              想补充的近况（可不填，最多 300 字）
+              想让这次分析帮你看什么？
             </label>
+            <p class="caption mt-1.5">{{ contextPrompt.hint }} 可不填，最多 300 字。</p>
             <textarea
               :id="noteId"
               v-model="ai.note"
+              :placeholder="contextPrompt.example"
+              :aria-describedby="noteHelpId"
+              :disabled="ai.creating || ai.retrying"
               name="ai-note"
               rows="3"
               maxlength="300"
               class="mt-1.5 w-full min-w-0 rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[15px] text-ink"
             />
-            <p class="caption mt-1.5">
-              这段会作为<strong class="font-medium text-ink-soft">背景资料</strong>发给模型（不会当成指令），可以留空。
-            </p>
+            <div :id="noteHelpId" class="mt-1.5 flex flex-wrap justify-between gap-2 text-[12.5px] leading-relaxed text-ink-faint">
+              <p class="max-w-[36rem]">内容会发送给模型作为背景；请省略姓名、联系方式等个人信息。自述用于选择角度，不作为测量结论。</p>
+              <span data-ai-note-count>{{ ai.note.length }} / 300</span>
+            </div>
           </div>
 
           <div class="mt-5 rounded-card border border-line bg-surface-soft px-4 py-3.5">
@@ -699,6 +746,7 @@ function pickTopic(value: AnalysisTopic): void {
                 :id="consentId"
                 v-model="consentChecked"
                 name="ai-consent"
+                :disabled="ai.creating || ai.retrying"
                 type="checkbox"
                 class="mt-0.5 h-5 w-5 shrink-0 rounded border-line-strong"
               />
@@ -719,7 +767,7 @@ function pickTopic(value: AnalysisTopic): void {
             >
               {{ ai.creating ? '正在提交…' : '确认生成' }}
             </button>
-            <button type="button" class="btn-ghost btn-sm" data-ai-cancel @click="cancelConfirm">
+            <button type="button" :disabled="ai.creating || ai.retrying" class="btn-ghost btn-sm" data-ai-cancel @click="cancelConfirm">
               先不生成
             </button>
           </div>
@@ -775,23 +823,25 @@ function pickTopic(value: AnalysisTopic): void {
             <button
               type="button"
               class="flex min-h-[44px] w-full flex-wrap items-center gap-x-3 gap-y-1 py-2 text-left"
+              :aria-current="item.jobId === job?.jobId ? 'true' : undefined"
               @click="ai.activeJobId = item.jobId"
             >
               <span
                 class="link-on-deep text-[14px]"
-                :class="item.jobId === ai.activeJobId ? 'font-semibold text-white' : ''"
+                :class="item.jobId === job?.jobId ? 'font-semibold text-white' : ''"
               >
                 {{ topicLabel(item.topic) }}
               </span>
               <span class="text-[12.5px] text-navy-200">
                 {{ item.status === 'SUCCEEDED' ? '已生成' : item.status === 'FAILED' || item.status === 'UNKNOWN' ? '未成功' : '进行中' }}
               </span>
-              <span v-if="item.jobId === ai.activeJobId" class="chip chip-on-deep">正在看这一次</span>
+              <time v-if="historyDate(item.createdAt)" class="text-[12.5px] text-navy-200" :datetime="item.createdAt ?? undefined">{{ historyDate(item.createdAt) }}</time>
+              <span v-if="item.jobId === job?.jobId" class="chip chip-on-deep">正在看这一次</span>
             </button>
           </li>
         </ul>
       </div>
 
-    </template>
+    </div>
   </section>
 </template>

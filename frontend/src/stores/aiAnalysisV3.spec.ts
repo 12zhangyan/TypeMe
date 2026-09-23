@@ -82,7 +82,7 @@ describe('AI 分析 store：归属与轮询清理', () => {
     retryAnalysis.mockReset()
   })
 
-  it.each(['typeme-ai-prompt-v3', 'typeme-ai-prompt-v4'])('%s 创建分析发送维度摘要范围', async (version) => {
+  it.each(['typeme-ai-prompt-v3', 'typeme-ai-prompt-v4', 'typeme-ai-prompt-v5'])('%s 创建分析发送维度摘要范围', async (version) => {
     const store = useAiAnalysisStore()
     fetchAiStatus.mockResolvedValue({ enabled: true, mock: false, promptVersion: version })
     await store.loadStatus()
@@ -313,4 +313,89 @@ describe('AI 分析 store：归属与轮询清理', () => {
     expect(store.createCached).toBe(false)
     expect(store.activeJob?.status).toBe('QUEUED')
   })
+  it('卸载后返回同一报告，旧状态响应不能覆盖新账号额度', async () => {
+    const store = useAiAnalysisStore()
+    const old = deferred<any>()
+    fetchAiStatus.mockReturnValueOnce(old.promise)
+    const loading = store.loadStatus()
+    store.reset()
+    fetchAiStatus.mockResolvedValueOnce({ enabled: false, remainingToday: 0 })
+    await store.loadStatus()
+    old.resolve({ enabled: true, remainingToday: 99 })
+    await loading
+    expect(store.status?.enabled).toBe(false)
+    expect(store.status?.remainingToday).toBe(0)
+    expect(store.statusLoading).toBe(false)
+  })
+
+  it('旧创建响应不能清掉返回同一报告后新请求的提交状态', async () => {
+    const store = useAiAnalysisStore()
+    const old = deferred<any>(), fresh = deferred<any>()
+    createAnalysis.mockReturnValueOnce(old.promise).mockReturnValueOnce(fresh.promise)
+    const first = store.create(REPORT_A)
+    store.reset()
+    const second = store.create(REPORT_A)
+    old.resolve({ jobId: 'old', status: 'QUEUED', cached: false })
+    expect(await first).toBe(false)
+    expect(store.creating).toBe(true)
+    expect(store.jobs).toEqual([])
+    fresh.resolve({ jobId: 'fresh', status: 'QUEUED', cached: false })
+    expect(await second).toBe(true)
+    expect(store.activeJob?.jobId).toBe('fresh')
+    expect(store.creating).toBe(false)
+    store.reset()
+  })
+
+  it('提交参数固定在点击时，失败返回 false 并保留近况', async () => {
+    const store = useAiAnalysisStore(), pending = deferred<any>()
+    store.topic = 'communication'; store.note = '一个沟通场景'
+    createAnalysis.mockReturnValueOnce(pending.promise)
+    const creating = store.create(REPORT_A)
+    store.topic = 'growth'
+    pending.resolve({ jobId: 'new', status: 'QUEUED', cached: false })
+    expect(await creating).toBe(true)
+    expect(store.activeJob?.topic).toBe('communication')
+    store.reset()
+    store.note = '这个内容不能丢'
+    createAnalysis.mockRejectedValueOnce(new V3ApiError({ code: 'BUDGET_EXCEEDED', message: '额度不足', requestId: null, details: {} }, { status: 429 }))
+    expect(await store.create(REPORT_A)).toBe(false)
+    expect(store.note).toBe('这个内容不能丢')
+    expect(store.createError).not.toBeNull()
+    store.reset()
+  })
+
+  it('相同输入命中未加载的旧任务时先取回正文再重试', async () => {
+    const store = useAiAnalysisStore()
+    createAnalysis.mockResolvedValue({ jobId: 'old', status: 'SUCCEEDED', cached: true })
+    fetchAnalysis.mockResolvedValue(job(REPORT_A, { jobId: 'old', result: { summary: '旧正文' } }))
+    retryAnalysis.mockResolvedValue({ jobId: 'old', status: 'QUEUED', attemptCount: 1 })
+    expect(await store.create(REPORT_A)).toBe(true)
+    expect(retryAnalysis).toHaveBeenCalledWith('old')
+    expect(store.activeJob?.result?.summary).toBe('旧正文')
+    store.reset()
+  })
+
+  it('已有运行任务时不再创建或重试，避免重复消耗', async () => {
+    const store = useAiAnalysisStore()
+    fetchReportAnalyses.mockResolvedValue([job(REPORT_A, { status: 'RUNNING' })])
+    await store.loadJobs(REPORT_A)
+    expect(await store.create(REPORT_A)).toBe(false)
+    expect(await store.retry('anything')).toBe(false)
+    expect(createAnalysis).not.toHaveBeenCalled()
+    expect(retryAnalysis).not.toHaveBeenCalled()
+    store.reset()
+  })
+
+  it('命中任务读取时已被另一页面重排，接上运行状态且不再次重试', async () => {
+    const store = useAiAnalysisStore()
+    createAnalysis.mockResolvedValue({ jobId: 'old', status: 'SUCCEEDED', cached: true })
+    fetchAnalysis.mockResolvedValue(job(REPORT_A, { jobId: 'old', status: 'RUNNING', result: { summary: '旧正文' } }))
+    expect(await store.create(REPORT_A)).toBe(true)
+    expect(store.activeJob?.status).toBe('RUNNING')
+    expect(store.activeJob?.result?.summary).toBe('旧正文')
+    expect(store.createCached).toBe(true)
+    expect(retryAnalysis).not.toHaveBeenCalled()
+    store.reset()
+  })
+
 })

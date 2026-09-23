@@ -154,7 +154,7 @@ class AnalysisFlowTest {
     /* ── 1. 未同意 ─────────────────────────────────────────────────────── */
 
     @org.junit.jupiter.params.ParameterizedTest
-    @org.junit.jupiter.params.provider.ValueSource(strings = {"typeme-ai-prompt-v3", "typeme-ai-prompt-v4"})
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"typeme-ai-prompt-v3", "typeme-ai-prompt-v4", "typeme-ai-prompt-v5"})
     void readableJobKeepsItsConsentedVersionAfterSettingsChange(String version) throws Exception {
         String previous = aiProperties.getPromptVersion();
         try {
@@ -169,10 +169,11 @@ class AnalysisFlowTest {
             settingsProvider.invalidate();
             runQueued();
             assertEquals("SUCCEEDED", job(jobId).status());
-            assertEquals("analysis-readable-v2", mapper.readTree(job(jobId).responseJson()).path("schemaVersion").asText());
+            assertEquals("typeme-ai-prompt-v5".equals(version) ? "analysis-guided-v3" : "analysis-readable-v2",
+                    mapper.readTree(job(jobId).responseJson()).path("schemaVersion").asText());
             assertEquals(version, job(jobId).promptVersion());
             assertTrue(mock.lastRequest().systemPrompt().contains(
-                    "typeme-ai-prompt-v3".equals(version) ? "250–450" : "450–700"));
+                    "typeme-ai-prompt-v3".equals(version) ? "250–450" : "typeme-ai-prompt-v4".equals(version) ? "450–700" : "600–1000"));
             assertFalse(mock.lastRequest().userPrompt().contains("processLayer"));
             assertEquals(1, mock.calls());
             // 反向切换也必须重新确认，不能按更小范围的确认去发送更大的旧范围。

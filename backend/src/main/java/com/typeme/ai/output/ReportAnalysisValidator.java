@@ -94,9 +94,10 @@ public class ReportAnalysisValidator {
             throw AnalysisValidationException.invalidJson("输出不是 JSON 对象。");
         }
         String schemaVersion = textOrNull(root.get("schemaVersion"));
-        if (com.typeme.ai.input.ReadableReportInput.SCHEMA_VERSION.equals(schemaVersion)) {
+        boolean guided = com.typeme.ai.input.ReadableReportInput.GUIDED_SCHEMA_VERSION.equals(schemaVersion);
+        if (guided || com.typeme.ai.input.ReadableReportInput.SCHEMA_VERSION.equals(schemaVersion)) {
             checkReferenceType(root, expectedType);
-            validateReadable(root, evidenceIds);
+            validateReadable(root, evidenceIds, guided);
             if (content.length() > Math.max(1, maxTokens) * 8) {
                 throw AnalysisValidationException.truncated("通俗分析响应过长。");
             }
@@ -147,30 +148,44 @@ public class ReportAnalysisValidator {
 
     /* ── 规则 2：类型必须精确等于后端值 ─────────────────────────────────── */
 
-    private void validateReadable(JsonNode root, List<String> evidenceIds) {
+    private void validateReadable(JsonNode root, List<String> evidenceIds, boolean guided) {
         exactFields(root, "schemaVersion", "referenceType", "summary", "observations", "suggestedAction", "limitations");
-        readableText(root, "summary", 200);
+        readableText(root, "summary", guided ? 240 : 200);
         JsonNode observations = root.get("observations");
-        if (!observations.isArray() || observations.size() > 2) {
-            throw AnalysisValidationException.invalidJson("observations 必须为最多两项的数组。");
+        if (!observations.isArray() || observations.size() > (guided ? 3 : 2)) {
+            throw AnalysisValidationException.invalidJson("observations 数量或类型不符合本次契约。");
         }
+        java.util.Set<String> observationEvidence = new java.util.HashSet<>();
         for (JsonNode item : observations) {
-            exactFields(item, "plainText", "example", "evidenceIds");
-            readableText(item, "plainText", 180);
-            if (!item.get("example").isNull()) readableText(item, "example", 120);
+            if (guided) {
+                exactFields(item, "title", "plainText", "example", "checkQuestion", "evidenceIds");
+                readableText(item, "title", 36);
+                readableText(item, "checkQuestion", 100);
+                readableText(item, "example", 160);
+            } else {
+                exactFields(item, "plainText", "example", "evidenceIds");
+                if (!item.get("example").isNull()) readableText(item, "example", 120);
+            }
+            readableText(item, "plainText", guided ? 220 : 180);
             readableEvidence(item, evidenceIds);
+            item.get("evidenceIds").forEach(id -> observationEvidence.add(id.asText()));
         }
         JsonNode action = root.get("suggestedAction");
         if (!action.isNull()) {
-            exactFields(action, "what", "when", "observe", "evidenceIds");
-            for (String field : List.of("what", "when", "observe")) readableText(action, field, 120);
-            readableEvidence(action, evidenceIds);
+            if (guided) {
+                exactFields(action, "what", "why", "when", "observe", "evidenceIds");
+                readableText(action, "why", 160);
+            } else exactFields(action, "what", "when", "observe", "evidenceIds");
+            for (String field : List.of("what", "when")) readableText(action, field, 120);
+            readableText(action, "observe", guided ? 160 : 120);
+            // 新版行动必须承接前文发现，不能附一个无关的合法 ID 充当依据。
+            readableEvidence(action, guided ? List.copyOf(observationEvidence) : evidenceIds);
         }
         JsonNode limitations = root.get("limitations");
         if (!limitations.isArray() || limitations.isEmpty() || limitations.size() > 4) {
             throw AnalysisValidationException.invalidJson("limitations 必须包含 1–4 条说明。");
         }
-        for (JsonNode item : limitations) checkReadableText(item, 160);
+        for (JsonNode item : limitations) checkReadableText(item, guided ? 180 : 160);
     }
 
     private void exactFields(JsonNode node, String... fields) {

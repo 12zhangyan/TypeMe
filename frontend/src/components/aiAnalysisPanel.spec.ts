@@ -4,6 +4,9 @@ import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import { flushPromises, mount } from '@vue/test-utils'
 import AiAnalysisPanel from '@/components/AiAnalysisPanel.vue'
+import { parseAnalysisResult } from '@/api/v3Ai'
+import { useAiAnalysisStore } from '@/stores/aiAnalysisV3'
+import { V3ApiError } from '@/api/v3'
 
 /**
  * AI 分析面板（2026-09-17 新增）。
@@ -321,4 +324,70 @@ describe('AI 分析面板', () => {
     expect(clearSpy).toHaveBeenCalled()
     clearSpy.mockRestore()
   })
+  it('新版按真实依据展示场景、核对问题和行动理由', async () => {
+    fetchAiStatus.mockResolvedValue(status({ promptVersion: 'typeme-ai-prompt-v5' }))
+    const result = parseAnalysisResult({
+      schemaVersion: 'analysis-guided-v3', referenceType: null, summary: '先核对场景。',
+      observations: [{ title: '先看交流节奏', plainText: '精力方向接近两边。', example: '如果讨论变长，观察自己是否需要独处。', checkQuestion: '什么时候正好相反？', evidenceIds: ['EI:summary'] }],
+      suggestedAction: { what: '记一次交流。', why: '核对这次平分。', when: '下次聊天后。', observe: '是否受场景影响。', evidenceIds: ['EI:summary'] },
+      limitations: ['平分不推导类型。'],
+    })
+    fetchReportAnalyses.mockResolvedValue([job({ result, promptVersion: 'typeme-ai-prompt-v5' })])
+    const wrapper = await mountPanel()
+    expect(wrapper.get('[data-ai-evidence]').text()).toContain('精力方向')
+    expect(wrapper.get('[data-ai-example]').text()).toContain('如果讨论变长')
+    expect(wrapper.get('[data-ai-check-question]').text()).toContain('什么时候正好相反')
+    expect(wrapper.get('[data-ai-action-why]').text()).toContain('核对这次平分')
+    for (const label of ['怎么做', '何时试', '观察什么']) expect(wrapper.get('[data-ai-actions]').text()).toContain(label)
+    expect(wrapper.text()).not.toContain('EI:summary')
+    wrapper.unmount()
+  })
+
+  it('提交失败保留填写表单、近况和可修正的反馈', async () => {
+    createAnalysis.mockRejectedValueOnce(new V3ApiError({ code: 'BUDGET_EXCEEDED', message: '额度不足', requestId: null, details: {} }, { status: 429 }))
+    const wrapper = await mountPanel()
+    await wrapper.get('[data-ai-start]').trigger('click')
+    await wrapper.get('[data-ai-topic="communication"]').trigger('click')
+    await wrapper.get('textarea').setValue('我想把分歧表达得更清楚')
+    await wrapper.get('input[type="checkbox"]').setValue(true)
+    await wrapper.get('[data-ai-submit]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-ai-consent]').exists()).toBe(true)
+    expect((wrapper.get('textarea').element as HTMLTextAreaElement).value).toBe('我想把分歧表达得更清楚')
+    expect(wrapper.get('[data-ai-create-error]').text()).toContain('额度')
+    expect(wrapper.get('[data-ai-note-count]').text()).toContain('11 / 300')
+    wrapper.unmount()
+  })
+
+  it.each(['FAILED', 'RUNNING'])('重生成处于 %s 时继续显示旧正文并明确标记', async state => {
+    fetchReportAnalyses.mockResolvedValue([job({ status: state, errorCode: state === 'FAILED' ? 'TIMEOUT' : null })])
+    const wrapper = await mountPanel()
+    expect(wrapper.get('[data-ai-summary]').text()).toContain('先把可能性铺开')
+    expect(wrapper.get('[data-ai-stale]').text()).toContain('上一次成功生成')
+    if (state === 'RUNNING') expect(wrapper.find('[data-ai-running]').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('关闭 AI 后历史结果仍可阅读，重新生成不可用', async () => {
+    fetchAiStatus.mockResolvedValue(status({ enabled: false }))
+    fetchReportAnalyses.mockResolvedValue([job()])
+    const wrapper = await mountPanel()
+    expect(wrapper.get('[data-ai-summary]').text()).toContain('先把可能性铺开')
+    expect(wrapper.find('[data-ai-start]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('修改近况或切换报告会清掉原发送确认', async () => {
+    const wrapper = await mountPanel()
+    await wrapper.get('[data-ai-start]').trigger('click')
+    await wrapper.get('input[type="checkbox"]').setValue(true)
+    await wrapper.get('textarea').setValue('补充一个新问题')
+    expect(wrapper.get('[data-ai-submit]').attributes('disabled')).toBeDefined()
+    await wrapper.setProps({ reportId: 'another-report' })
+    await flushPromises()
+    expect(wrapper.find('[data-ai-consent]').exists()).toBe(false)
+    expect(useAiAnalysisStore().note).toBe('')
+    wrapper.unmount()
+  })
+
 })
