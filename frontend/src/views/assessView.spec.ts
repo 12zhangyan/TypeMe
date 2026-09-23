@@ -4,6 +4,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import AssessView from './AssessView.vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { useAssessmentStore } from '@/stores/assessmentV3'
 
 /**
@@ -1067,5 +1068,28 @@ describe('答题页：交卷响应丢失也要能到报告', () => {
     await flushPromises()
     expect(router.currentRoute.value.name).toBe('report-detail')
     expect(router.currentRoute.value.params.reportId).toBe('report-9')
+  })
+})
+
+describe('十六型未同步改动离页保护', () => {
+  it('保存失败后换 attempt 先确认，取消保留作答，刷新提醒只在未同步时存在', async () => {
+    server.patch = () => ({ status: 503, body: { code: 'SERVICE_UNAVAILABLE', message: '稍后再试' } })
+    const { wrapper, router } = await mountAssess()
+    await wrapper.findAll('[data-rating]')[3]!.trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-save-state]').text()).toContain('未同步')
+
+    const unload = new Event('beforeunload', { cancelable: true })
+    window.dispatchEvent(unload)
+    expect(unload.defaultPrevented).toBe(true)
+
+    const navigation = router.push('/assess/another-attempt')
+    await flushPromises()
+    expect(wrapper.text()).toContain('还有 1 题的本地改动')
+    await wrapper.findComponent(ConfirmDialog).findAll('button')[0]!.trigger('click')
+    await navigation
+    expect(router.currentRoute.value.params.attemptId).toBe(ATTEMPT_ID)
+    expect(wrapper.find('[data-save-state]').text()).toContain('未同步')
+    wrapper.unmount()
   })
 })

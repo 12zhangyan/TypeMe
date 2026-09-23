@@ -103,6 +103,7 @@ interface ServerOptions {
   /** 详情请求的状态码（200 时用 `detailBody`）。 */
   detailStatus?: number
   detailBody?: Record<string, unknown>
+  platformDrafts?: Record<string, unknown>[] | null
 }
 
 let calls: string[] = []
@@ -140,6 +141,11 @@ function installFetch(): void {
           name: dimension.name,
         })),
       })
+    }
+    if (method === 'GET' && url.includes('/platform/attempts?')) {
+      if (server.platformDrafts === null || server.platformDrafts === undefined) return jsonResponse({ code: 'INTERNAL_ERROR', message: '读取失败' }, 500)
+      const items = server.platformDrafts ?? []
+      return jsonResponse({ items, page: 0, size: 1, total: items.length })
     }
     if (method === 'GET' && /\/attempts\/[^/?]+$/.test(url)) {
       if (server.detailStatus && server.detailStatus !== 200) {
@@ -214,6 +220,20 @@ afterEach(() => {
 })
 
 describe('首页：继续上次没答完的测评（A51）', () => {
+  it('开放草稿属于大五时，首页两处续答都直达该草稿而不是固定去十六型', async () => {
+    server = { drafts: [], platformDrafts: [{
+      attemptId: 'big-five-older', instrumentSlug: 'bigfive50', instrumentKind: 'big_five',
+      instrumentTitle: '大五人格倾向测评', packageId: 'typeme-bigfive50-zh-v1', reportContentVersion: null,
+      status: 'BASE_IN_PROGRESS', revision: 2, startedAt: '2026-09-18T10:00:00Z',
+      updatedAt: '2026-09-18T12:34:00Z', submittedAt: null, reportId: null,
+      reportStatus: null, computedTypeCode: null, answeredCount: 9, requiredCount: 50,
+    }] }
+    const { wrapper } = await mountLanding({ signedIn: true })
+    expect(calls.some((call) => call.includes('/platform/attempts?page=0&size=1&scope=open'))).toBe(true)
+    expect(wrapper.find('[data-resume-entry]').attributes('href')).toContain('/assess/big-five-older')
+    expect(wrapper.find('[data-platform-resume]').attributes('href')).toContain('/assess/big-five-older')
+    expect(wrapper.find('[data-resume-note]').text()).not.toContain('主测')
+  })
   it('未登录时不请求草稿列表，也不显示续答入口', async () => {
     server = { drafts: [draftSummary()] }
     const { wrapper } = await mountLanding({ signedIn: false })

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
 import LikertScale from '@/components/LikertScale.vue'
@@ -25,7 +25,7 @@ import { useBigFiveStore } from '@/stores/bigFiveV3'
  *
  * 1. **"未保存"不许显示成"已保存"**：页头一直显示未保存条数与最后一次保存时间；
  *    自动保存（换题 / 离开页面）失败时把原因留在页面上，本地答案不丢。
- * 2. **离开页面先保存**：`onBeforeRouteLeave` 里等一次保存，失败就让用户决定
+ * 2. **离开页面先保存**：路由守卫里等一次保存，失败就让用户决定
  *    是留下还是带着未保存的答案离开（草稿还在服务端，但这次改动会丢）。
  * 3. **冲突不静默覆盖**：409 之后停掉自动保存，把"另一台设备改过"写在最上面，
  *    只提供"重新载入"这一个明确动作。
@@ -41,6 +41,10 @@ const announce = ref('')
 const banner = ref<ErrorDisplay | null>(null)
 const leaveDialog = ref(false)
 let leaveResolve: ((value: boolean) => void) | null = null
+const leavePanel = ref<HTMLElement | null>(null)
+const leaveStayButton = ref<HTMLButtonElement | null>(null)
+const conflictSelected = ref<string[]>([])
+let previouslyFocused: HTMLElement | null = null
 let unsubscribe: (() => void) | null = null
 
 const attemptId = computed(() => {
@@ -116,7 +120,60 @@ onMounted(() => {
 onBeforeUnmount(() => {
   unsubscribe?.()
   unsubscribe = null
+  window.removeEventListener('beforeunload', onBeforeUnload)
+  document.removeEventListener('keydown', onLeaveKeydown, true)
+  removeLeaveGuard()
+  leaveResolve?.(false)
 })
+
+function onBeforeUnload(event: BeforeUnloadEvent): void {
+  event.preventDefault()
+  event.returnValue = ''
+}
+
+watch(
+  () => store.unsavedCount,
+  (count) => {
+    if (count > 0) window.addEventListener('beforeunload', onBeforeUnload)
+    else window.removeEventListener('beforeunload', onBeforeUnload)
+  },
+)
+
+watch(leaveDialog, async (open) => {
+  if (open) {
+    previouslyFocused = document.activeElement as HTMLElement | null
+    await nextTick()
+    leaveStayButton.value?.focus()
+    document.addEventListener('keydown', onLeaveKeydown, true)
+  } else {
+    document.removeEventListener('keydown', onLeaveKeydown, true)
+    previouslyFocused?.focus?.()
+    previouslyFocused = null
+  }
+})
+
+function onLeaveKeydown(event: KeyboardEvent): void {
+  if (!leaveDialog.value) return
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    resolveLeave(false)
+    return
+  }
+  if (event.key !== 'Tab' || !leavePanel.value) return
+  const focusable = Array.from(
+    leavePanel.value.querySelectorAll<HTMLElement>('button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'),
+  )
+  if (focusable.length === 0) return
+  const first = focusable[0]
+  const last = focusable[focusable.length - 1]
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault()
+    last.focus()
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault()
+    first.focus()
+  }
+}
 
 /* ── 作答 ───────────────────────────────────────────────────────────────── */
 
@@ -174,6 +231,7 @@ async function flush(quiet = false): Promise<boolean> {
 
 /** 键盘：数字键 1–5 选择，方向键切题（题内方向键由 LikertScale 自己处理并阻止冒泡）。 */
 function onKeydown(event: KeyboardEvent): void {
+  if (leaveDialog.value) return
   if (event.metaKey || event.ctrlKey || event.altKey) return
   if (event.key >= '1' && event.key <= '5') {
     const target = event.target as HTMLElement | null
@@ -221,7 +279,7 @@ async function submit(): Promise<void> {
  * 用页面内的对话框问一次，而不是 `window.confirm` —— 后者的文案在移动端浏览器里
  * 会被截断，而"会丢多少条"正是用户判断的依据。
  */
-onBeforeRouteLeave(async () => {
+async function protectDeparture(): Promise<boolean> {
   if (store.submitting) return false
   if (!attempt.value || isSubmitted.value) return true
   if (store.unsavedCount === 0 && !store.conflict) {
@@ -239,6 +297,16 @@ onBeforeRouteLeave(async () => {
   return await new Promise<boolean>((resolve) => {
     leaveResolve = resolve
   })
+}
+
+// The router view renders this page as a child, not as a route record component.
+const removeLeaveGuard = router.beforeEach((to, from) => {
+  if (from.name !== 'assess-attempt' || from.params.attemptId !== store.attempt?.attemptId) return true
+  if (to.fullPath === from.fullPath) return true
+  // After a confirmed 401, re-authentication is the recovery path. The store keeps
+  // pending answers in memory for this account, so a second PATCH cannot help here.
+  if (to.name === 'login' && banner.value?.sessionExpired) return true
+  return protectDeparture()
 })
 
 function resolveLeave(leave: boolean): void {
@@ -249,12 +317,21 @@ function resolveLeave(leave: boolean): void {
 
 /* ── 冲突 ───────────────────────────────────────────────────────────────── */
 
-async function reloadAfterConflict(): Promise<void> {
-  await store.resolveConflictByReloading()
+async function resolveCheckedConflict(): Promise<void> {
+  if (!await store.applyConflictChoices(conflictSelected.value)) return
+  conflictSelected.value = []
   const saved = attempt.value?.currentQuestionId ?? null
   const savedIndex = saved ? items.value.findIndex((item) => item.id === saved) : -1
   index.value = savedIndex >= 0 ? savedIndex : firstUnansweredIndex()
 }
+
+function answerLabel(kind: string | null | undefined, rating: number | null | undefined): string {
+  if (!kind || kind === 'CLEAR') return '未处理'
+  if (kind === 'UNKNOWN') return '说不好'
+  return BIG_FIVE_ANCHORS[(rating ?? 0) - 1] ?? `第 ${rating} 档`
+}
+
+watch(() => store.conflictServer, () => { conflictSelected.value = [] })
 
 watch(
   () => store.attempt?.attemptId,
@@ -309,7 +386,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
           </p>
         </div>
         <p class="caption" data-bigfive-save-state>
-          <template v-if="store.conflict">未保存：另一台设备更新过这份草稿</template>
+          <template v-if="store.conflict">未保存：服务端进度已变化</template>
           <template v-else-if="store.saving">正在保存…</template>
           <template v-else-if="store.unsavedCount > 0">
             有 {{ store.unsavedCount }} 题还没保存
@@ -331,16 +408,34 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
         <div class="h-full rounded-full bg-primary-600 transition-[width]" :style="{ width: `${progressPercent}%` }" />
       </div>
 
-      <!-- 冲突：只给"重新载入"一个动作，不提供"用我这边的覆盖" -->
+      <!-- 默认服务端，逐题明确勾选后才允许重新应用本机答案。 -->
       <div v-if="store.conflict" class="notice-uncertain mt-5" role="alert" data-bigfive-conflict>
         <p class="flex items-start gap-2 text-[14.5px] leading-relaxed">
           <AppIcon name="alert" :size="17" class="mt-0.5" />
           <span>{{ store.conflictMessage }}</span>
         </p>
-        <button type="button" class="btn-secondary btn-sm mt-3" data-bigfive-reload @click="reloadAfterConflict">
+        <p v-if="store.lastSaveError" class="mt-2 text-[13px]">{{ store.lastSaveError }}</p>
+        <button type="button" class="btn-secondary btn-sm mt-3" data-bigfive-reload :disabled="store.conflictLoading || store.saving" @click="store.inspectConflict()">
           <AppIcon name="refresh" :size="16" />
-          重新载入最新版本
+          {{ store.conflictLoading ? '正在核对…' : '读取服务端进度并核对' }}
         </button>
+        <div v-if="store.conflictServer" class="mt-4" data-bigfive-conflict-choices>
+          <p class="text-[13.5px]">默认保留服务端答案。只有勾选的本机答案才会重新应用；勾选“未处理”会清掉服务端那题的作答。</p>
+          <ul class="mt-3 grid gap-2">
+            <li v-for="change in store.conflictChanges" :key="change.questionId" class="border-t border-line py-2">
+              <label class="flex items-start gap-2 text-[14px]">
+                <input v-model="conflictSelected" type="checkbox" :value="change.questionId" :disabled="store.saving" class="mt-1" />
+                <span>
+                  {{ items.findIndex((item) => item.id === change.questionId) + 1 }}. {{ items.find((item) => item.id === change.questionId)?.statement ?? change.questionId }}<br />
+                  服务端：{{ answerLabel(change.server?.kind, change.server?.rating) }}；本机：{{ answerLabel(change.local.kind, change.local.rating) }}
+                </span>
+              </label>
+            </li>
+          </ul>
+          <button type="button" class="btn-primary btn-sm mt-3" data-bigfive-apply-conflict :disabled="store.saving || store.conflictLoading" @click="resolveCheckedConflict">
+            {{ store.saving ? '正在确认…' : conflictSelected.length ? `应用选中的 ${conflictSelected.length} 题` : '全部采用服务端答案' }}
+          </button>
+        </div>
       </div>
 
       <!-- 保存失败：把原因与"答案还在"一起说清楚 -->
@@ -502,6 +597,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
     <!-- 离开确认：把"会丢几条"写在按钮旁边 -->
     <div
       v-if="leaveDialog"
+      ref="leavePanel"
       class="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 px-4"
       role="alertdialog"
       aria-modal="true"
@@ -519,7 +615,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
           <template v-else>现在离开不会丢答案。</template>
         </p>
         <div class="mt-4 flex flex-wrap gap-2">
-          <button type="button" class="btn-primary btn-sm" data-bigfive-leave-stay @click="resolveLeave(false)">
+          <button ref="leaveStayButton" type="button" class="btn-primary btn-sm" data-bigfive-leave-stay @click="resolveLeave(false)">
             留在这页再试一次
           </button>
           <button type="button" class="btn-ghost btn-sm" data-bigfive-leave-anyway @click="resolveLeave(true)">

@@ -91,4 +91,9 @@ public class JungApiException extends RuntimeException {
         return new JungApiException("IDEMPOTENCY_IN_PROGRESS", 409,
                 "上一次同样的请求还在处理中，稍等一下再试即可（不会因此多出一份草稿）。");
     }
+
+    public static JungApiException idempotencyRecoveryRequired() {
+        return new JungApiException("IDEMPOTENCY_RECOVERY_REQUIRED", 409,
+                "上一次创建记录未完成，无法安全确认结果；请从草稿列表核对或联系管理员，不要换键重复创建。");
+    }
 }

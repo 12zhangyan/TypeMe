@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { describeError, newIdempotencyKey, type ErrorDisplay } from '@/api/v3'
+import { describeError, newIdempotencyKey, V3ApiError, type ErrorDisplay } from '@/api/v3'
 import {
   aiFailureHint,
   createAnalysis,
@@ -125,6 +125,19 @@ let generation = 0
 let loadToken = 0
 /** 上一次轮询是否还没回来。慢请求下不允许叠加下一次（否则状态会短暂回退）。 */
 let pollInFlight = false
+let pollFailures = 0
+let nextPollAt = 0
+let hiddenSince: number | null = null
+
+function onVisibilityChange(): void {
+  if (typeof document === 'undefined') return
+  if (document.visibilityState === 'hidden') {
+    hiddenSince = Date.now()
+  } else if (hiddenSince !== null) {
+    pollingStartedAt += Date.now() - hiddenSince
+    hiddenSince = null
+  }
+}
 
 export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
   state: (): AiState => ({
@@ -365,6 +378,10 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
       }
       this.stopPolling()
       pollingStartedAt = Date.now()
+      if (typeof document !== 'undefined') {
+        document.addEventListener('visibilitychange', onVisibilityChange)
+        onVisibilityChange()
+      }
       const myGeneration = generation
       timer = setInterval(() => {
         void this.pollOnce(myGeneration)
@@ -373,9 +390,11 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
 
     async pollOnce(myGeneration: number): Promise<void> {
       if (myGeneration !== generation) return
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
       // 上一次还没回来：这一拍直接跳过。否则一个慢请求会让两个响应乱序落地，
       // 较旧的 RUNNING 快照可能盖掉较新的 SUCCEEDED。
       if (pollInFlight) return
+      if (Date.now() < nextPollAt) return
       if (Date.now() - pollingStartedAt > POLL_MAX_MS) {
         this.stopPolling()
         this.pollingGaveUp = true
@@ -389,6 +408,9 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
       }
       const owner = this.reportId
       pollInFlight = true
+      let failed = false
+      let limited = false
+      let retryAfterMs = 0
       try {
         for (const job of running) {
           try {
@@ -397,6 +419,11 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
             this.patchJob(fresh.jobId, () => fresh)
           } catch (error) {
             if (myGeneration !== generation || this.reportId !== owner) return
+            failed = true
+            limited ||= error instanceof V3ApiError && error.status === 429
+            if (error instanceof V3ApiError && error.retryAfterSeconds !== null) {
+              retryAfterMs = Math.max(retryAfterMs, error.retryAfterSeconds * 1000)
+            }
             // 单次失败不停止轮询：网络抖一下很常见，下一次通常会成功。
             // 但把错误留痕，页面在"一直没动静"时显示它。
             this.jobsError = describeError(error)
@@ -404,6 +431,14 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
         }
       } finally {
         pollInFlight = false
+      }
+      if (myGeneration === generation) {
+        pollFailures = failed ? Math.min(pollFailures + 1, 4) : 0
+        nextPollAt = failed
+          ? Date.now() + Math.max(retryAfterMs,
+            Math.min(30_000, POLL_INTERVAL_MS * (limited ? 2 : 1) * 2 ** pollFailures))
+          : 0
+        if (!failed) this.jobsError = null
       }
       if (!this.hasRunning && myGeneration === generation) {
         this.stopPolling()
@@ -414,6 +449,10 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
     stopPolling(): void {
       generation += 1
       pollInFlight = false
+      pollFailures = 0
+      nextPollAt = 0
+      hiddenSince = null
+      if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', onVisibilityChange)
       if (timer !== null) {
         clearInterval(timer)
         timer = null

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
 import { describeError, type ErrorDisplay } from '@/api/v3'
 import { compareReports, fetchReports, type CompareResult, type ReportSummary } from '@/api/v3Assessment'
+import { formatLocalTime } from '@/domain/localTime'
 
 /**
  * 复测比较（2026-09-17 新增）—— 契约 `02-数据模型与API-v1.md` §7.2
@@ -53,6 +54,7 @@ const compareError = ref<ErrorDisplay | null>(null)
  * 用户看到的表格与下拉框里选的对不上，而且没有任何提示。
  */
 let generation = 0
+let listGeneration = 0
 
 const idA = computed(() => (typeof route.query.a === 'string' ? route.query.a : ''))
 const idB = computed(() => (typeof route.query.b === 'string' ? route.query.b : ''))
@@ -67,7 +69,8 @@ const sortedList = computed(() =>
 
 /** 两份都选了、且不是同一份，才允许点"开始比较"。 */
 const canCompare = computed(
-  () => idA.value !== '' && idB.value !== '' && idA.value !== idB.value && !comparing.value,
+  () => idA.value !== '' && idB.value !== '' && idA.value !== idB.value
+    && !listLoading.value && !listError.value && !comparing.value,
 )
 
 /** 维度中文名。与报告页保持同一套说法（页面不自己造词）。 */
@@ -98,7 +101,7 @@ function magnitude(value: number | null): string {
 }
 
 function formatTime(iso: string | null): string {
-  return iso ? iso.replace('T', ' ').slice(0, 16) : '（没有记录时间）'
+  return formatLocalTime(iso)
 }
 
 function statusLabel(status: string): string {
@@ -117,16 +120,30 @@ function statusLabel(status: string): string {
 }
 
 async function loadList(): Promise<void> {
+  if (listLoading.value) return
+  const current = ++listGeneration
   listLoading.value = true
   listError.value = null
   try {
-    // 一次多取一些：比较页要能选到"更早那次"，默认 20 条常常不够。
-    const page = await fetchReports({ size: 100 })
-    list.value = page.items
+    const found: ReportSummary[] = []
+    let page = 0
+    let total = 0
+    do {
+      const response = await fetchReports({ page: page++, size: 50 })
+      if (current !== listGeneration) return
+      if (response.items.length === 0 && found.length < response.total) {
+        throw new Error('历史报告没能完整载入，请重试。')
+      }
+      found.push(...response.items)
+      total = response.total
+    } while (found.length < total)
+    list.value = found
   } catch (error) {
+    if (current !== listGeneration) return
+    list.value = []
     listError.value = describeError(error)
   } finally {
-    listLoading.value = false
+    if (current === listGeneration) listLoading.value = false
   }
 }
 
@@ -194,8 +211,9 @@ function reportOptionLabel(reportId: string): string {
 onMounted(async () => {
   await loadList()
   // 载入列表期间用户可能已经改过选择（watch 已经比过了），那就不要再发一次。
-  if (result.value === null && !comparing.value) maybeAutoCompare()
+  if (!listError.value && result.value === null && !comparing.value) maybeAutoCompare()
 })
+onBeforeUnmount(() => { listGeneration++; generation++ })
 </script>
 
 <template>

@@ -7,6 +7,7 @@ import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { describeError, type ErrorDisplay } from '@/api/v3'
 import { deleteReport } from '@/api/v3Assessment'
 import { fetchMyReports, type MyReportRow } from '@/api/platformV3'
+import { formatLocalTime } from '@/domain/localTime'
 
 /**
  * 历史报告（`/reports`）。
@@ -32,6 +33,11 @@ const error = ref<ErrorDisplay | null>(null)
 const deleteTarget = ref<string | null>(null)
 const removingId = ref<string | null>(null)
 const removeError = ref<ErrorDisplay | null>(null)
+const page = ref(0)
+const total = ref(0)
+const filter = ref<'all' | 'jung' | 'big_five'>('all')
+const pageSize = 20
+let loadSequence = 0
 
 const sorted = computed(() =>
   [...items.value].sort((left, right) => right.createdAt.localeCompare(left.createdAt)),
@@ -39,17 +45,32 @@ const sorted = computed(() =>
 
 const bigFiveCount = computed(() => items.value.filter((item) => item.reportKind === 'big_five_profile').length)
 const jungCount = computed(() => items.value.filter((item) => item.reportKind === 'jung_reference').length)
+const pageCount = computed(() => Math.max(1, Math.ceil(total.value / pageSize)))
+const hasPreviousPage = computed(() => page.value > 0)
+const hasNextPage = computed(() => page.value + 1 < pageCount.value)
+
+function filterLabel(value: typeof filter.value): string {
+  return value === 'jung' ? '十六型' : value === 'big_five' ? '大五' : '全部'
+}
 
 async function load(): Promise<void> {
+  const sequence = ++loadSequence
   loading.value = true
   error.value = null
   try {
-    const page = await fetchMyReports(0, 50)
-    items.value = page.items
+    const result = await fetchMyReports(page.value, pageSize, filter.value === 'all' ? undefined : filter.value)
+    if (sequence !== loadSequence) return
+    items.value = result.items
+    total.value = result.total
+    if (page.value >= Math.max(1, Math.ceil(result.total / pageSize))) {
+      page.value = Math.max(0, Math.ceil(result.total / pageSize) - 1)
+      void load()
+    }
   } catch (loadError) {
+    if (sequence !== loadSequence) return
     error.value = describeError(loadError)
   } finally {
-    loading.value = false
+    if (sequence === loadSequence) loading.value = false
   }
 }
 
@@ -89,18 +110,35 @@ function statusLabel(item: MyReportRow): string {
 }
 
 function formatTime(iso: string): string {
-  return iso ? iso.replace('T', ' ').slice(0, 16) : '（没有记录时间）'
+  return formatLocalTime(iso)
+}
+
+function selectFilter(value: typeof filter.value): void {
+  if (filter.value === value) return
+  filter.value = value
+  page.value = 0
+  void load()
+}
+
+function goToPage(next: number): void {
+  const target = Math.min(Math.max(0, next), pageCount.value - 1)
+  if (target === page.value || loading.value) return
+  page.value = target
+  void load()
 }
 
 async function confirmDelete(): Promise<void> {
   const target = deleteTarget.value
-  if (!target) return
+  if (!target || removingId.value !== null) return
   removingId.value = target
   removeError.value = null
   try {
     await deleteReport(target)
     items.value = items.value.filter((item) => item.reportId !== target)
+    total.value = Math.max(0, total.value - 1)
     deleteTarget.value = null
+    if (page.value >= Math.max(1, Math.ceil(total.value / pageSize))) page.value = Math.max(0, page.value - 1)
+    await load()
   } catch (deleteError) {
     removeError.value = describeError(deleteError)
   } finally {
@@ -116,10 +154,24 @@ async function confirmDelete(): Promise<void> {
       <p class="mt-3 text-[15.5px] leading-relaxed text-ink-soft">
         每一次提交都会留下一份当时的报告。规则以后若有更新，旧报告仍按当时那次解释，不会被重算。
       </p>
-      <p v-if="!loading && items.length > 0" class="caption mt-2" data-report-counts>
-        共 {{ items.length }} 份：十六型 {{ jungCount }} 份、大五 {{ bigFiveCount }} 份。
+      <p v-if="!loading && total > 0" class="caption mt-2" data-report-counts>
+        共 {{ total }} 份；当前筛选：{{ filterLabel(filter) }}，本页 {{ items.length }} 份（十六型 {{ jungCount }}，大五 {{ bigFiveCount }}）。
       </p>
     </header>
+
+    <div class="mt-5 flex flex-wrap items-center gap-2" data-report-filters role="group" aria-label="报告筛选">
+      <button
+        v-for="option in ([['all', '全部'], ['jung', '十六型'], ['big_five', '大五']] as const)"
+        :key="option[0]"
+        type="button"
+        class="chip min-h-[44px]"
+        :class="filter === option[0] ? 'chip-primary' : 'chip-neutral'"
+        :aria-pressed="filter === option[0]"
+        @click="selectFilter(option[0])"
+      >
+        {{ option[1] }}
+      </button>
+    </div>
 
     <div v-if="error" class="notice-error mt-6 max-w-prose" role="alert" data-reports-error>
       <p class="flex items-start gap-2 text-[14.5px] font-medium leading-relaxed">
@@ -135,7 +187,8 @@ async function confirmDelete(): Promise<void> {
     <p v-else-if="loading" class="mt-6 text-[15px] text-ink-soft" data-reports-loading>正在载入记录…</p>
 
     <div v-else-if="sorted.length === 0" class="notice-neutral mt-6 max-w-prose text-[14px] leading-relaxed" data-reports-empty>
-      还没有完成的测评。做完一次之后，报告会出现在这里，换设备登录也能看到。
+      <template v-if="filter === 'all'">还没有完成的测评。做完一次之后，报告会出现在这里，换设备登录也能看到。</template>
+      <template v-else>还没有{{ filterLabel(filter) }}的报告，可以切换筛选查看其他报告。</template>
       <RouterLink to="/instruments" class="link">去选一项测评</RouterLink>。
     </div>
 
@@ -189,6 +242,12 @@ async function confirmDelete(): Promise<void> {
       </li>
     </ul>
 
+    <div v-if="!loading && !error && total > 0" class="mt-6 flex flex-wrap items-center gap-3" data-report-pagination>
+      <button type="button" class="btn-secondary btn-sm" :disabled="!hasPreviousPage || loading" @click="goToPage(page - 1)">上一页</button>
+      <span class="caption">第 {{ page + 1 }} / {{ pageCount }} 页</span>
+      <button type="button" class="btn-secondary btn-sm" :disabled="!hasNextPage || loading" @click="goToPage(page + 1)">下一页</button>
+    </div>
+
     <div v-if="removeError" class="notice-error mt-5 max-w-prose" role="alert" data-reports-remove-error>
       <p class="text-[14.5px] leading-relaxed">删除没能完成：{{ removeError.message }}</p>
       <p class="caption mt-1">这份报告仍然在列表里，可以再试一次。</p>
@@ -197,6 +256,7 @@ async function confirmDelete(): Promise<void> {
     <div class="mt-8 flex flex-wrap gap-2">
       <RouterLink to="/instruments" class="btn-primary btn-sm">再测一次</RouterLink>
       <RouterLink to="/reports/compare" class="btn-ghost btn-sm">比较两份十六型报告</RouterLink>
+      <RouterLink to="/reports/compare/big-five" class="btn-ghost btn-sm">比较两份大五报告</RouterLink>
     </div>
 
     <ConfirmDialog

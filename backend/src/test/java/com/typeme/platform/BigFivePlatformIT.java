@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -30,6 +32,82 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * <p>这一组**不能**证明：量表信度效度、真实浏览器行为、MySQL 方言与并发。
  */
 class BigFivePlatformIT extends AccountIntegrationTestBase {
+
+    @Test
+    @DisplayName("中性分流先校验归属，不加载答案，十六型与大五都返回量表种类")
+    void attemptMetadataIsOwnedAndNeutral() throws Exception {
+        RegisteredAccount alice = register(uniqueUsername("metadata_alice"), "Metadata-Alice!2026");
+        RegisteredAccount bob = register(uniqueUsername("metadata_bob"), "Metadata-Bob!2026");
+        CsrfContext csrf = csrf(alice.session());
+        CreatedAttempt bigFive = createAttempt(alice, csrf, "bigfive50");
+        MvcResult jung = mockMvc.perform(withCsrf(post("/api/v3/attempts")
+                .session(alice.session()).contentType(MediaType.APPLICATION_JSON)
+                .content(json(Map.of("instrument", "jung48"))), csrf)).andReturn();
+        assertThat(jung.getResponse().getStatus()).isEqualTo(201);
+        String jungId = body(jung).path("attemptId").asText();
+
+        JsonNode bigFiveMeta = body(mockMvc.perform(get("/api/v3/platform/attempts/{id}/metadata",
+                bigFive.attemptId()).session(alice.session())).andReturn());
+        assertThat(bigFiveMeta.path("instrumentKind").asText()).isEqualTo("big_five");
+        assertThat(bigFiveMeta.has("answers")).isFalse();
+        assertThat(bigFiveMeta.has("items")).isFalse();
+        JsonNode jungMeta = body(mockMvc.perform(get("/api/v3/platform/attempts/{id}/metadata",
+                jungId).session(alice.session())).andReturn());
+        assertThat(jungMeta.path("instrumentKind").asText()).isEqualTo("jung");
+
+        assertThat(mockMvc.perform(get("/api/v3/platform/attempts/{id}/metadata", jungId)
+                .session(bob.session())).andReturn().getResponse().getStatus()).isEqualTo(404);
+        assertThat(mockMvc.perform(get("/api/v3/platform/attempts/{id}/metadata", "missing")
+                .session(bob.session())).andReturn().getResponse().getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    @DisplayName("先筛开放草稿再分页；报告按量表筛选后计数和翻页")
+    void filteredListsKeepOlderDraftAndEveryReportReachable() throws Exception {
+        RegisteredAccount account = register(uniqueUsername("filtered_lists"), "Filtered-Lists!2026");
+        CsrfContext csrf = csrf(account.session());
+        CreatedAttempt olderDraft = createAttempt(account, csrf, "bigfive50");
+
+        LocalDateTime now = LocalDateTime.now();
+        for (int i = 0; i < 51; i++) {
+            String attemptId = UUID.randomUUID().toString();
+            String reportId = UUID.randomUUID().toString();
+            invitationJdbc.update("""
+                    INSERT INTO assessment_attempt
+                    (id, user_id, package_id, status, revision, current_question_id,
+                     clarification_dimensions, clarification_skipped, base_attempt_id,
+                     started_at, updated_at, submitted_at)
+                    VALUES (?, ?, ?, 'SUBMITTED', 0, NULL, '', 0, NULL, ?, ?, ?)
+                    """, attemptId, account.userId(), "typeme-bigfive50-zh-v1", now, now, now);
+            invitationJdbc.update("""
+                    INSERT INTO assessment_report
+                    (id, attempt_id, user_id, status, computed_type_code, score_json,
+                     report_json, report_hash, created_at)
+                    VALUES (?, ?, ?, 'PROFILE', NULL, '{}', '{}', ?, ?)
+                    """, reportId, attemptId, account.userId(), "0".repeat(64), now);
+        }
+
+        JsonNode open = body(mockMvc.perform(get("/api/v3/platform/attempts")
+                .param("scope", "open").param("size", "20").session(account.session())).andReturn());
+        assertThat(open.path("total").asLong()).isEqualTo(1);
+        assertThat(open.path("items")).hasSize(1);
+        assertThat(open.path("items").get(0).path("attemptId").asText()).isEqualTo(olderDraft.attemptId());
+
+        JsonNode last = body(mockMvc.perform(get("/api/v3/platform/reports")
+                .param("kind", "big_five").param("page", "2").param("size", "20")
+                .session(account.session())).andReturn());
+        assertThat(last.path("total").asLong()).isEqualTo(51);
+        assertThat(last.path("items")).hasSize(11);
+        assertThat(last.path("items").get(0).path("reportKind").asText()).isEqualTo("big_five_profile");
+
+        JsonNode jung = body(mockMvc.perform(get("/api/v3/platform/reports")
+                .param("kind", "jung").session(account.session())).andReturn());
+        assertThat(jung.path("total").asLong()).isZero();
+        assertThat(jung.path("items")).isEmpty();
+        assertThat(mockMvc.perform(get("/api/v3/platform/attempts")
+                .param("scope", "invalid").session(account.session())).andReturn()
+                .getResponse().getStatus()).isEqualTo(400);
+    }
 
     @Test
     @DisplayName("目录：公开可读，且同时列出十六型与大五")

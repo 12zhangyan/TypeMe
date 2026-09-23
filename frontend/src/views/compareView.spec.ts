@@ -78,6 +78,17 @@ describe('复测比较页', () => {
     expect(wrapper.find('[data-compare-run]').exists()).toBe(false)
   })
 
+  it('较早的第 101 份报告仍可在比较页选到', async () => {
+    const rows = Array.from({ length: 101 }, (_, index) => summary({ reportId: `r${index}` }))
+    fetchReports.mockImplementation(async ({ page }: { page: number }) => ({
+      items: rows.slice(page * 50, (page + 1) * 50), page, size: 50, total: rows.length,
+    }))
+    const { wrapper } = await mountCompare()
+    expect(fetchReports).toHaveBeenCalledTimes(3)
+    expect(wrapper.find('[data-compare-select-a]').findAll('option')).toHaveLength(102)
+    expect(wrapper.find('[data-compare-select-a] option[value="r100"]').exists()).toBe(true)
+  })
+
   it('两份都在 URL 里时自动比较，并渲染四个维度的对照', async () => {
     fetchReports.mockResolvedValue({
       items: [summary(), summary({ reportId: 'r2', computedTypeCode: 'INFP' })],

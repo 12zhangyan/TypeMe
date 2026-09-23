@@ -9,6 +9,7 @@ import DimensionMeter from '@/components/DimensionMeter.vue'
 import AppIcon from '@/components/AppIcon.vue'
 import PersonalityPortrait from '@/components/PersonalityPortrait.vue'
 import { plainJungRows, readingParagraphs } from '@/domain/plainReport'
+import { formatLocalTime } from '@/domain/localTime'
 
 import { useReportStore } from '@/stores/reportV3'
 import { useInstrumentV3Store } from '@/stores/instrumentV3'
@@ -53,6 +54,7 @@ const reports = useReportStore()
 const instrument = useInstrumentV3Store()
 
 const copying = ref(false)
+const downloading = ref(false)
 const notice = ref<string | null>(null)
 const confirmDelete = ref(false)
 const reflectionType = ref('')
@@ -145,16 +147,7 @@ function statusLabel(status: string): string {
 
 /** ISO 时间 → 用户时区的可读日期。 */
 function formatTime(value: string | null): string {
-  if (!value) return '没有记录时间'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date)
+  return formatLocalTime(value)
 }
 
 const deleteTarget = ref<string | null>(null)
@@ -199,7 +192,8 @@ async function copyShareText(): Promise<void> {
  */
 async function downloadShareImage(): Promise<void> {
   const share = view.value?.share
-  if (!share) return
+  if (!share || downloading.value) return
+  downloading.value = true
   notice.value = null
   try {
     const blob = await renderShareBlob(share.imageTitle, share.headline, share.boundaryLine, share.text)
@@ -215,6 +209,8 @@ async function downloadShareImage(): Promise<void> {
     notice.value = `已发起下载：${share.filename}`
   } catch (error) {
     notice.value = `图片没能生成：${error instanceof Error ? error.message : '未知原因'}。报告文字仍可复制。`
+  } finally {
+    downloading.value = false
   }
 }
 
@@ -1041,7 +1037,7 @@ function jumpToSection(id: string): void {
               {{ reports.savingReflection ? '正在保存…' : '保存我的理解' }}
             </button>
             <p v-if="view.selfReflection.updatedAt" class="mt-2 text-[12.5px] text-ink-faint">
-              上次保存：{{ view.selfReflection.updatedAt }}
+              上次保存：{{ formatLocalTime(view.selfReflection.updatedAt) }}
             </p>
           </section>
 
@@ -1064,9 +1060,9 @@ function jumpToSection(id: string): void {
                 <AppIcon name="copy" :size="17" />
                 {{ copying ? '正在复制…' : '复制报告文字' }}
               </button>
-              <button type="button" class="btn-secondary" data-download-share @click="downloadShareImage">
+              <button type="button" class="btn-secondary" data-download-share :disabled="downloading" @click="downloadShareImage">
                 <AppIcon name="download" :size="17" />
-                导出分享图（{{ view.share.filename }}）
+                {{ downloading ? '正在生成图片…' : `导出分享图（${view.share.filename}）` }}
               </button>
             </div>
             <!-- alt 与复制文字都展示出来，便于人工核对（图片的 alt 也用它） -->

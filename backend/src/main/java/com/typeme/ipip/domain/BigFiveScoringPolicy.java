@@ -41,14 +41,4 @@ public record BigFiveScoringPolicy(
         return value;
     }
 
-    /**
-     * 某一维的理论量程（下界与上界）。
-     *
-     * <p>每维不同：反向题越多，常量越大、下界越高。界面上的位置指示必须用这个量程归一化，
-     * 不能用"10–50"这种写死的区间 —— 那会让 ES 维（反向题 8 道）的指示位置系统性偏移。
-     */
-    public int[] rangeOf(BigFiveDimension dimension, int itemCount) {
-        int constant = constantOf(dimension);
-        return new int[] {constant - 2 * itemCount, constant + 2 * itemCount};
-    }
 }

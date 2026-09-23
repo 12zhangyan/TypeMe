@@ -616,6 +616,21 @@ export async function fetchPlatformAttempt(attemptId: string): Promise<AttemptVi
   return parseAttempt(await v3ReadJson<unknown>(response, path), path)
 }
 
+export async function fetchAttemptMetadata(attemptId: string): Promise<{
+  attemptId: string
+  instrumentKind: InstrumentKind
+  status: string
+}> {
+  const path = `${BASE}/attempts/${encodeURIComponent(attemptId)}/metadata`
+  const response = await v3Request('GET', path)
+  const source = obj({ metadata: await v3ReadJson<unknown>(response, path) }, 'metadata', path)
+  return {
+    attemptId: str(source, 'attemptId', path),
+    instrumentKind: oneOf(str(source, 'instrumentKind', path), INSTRUMENT_KINDS, 'instrumentKind', path),
+    status: str(source, 'status', path),
+  }
+}
+
 export async function patchPlatformAnswers(
   attemptId: string,
   input: {
@@ -667,13 +682,13 @@ export async function submitPlatformAttempt(
   }
 }
 
-export async function fetchMyAttempts(page = 0, size = 20): Promise<{
+export async function fetchMyAttempts(page = 0, size = 20, scope?: 'open'): Promise<{
   items: MyAttemptRow[]
   page: number
   size: number
   total: number
 }> {
-  const path = `${BASE}/attempts?page=${page}&size=${size}`
+  const path = `${BASE}/attempts?page=${page}&size=${size}${scope ? `&scope=${scope}` : ''}`
   const response = await v3Request('GET', path)
   const payload = await v3ReadJson<Record<string, unknown>>(response, path)
   return {
@@ -686,13 +701,13 @@ export async function fetchMyAttempts(page = 0, size = 20): Promise<{
   }
 }
 
-export async function fetchMyReports(page = 0, size = 20): Promise<{
+export async function fetchMyReports(page = 0, size = 20, kind?: InstrumentKind): Promise<{
   items: MyReportRow[]
   page: number
   size: number
   total: number
 }> {
-  const path = `${BASE}/reports?page=${page}&size=${size}`
+  const path = `${BASE}/reports?page=${page}&size=${size}${kind ? `&kind=${kind}` : ''}`
   const response = await v3Request('GET', path)
   const payload = await v3ReadJson<Record<string, unknown>>(response, path)
   return {

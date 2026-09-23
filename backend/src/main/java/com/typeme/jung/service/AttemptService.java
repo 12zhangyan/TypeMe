@@ -9,6 +9,7 @@ import com.typeme.jung.domain.JungItem;
 import com.typeme.jung.domain.JungStage;
 import com.typeme.jung.scoring.JungScorer;
 import com.typeme.platform.catalog.AssessmentRelease;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,8 +37,6 @@ import java.util.UUID;
 @Service
 public class AttemptService {
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AttemptService.class);
-
     private static final Set<String> ATTEMPT_STATUSES = Set.of(
             "BASE_IN_PROGRESS", "CLARIFICATION_IN_PROGRESS", "SUBMITTED");
 
@@ -45,13 +44,15 @@ public class AttemptService {
     private final JungPackageLoader loader;
     private final TimeSource time;
     private final IdempotencyGuard idempotency;
+    private final AttemptCreationWriter creationWriter;
 
     public AttemptService(JdbcTemplate jdbc, JungPackageLoader loader, TimeSource time,
-                          IdempotencyGuard idempotency) {
+                          IdempotencyGuard idempotency, AttemptCreationWriter creationWriter) {
         this.jdbc = jdbc;
         this.loader = loader;
         this.time = time;
         this.idempotency = idempotency;
+        this.creationWriter = creationWriter;
     }
 
     /** 幂等表里的操作名（契约 02 §6.1 列出的三个之一）。 */
@@ -69,21 +70,13 @@ public class AttemptService {
      * 就多一份自己**看不见**的草稿（草稿列表当时还没做，`GET /attempts?status=draft`
      * 虽然存在但没有前端消费者）。
      *
-     * <p><b>为什么占用 / 创建 / 标记完成分三个事务</b>：
-     * <ul>
-     *   <li>占用必须在自己的事务里立即提交，否则并发同 key 的两个请求会**都**以为
-     *       自己占到了（互相看不见对方未提交的行）；</li>
-     *   <li>资源创建保持原样的事务边界（它自己会写 attempt 行）；</li>
-     *   <li>标记完成若与创建同事务，一旦创建成功而标记失败就会连资源一起回滚 ——
-     *       而我们要的恰恰相反：**资源已经存在**，记录没写成只是下次重放会多建一份，
-     *       所以标记失败只记日志、不影响这次响应。</li>
-     * </ul>
+     * <p>占用、插入、完成由独立 writer bean 在一个短事务内完成；任一步失败全部回滚。
      */
     public JungDtos.AttemptSummary create(
             String userId, String baseReportId, String idempotencyKey, AssessmentRelease release) {
         String key = IdempotencyGuard.normalizeKey(idempotencyKey);
         if (key == null) {
-            return createOnce(userId, baseReportId, release);
+            return creationWriter.createWithoutKey(() -> createOnce(userId, baseReportId, release));
         }
         IdempotencyGuard.requireUsableKey(key);
         // 指纹里必须包含**这一版内容包**：同一个 Idempotency-Key 先后用于两个不同版本的量表
@@ -104,8 +97,11 @@ public class AttemptService {
             idempotency.forgetDangling(userId, OP_CREATE_ATTEMPT, key, replayId);
         }
 
-        // 2) 占用这个键。拿不到说明同一个键的另一个请求正在处理中。
-        if (!idempotency.claim(userId, OP_CREATE_ATTEMPT, key, hash)) {
+        try {
+            return creationWriter.create(userId, OP_CREATE_ATTEMPT, key, hash,
+                    () -> createOnce(userId, baseReportId, release), JungDtos.AttemptSummary::attemptId);
+        } catch (DuplicateKeyException collision) {
+            // The writer transaction has ended. A competing commit is now visible on a fresh read.
             String racedId = idempotency.completedRef(userId, OP_CREATE_ATTEMPT, key, hash);
             if (racedId != null) {
                 JungDtos.AttemptSummary raced = findSummary(userId, racedId);
@@ -113,26 +109,11 @@ public class AttemptService {
                     return raced;
                 }
             }
+            if (idempotency.hasStaleClaim(userId, OP_CREATE_ATTEMPT, key)) {
+                throw JungApiException.idempotencyRecoveryRequired();
+            }
             throw JungApiException.idempotencyInProgress();
         }
-
-        // 3) 真正创建。失败就把占用释放掉，让用户的重试能重新走这条路
-        //    （不释放的话他会在 2 分钟内一直看到"上一次请求还在处理中"）。
-        JungDtos.AttemptSummary created;
-        try {
-            created = createOnce(userId, baseReportId, release);
-        } catch (RuntimeException e) {
-            idempotency.release(userId, OP_CREATE_ATTEMPT, key);
-            throw e;
-        }
-        try {
-            idempotency.complete(userId, OP_CREATE_ATTEMPT, key, created.attemptId());
-        } catch (RuntimeException e) {
-            // 资源已经建好了：绝不能因为"记不上账"就让用户以为失败（他会再点一次，
-            // 而重放此时拿不到记录 → 又建一份）。所以只记日志，响应照常返回。
-            log.warn("idempotency complete failed (attempt already created), attemptId={}", created.attemptId(), e);
-        }
-        return created;
     }
 
     /** 按 id 取一份"本来就属于这个用户"的摘要；不属于/不存在都返回 null。 */
@@ -177,7 +158,6 @@ public class AttemptService {
      * 让这个方法自己去猜"当前包"，就是这次改造要修掉的那个缺陷 ——
      * 一旦默认版本前移，用它建出来的草稿会悄悄绑到新题面上。
      */
-    @Transactional
     public JungDtos.AttemptSummary createOnce(
             String userId, String baseReportId, AssessmentRelease release) {
         Integer packageRows = jdbc.queryForObject(

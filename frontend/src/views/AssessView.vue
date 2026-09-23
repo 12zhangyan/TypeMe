@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { useAssessmentStore, SCALE_CAPTIONS } from '@/stores/assessmentV3'
 import { useAuthStore } from '@/stores/auth'
 import { describeError, isSessionExpired } from '@/api/v3'
@@ -59,6 +60,8 @@ const liveMessage = ref('')
 const loading = ref(false)
 const loadFailure = ref<string | null>(null)
 const showUnanswered = ref(false)
+const leaveDialog = ref(false)
+let leaveResolve: ((allowed: boolean) => void) | null = null
 /** 交卷请求进行中（防连点）。 */
 const submitting = ref(false)
 const submitNotice = ref<string | null>(null)
@@ -195,6 +198,39 @@ const clarificationReason = computed(() => {
 
 /** 还没写上去的作答条数（保存失败提示里要说清"几题"）。 */
 const unsavedCount = computed(() => assessment.listUnconfirmedIds().length)
+const pendingLeaveCount = computed(() => assessment.conflict?.lostAnswers.length ?? unsavedCount.value)
+
+function onBeforeUnload(event: BeforeUnloadEvent): void {
+  event.preventDefault()
+  event.returnValue = ''
+}
+
+watch(pendingLeaveCount, (count) => {
+  if (count > 0) window.addEventListener('beforeunload', onBeforeUnload)
+  else window.removeEventListener('beforeunload', onBeforeUnload)
+})
+
+async function protectDeparture(): Promise<boolean> {
+  if (!assessment.attemptId || assessment.status === 'SUBMITTED') return true
+  if (submitting.value || assessment.loading) return false
+  if (!assessment.conflict && pendingLeaveCount.value > 0) await assessment.retryUnconfirmed()
+  if (pendingLeaveCount.value === 0 && !assessment.conflict) return true
+  leaveDialog.value = true
+  return new Promise<boolean>((resolve) => { leaveResolve = resolve })
+}
+
+function resolveLeave(allowed: boolean): void {
+  leaveDialog.value = false
+  leaveResolve?.(allowed)
+  leaveResolve = null
+}
+
+const removeLeaveGuard = router.beforeEach((to, from) => {
+  if (from.name !== 'assess-attempt' && from.name !== 'assess') return true
+  if (from.params.attemptId !== assessment.attemptId) return true
+  if (to.fullPath === from.fullPath) return true
+  return protectDeparture()
+})
 
 /**
  * 这次保存失败是**会话失效**造成的吗？
@@ -227,7 +263,10 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  removeLeaveGuard()
   window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('beforeunload', onBeforeUnload)
+  leaveResolve?.(false)
 })
 
 async function bootstrap(): Promise<void> {
@@ -1116,5 +1155,17 @@ const earlierUnanswered = computed(() =>
         <p class="sr-only" aria-live="polite" data-live>{{ liveMessage }}</p>
       </section>
     </div>
+
+    <ConfirmDialog
+      :open="leaveDialog"
+      title="这次改动还没同步"
+      :description="`还有 ${pendingLeaveCount} 题的本地改动没有得到服务端确认。继续留在页面可以重试保存；仍然离开会丢掉这些未同步改动。`"
+      confirm-label="仍然离开"
+      cancel-label="留在这页"
+      danger
+      initial-focus="cancel"
+      @cancel="resolveLeave(false)"
+      @confirm="resolveLeave(true)"
+    />
   </PageContainer>
 </template>
