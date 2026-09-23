@@ -150,10 +150,7 @@ async function confirmDelete(): Promise<void> {
 <template>
   <PageContainer page="home">
     <header class="max-w-prose">
-      <h1 class="text-[26px] font-semibold leading-snug text-ink tablet:text-[30px]">历史报告</h1>
-      <p class="mt-3 text-[15.5px] leading-relaxed text-ink-soft">
-        每一次提交都会留下一份当时的报告。规则以后若有更新，旧报告仍按当时那次解释，不会被重算。
-      </p>
+      <h1 class="text-[26px] font-semibold leading-snug text-ink tablet:text-[30px]">我的报告</h1>
       <p v-if="!loading && total > 0" class="caption mt-2" data-report-counts>
         共 {{ total }} 份；当前筛选：{{ filterLabel(filter) }}，本页 {{ items.length }} 份（十六型 {{ jungCount }}，大五 {{ bigFiveCount }}）。
       </p>

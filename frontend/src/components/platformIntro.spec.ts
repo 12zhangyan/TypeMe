@@ -32,6 +32,11 @@ describe('多量表首页入口', () => {
     expect(cards[1]!.text()).toContain('50 题')
     expect(cards[1]!.text()).toContain('没有类型和总分')
     expect(cards[1]!.get('a').attributes('href')).toBe('/assess?instrument=bigfive50')
+    const earlyChoices = wrapper.findAll('.discovery-choices a')
+    expect(earlyChoices.map((choice) => choice.text())).toEqual([
+      '十六型参考四个方面的偏好', '大五倾向五个方面的倾向',
+    ])
+    expect(earlyChoices[1]!.attributes('href')).toBe('/assess?instrument=bigfive50')
   })
   it('失败时能重试，空目录不编造测评卡片', async () => {
     fetchInstruments.mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce([])

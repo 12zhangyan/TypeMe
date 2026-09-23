@@ -163,7 +163,8 @@ describe('AI 分析面板', () => {
     const wrapper = await mountPanel()
 
     expect(wrapper.find('[data-ai-disabled]').exists()).toBe(true)
-    expect(wrapper.find('[data-ai-disabled]').text()).toContain('固定报告与各个维度都不受影响')
+    expect(wrapper.find('[data-ai-disabled]').text()).toContain('AI 解读暂未开放')
+    expect(wrapper.text()).toContain('固定报告无需 AI 即可阅读')
     // 关键：不给一个注定 503 的按钮
     expect(wrapper.find('[data-ai-start]').exists()).toBe(false)
   })

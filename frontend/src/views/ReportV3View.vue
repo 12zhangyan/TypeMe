@@ -569,20 +569,13 @@ function jumpToSection(id: string): void {
             class="report-paper scroll-mt-24"
             :data-status="view.status"
           >
-            <p class="report-paper-label">TYPEME / 个人探索档案</p>
+            <p class="report-paper-label">十六型人格参考测评</p>
             <p class="report-paper-status">
               <span class="chip">{{ statusLabel(view.status) }}</span>
               <span data-status-note>{{ overviewNote }}</span>
             </p>
 
             <div class="report-paper-identity">
-              <p
-                v-if="view.typeCode"
-                class="report-paper-code"
-                data-type-code
-              >
-                {{ view.typeCode }}
-              </p>
               <div class="min-w-0">
                 <h1
                   class="report-paper-title"
@@ -609,26 +602,25 @@ function jumpToSection(id: string): void {
               class="report-paper-notice"
               data-tentative-notice
             >
-              有些方面只是略偏：你选择两端做法的差距不大。这些地方的两种描述都值得读，不必急着认定自己只属于一边。
+              部分维度只是略偏，两端描述都值得参考。
             </p>
             <p
               v-else-if="view.status === 'TIED'"
               class="report-paper-notice"
               data-tied-notice
             >
-              有些方面两边得分相同，所以没有哪一个四字母类型更适合当主标题。可以一起看看几种描述，这次不必选出唯一答案。
+              部分维度两侧得分相同，本次不指定唯一类型。
             </p>
 
             <div class="report-paper-summary" data-plain-report>
-              <p class="font-semibold">先看这四句话，就能了解这次结果</p>
-              <p class="mt-2 text-[12.5px]">下面根据你这次的回答说明，不代表你一直如此，也不是能力评价。</p>
+              <p class="font-semibold">结果概览</p>
               <ul class="plain-report-list"><li v-for="reading in plainReadings" :key="reading.title"><h2>{{ reading.title }}</h2><p>{{ reading.result }}</p></li></ul>
               <details class="mt-4"><summary class="cursor-pointer text-[13px]">查看保存时的完整摘要</summary><p class="mt-2">{{ view.summary }}</p></details>
             </div>
-            <figure v-if="view.typeCode" class="report-character-study" data-report-character>
-              <PersonalityPortrait :code="view.typeCode" /><figcaption><span>类型生活速写</span><p>一种理解自己的角度，<br>不是你必须活成的样子。</p><small>角色为原创插画，不是额外测量。</small></figcaption>
-            </figure>
           </article>
+          <figure v-if="view.typeCode" class="report-character-study" data-report-character>
+            <PersonalityPortrait :code="view.typeCode" /><figcaption>类型角色插画，仅供参考。</figcaption>
+          </figure>
 
           <!-- ══ 四维得分条 ════════════════════════════════════════════════ -->
           <section class="mt-10 scroll-mt-24" id="report-dimensions" data-anchor aria-labelledby="report-dimensions-title">
@@ -684,8 +676,7 @@ function jumpToSection(id: string): void {
               <h2 id="report-candidates-title" class="section-title">还可以一起看的方向</h2>
             </div>
             <p class="mt-2 max-w-[42rem] text-[13.5px] leading-relaxed text-ink-soft">
-              下面的「需要偏离 N 分证据」是规则换算：换一个字母需要偏离多少本次作答的证据量。
-              它不是概率、不是准确率、不是可能性，也不表示谁更准。
+              证据差异表示换成另一类型需要偏离多少证据，非概率。
             </p>
             <p v-if="view.tieNotice" class="notice-neutral mt-3 text-[13.5px] leading-relaxed" data-tie-notice>
               {{ view.tieNotice }}
@@ -774,7 +765,7 @@ function jumpToSection(id: string): void {
           </section>
 
           <details v-if="view.dynamics || view.processPlan" class="mt-10 rounded-card border border-line p-4">
-            <summary class="cursor-pointer font-semibold">进阶阅读：由类型推导的理论说明（不是额外测量）</summary>
+            <summary class="cursor-pointer font-semibold">类型推导 · 非额外测量</summary>
           <!-- ══ 四个过程（由四字母推导，不是测量） ═══════════════════════ -->
           <!--
             这一块的全部意义就是"不能让它被读成测量结果"，所以 `basis` 与
@@ -1052,9 +1043,6 @@ function jumpToSection(id: string): void {
               <span class="section-index" aria-hidden="true">09</span>
               <h2 id="report-share-title" class="section-title">带走这份报告</h2>
             </div>
-            <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft">
-              复制的文字、导出的图片、图片的替代文本都来自同一份报告快照，说的永远是同一件事。
-            </p>
             <div class="mt-3 flex flex-wrap gap-2">
               <button type="button" class="btn-primary" data-copy-share :disabled="copying" @click="copyShareText">
                 <AppIcon name="copy" :size="17" />
@@ -1102,9 +1090,6 @@ function jumpToSection(id: string): void {
                 </button>
               </li>
             </ul>
-            <p class="mt-3 hidden border-t border-line-soft pt-3 text-[12px] leading-relaxed text-ink-faint laptop:block">
-              读完一层想回看时点这里。报告是一次提交的快照，之后改答不会改它。
-            </p>
           </nav>
         </aside>
       </div>

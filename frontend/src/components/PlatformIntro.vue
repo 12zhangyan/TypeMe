@@ -26,29 +26,32 @@ function exploreAssessments(): void {
 <template>
   <section data-platform-intro class="atelier-platform">
     <header class="discovery-hero">
-      <div class="discovery-edition"><span>TypeMe / 自我探索手记</span><span>向内看，慢慢来。 <span aria-hidden="true">↙</span></span></div>
+      <div class="discovery-edition"><span>TypeMe / 自我探索手记</span></div>
       <div class="discovery-copy">
-        <p class="discovery-eyebrow">每个人，都是一整个世界。</p>
-        <h1>不止一种<br /><span>可能的你</span><i aria-hidden="true">。</i></h1>
-        <div class="discovery-caption"><span class="editorial-rule" /><p>你如何感受，如何选择，如何与世界相处。<br />给自己一点时间，看见那些还没被命名的部分。</p></div>
+        <h1>了解你的<span>性格倾向</span></h1>
+        <div class="discovery-caption"><p>十六型看四个方面的偏好，大五看五个方面的倾向。</p></div>
         <div class="discovery-actions">
-          <button type="button" class="btn-primary" @click="exploreAssessments">找到适合我的测评 <span aria-hidden="true">↗</span></button>
-          <RouterLink v-if="resume" :to="`/assess/${encodeURIComponent(resume.attemptId)}`" class="link-quiet" data-platform-resume>继续上次的探索</RouterLink>
+          <button type="button" class="btn-primary" @click="exploreAssessments">选择测评 <span aria-hidden="true">↗</span></button>
+          <RouterLink v-if="resume" :to="`/assess/${encodeURIComponent(resume.attemptId)}`" class="link-quiet" data-platform-resume>继续上次测评</RouterLink>
           <span v-else-if="checkingDrafts" class="discovery-pending" role="status">正在确认上次进度…</span>
           <RouterLink v-else to="/assess" class="link-quiet">查看我的测评</RouterLink>
         </div>
+        <ul v-if="instruments.items.length" class="discovery-choices" aria-label="可选测评">
+          <li v-for="card in instruments.items" :key="card.slug">
+            <RouterLink :to="`/assess?instrument=${encodeURIComponent(card.slug)}`">
+              <strong>{{ card.title }}</strong>
+              <span>{{ card.hasTypeCode ? '四个方面的偏好' : '五个方面的倾向' }}</span>
+            </RouterLink>
+          </li>
+        </ul>
       </div>
       <div class="discovery-illustration atelier-cover" aria-hidden="true">
         <IllustrationFrame name="home-hero" eager class="atelier-cover-art"><EditorialScene /></IllustrationFrame>
-        <span class="atelier-margin-note">A LITTLE CLOSER TO YOURSELF</span>
-        <div class="atelier-cover-note"><span>一段留给自己的时间</span><p>向内探索。<br>向外生长。</p><span aria-hidden="true">↗</span></div>
       </div>
-      <div class="discovery-baseline"><p>认识自己，从一个好问题开始。</p><span>自我探索参考 · 非心理诊断</span><span aria-hidden="true">SCROLL TO EXPLORE ↓</span></div>
     </header>
 
     <div id="available-assessments" class="catalog-heading" tabindex="-1">
-      <div><p class="section-kicker">01 / 选择你的探索视角</p><h2>从好奇的地方，<br class="tablet:hidden" /><em>开始。</em></h2></div>
-      <p>不同的测评，照见不同的侧面。<br />没有高低之分，只有更多理解。</p>
+      <div><h2>选择测评</h2></div>
     </div>
 
     <p v-if="instruments.loading" class="notice-info mt-5" role="status">正在载入可选测评…</p>
@@ -66,17 +69,5 @@ function exploreAssessments(): void {
       </li>
     </ul>
     <PersonalityGallery />
-    <section class="atelier-reflection" aria-labelledby="manifesto-title">
-      <IllustrationFrame name="reflection" class="atelier-reflection-art"><EditorialScene scene="reflection" /></IllustrationFrame>
-      <div class="atelier-reflection-copy"><p class="section-kicker">03 / 给自己一点余地</p><h2 id="manifesto-title">了解自己，<br>是为了更自在地<br><em>成为自己。</em></h2>
-        <p>测评是一种观察自己的方式。你可以认同，也可以保留不同意见。生活里的你，永远比一份报告更丰富。</p>
-        <RouterLink to="/about" class="link">看看我们的测评方法与边界 ↗</RouterLink>
-      </div>
-    </section>
-    <div class="atelier-reading-path"><p class="section-kicker">从好奇，到一点点理解</p><ol>
-      <li><span>01</span><div><h3>选一个想了解的侧面</h3><p>看偏好，或看五种不同的倾向。</p></div></li>
-      <li><span>02</span><div><h3>按真实的自己回答</h3><p>没有标准答案，拿不准也没关系。</p></div></li>
-      <li><span>03</span><div><h3>把报告带回生活里</h3><p>先读解释，再观察哪些描述适合自己。</p></div></li>
-    </ol></div>
   </section>
 </template>

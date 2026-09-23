@@ -444,7 +444,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
           <AppIcon name="alert" :size="17" class="mt-0.5" />
           <span>
             {{ store.lastSaveError }}
-            <span class="mt-1 block">刚才的改动还留在这个页面上，没有丢。</span>
+            <span class="mt-1 block">有 {{ store.unsavedCount }} 题未保存，本页作答仍在。</span>
           </span>
         </p>
         <button type="button" class="btn-secondary btn-sm mt-3" @click="flush(false)">
@@ -474,7 +474,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
           >
             <template #reading-help>
               <p v-if="readingExample" class="reading-example" data-question-example><span>这句话在问什么</span>{{ readingExample }}</p>
-              <p class="mt-3 text-[13px] leading-relaxed text-ink-soft">按整句话是否像你来选，包括“很少”“不喜欢”这些词。按真实习惯回答。</p>
+              <p v-if="index === 0" class="mt-3 text-[13px] leading-relaxed text-ink-soft">按平时的自己回答。</p>
             </template>
           </LikertScale>
         </div>
@@ -493,7 +493,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
             {{ isUnknown ? '已记「说不好」（再点一次撤销）' : '说不好' }}
           </button>
           <p class="caption max-w-prose">
-            “说不好”是没经历过或暂时无法判断，不计分。中间档表示有时符合、有时不符合，它会计分。
+            说不好：暂时无法判断，不计分；中间档会计分。
           </p>
         </div>
 

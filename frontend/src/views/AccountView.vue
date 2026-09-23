@@ -291,10 +291,6 @@ function goHome() {
         <h1 class="mt-2 font-display text-[26px] font-bold leading-tight text-ink tablet:text-[32px]">
           账号与数据
         </h1>
-        <p class="mt-3 prose-cn max-w-prose">
-          这里能看到账号是什么状态，也能改密码、重新生成恢复码、把数据导出去，或者把账号注销掉。
-          每一块都会先说明它到底做了什么。
-        </p>
       </header>
 
       <p
@@ -483,9 +479,7 @@ function goHome() {
           恢复码
         </h2>
         <p class="mt-2 prose-sm max-w-prose">
-          恢复码用来在忘记密码时重置密码。已经生成过的那一组<strong class="font-medium text-ink">查不出来</strong>：
-          服务器只存了不可逆的校验值，谁也没法把它还原成你能抄下来的码。所以这里只能重新生成一组 ——
-          新的一组生成后，旧的立刻全部作废。
+          忘记密码时可用。重新生成后，旧恢复码全部失效。
         </p>
 
         <form class="mt-4 max-w-[30rem]" novalidate @submit.prevent="regenerateCodes">
@@ -572,9 +566,7 @@ function goHome() {
           导出数据
         </h2>
         <p class="mt-2 prose-sm max-w-prose">
-          导出一个 JSON 文件，里面有账号资料、每次测评与答案、报告全文、你的自我理解，以及 AI 分析记录。
-          里面<strong class="font-medium text-ink">没有</strong>密码、恢复码、会话与内部记录 ——
-          那些本来就不该离开服务器。
+          下载账号资料、作答、报告、自我理解和 AI 记录（JSON）。
         </p>
 
         <FormErrorNotice
@@ -598,9 +590,6 @@ function goHome() {
             <AppIcon name="alert" :size="17" class="mt-0.5" />
             <span>{{ exportWarning }}</span>
           </p>
-          <p class="mt-2 text-[13px] leading-relaxed">
-            文件里的 <code class="font-mono">degradedSections</code> 字段也记录了这次哪些部分没取到。
-          </p>
         </div>
 
         <button
@@ -622,9 +611,7 @@ function goHome() {
           删除数据
         </h2>
         <p class="mt-2 prose-sm max-w-prose">
-          现在这个页面只能做到<strong class="font-medium text-ink">整账号删除</strong>。
-          按单份报告删除的功能还没有做好，所以在它做好之前，想删掉某几份记录只能连账号一起注销。
-          如果你需要留下某几份数据，先导出，再从导出的文件里挑。
+          删除单份报告，请前往 <RouterLink to="/reports" class="link">我的报告</RouterLink>。
         </p>
         <p class="mt-2 prose-sm max-w-prose">
           本机浏览器里还留着一份最近作答的副本（就是「方法与隐私」页里说的那份本地记录），
@@ -640,8 +627,7 @@ function goHome() {
           注销账号
         </h2>
         <p class="mt-2 prose-sm max-w-prose">
-          注销会删除你的全部测评记录与报告，<strong class="font-medium text-ink">无法恢复</strong>，
-          也不能撤销。导出数据是唯一能把它们带走的办法 —— 想留一份的话，请先导出。
+          注销将删除账号及测评数据，<strong class="font-medium text-ink">无法恢复</strong>。需要留存请先导出。
         </p>
 
         <!--

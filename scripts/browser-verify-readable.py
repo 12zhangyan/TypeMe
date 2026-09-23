@@ -22,7 +22,8 @@ reports['bigfive-old']['dimensions'][3]['rangeHigh'] = 68
 checks = []
 errors = []
 unexpected = []
-mode = {'ai': 'success'}
+mode = {'ai': 'success', 'anonymous': False}
+metrics = {}
 
 catalog = []
 for slug, kind, title, count, dimensions in [
@@ -60,11 +61,24 @@ def api(route):
     path = urlparse(route.request.url).path
     status, body = 200, {}
     if path == '/api/v3/me':
-        body = {'userId': 'synthetic', 'username': '页面验收示例', 'nickname': '演示用户'}
+        if mode['anonymous']:
+            status, body = 401, {'code': 'UNAUTHORIZED', 'message': '请先登录'}
+        else:
+            body = {'userId': 'synthetic', 'username': '页面验收示例', 'nickname': '演示用户'}
     elif path == '/api/v3/platform/instruments':
         body = {'items': catalog}
-    elif path == '/api/v3/attempts':
+    elif path.startswith('/api/v3/platform/instruments/'):
+        slug = path.rsplit('/', 1)[-1]
+        body = {'instrument': next(item for item in catalog if item['slug'] == slug),
+                'dimensions': [], 'versions': []}
+    elif path in ('/api/v3/attempts', '/api/v3/platform/attempts'):
         body = {'items': [], 'page': 0, 'size': 20, 'total': 0}
+    elif path in ('/api/v3/platform/reports', '/api/v3/reports'):
+        body = {'items': [], 'page': 0, 'size': 20, 'total': 0}
+    elif path == '/api/v3/auth/csrf':
+        body = {'token': 'synthetic-browser-only'}
+    elif path == '/api/v3/platform/illustrations':
+        body = {'assets': [], 'version': 'synthetic-empty', 'release': None}
     elif path == '/api/v3/catalog/current':
         body = {'packageId': 'typeme-jung48-zh-v2', 'questionCount': 48, 'basePerDimension': 12,
                 'title': '十六型人格参考测评', 'dimensions': []}
@@ -89,8 +103,14 @@ def api(route):
     elif path.startswith('/api/v3/reports/'):
         report_id = path.split('/')[-1]
         body = {'report': reports[report_id], 'selfReflection': {}, 'attemptId': 'synthetic-attempt', 'attemptRevision': 1}
+    elif path == '/api/v3/admin/ai-settings':
+        body = {'enabled': False, 'mockMode': True, 'model': 'synthetic', 'promptVersion': 'synthetic',
+                'dailyLimitPerUser': 2, 'retryLimitPerHour': 1, 'globalDailyCallBudget': 10,
+                'globalDailyTokenBudget': 10000, 'workerConcurrency': 1, 'connectTimeoutMs': 3000,
+                'requestDeadlineMs': 10000, 'maxTokens': 500, 'apiKeyConfigured': False,
+                'apiKeyFingerprint': None, 'apiKeySource': 'none'}
     elif path.startswith('/api/v3/admin/'):
-        status, body = 403, {'code': 'FORBIDDEN', 'message': '非管理员示例'}
+        body = {'items': [], 'page': 0, 'size': 20, 'total': 0}
     elif path in ('/api/v1/meta', '/api/v2/assessment-packages/ipip50-zh1'):
         # App 的旧引擎初始化使用仓库内置副本；明确模拟旧内容服务离线。
         status, body = 503, {'code': 'NOT_CONFIGURED', 'message': '旧内容使用内置副本'}
@@ -108,16 +128,30 @@ def layout(page, label):
 def main():
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=True)
-        for width in (320, 390, 1440):
-            context = browser.new_context(viewport={'width': width, 'height': 900}, device_scale_factor=1)
+        for width, height in ((320, 720), (390, 844), (1440, 900)):
+            mode['anonymous'] = False
+            context = browser.new_context(viewport={'width': width, 'height': height}, device_scale_factor=1)
             context.route('**/api/**', api)
             page = context.new_page()
             page.on('pageerror', lambda error: errors.append(str(error)))
             page.goto(BASE)
             page.locator('[data-home-instruments]').wait_for()
             check(page.locator('[data-home-instruments] > li').count() == 2, f'{width}/home: two instruments')
+            choices = page.locator('.discovery-choices a')
+            check(choices.count() == 2, f'{width}/home: early choices')
+            metrics[f'home-{width}'] = {'firstCardY': round(page.locator('[data-home-instruments] h2').first.bounding_box()['y']),
+                                        'secondChoiceY': round(choices.last.bounding_box()['y'])}
+            if width == 390:
+                check(choices.last.bounding_box()['y'] < height, f'{width}/home: both names in first viewport')
             check(page.locator('[data-jung-introduction]').get_attribute('open') is None, f'{width}/home: optional long tutorial')
             layout(page, f'{width}/home')
+            page.get_by_role('button', name='选择测评').focus()
+            page.keyboard.press('Enter')
+            check(page.evaluate('document.activeElement?.id') == 'available-assessments', f'{width}/home: keyboard choice focuses catalog')
+            page.reload()
+            page.locator('[data-home-instruments]').wait_for()
+            page.locator('.illustration-frame img').evaluate_all("async items => { await Promise.all(items.map(async img => { img.loading = 'eager'; await img.decode(); })); }")
+            page.wait_for_timeout(300)
             page.screenshot(path=str(OUT / f'home-{width}.png'), full_page=True)
             for report_id in ('jung-v2', 'jung-tied', 'jung-v1', 'bigfive', 'bigfive-old'):
                 mode['ai'] = 'success'
@@ -146,6 +180,10 @@ def main():
                           f'{width}/{report_id}: historical range warning')
                 else:
                     check(page.locator('[data-plain-report] .plain-report-list li').count() == 4, f'{width}/{report_id}: four plain readings')
+                    if width == 390 and report_id == 'jung-v2':
+                        metrics['jung-overview-390'] = round(page.locator('[data-report-overview]').bounding_box()['height'])
+                        check(metrics['jung-overview-390'] <= 880,
+                              '390/jung-v2: compact overview without cropping')
                     if report_id == 'jung-tied':
                         check('更偏向' not in page.locator('[data-plain-report]').inner_text().split('查看保存时')[0], f'{width}/{report_id}: plain reading preserves tied directions')
                     check(page.locator('[data-report-overview]').get_attribute('data-status') == ('TIED' if report_id == 'jung-tied' else 'TENTATIVE'),
@@ -178,13 +216,75 @@ def main():
                     page.locator('[data-ai-failed]').wait_for()
                 check(page.locator('[data-dimension]').count() == 5, f'{width}/{state}: fixed report intact')
                 layout(page, f'{width}/{state}')
+            for route_name, path, heading in (
+                ('instruments', '/instruments', '选一项测评'),
+                ('assess-chooser', '/assess', '开始测评'),
+                ('account', '/account', '账号与数据'),
+                ('reports', '/reports', '我的报告'),
+                ('compare-jung', '/reports/compare', '比较两次十六型测评'),
+                ('compare-bigfive', '/reports/compare/big-five', '比较两次大五倾向'),
+                ('admin-members', '/admin/members', '让每一次探索'),
+                ('admin-settings', '/admin', 'AI 分析设置'),
+            ):
+                mode['anonymous'] = False
+                page.goto(f'{BASE}/#{path}')
+                page.get_by_role('heading', name=heading).wait_for()
+                if route_name == 'account':
+                    check(page.get_by_role('link', name='我的报告').get_attribute('href') == '#/reports',
+                          f'{width}/account: individual deletion links to reports')
+                if route_name == 'assess-chooser':
+                    card = page.locator('[data-instrument="jung48"]')
+                    card.wait_for()
+                    check(card.get_by_role('link', name='方法说明').get_attribute('href') == '#/instruments/jung48/method',
+                          f'{width}/assess: method link reaches actual route')
+                if route_name == 'admin-members':
+                    page.get_by_text('暂无成员。').wait_for()
+                if route_name == 'admin-settings':
+                    page.locator('[data-admin-summary]').wait_for()
+                layout(page, f'{width}/{route_name}')
+                page.screenshot(path=str(OUT / f'{route_name}-{width}.png'), full_page=True)
+            page.goto(f'{BASE}/#/quiz')
+            page.locator('main').wait_for()
+            layout(page, f'{width}/legacy-quiz')
+            page.screenshot(path=str(OUT / f'legacy-quiz-{width}.png'), full_page=True)
+            if width == 1440:
+                page.goto(f'{BASE}/#/instruments')
+                page.locator('[data-instrument-cards]').wait_for()
+                page.evaluate("document.body.style.zoom = '2'")
+                layout(page, '200-percent CSS zoom/catalog')
+                page.screenshot(path=str(OUT / 'instruments-zoom-200.png'), full_page=True)
+                page.get_by_role('link', name='先看题目与口径').first.click()
+                page.wait_for_url('**/method')
+                check('/method' in page.url, '200-percent CSS zoom: method link operable')
+                reduced = browser.new_context(viewport={'width': 390, 'height': 844}, reduced_motion='reduce')
+                reduced.route('**/api/**', api)
+                reduced_page = reduced.new_page()
+                reduced_page.goto(f'{BASE}/#/instruments')
+                reduced_page.locator('[data-instrument-cards]').wait_for()
+                check(reduced_page.evaluate("getComputedStyle(document.documentElement).scrollBehavior") == 'auto',
+                      'reduced-motion: smooth scrolling disabled')
+                check(reduced_page.evaluate("parseFloat(getComputedStyle(document.querySelector('.btn-primary')).transitionDuration) < .01"),
+                      'reduced-motion: button transition shortened')
+                reduced.close()
             context.close()
+            mode['anonymous'] = True
+            for route_name in ('login', 'register', 'recover'):
+                guest = browser.new_context(viewport={'width': width, 'height': height}, device_scale_factor=1)
+                guest.route('**/api/**', api)
+                guest_page = guest.new_page()
+                guest_page.on('pageerror', lambda error: errors.append(str(error)))
+                guest_page.goto(f'{BASE}/#/{route_name}')
+                guest_page.locator('h1').wait_for()
+                check(f'/{route_name}' in guest_page.url, f'{width}/{route_name}: guest route')
+                layout(guest_page, f'{width}/{route_name}')
+                guest_page.screenshot(path=str(OUT / f'{route_name}-{width}.png'), full_page=True)
+                guest.close()
         browser.close()
 
     check(not errors, 'no uncaught browser errors: ' + str(errors))
     check(not unexpected, 'all APIs intercepted and accounted for: ' + str(unexpected))
     (OUT / 'browser-results.json').write_text(json.dumps({'scope': 'synthetic reports + mocked API, no live database or AI',
-        'checks': checks, 'errors': errors, 'unexpectedApis': unexpected}, ensure_ascii=False, indent=2), encoding='utf-8')
+        'checks': checks, 'metrics': metrics, 'errors': errors, 'unexpectedApis': unexpected}, ensure_ascii=False, indent=2), encoding='utf-8')
     print(f'{len(checks)} browser checks passed; evidence: {OUT}')
 
 if __name__ == '__main__':

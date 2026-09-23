@@ -69,7 +69,7 @@ async function onSubmit() {
         登录
       </h1>
       <p class="mt-3 prose-cn max-w-prose">
-        登录后才能把测评记录和报告放在服务器上，换设备也能接着看。答案与报告只属于你自己。
+        登录后可保存进度和报告。
       </p>
       <IllustrationFrame name="welcome" class="auth-art auth-scene"><EditorialScene scene="welcome" /></IllustrationFrame>
     </header>

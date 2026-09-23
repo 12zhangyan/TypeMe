@@ -99,13 +99,15 @@ describe('账号页 · 导出完整性提示', () => {
     await triggerExport(wrapper)
 
     const text = wrapper.text()
+    expect(text).not.toContain('按单份报告删除的功能还没有做好')
+    expect(wrapper.find('a[href="/reports"]').text()).toContain('我的报告')
     expect(text, '不能把不完整的备份说成完整备份').not.toContain('都在里面')
     expect(text).toContain('不是完整备份')
     // 点名到具体段落，用户才知道缺的是哪一块
     expect(text).toContain('报告')
     expect(text, '要劝住用户先别注销').toContain('先不要注销账号')
-    // 文件里也有标记，告诉用户自查的位置
-    expect(text).toContain('degradedSections')
+    // 页面说明具体缺失内容，内部字段名无需暴露给用户。
+    expect(text).toContain('请先不要注销账号')
   })
 
   it('导出不完整时，注销区也给出「先别注销」的最后一道提示', async () => {

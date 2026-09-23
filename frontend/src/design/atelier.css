@@ -98,3 +98,42 @@
   .atelier-reflection { grid-template-columns: 1fr; margin-top: 48px; }.atelier-reflection-art { height: 255px; grid-row: 2; }.atelier-reflection-copy { padding: 30px 25px 5px; }.atelier-reflection-copy h2 { font-size: 32px; }.atelier-reading-path { padding-top: 30px; }.atelier-reading-path ol { grid-template-columns: 1fr; gap: 24px; }.atelier-reading-path li { gap: 19px; }
   .auth-page .auth-art.auth-scene { display: none; }.report-character-study { gap: 10px; padding: 12px; }.report-character-study > .personality-portrait { width: 80px; flex-basis: 80px; }.report-character-study figcaption { min-width: 0; }.report-character-study figcaption p { font-size: 16px; }
 }
+
+/* Keep the two real catalog choices within the first mobile viewport. */
+.atelier-platform .discovery-copy h1 { font-size: 54px; letter-spacing: 0; line-height: 1.24; width: auto; }
+.discovery-choices { display: grid; gap: 0; margin-top: 25px; border-top: 1px solid #bfcbbb; }
+.discovery-choices a { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid #bfcbbb; color: #20372f; }
+.discovery-choices strong { font-size: 16px; font-weight: 600; }
+.discovery-choices span { font-size: 13px; color: #43574a; text-align: right; }
+.discovery-choices a:focus-visible { outline: 2px solid #2d6652; outline-offset: 3px; }
+.atelier-platform .catalog-heading { padding-top: 32px; padding-bottom: 18px; }
+.atelier-platform .catalog-heading h2 { font-size: 27px; margin-top: 0; letter-spacing: 0; }
+@media(max-width:767px) {
+  .atelier-platform .discovery-copy h1 { font-size: 38px; }
+  .atelier-platform .discovery-copy { padding: 0; }
+  .atelier-platform .discovery-caption { margin-top: 12px; }
+  .atelier-platform .discovery-caption p { font-size: 16px; line-height: 1.65; }
+  .atelier-platform .discovery-actions { margin-top: 16px; }
+  .atelier-platform .atelier-cover { display: none; }
+  .atelier-platform .catalog-heading { padding-top: 25px; }
+  .atelier-platform .assessment-card-art, .atelier-catalog .assessment-card-art { height: 155px; min-height: 155px; grid-row: 2; }
+  .atelier-platform .assessment-card-art .instrument-artwork, .atelier-catalog .assessment-card-art .instrument-artwork { height: 150px; width: 160px; }
+  .atelier-platform .assessment-card-content, .atelier-catalog .assessment-card-content { padding: 20px; }
+  .atelier-platform .assessment-card-content h2, .atelier-catalog .assessment-card-content h2 { font-size: 23px; margin-top: 8px; }
+  .atelier-platform .assessment-card-summary, .atelier-catalog .assessment-card-summary { margin-top: 8px; font-size: 15px; }
+  .atelier-platform .assessment-card-facts, .atelier-catalog .assessment-card-facts { margin-top: 8px; }
+  .atelier-platform .assessment-card-actions, .atelier-catalog .assessment-card-actions { padding-top: 12px; }
+.auth-page header { padding: 12px 6px; }
+}
+
+[data-report-overview].report-paper { display: block; padding: 26px; border-radius: 6px; }
+.report-paper-label { margin-bottom: 16px; padding-bottom: 12px; letter-spacing: 0; }
+.report-paper-identity { padding-top: 12px; }
+.report-paper-notice { margin-top: 14px; }
+.report-paper-summary { margin-top: 18px; }
+.plain-report-list { gap: 12px; margin-top: 12px; }
+@media(max-width:767px) {
+  [data-report-overview].report-paper { padding: 20px; }
+  .report-paper-identity { padding-top: 8px; }
+  .report-paper-summary { margin-top: 12px; }
+}

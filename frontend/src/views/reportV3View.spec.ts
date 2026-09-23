@@ -696,7 +696,7 @@ describe('报告页：TIED', () => {
     const text = wrapper.text()
     expect(text).not.toContain('本次参考类型')
     expect(text).not.toContain('本次更接近')
-    expect(text).toContain('没有哪一个四字母类型更适合当主标题')
+    expect(text).toContain('本次不指定唯一类型')
   })
 
   it('列出多个候选，并说明为什么都可能（平分维度 + 候选解释）', async () => {

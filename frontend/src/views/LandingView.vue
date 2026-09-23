@@ -281,7 +281,7 @@ const faqs = computed(() => [
   },
   {
     q: '我的答案会上传吗？',
-    a: '会存在你的账号里。这样你换一台设备登录后能接着答，也能回看自己历次的报告。你不必为此作答之外的目的提供信息：报告只在你的账号里，没有统计脚本或第三方分析，随时可以整体导出或删除。',
+    a: '作答和报告保存在账号下，可跨设备续答和回看。数据处理与访问范围请看方法与隐私；账号页可导出或删除数据。',
   },
   {
     q: '测到一半关掉页面怎么办？',
@@ -343,6 +343,19 @@ onMounted(() => {
       还没能确认上次的作答进度。
       <button type="button" class="btn-secondary btn-sm" @click="loadPlatformDraft">重新读取进度</button>
     </div>
+    <section class="mt-10 border-t border-line pt-6" aria-labelledby="example-heading" data-dual-examples>
+      <h2 id="example-heading" class="section-title">报告示例</h2>
+      <div class="mt-4 grid gap-5 tablet:grid-cols-2">
+        <div>
+          <p class="chip chip-neutral">十六型 · 示例</p>
+          <p class="mt-2 text-[16px] text-ink">参考类型与四个方面的偏好；接近或平分会单独说明。</p>
+        </div>
+        <div>
+          <p class="chip chip-neutral">大五 · 示例</p>
+          <p class="mt-2 text-[16px] text-ink">五个方面各自解读，不给类型或总分。</p>
+        </div>
+      </div>
+    </section>
     <details class="mt-8" :open="!!resumeTarget" data-jung-introduction>
       <summary class="cursor-pointer text-[16px] font-semibold text-ink">十六型测评：答题和报告示例</summary>
       <div class="mt-5">

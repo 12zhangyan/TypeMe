@@ -229,12 +229,10 @@ onBeforeUnmount(() => { listGeneration++; generation++ })
         复测比较
       </p>
       <h1 class="display-hero mt-4 text-[24px] leading-tight text-white tablet:text-[30px]">
-        把两次测评放在一起看
+        比较两次十六型测评
       </h1>
       <p class="mt-3 max-w-prose text-[15px] leading-[1.75] text-navy-100 tablet:text-[16.5px]">
-        这里只做一件事：把两份报告里四个维度的方向与强度<strong class="font-semibold text-white">并列</strong>出来，标出哪几维方向不同。
-        它不判断你变好了还是变差了 —— 两次作答之间的处境、状态、甚至手滑选错，
-        都会影响结果，而这些都不在这份数据里。
+        并列查看四个维度的方向与强度，不评价进步或退步。
       </p>
     </header>
 

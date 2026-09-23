@@ -63,11 +63,6 @@ function start(slug: string): void {
       <h1 class="text-[26px] font-semibold leading-snug text-ink tablet:text-[30px]">
         选一项测评
       </h1>
-      <p class="mt-3 text-[15.5px] leading-relaxed text-ink-soft">
-        同一套题在不同时间、不同状态下答案会不一样，所以这里的每一项都只描述
-        <span class="font-medium text-ink">你这次作答时呈现的样子</span>，
-        不是给你下一个结论。每张卡片第一行写的是它能告诉你什么。
-      </p>
     </header>
 
     <!-- 载入失败：说清楚失败原因 + 可重试。绝不退化成一份编出来的目录。 -->
@@ -91,9 +86,7 @@ function start(slug: string): void {
       class="notice-neutral mt-6 max-w-prose text-[14px] leading-relaxed"
       data-instruments-empty
     >
-      现在还没有可用的测评。请稍后再试，或到
-      <RouterLink to="/about" class="link">方法说明</RouterLink>
-      看看本站的题目与计分口径。
+      暂时没有可用的测评，请稍后再试。
     </div>
 
     <ul v-else class="assessment-grid mt-7" data-instrument-cards>
@@ -126,7 +119,7 @@ function start(slug: string): void {
     </ul>
 
     <p v-if="!auth.isAuthenticated" class="caption mt-6 max-w-prose" data-instruments-login-hint>
-      测评需要登录：答案与报告存在服务端，这样换设备可以接着答、历史报告也找得回来。
+      登录后可保存进度和报告。
       <RouterLink to="/register" class="link">注册</RouterLink>
       或
       <RouterLink to="/login" class="link">登录</RouterLink>。
