@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
-import { RouterLink } from 'vue-router'
 import { useAiAnalysisStore } from '@/stores/aiAnalysisV3'
 import { ANALYSIS_TOPICS, isReadablePromptVersion, topicLabel, type AnalysisTopic } from '@/api/v3Ai'
 import AppIcon from '@/components/AppIcon.vue'
@@ -239,17 +238,14 @@ function pickTopic(value: AnalysisTopic): void {
       </span>
       <div class="min-w-0">
         <h2 id="report-ai-title" class="display-hero text-[20px] leading-tight text-white tablet:text-[25px]">
-          AI 洞察
+          AI 解读
         </h2>
-        <p class="mt-0.5 text-[13px] text-navy-200">可选的一段额外视角 · 不改写上面的固定结果</p>
+        <p class="mt-0.5 text-[13px] text-navy-200">可选 · 不改写固定结果</p>
       </div>
-      <span class="chip chip-on-deep ml-auto">可选</span>
     </div>
 
     <p class="mt-4 max-w-[44rem] text-[14.5px] leading-[1.75] text-navy-100">
-      这一块会把你<strong class="font-semibold text-white">已经看到</strong>的报告结构发给模型，
-      换一段更贴近日常的说法回来。它不改写上面的固定结果，也不是诊断 ——
-      上面的报告本身已经是完整的，不生成 AI 也一样完整。
+      根据本报告生成补充解读。发送范围在生成前确认；固定报告无需 AI 即可阅读。
     </p>
 
     <!-- ① 问不到状态（未登录 / 网络失败）：只说明，不给按钮 -->
@@ -274,11 +270,7 @@ function pickTopic(value: AnalysisTopic): void {
     <div v-else-if="ai.status && !ai.status.enabled" class="deep-card mt-5" role="note" data-ai-disabled>
       <p class="flex items-start gap-2.5">
         <AppIcon name="info" :size="17" class="mt-0.5 text-glow" />
-        <span class="text-[14.5px] font-medium leading-relaxed text-white">这台服务器没有开启 AI 分析。</span>
-      </p>
-      <p class="mt-2 text-[14px] leading-relaxed text-navy-100">
-        上面的固定报告与各个维度都不受影响，它们不依赖 AI 就能看。
-        已保存的测评与报告仍然可以回看。
+        <span class="text-[14.5px] font-medium leading-relaxed text-white">AI 解读暂未开放。</span>
       </p>
     </div>
 
@@ -800,11 +792,6 @@ function pickTopic(value: AnalysisTopic): void {
         </ul>
       </div>
 
-      <p class="mt-6 border-t border-white/10 pt-4 text-[12px] leading-relaxed text-navy-200">
-        AI 分析是可选的附加视角。它由模型生成、可能出错，不参与固定计分，
-        也不改变上面那份报告的内容。详情见
-        <RouterLink to="/about" class="link-on-deep">关于</RouterLink>。
-      </p>
     </template>
   </section>
 </template>

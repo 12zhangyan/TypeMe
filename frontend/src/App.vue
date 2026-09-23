@@ -436,9 +436,7 @@ function navPill(active: boolean): string {
               是浏览器验收报告里的问题 2。
             -->
             <p v-else-if="!legacyScope" class="fineprint" data-new-instrument-attribution>
-              十六型题目与报告文案为本项目自写参考稿；大五使用 IPIP 公有领域题目，中文为项目改写稿。本站
-              <strong class="font-medium text-ink-soft">不隶属</strong>
-              任何商业人格测评机构，也不是任何机构的官方测评。各量表独立计分，历史报告保留生成时的结果。
+              十六型为项目原创参考测评；大五基于 IPIP 公有领域题目。来源与权限详见方法与隐私。
             </p>
           </div>
           <nav class="flex flex-wrap items-start gap-x-5 gap-y-2 text-[13.5px]">
@@ -459,8 +457,7 @@ function navPill(active: boolean): string {
           结果仅供自我了解与娱乐参考，不是心理诊断，也不用于招聘或任何筛选。答案只在你的浏览器里参与计算。
         </p>
         <p v-else class="mt-5 fineprint" data-new-instrument-compute>
-          结果仅供自我了解与娱乐参考，不是心理诊断，也不用于招聘或任何筛选。答题进度与报告保存在你的账号下；
-          页面上的「目前的粗略倾向」只是即时预览，最终报告由服务端重新计算。
+          结果仅供自我探索参考，不用于诊断或选拔。
         </p>
       </div>
     </footer>

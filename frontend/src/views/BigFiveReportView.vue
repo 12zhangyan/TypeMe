@@ -225,7 +225,7 @@ function distanceLeft(distance: number, rangeLow: number, rangeHigh: number): nu
 
     <template v-else-if="detail && report">
       <header class="report-cover">
-        <span class="report-number">TYPEME / 个人探索档案</span>
+        <span class="report-number">大五人格倾向测评</span>
         <InstrumentArtwork kind="big_five" />
         <p class="caption">
           {{ detail.instrumentTitle }} · {{ createdAtText }}
@@ -260,8 +260,7 @@ function distanceLeft(distance: number, rangeLow: number, rangeHigh: number): nu
       <section class="mt-8" aria-labelledby="bigfive-dimensions">
         <h2 id="bigfive-dimensions" class="section-title">这次五个维度的样子</h2>
         <p class="caption mt-1 max-w-prose">
-          分数是这次作答按固定键表算出来的原始分，只跟它自己的范围比；
-          距离是离中点有多远，正负只表示偏向哪一侧。五项之间不加总、不排名。
+          五项分别解读，不加总、不排名。
         </p>
 
         <ul class="mt-4 grid gap-4" data-bigfive-dimensions>

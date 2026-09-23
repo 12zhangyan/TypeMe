@@ -21,7 +21,7 @@ const detailId = `portrait-detail-${useId()}`
             <PersonalityPortrait :code="item.code" /><span>{{ item.code }}</span>
           </button>
         </div>
-        <p class="portrait-picker-note">人物的名字、穿着与道具是创作设定，不代表这一型的人一定如此；类型偏好也不决定职业、性别或能力。</p>
+        <p class="portrait-picker-note">插画是角色想象，不是测评结果，也不代表职业、性别或能力。</p>
         <RouterLink to="/instruments/jung48/method" class="portrait-method-link">了解十六型测评怎么看待这些偏好 <span aria-hidden="true">↗</span></RouterLink>
       </div>
     </div>

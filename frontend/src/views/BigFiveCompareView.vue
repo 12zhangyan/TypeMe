@@ -99,7 +99,7 @@ onBeforeUnmount(() => { listGeneration++; generation++ })
 <template>
   <PageContainer page="home">
     <h1 class="section-title">比较两次大五倾向</h1>
-    <p class="caption mt-2 max-w-prose">仅对同一内容包和计分版本的两次自报原始分进行并列比较。差值不是成长、能力变化或统计显著变化。</p>
+    <p class="caption mt-2 max-w-prose">同版本报告才能比较分数差值；差值不代表进步或退步。</p>
     <p v-if="loading" role="status" class="mt-5">正在读取报告…</p>
     <div v-else-if="error" role="alert" class="notice-error mt-5">{{ error }}
       <button type="button" class="btn-secondary btn-sm mt-2" @click="loadList">重试</button>

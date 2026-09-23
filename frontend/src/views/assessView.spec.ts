@@ -325,7 +325,7 @@ describe('答题页：unknown 与「未作答」是两件事', () => {
     const state = wrapper.find('[data-answer-state]').text()
     expect(state).toContain('还没有作答')
     // 未作答时不能出现"已作答"的确认措辞
-    expect(state).toContain('两者都算处理过这一题')
+    expect(state).toContain('请选择一档或「这题我说不好」')
     expect(state).not.toContain('已作答')
   })
 

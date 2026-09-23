@@ -705,9 +705,9 @@ const earlierUnanswered = computed(() =>
           同时不与右边的题卡抢焦点。
         -->
         <div class="jung-progress">
-          <p class="section-kicker">人格倾向自测（新测）</p>
+          <p class="section-kicker">十六型人格参考测评</p>
           <h1 class="mt-1 font-display text-[19px] font-bold leading-tight text-ink tablet:text-[22px]">
-            一屏一题，选完点「下一题」
+            第 {{ activeNumber }} / {{ activeTotal }} 题
           </h1>
 
           <div class="mt-4 space-y-1.5">
@@ -969,7 +969,7 @@ const earlierUnanswered = computed(() =>
             {{ currentQuestion.scenario }}
           </h2>
           <p v-if="readingExample" class="reading-example" data-question-example><span>想一个这样的场景</span>{{ readingExample }}</p>
-          <p class="mt-3 text-[13px] leading-relaxed text-ink-soft">下面两种做法，哪一种更像平时的你？按真实习惯选，不用选你觉得“应该”做到的。</p>
+          <p v-if="activeNumber === 1" class="mt-3 text-[13px] leading-relaxed text-ink-soft">选择更像平时自己的做法。</p>
 
           <!--
             两端陈述：中间加一条短轴线，让"这两句是同一根轴的两端"在没有刻度的情况下
@@ -987,10 +987,10 @@ const earlierUnanswered = computed(() =>
           </div>
 
           <!-- 五档：1 左 ── 中间 ── 5 右 -->
-          <p class="mt-5 flex items-center justify-between text-[11.5px] leading-none text-ink-faint" aria-hidden="true">
-            <span>← 更靠近左边这一侧</span>
+          <p class="mt-5 grid grid-cols-[1fr_auto_1fr] items-center gap-1 text-[11.5px] leading-tight text-ink-faint" aria-hidden="true">
+            <span>← 偏左</span>
             <span>两边差不多</span>
-            <span>更靠近右边这一侧 →</span>
+            <span class="text-right">偏右 →</span>
           </p>
           <div
             class="mt-2 grid grid-cols-5 gap-1.5 tablet:gap-3"
@@ -1032,18 +1032,17 @@ const earlierUnanswered = computed(() =>
               {{ isUnknown ? '已选：这题我说不好' : '这题我说不好' }}
             </button>
             <span class="text-[12.5px] leading-relaxed text-ink-faint">
-              没经历过、没看明白，或两边都不像你，可以选这个。已作答，但不计分。
+              暂时无法判断；本题不计分。
             </span>
           </div>
 
           <p class="mt-3 text-[13px] leading-relaxed" data-answer-state>
             <template v-if="isUnanswered">
               <span class="font-medium text-accent-700">还没有作答。</span>
-              选一档，或点「这题我说不好」——两者都算处理过这一题。
+              请选择一档或「这题我说不好」。
             </template>
             <template v-else-if="isUnknown">
-              <span class="font-medium text-primary-700">我说不好（已作答，不计分）。</span>
-              之后想改也可以再选一档。
+              <span class="font-medium text-primary-700">已作答：我说不好（本题不计分）。</span>
             </template>
             <template v-else>
               <span class="font-medium text-primary-700">
@@ -1052,7 +1051,7 @@ const earlierUnanswered = computed(() =>
             </template>
           </p>
 
-          <p class="mt-3 text-[12.5px] leading-relaxed text-ink-soft">“两边差不多”是指两种做法都像你、出现得差不多；“说不好”是现在无法判断，不是中间档。</p>
+          <p v-if="activeNumber === 1" class="mt-3 text-[12.5px] leading-relaxed text-ink-soft">中间档：两边差不多；说不好：暂时无法判断。</p>
           <details v-if="currentQuestion.help" class="mt-3">
             <summary class="link cursor-pointer text-[13.5px]">这题是什么意思？</summary>
             <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft">{{ currentQuestion.help }}</p>

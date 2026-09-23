@@ -1,0 +1,374 @@
+{
+  "checks": [
+    {
+      "label": "320/jung/None: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung: five choices",
+      "passed": true
+    },
+    {
+      "label": "320/jung/None: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung/500: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung: five choices",
+      "passed": true
+    },
+    {
+      "label": "320/jung: save failure visible",
+      "passed": true
+    },
+    {
+      "label": "320/jung/500: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung/409: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung: five choices",
+      "passed": true
+    },
+    {
+      "label": "320/jung: conflict visible",
+      "passed": true
+    },
+    {
+      "label": "320/jung/409: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung/401: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung: five choices",
+      "passed": true
+    },
+    {
+      "label": "320/jung: session failure visible",
+      "passed": true
+    },
+    {
+      "label": "320/jung/401: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive/None: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: unknown separate",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive/None: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive/500: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: unknown separate",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: save failure visible",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive/500: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive/409: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: unknown separate",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: conflict visible",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive/409: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive/401: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: unknown separate",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: session failure visible",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive/401: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung/None: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung: five choices",
+      "passed": true
+    },
+    {
+      "label": "390/jung/None: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung/500: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung: five choices",
+      "passed": true
+    },
+    {
+      "label": "390/jung: save failure visible",
+      "passed": true
+    },
+    {
+      "label": "390/jung/500: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung/409: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung: five choices",
+      "passed": true
+    },
+    {
+      "label": "390/jung: conflict visible",
+      "passed": true
+    },
+    {
+      "label": "390/jung/409: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung/401: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung: five choices",
+      "passed": true
+    },
+    {
+      "label": "390/jung: session failure visible",
+      "passed": true
+    },
+    {
+      "label": "390/jung/401: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive/None: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: unknown separate",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive/None: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive/500: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: unknown separate",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: save failure visible",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive/500: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive/409: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: unknown separate",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: conflict visible",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive/409: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive/401: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: unknown separate",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: session failure visible",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive/401: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung/None: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung: five choices",
+      "passed": true
+    },
+    {
+      "label": "1440/jung/None: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung/500: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung: five choices",
+      "passed": true
+    },
+    {
+      "label": "1440/jung: save failure visible",
+      "passed": true
+    },
+    {
+      "label": "1440/jung/500: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung/409: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung: five choices",
+      "passed": true
+    },
+    {
+      "label": "1440/jung: conflict visible",
+      "passed": true
+    },
+    {
+      "label": "1440/jung/409: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung/401: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung: five choices",
+      "passed": true
+    },
+    {
+      "label": "1440/jung: session failure visible",
+      "passed": true
+    },
+    {
+      "label": "1440/jung/401: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive/None: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: unknown separate",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive/None: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive/500: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: unknown separate",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: save failure visible",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive/500: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive/409: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: unknown separate",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: conflict visible",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive/409: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive/401: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: unknown separate",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: session failure visible",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive/401: interaction no overflow",
+      "passed": true
+    },
+    {
+      "label": "No unmocked writes: []",
+      "passed": true
+    },
+    {
+      "label": "No uncaught browser errors: []",
+      "passed": true
+    }
+  ],
+  "unexpected": [],
+  "errors": []
+}

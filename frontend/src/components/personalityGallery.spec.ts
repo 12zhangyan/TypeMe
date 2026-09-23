@@ -28,7 +28,7 @@ describe('人格插画：装饰与结果分开', () => {
     expect(wrapper.get('.portrait-spotlight h3').text()).toBe('路线绘制者')
     expect(wrapper.findAll('button[aria-pressed="true"]')).toHaveLength(1)
     expect(wrapper.get('.portrait-spotlight').text()).toContain('不是测评结果')
-    expect(wrapper.text()).toContain('不决定职业、性别或能力')
+    expect(wrapper.text()).toContain('不代表职业、性别或能力')
   })
   it('未知或平分代码不随意选择一个人物', () => {
     expect(mount(PersonalityPortrait, { props: { code: 'TIED' } }).find('svg').exists()).toBe(false)

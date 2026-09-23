@@ -309,8 +309,8 @@ function minutesText(card: InstrumentCard): string {
               {{ starting === card.slug ? '正在准备…' : '开始这项' }}
               <AppIcon name="arrow-right" :size="16" />
             </button>
-            <RouterLink :to="`/instruments/${card.slug}`" class="btn-ghost btn-sm">
-              它问什么、怎么算
+            <RouterLink :to="`/instruments/${encodeURIComponent(card.slug)}/method`" class="btn-ghost btn-sm">
+              方法说明
             </RouterLink>
           </div>
         </li>

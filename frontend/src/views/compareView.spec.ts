@@ -145,7 +145,7 @@ describe('复测比较页', () => {
     expect(resultText).not.toContain('进步了')
     expect(resultText).not.toContain('准确率')
     // 页面顶部那句说明必须存在，避免用户把方向变化理解成好坏
-    expect(text).toContain('它不判断你变好了还是变差了')
+    expect(text).toContain('不评价进步或退步')
   })
 
   it('两次规则版本不同：不显示变化标记，并说明为什么不算变化', async () => {

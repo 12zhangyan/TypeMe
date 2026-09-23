@@ -40,7 +40,6 @@ const disclaimerAccepted = ref(false)
 
 /** 注册成功后的恢复码（只活在内存里，刷新就没了——这正是"只显示一次"的含义）。 */
 const recoveryCodes = ref<string[]>([])
-const policyVersion = ref<string | null>(null)
 const codesCopied = ref(false)
 const registered = ref(false)
 
@@ -110,7 +109,6 @@ async function onSubmit() {
       invitationCode.value.trim(),
     )
     recoveryCodes.value = result.recoveryCodes
-    policyVersion.value = result.recoveryCodePolicyVersion
     registered.value = true
   } catch {
     // 失败已存进 auth.lastError
@@ -132,11 +130,10 @@ async function leave() {
         id="recovery-heading"
         class="mt-2 font-display text-[26px] font-bold leading-tight text-ink tablet:text-[32px]"
       >
-        账号建好了。这 8 个恢复码，请抄下来 —— 只显示这一次
+        保存恢复码
       </h1>
       <p class="mt-3 prose-cn max-w-prose">
-        忘记密码时，用其中任意一个就能重置密码。每个码只能用一次，用完即作废。
-        离开这一页之后就再也查不到这组码了；真丢了，只能登录后用密码重新生成一组。
+        仅显示一次，忘记密码时可用。每个码只能使用一次。
       </p>
 
       <!-- 服务端没回恢复码：不装作成功，也不把用户留在一个空列表前面 -->
@@ -156,10 +153,7 @@ async function leave() {
           <AppIcon name="shield" :size="17" class="mt-0.5" />
           <span>现在请用纸笔或你自己的密码管理器记下来。</span>
         </p>
-        <p class="mt-1">
-          页面不会自动把它们复制到剪贴板 —— 那样你很容易在下次粘贴时把它覆盖掉，而自己还不知道。
-          也不要把它们截图发到聊天工具或群里：那等于把账号的另一把钥匙公开了。
-        </p>
+        <p class="mt-1">不要将恢复码截图或转发给他人。</p>
       </div>
 
       <!-- 8 个码是一个整体：收在一张卡里、用细分隔线分开，避免八块相同的方框把页面压碎 -->
@@ -177,9 +171,6 @@ async function leave() {
           <code class="min-w-0 break-all font-mono text-[15.5px] tracking-wide text-ink">{{ code }}</code>
         </li>
       </ol>
-      <p v-if="policyVersion && !codesMissing" class="mt-3 fineprint max-w-prose">
-        恢复码规则版本：<code class="font-mono">{{ policyVersion }}</code>
-      </p>
 
       <div class="mt-6 max-w-[30rem]">
         <div v-if="!codesMissing" class="flex items-start gap-2.5">
@@ -190,7 +181,7 @@ async function leave() {
             class="mt-1 h-5 w-5 shrink-0 rounded border-line-strong"
           />
           <label :for="copiedId" class="text-[14.5px] leading-relaxed text-ink">
-            我已经把这 8 个恢复码抄下来，并放在只有我能拿到的地方了。
+            我已保存这 {{ recoveryCodes.length }} 个恢复码。
           </label>
         </div>
 
@@ -219,7 +210,7 @@ async function leave() {
           注册
         </h1>
         <p class="mt-3 prose-cn max-w-prose">
-          注册后测评进度和报告会存在服务器上，换设备也能接着看。需要管理员提供的邀请码，不需要邮箱或手机号。
+          注册需要邀请码。
         </p>
         <IllustrationFrame name="welcome" class="auth-art auth-scene"><EditorialScene scene="welcome" /></IllustrationFrame>
       </header>
