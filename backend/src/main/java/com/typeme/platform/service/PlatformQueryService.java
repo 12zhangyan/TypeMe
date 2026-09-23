@@ -179,6 +179,23 @@ public class PlatformQueryService {
 
     /* ── 我的测评 / 我的报告 ────────────────────────────────────────────── */
 
+    public PlatformDtos.AttemptMetadata attemptMetadata(String userId, String attemptId) {
+        List<Map<String, Object>> rows = jdbc.queryForList(
+                "SELECT package_id, status FROM assessment_attempt WHERE id = ? AND user_id = ?",
+                attemptId, userId);
+        if (rows.isEmpty()) {
+            throw JungApiException.notFound("这份测评");
+        }
+        String packageId = (String) rows.get(0).get("package_id");
+        AssessmentRelease release = catalog.releaseOf(packageId);
+        if (release == null) {
+            throw new JungApiException("PACKAGE_UNAVAILABLE", 409,
+                    "这份测评锁定的题目版本当前不可用，不能继续作答。");
+        }
+        return new PlatformDtos.AttemptMetadata(attemptId, release.kind().code(),
+                (String) rows.get(0).get("status"));
+    }
+
     /**
      * 我的测评列表（草稿与已提交都算）。
      *
@@ -187,12 +204,23 @@ public class PlatformQueryService {
      * 用"答案行数"当进度会在两种量表上给出不同的含义。
      */
     public PlatformDtos.MyAttemptListResponse myAttempts(String userId, int page, int size) {
+        return myAttempts(userId, page, size, null);
+    }
+
+    public PlatformDtos.MyAttemptListResponse myAttempts(String userId, int page, int size, String scope) {
         int safePage = Math.max(0, page);
         int safeSize = Math.min(50, Math.max(1, size));
+        if (scope != null && !"open".equals(scope)) {
+            throw JungApiException.validation("不支持的草稿筛选条件。");
+        }
+        String filter = scope == null
+                ? ""
+                : " AND a.status IN ('BASE_IN_PROGRESS', 'CLARIFICATION_IN_PROGRESS')";
         Long total = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM assessment_attempt WHERE user_id = ?", Long.class, userId);
+                "SELECT COUNT(*) FROM assessment_attempt a WHERE a.user_id = ?" + filter,
+                Long.class, userId);
 
-        List<Map<String, Object>> rows = jdbc.queryForList("""
+        String query = """
                 SELECT a.id, a.package_id, a.status, a.revision, a.started_at, a.updated_at, a.submitted_at,
                        (SELECT r.id FROM assessment_report r WHERE r.attempt_id = a.id) AS report_id,
                        (SELECT r.status FROM assessment_report r WHERE r.attempt_id = a.id) AS report_status,
@@ -200,9 +228,11 @@ public class PlatformQueryService {
                        (SELECT COUNT(*) FROM assessment_answer ans WHERE ans.attempt_id = a.id) AS answered_count
                   FROM assessment_attempt a
                  WHERE a.user_id = ?
+                """ + filter + """
                  ORDER BY a.updated_at DESC, a.id DESC
                  LIMIT ? OFFSET ?
-                """, userId, safeSize, safePage * safeSize);
+                """;
+        List<Map<String, Object>> rows = jdbc.queryForList(query, userId, safeSize, safePage * safeSize);
 
         List<PlatformDtos.MyAttemptRow> items = new ArrayList<>(rows.size());
         for (Map<String, Object> row : rows) {
@@ -250,20 +280,40 @@ public class PlatformQueryService {
     }
 
     public PlatformDtos.MyReportListResponse myReports(String userId, int page, int size) {
+        return myReports(userId, page, size, null);
+    }
+
+    public PlatformDtos.MyReportListResponse myReports(String userId, int page, int size, String kind) {
         int safePage = Math.max(0, page);
         int safeSize = Math.min(50, Math.max(1, size));
-        Long total = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM assessment_report WHERE user_id = ?", Long.class, userId);
+        if (kind != null && !"jung".equals(kind) && !"big_five".equals(kind)) {
+            throw JungApiException.validation("不支持的报告筛选条件。");
+        }
+        String filter = kind == null ? "" : " AND a.package_id LIKE ?";
+        String packagePattern = "jung".equals(kind) ? "typeme-jung48-%" : "typeme-bigfive50-%";
+        Long total = kind == null
+                ? jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM assessment_report WHERE user_id = ?", Long.class, userId)
+                : jdbc.queryForObject("""
+                        SELECT COUNT(*)
+                          FROM assessment_report r
+                          JOIN assessment_attempt a ON a.id = r.attempt_id
+                         WHERE r.user_id = ? AND a.package_id LIKE ?
+                        """, Long.class, userId, packagePattern);
 
-        List<Map<String, Object>> rows = jdbc.queryForList("""
+        String query = """
                 SELECT r.id, r.attempt_id, r.status, r.computed_type_code, r.report_json, r.created_at,
                        a.package_id
                   FROM assessment_report r
                   JOIN assessment_attempt a ON a.id = r.attempt_id
                  WHERE r.user_id = ?
+                """ + filter + """
                  ORDER BY r.created_at DESC, r.id DESC
                  LIMIT ? OFFSET ?
-                """, userId, safeSize, safePage * safeSize);
+                """;
+        List<Map<String, Object>> rows = kind == null
+                ? jdbc.queryForList(query, userId, safeSize, safePage * safeSize)
+                : jdbc.queryForList(query, userId, packagePattern, safeSize, safePage * safeSize);
 
         List<PlatformDtos.MyReportRow> items = new ArrayList<>(rows.size());
         for (Map<String, Object> row : rows) {

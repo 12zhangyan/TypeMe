@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useAiAnalysisStore } from '@/stores/aiAnalysisV3'
+import { V3ApiError } from '@/api/v3'
 
 /**
  * AI 分析 store 的**归属不变量**（2026-09-18 第 17 轮）。
@@ -210,6 +211,58 @@ describe('AI 分析 store：归属与轮询清理', () => {
 
       expect(fetchAnalysis).toHaveBeenCalledTimes(1)
       expect(store.activeJob?.status).toBe('SUCCEEDED')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('页面隐藏时不发轮询，回到前台仍能刷新且不耗掉四分钟上限', async () => {
+    vi.useFakeTimers()
+    const listeners = new Set<() => void>()
+    const visibility = {
+      visibilityState: 'hidden',
+      addEventListener: (_event: string, callback: () => void) => listeners.add(callback),
+      removeEventListener: (_event: string, callback: () => void) => listeners.delete(callback),
+    }
+    vi.stubGlobal('document', visibility)
+    try {
+      const store = useAiAnalysisStore()
+      fetchReportAnalyses.mockResolvedValue([job(REPORT_A, { status: 'RUNNING', result: null })])
+      fetchAnalysis.mockResolvedValue(job(REPORT_A, { status: 'SUCCEEDED' }))
+      await store.loadJobs(REPORT_A)
+      await vi.advanceTimersByTimeAsync(5 * 60 * 1000)
+      expect(fetchAnalysis).not.toHaveBeenCalled()
+      visibility.visibilityState = 'visible'
+      listeners.forEach((listener) => listener())
+      await vi.advanceTimersByTimeAsync(3_100)
+      expect(fetchAnalysis).toHaveBeenCalledTimes(1)
+      expect(store.pollingGaveUp).toBe(false)
+      store.reset()
+      expect(listeners.size).toBe(0)
+    } finally {
+      vi.unstubAllGlobals()
+      vi.useRealTimers()
+    }
+  })
+
+  it('429 按服务端建议退避，成功后清除暂时错误', async () => {
+    vi.useFakeTimers()
+    try {
+      const store = useAiAnalysisStore()
+      fetchReportAnalyses.mockResolvedValue([job(REPORT_A, { status: 'RUNNING', result: null })])
+      fetchAnalysis.mockRejectedValueOnce(new V3ApiError({
+        code: 'RATE_LIMITED', message: '稍后再试', requestId: null,
+        details: { retryAfterSeconds: 15 },
+      }, { status: 429 })).mockResolvedValueOnce(job(REPORT_A, { status: 'SUCCEEDED' }))
+      await store.loadJobs(REPORT_A)
+      await vi.advanceTimersByTimeAsync(3_100)
+      expect(store.jobsError).not.toBeNull()
+      await vi.advanceTimersByTimeAsync(12_000)
+      expect(fetchAnalysis).toHaveBeenCalledTimes(1)
+      await vi.advanceTimersByTimeAsync(3_100)
+      expect(fetchAnalysis).toHaveBeenCalledTimes(2)
+      expect(store.jobsError).toBeNull()
+      store.reset()
     } finally {
       vi.useRealTimers()
     }

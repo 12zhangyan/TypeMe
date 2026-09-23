@@ -6,7 +6,7 @@ import AppIcon from '@/components/AppIcon.vue'
 import AssessView from '@/views/AssessView.vue'
 import BigFiveAssessView from '@/views/BigFiveAssessView.vue'
 import { describeError, type ErrorDisplay } from '@/api/v3'
-import { fetchPlatformAttempt, type InstrumentKind } from '@/api/platformV3'
+import { fetchAttemptMetadata, type InstrumentKind } from '@/api/platformV3'
 
 /**
  * `/assess/:attemptId` 的分流页。
@@ -18,18 +18,15 @@ import { fetchPlatformAttempt, type InstrumentKind } from '@/api/platformV3'
  * 它会在"补充题维度"这些字段上得到空值，然后渲染出一个**看起来正常但题目空白**的页面 ——
  * 比直接说"这份草稿该去另一个页面"糟糕得多。
  *
- * ## 判据为什么是 `INSTRUMENT_MISMATCH`，而不是"请求失败"
+ * ## 判据为什么是归属校验后的元信息，而不是"请求失败"
  *
- * 大五端点 `GET /api/v3/platform/attempts/{id}` **只会**读大五草稿。它对一份
- * **属于当前用户的十六型草稿**回 `409 INSTRUMENT_MISMATCH` —— 这是分流信号，不是故障。
- * 用它的前提是它**已经做过归属校验**：服务端先按 `(id, user_id)` 读出草稿，
- * 读不到就是 `404`，然后才判"锁定的包是不是大五"。所以：
+ * 中性元信息接口先按 `(id, user_id)` 读草稿，再按锁定的内容包判断量表。
+ * 读不到就是 `404`；正常分流不需要制造一次 409 错误。于是：
  *
  * - 别人的草稿与不存在的 id 都是 `404` —— 二者同形，既不泄露存在性，
  *   也不会被这里误判成"这是十六型草稿"（那会把"没有这份测评"渲染成一份空白答题页）；
  * - `401`／`403`／网络错误／`PACKAGE_UNAVAILABLE` 同理，都是**不能继续**，不是"换个页面"；
- * - 分流只决定**渲染哪一页**：真正渲染时，十六型页面还会用自己的接口再读一次，
- *   并按草稿绑定的包校验（大五草稿走十六型端点得 `409 PACKAGE_UNAVAILABLE`）。
+ * - 分流只决定**渲染哪一页**：真正渲染时，各答题页还会用自己的接口读取完整状态。
  *   前端不读任何 `kind` 参数，也不缓存上一次的分流结果。
  *
  * ## 换 id 与竞态
@@ -45,9 +42,6 @@ const kind = ref<InstrumentKind | null>(null)
 const loading = ref(true)
 const error = ref<ErrorDisplay | null>(null)
 const notFound = ref(false)
-
-/** 后端 `BigFiveAttemptService.requireBigFiveRelease` 的分流信号（409）。 */
-const INSTRUMENT_MISMATCH_CODE = 'INSTRUMENT_MISMATCH'
 
 /** 每次分流自增；只有"最新一次"的响应允许改状态。 */
 let requestSeq = 0
@@ -71,18 +65,14 @@ async function loadAttempt(id: string): Promise<void> {
   }
 
   try {
-    // 这一页只用它来判断归属；真正的草稿状态由被渲染的答题页自己再读一次
-    // （重复读一次换来的是"两个 store 各自持有完整状态"，而不是互相污染）。
-    const attempt = await fetchPlatformAttempt(id)
+    // 元信息不返回题目/答案；详情只由实际答题页读取一次。
+    const attempt = await fetchAttemptMetadata(id)
     if (seq !== requestSeq) return
     kind.value = attempt.instrumentKind
   } catch (loadError) {
     if (seq !== requestSeq) return
     const display = describeError(loadError)
-    if (display.code === INSTRUMENT_MISMATCH_CODE) {
-      // 服务端已按当前用户确认这份草稿存在，只是它锁定的不是大五的包 → 十六型。
-      kind.value = 'jung'
-    } else if (display.code === 'NOT_FOUND') {
+    if (display.code === 'NOT_FOUND') {
       // 不存在，或不是本人的草稿（同形）。绝不能当成"这是十六型草稿"。
       notFound.value = true
     } else {

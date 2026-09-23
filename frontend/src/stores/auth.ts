@@ -3,6 +3,7 @@ import { clearCsrfToken } from '@/api/csrf'
 import { resetAdminProbe } from '@/composables/useAdminProbe'
 import { useAiAnalysisStore } from '@/stores/aiAnalysisV3'
 import { useBigFiveStore } from '@/stores/bigFiveV3'
+import { useAssessmentStore } from '@/stores/assessmentV3'
 import { useInstrumentsStore } from '@/stores/instrumentsV3'
 import {
   changePassword as changePasswordRequest,
@@ -78,8 +79,12 @@ let sessionCheck: Promise<void> | null = null
  * 两个 store 都是惰性创建的；调用点（`applyAnonymous` / `applyProfile`）在
  * 已有 pinia 实例的上下文里（组件或测试）执行，所以这里直接取即可。
  */
-function resetPlatformStores(): void {
-  useBigFiveStore().reset()
+let suspendedPendingOwner: string | null = null
+function resetPlatformStores(keepPending = false): void {
+  const bigFive = useBigFiveStore()
+  if (keepPending && (bigFive.hasUnsaved || bigFive.createKey)) bigFive.suspendForSession()
+  else bigFive.reset()
+  if (!keepPending) useAssessmentStore().reset()
   useInstrumentsStore().reset()
 }
 
@@ -117,11 +122,15 @@ export const useAuthStore = defineStore('auth', {
       // 大五答题页的题目与答案都在 store 里，留着会让 B 在极短的一瞬看到 A 的答案，
       // 更糟的是 `saveNow()` 会拿 A 的 revision 去打 B 的账号。
       // 目录（instruments）不按账号区分，但进程内缓存跨账号复用没有收益，一并重读。
-      resetPlatformStores()
+      if (previousUserId !== profile.userId) resetPlatformStores(
+        previousUserId === null && suspendedPendingOwner === profile.userId,
+      )
+      suspendedPendingOwner = null
     },
 
     /** 变成未登录。`notice` 用来解释"为什么突然要重新登录"。 */
     applyAnonymous(notice: string | null = null) {
+      suspendedPendingOwner = notice ? this.profile?.userId ?? suspendedPendingOwner : null
       this.profile = null
       this.status = 'anonymous'
       this.sessionNotice = notice
@@ -133,7 +142,7 @@ export const useAuthStore = defineStore('auth', {
       resetAdminProbe()
       // 平台态的清理（目录 + 大五草稿）见 `resetPlatformStores`。它本身对
       // "还没登录过"也安全：两个 store 都是惰性创建的。
-      resetPlatformStores()
+      resetPlatformStores(suspendedPendingOwner !== null)
     },
 
     /** 把失败整理好：存进 `lastError`，401 顺带把登录态清掉。 */

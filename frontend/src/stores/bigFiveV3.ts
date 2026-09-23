@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { describeError } from '@/api/v3'
+import { describeError, newIdempotencyKey } from '@/api/v3'
 import {
   createPlatformAttempt,
   fetchPlatformAttempt,
@@ -40,6 +40,12 @@ export interface LocalAnswer {
   localRevision: number
 }
 
+export interface ConflictChange {
+  questionId: string
+  local: { kind: AnswerKind | 'CLEAR'; rating: number | null }
+  server: { kind: AnswerKind; rating: number | null } | null
+}
+
 export interface BigFiveState {
   attempt: AttemptView | null
   /** 本地答案（题号 → 作答）。以服务端返回的 answers 为初始值。 */
@@ -53,6 +59,10 @@ export interface BigFiveState {
   /** 冲突（409）：另一台设备改过。为 true 时禁止保存，直到用户选择重新载入。 */
   conflict: boolean
   conflictMessage: string | null
+  conflictServer: AttemptView | null
+  conflictChanges: ConflictChange[]
+  conflictLocalRevision: number | null
+  conflictLoading: boolean
   submitting: boolean
   submitError: string | null
   /** 提交返回"还缺题"时记下缺的题号，答题页据此高亮。 */
@@ -74,9 +84,12 @@ export interface BigFiveState {
   /** 撤销也是待保存的修改，不能从待发集合中消失。 */
   pendingClears: Record<string, number>
   generation: number
+  /** Same creation intent keeps its key until a fully parsed response succeeds. */
+  createKey: string | null
 }
 
 const saves = new WeakMap<object, Promise<boolean>>()
+const creations = new WeakMap<object, Promise<AttemptView>>()
 
 function localFrom(attempt: AttemptView): Record<string, LocalAnswer> {
   const answers: Record<string, LocalAnswer> = {}
@@ -99,6 +112,10 @@ export const useBigFiveStore = defineStore('bigFive', {
     lastSavedAt: null,
     conflict: false,
     conflictMessage: null,
+    conflictServer: null,
+    conflictChanges: [],
+    conflictLocalRevision: null,
+    conflictLoading: false,
     submitting: false,
     submitError: null,
     incompleteQuestionIds: [],
@@ -108,6 +125,7 @@ export const useBigFiveStore = defineStore('bigFive', {
     pendingCurrentQuestionId: null,
     pendingClears: {},
     generation: 0,
+    createKey: null,
   }),
 
   getters: {
@@ -151,34 +169,63 @@ export const useBigFiveStore = defineStore('bigFive', {
   },
 
   actions: {
-    /** 载入（或重新载入）一份草稿，丢弃本地未保存的改动。 */
-    async load(attemptId: string): Promise<void> {
+    /** 载入草稿；同一份草稿有待同步答案时先核对服务端修订，不静默丢弃。 */
+    async load(attemptId: string, discardPending = false): Promise<void> {
+      const generation = ++this.generation
       this.loading = true
       this.loadError = null
       try {
         const attempt = await fetchPlatformAttempt(attemptId)
+        if (generation !== this.generation) return
+        this.loading = false
+        if (!discardPending && this.attempt?.attemptId === attemptId && this.hasUnsaved) {
+          this.saving = false
+          if (attempt.revision !== this.attempt.revision) {
+            this.conflict = true
+            this.conflictServer = null
+            this.conflictChanges = []
+            this.conflictLocalRevision = null
+            this.conflictMessage = '服务端进度已变化，本机尚未同步的答案仍在。请先对照，再决定是否载入服务端进度。'
+            this.lastSaveError = null
+          } else {
+            this.lastSaveError = '服务端进度已核对，本地改动仍待同步。请点击重新保存。'
+          }
+          return
+        }
         this.adopt(attempt)
       } catch (error) {
+        if (generation !== this.generation) return
         this.loadError = describe(error)
         throw error
       } finally {
-        this.loading = false
+        if (generation === this.generation) this.loading = false
       }
     },
 
     /** 开始一份新测评并接管它。 */
     async start(instrument = 'bigfive50', idempotencyKey?: string): Promise<AttemptView> {
+      const inFlight = creations.get(this)
+      if (inFlight) return inFlight
+      if (!this.createKey) this.createKey = idempotencyKey ?? newIdempotencyKey()
+      const key = this.createKey
+      const generation = this.generation
       this.loading = true
       this.loadError = null
+      const task = createPlatformAttempt({ instrument, idempotencyKey: key })
+      creations.set(this, task)
       try {
-        const attempt = await createPlatformAttempt({ instrument, idempotencyKey })
+        const attempt = await task
+        if (generation !== this.generation) throw new Error('账号或草稿已切换，请重新进入测评列表。')
+        this.loading = false
         this.adopt(attempt)
+        this.createKey = null
         return attempt
       } catch (error) {
-        this.loadError = describe(error)
+        if (generation === this.generation) this.loadError = describe(error)
         throw error
       } finally {
-        this.loading = false
+        if (creations.get(this) === task) creations.delete(this)
+        if (generation === this.generation) this.loading = false
       }
     },
 
@@ -197,6 +244,10 @@ export const useBigFiveStore = defineStore('bigFive', {
       this.lastSaveError = null
       this.conflict = false
       this.conflictMessage = null
+      this.conflictServer = null
+      this.conflictChanges = []
+      this.conflictLocalRevision = null
+      this.conflictLoading = false
       this.submitError = null
       this.incompleteQuestionIds = []
       this.submitResult = null
@@ -292,11 +343,13 @@ export const useBigFiveStore = defineStore('bigFive', {
         return false
       } catch (error) {
         if (generation !== this.generation) return false
-        if (isPlatformError(error) && error.status === 409) {
+        if (isPlatformError(error) && error.code === 'CONFLICT_REVISION') {
           this.conflict = true
+          this.conflictServer = null
+          this.conflictChanges = []
+          this.conflictLocalRevision = null
           this.conflictMessage =
-            '另一台设备已经更新了这份草稿。为避免覆盖那边的答案，这里没有自动重写 —— ' +
-            '请选择重新载入最新版本（本页未保存的改动会丢失）。'
+            '服务端进度已变化，本机改动仍保留。请先核对两边的答案，再决定是否重新应用。'
           return false
         }
         this.lastSaveError = describe(error)
@@ -311,6 +364,104 @@ export const useBigFiveStore = defineStore('bigFive', {
       this.pendingCurrentQuestionId = questionId
     },
 
+    /** 只读服务端最新进度，本机待保存内容不动。 */
+    async inspectConflict(): Promise<boolean> {
+      const attempt = this.attempt
+      if (!attempt || !this.conflict || this.conflictLoading) return false
+      const generation = this.generation
+      this.conflictLoading = true
+      this.lastSaveError = null
+      try {
+        const server = await fetchPlatformAttempt(attempt.attemptId)
+        if (generation !== this.generation || this.attempt?.attemptId !== attempt.attemptId) return false
+        const serverAnswers = new Map(server.answers.map((answer) => [answer.questionId, answer]))
+        const changes: ConflictChange[] = Object.entries(this.answers)
+          .filter(([, answer]) => answer.localRevision > this.lastSavedLocalRevision)
+          .map(([questionId, answer]) => ({ questionId,
+            local: { kind: answer.kind, rating: answer.rating },
+            server: serverAnswers.get(questionId) ?? null }))
+        for (const questionId of Object.keys(this.pendingClears)) {
+          changes.push({ questionId, local: { kind: 'CLEAR', rating: null },
+            server: serverAnswers.get(questionId) ?? null })
+        }
+        this.conflictServer = server
+        this.conflictChanges = changes
+        this.conflictLocalRevision = this.nextLocalRevision
+        return true
+      } catch (error) {
+        if (generation === this.generation) this.lastSaveError = describe(error)
+        return false
+      } finally {
+        if (generation === this.generation) this.conflictLoading = false
+      }
+    },
+
+    /** 默认接受服务端；仅显式勾选的本机题目按核对过的修订重应用。 */
+    async applyConflictChoices(questionIds: string[]): Promise<boolean> {
+      const server = this.conflictServer
+      if (!server || !this.conflict || this.conflictLoading || this.saving) return false
+      if (this.attempt?.attemptId !== server.attemptId) return false
+      const selected = new Set(questionIds)
+      if (selected.size !== questionIds.length ||
+          [...selected].some((id) => !this.conflictChanges.some((change) => change.questionId === id))) return false
+      if (this.conflictLocalRevision !== this.nextLocalRevision) {
+        this.conflictMessage = '核对后本机又有新改动，请重新读取服务端进度并核对。'
+        return false
+      }
+      const generation = this.generation
+      const localRevision = this.nextLocalRevision
+      const changes = this.conflictChanges.filter((change) => selected.has(change.questionId))
+      this.saving = true
+      this.lastSaveError = null
+      try {
+        const latest = await fetchPlatformAttempt(server.attemptId)
+        if (generation !== this.generation || this.attempt?.attemptId !== server.attemptId) return false
+        if (this.nextLocalRevision !== localRevision) {
+          this.conflictMessage = '核对期间本机又有新改动，请重新读取并核对。'
+          return false
+        }
+        if (latest.revision !== server.revision) {
+          this.conflictServer = null
+          this.conflictChanges = []
+          this.conflictLocalRevision = null
+          this.conflictMessage = '服务端在核对期间又有新改动，请重新读取并核对。'
+          return false
+        }
+        if (changes.length) {
+          await patchPlatformAnswers(server.attemptId, {
+            expectedRevision: server.revision,
+            currentQuestionId: null,
+            responses: changes.map((change) => ({ questionId: change.questionId,
+              kind: change.local.kind, rating: change.local.rating })),
+          })
+          if (generation !== this.generation) return false
+        }
+        const confirmed = changes.length ? await fetchPlatformAttempt(server.attemptId) : latest
+        if (generation !== this.generation) return false
+        if (this.nextLocalRevision !== localRevision) {
+          this.conflictServer = null
+          this.conflictChanges = []
+          this.conflictLocalRevision = null
+          this.conflictMessage = '核对期间本机又有新改动，已保留本机答案，请重新读取并核对。'
+          return false
+        }
+        this.adopt(confirmed)
+        return true
+      } catch (error) {
+        if (generation !== this.generation) return false
+        this.lastSaveError = describe(error)
+        if (isPlatformError(error) && error.code === 'CONFLICT_REVISION') {
+          this.conflictServer = null
+          this.conflictChanges = []
+          this.conflictLocalRevision = null
+          this.conflictMessage = '服务端在核对期间又有新改动，请重新读取并核对。'
+        }
+        return false
+      } finally {
+        if (generation === this.generation) this.saving = false
+      }
+    },
+
     /**
      * 解决冲突：丢弃本地未保存改动，重新载入服务端版本。
      *
@@ -321,7 +472,7 @@ export const useBigFiveStore = defineStore('bigFive', {
       const attempt = this.attempt
       if (!attempt) return
       const dropped = this.unsavedCount
-      await this.load(attempt.attemptId)
+      await this.load(attempt.attemptId, true)
       this.lastSaveError =
         dropped > 0 ? `已重新载入服务端版本，本地那 ${dropped} 条未保存的改动已丢弃。` : null
     },
@@ -330,12 +481,14 @@ export const useBigFiveStore = defineStore('bigFive', {
     async submit(): Promise<SubmitResponse | null> {
       const attempt = this.attempt
       if (!attempt || this.submitting) return null
+      const generation = this.generation
       this.submitting = true
       this.submitError = null
       try {
         // 提交前先尝试保存：否则"我明明答完了"与"服务端还缺几题"会同时出现。
         {
           const saved = await this.saveNow()
+          if (generation !== this.generation) return null
           if (!saved) {
             this.submitError = this.conflict
               ? this.conflictMessage
@@ -344,6 +497,7 @@ export const useBigFiveStore = defineStore('bigFive', {
           }
         }
         const result = await submitPlatformAttempt(attempt.attemptId, this.attempt?.revision ?? attempt.revision)
+        if (generation !== this.generation) return null
         this.submitResult = result
         if (result.status === 'INCOMPLETE') {
           this.incompleteQuestionIds = result.incompleteQuestionIds
@@ -358,7 +512,8 @@ export const useBigFiveStore = defineStore('bigFive', {
         }
         return result
       } catch (error) {
-        if (isPlatformError(error) && error.status === 409) {
+        if (generation !== this.generation) return null
+        if (isPlatformError(error) && error.code === 'CONFLICT_REVISION') {
           this.conflict = true
           this.conflictMessage =
             '另一台设备已经更新了这份草稿。请重新载入最新版本后再提交。'
@@ -366,14 +521,30 @@ export const useBigFiveStore = defineStore('bigFive', {
         this.submitError = describe(error)
         return null
       } finally {
-        this.submitting = false
+        if (generation === this.generation) this.submitting = false
       }
     },
 
     /** 离开页面时清掉这一份的状态，避免串到下一份测评上。 */
+    suspendForSession(): void {
+      this.generation += 1
+      this.conflictServer = null
+      this.conflictChanges = []
+      this.conflictLocalRevision = null
+      this.conflictLoading = false
+      creations.delete(this)
+      this.loading = false
+      this.saving = false
+      this.submitting = false
+      this.loadError = null
+      this.lastSaveError = '登录状态已过期，尚未同步的答案仍保留在本页；重新登录后请确认服务端进度。'
+    },
+
     reset(): void {
       this.generation += 1
       saves.delete(this)
+      creations.delete(this)
+      this.createKey = null
       this.attempt = null
       this.answers = {}
       this.loading = false
@@ -383,6 +554,10 @@ export const useBigFiveStore = defineStore('bigFive', {
       this.lastSavedAt = null
       this.conflict = false
       this.conflictMessage = null
+      this.conflictServer = null
+      this.conflictChanges = []
+      this.conflictLocalRevision = null
+      this.conflictLoading = false
       this.submitting = false
       this.submitError = null
       this.incompleteQuestionIds = []

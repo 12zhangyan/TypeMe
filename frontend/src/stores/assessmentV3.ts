@@ -255,6 +255,7 @@ function samePatch(left: AnswerPatch, right: AnswerPatch): boolean {
   return patchSignature(left) === patchSignature(right)
 }
 
+let sessionGeneration = 0
 export const useAssessmentStore = defineStore('assessmentV3', {
   state: (): AssessmentState => ({
     attemptId: null,
@@ -395,17 +396,36 @@ export const useAssessmentStore = defineStore('assessmentV3', {
 
   actions: {
     /** 进入答题页：按 attemptId 恢复（断点续答）。 */
-    async load(attemptId: string): Promise<void> {
+    async load(attemptId: string, discardPending = false): Promise<void> {
+      const generation = ++sessionGeneration
       this.loading = true
       this.lastError = null
       try {
         const detail = await fetchAttemptDetail(attemptId)
+        if (generation !== sessionGeneration) return
+        if (!discardPending && this.attemptId === attemptId && this.listUnconfirmedIds().length > 0) {
+          if (detail.revision !== this.revision) {
+            const pendingQuestionIds = this.listUnconfirmedIds()
+            this.conflict = {
+              currentRevision: detail.revision,
+              message: '服务端进度已变化，本机尚未同步的答案仍在。请先对照，再决定是否载入服务端进度。',
+              pendingQuestionIds,
+              lostAnswers: pendingQuestionIds.map((id) => ({
+                questionId: id,
+                rating: this.answers[id]?.kind === 'rating' ? this.answers[id]?.rating ?? null : null,
+              })),
+            }
+            this.saveState = 'conflict'
+          }
+          return
+        }
         this.applyDetail(detail)
       } catch (error) {
+        if (generation !== sessionGeneration) return
         this.lastError = describeError(error)
         throw error
       } finally {
-        this.loading = false
+        if (generation === sessionGeneration) this.loading = false
       }
     },
 
@@ -418,11 +438,14 @@ export const useAssessmentStore = defineStore('assessmentV3', {
      * 没有任何列表入口，多出来的那份用户根本看不见（A35 / A51）。
      */
     async create(baseReportId?: string | null): Promise<AttemptDetail> {
+      const generation = sessionGeneration
       this.createKey = this.createKey ?? newIdempotencyKey()
       // 键一旦用出去就不再更换：失败时用户重试必须命中同一份草稿（服务端会重放）。
       const key = this.createKey
       const summary = await createAttempt({ baseReportId: baseReportId ?? null, idempotencyKey: key })
+      if (generation !== sessionGeneration) throw new Error('会话已切换，请重新确认当前测评。')
       const detail = await fetchAttemptDetail(summary.attemptId)
+      if (generation !== sessionGeneration) throw new Error('会话已切换，请重新确认当前测评。')
       this.applyDetail(detail)
       this.createKey = null
       return detail
@@ -439,16 +462,19 @@ export const useAssessmentStore = defineStore('assessmentV3', {
      * 只显示"上次答到什么时候"，绝不显示一个猜出来的题数。
      */
     async loadDraftEntry(): Promise<void> {
+      const generation = sessionGeneration
       this.draftsLoading = true
       this.draftsError = null
       try {
         const page = await fetchAttempts({ status: 'draft', size: 20 })
+        if (generation !== sessionGeneration) return
         this.drafts = page.items
         const top = this.drafts.find((draft) => draft.status !== 'SUBMITTED') ?? null
         this.draftProgress = null
         if (top) {
           try {
             const detail = await fetchAttemptDetail(top.attemptId)
+            if (generation !== sessionGeneration) return
             const baseIds = new Set(
               (detail.packageView?.questions ?? [])
                 .filter((question) => question.stage === 'base')
@@ -466,13 +492,14 @@ export const useAssessmentStore = defineStore('assessmentV3', {
           }
         }
       } catch (error) {
+        if (generation !== sessionGeneration) return
         // 读不到就当作"没有草稿可续"，但把原因记下来 —— 首页据此决定是否提示
         // （绝不因此说"你没有未完成的测评"，那是在替服务端撒谎）。
         this.drafts = []
         this.draftProgress = null
         this.draftsError = describeError(error)
       } finally {
-        this.draftsLoading = false
+        if (generation === sessionGeneration) this.draftsLoading = false
       }
     },
 
@@ -558,6 +585,7 @@ export const useAssessmentStore = defineStore('assessmentV3', {
      */
     async flush(): Promise<void> {
       const attemptId = this.attemptId
+      const generation = sessionGeneration
       if (!attemptId) return
       // 冲突未解决前**绝不**再写：这正是"不要静默覆盖"的实现位置。
       if (this.conflict) return
@@ -567,11 +595,11 @@ export const useAssessmentStore = defineStore('assessmentV3', {
         for (let round = 0; round < 3; round += 1) {
           const wrote = await this.sendPending()
           if (!wrote) break
-          if (this.conflict) break
+          if (generation !== sessionGeneration || this.conflict) break
           if (this.listUnconfirmedIds().length === 0) break
         }
       } finally {
-        this.flushing = false
+        if (generation === sessionGeneration) this.flushing = false
       }
     },
 
@@ -582,6 +610,7 @@ export const useAssessmentStore = defineStore('assessmentV3', {
      */
     async sendPending(): Promise<boolean> {
       const attemptId = this.attemptId
+      const generation = sessionGeneration
       if (!attemptId || this.conflict) return false
       const responses: AnswerPatch[] = []
       for (const id of Object.keys(this.unconfirmed)) {
@@ -602,6 +631,7 @@ export const useAssessmentStore = defineStore('assessmentV3', {
           responses,
           currentQuestionId: this.currentQuestionId,
         })
+        if (generation !== sessionGeneration || this.attemptId !== attemptId) return false
         this.revision = result.revision
         this.status = result.status || this.status
         this.clarificationDimensions = [...result.clarificationDimensions]
@@ -642,6 +672,7 @@ export const useAssessmentStore = defineStore('assessmentV3', {
         }
         return true
       } catch (error) {
+        if (generation !== sessionGeneration || this.attemptId !== attemptId) return false
         await this.handleWriteFailure(error, responses)
         return false
       }
@@ -649,6 +680,7 @@ export const useAssessmentStore = defineStore('assessmentV3', {
 
     /** 写入失败（含 409）时的状态收敛。 */
     async handleWriteFailure(error: unknown, responses: AnswerPatch[]): Promise<void> {
+      const generation = sessionGeneration
       if (isRevisionConflict(error)) {
         // 409 有两种完全不同的成因，必须分开处理（第 17 轮）：
         //   (a) 真的是另一台设备改了进度；
@@ -657,6 +689,7 @@ export const useAssessmentStore = defineStore('assessmentV3', {
         // 判据不是猜的：重新读一次服务端的作答，逐条比对。全部一致就说明
         // 服务端已经是我们要的样子，那就是 (b)，不该弹"另一台设备"的横幅。
         if (await this.reconcileAfterConflict()) return
+        if (generation !== sessionGeneration) return
 
         // 先记下这一批（本次要写的 + 之前没写上去的），再清空集合 —— 顺序反了就会丢内容。
         const lostIds = [...new Set([...responses.map((item) => item.questionId), ...Object.keys(this.unconfirmed)])]
@@ -706,12 +739,14 @@ export const useAssessmentStore = defineStore('assessmentV3', {
      */
     async reconcileAfterConflict(): Promise<boolean> {
       const attemptId = this.attemptId
+      const generation = sessionGeneration
       if (!attemptId) return false
       const pendingIds = this.listUnconfirmedIds()
       if (pendingIds.length === 0) return false
       let detail: AttemptDetail
       try {
         detail = await fetchAttemptDetail(attemptId)
+        if (generation !== sessionGeneration || this.attemptId !== attemptId) return false
       } catch {
         // 读不到服务端状态就不能替用户做判断：老老实实按冲突处理。
         return false
@@ -770,7 +805,7 @@ export const useAssessmentStore = defineStore('assessmentV3', {
     async reload(): Promise<void> {
       const attemptId = this.attemptId
       if (!attemptId) return
-      await this.load(attemptId)
+      await this.load(attemptId, true)
       this.saveState =
         this.listUnconfirmedIds().length > 0 ? 'error' : this.savedAtLeastOnce ? 'saved' : 'idle'
     },
@@ -881,6 +916,7 @@ export const useAssessmentStore = defineStore('assessmentV3', {
     },
 
     reset(): void {
+      sessionGeneration++
       this.$reset()
     },
 

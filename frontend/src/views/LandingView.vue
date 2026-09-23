@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { POLE_META } from '@/domain/scoring'
@@ -7,6 +7,8 @@ import { FALLBACK_TYPE_PROFILES } from '@/content/fallback'
 import { UNKNOWN_REASON_LABEL } from '@/domain/answers'
 import { useInstrumentV3Store } from '@/stores/instrumentV3'
 import { useAssessmentStore } from '@/stores/assessmentV3'
+import { fetchMyAttempts, type MyAttemptRow } from '@/api/platformV3'
+import { formatLocalTime } from '@/domain/localTime'
 import type { Dimension } from '@/domain/jung/types'
 import PageContainer from '@/components/PageContainer.vue'
 import PlatformIntro from '@/components/PlatformIntro.vue'
@@ -54,6 +56,42 @@ const instrument = useInstrumentV3Store()
 const assessment = useAssessmentStore()
 const router = useRouter()
 const auth = useAuthStore()
+const platformDraft = ref<MyAttemptRow | null>(null)
+const platformDraftsLoaded = ref(false)
+const platformDraftsLoading = ref(false)
+const platformDraftsError = ref(false)
+let draftGeneration = 0
+
+async function loadPlatformDraft(): Promise<void> {
+  const generation = ++draftGeneration
+  const owner = auth.profile?.userId
+  if (!auth.isAuthenticated || !owner) {
+    platformDraft.value = null
+    platformDraftsLoaded.value = false
+    platformDraftsLoading.value = false
+    return
+  }
+  platformDraftsLoading.value = true
+  platformDraftsError.value = false
+  try {
+    const page = await fetchMyAttempts(0, 1, 'open')
+    if (generation !== draftGeneration || auth.profile?.userId !== owner) return
+    platformDraft.value = page.items[0] ?? null
+    platformDraftsLoaded.value = true
+  } catch {
+    if (generation !== draftGeneration || auth.profile?.userId !== owner) return
+    platformDraftsError.value = true
+  } finally {
+    if (generation === draftGeneration) platformDraftsLoading.value = false
+  }
+}
+
+watch(() => auth.profile?.userId, () => {
+  platformDraft.value = null
+  platformDraftsLoaded.value = false
+  void loadPlatformDraft()
+}, { immediate: true })
+onBeforeUnmount(() => { draftGeneration++ })
 
 /**
  * 新测与账号路由是否已注册。
@@ -76,6 +114,7 @@ const authRoutesReady = computed(() => router.hasRoute('login'))
  */
 const resumeTarget = computed(() => {
   if (!auth.isAuthenticated || !router.hasRoute('assess-attempt')) return null
+  if (platformDraftsLoaded.value) return platformDraft.value
   return assessment.resumableDraft
 })
 
@@ -83,10 +122,10 @@ const resumeTarget = computed(() => {
 const resumeNote = computed(() => {
   const draft = resumeTarget.value
   if (!draft) return ''
-  const when = formatDraftTime(draft.updatedAt)
+  const when = formatLocalTime(draft.updatedAt) || '（时间未记录）'
   const progress = assessment.draftProgress
   const parts: string[] = []
-  if (progress && progress.attemptId === draft.attemptId) {
+  if (progress && progress.attemptId === draft.attemptId && (!('instrumentKind' in draft) || draft.instrumentKind === 'jung')) {
     parts.push(`已答 ${progress.answered}/${progress.baseTotal} 题（主测）`)
   }
   parts.push(`上次答到 ${when}`)
@@ -102,13 +141,6 @@ const resumeNote = computed(() => {
  * <p>`updatedAt` 是服务端给的 ISO-8601（UTC）。这里只做"把时间说清楚"这一件事：
  * 拿不到或解析不了就**不显示时间**（而不是显示 `Invalid Date` 或者现在的时间）。
  */
-function formatDraftTime(iso: string | null): string {
-  if (!iso) return '（时间未记录）'
-  const parsed = new Date(iso)
-  if (Number.isNaN(parsed.getTime())) return '（时间未记录）'
-  const pad = (value: number) => String(value).padStart(2, '0')
-  return `${parsed.getFullYear()} 年 ${parsed.getMonth() + 1} 月 ${parsed.getDate()} 日 ${pad(parsed.getHours())}:${pad(parsed.getMinutes())}`
-}
 
 /** 新测的对外口径 —— 整页唯一的量表口径。 */
 const instrumentFacts = computed(() => instrument.facts)
@@ -306,7 +338,11 @@ onMounted(() => {
 
 <template>
   <PageContainer page="home">
-    <PlatformIntro />
+    <PlatformIntro :resume="resumeTarget" :checking-drafts="platformDraftsLoading" />
+    <div v-if="platformDraftsError" class="notice-error mt-4" role="alert" data-home-drafts-error>
+      还没能确认上次的作答进度。
+      <button type="button" class="btn-secondary btn-sm" @click="loadPlatformDraft">重新读取进度</button>
+    </div>
     <details class="mt-8" :open="!!resumeTarget" data-jung-introduction>
       <summary class="cursor-pointer text-[16px] font-semibold text-ink">十六型测评：答题和报告示例</summary>
       <div class="mt-5">
@@ -368,7 +404,7 @@ onMounted(() => {
               data-primary-entry
               data-resume-entry
             >
-              继续上次没答完的测评
+              继续{{ 'instrumentTitle' in resumeTarget ? resumeTarget.instrumentTitle : '上次没答完的测评' }}
               <AppIcon name="arrow-right" :size="18" />
             </RouterLink>
             <RouterLink

@@ -256,6 +256,10 @@ public final class PlatformDtos {
     public record MyAttemptListResponse(List<MyAttemptRow> items, int page, int size, long total) {
     }
 
+    /** 归属校验后的轻量分流信息，不含题面或答案。 */
+    public record AttemptMetadata(String attemptId, String instrumentKind, String status) {
+    }
+
     /**
      * 我的报告列表里的一行。
      *

@@ -230,7 +230,9 @@ class AttemptIdempotencyIT extends AccountIntegrationTestBase {
         String hash = IdempotencyGuard.fingerprint("create_attempt", null);
 
         guard.claim(account.userId(), "create_attempt", "key-expired", hash);
+        guard.complete(account.userId(), "create_attempt", "key-expired", "synthetic-reference");
         guard.claim(account.userId(), "create_attempt", "key-live", hash);
+        guard.claim(account.userId(), "create_attempt", "key-legacy-incomplete", hash);
         guard.claim(other.userId(), "create_attempt", "key-expired", hash);
 
         // 只把其中一条"变老"：真实场景里它是 24 小时前建的
@@ -239,6 +241,11 @@ class AttemptIdempotencyIT extends AccountIntegrationTestBase {
                  WHERE user_id = ? AND operation = 'create_attempt' AND idempotency_key = ?
                 """, LocalDateTime.now(ZoneOffset.UTC).minusMinutes(1), account.userId(), "key-expired");
         assertThat(backdated).as("必须真的改到那行，否则下面的断言是假通过").isEqualTo(1);
+        jdbc.update("""
+                UPDATE api_idempotency SET expires_at = ?
+                 WHERE user_id = ? AND operation = 'create_attempt' AND idempotency_key = ?
+                """, LocalDateTime.now(ZoneOffset.UTC).minusMinutes(1), account.userId(),
+                "key-legacy-incomplete");
 
         int deleted = guard.deleteExpired(LocalDateTime.now(ZoneOffset.UTC), 500);
 
@@ -248,6 +255,8 @@ class AttemptIdempotencyIT extends AccountIntegrationTestBase {
         assertThat(rowCount(account.userId(), "key-live"))
                 .as("有效期内的记录**绝不能**被清理任务删掉：删了用户的「重试」就会再建一份草稿")
                 .isEqualTo(1);
+        assertThat(rowCount(account.userId(), "key-legacy-incomplete"))
+                .as("历史未完成占用不能被清理后用同一键盲目再建一份草稿").isEqualTo(1);
         assertThat(rowCount(other.userId(), "key-expired"))
                 .as("清理按过期时间过滤，不按用户 —— 但也不该顺手动别人的活记录").isEqualTo(1);
     }

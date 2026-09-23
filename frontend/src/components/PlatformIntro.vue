@@ -6,6 +6,12 @@ import EditorialScene from './EditorialScene.vue'
 import IllustrationFrame from './IllustrationFrame.vue'
 import PersonalityGallery from './PersonalityGallery.vue'
 import InstrumentCard from './InstrumentCard.vue'
+import type { MyAttemptRow } from '@/api/platformV3'
+
+withDefaults(defineProps<{ resume?: MyAttemptRow | { attemptId: string } | null; checkingDrafts?: boolean }>(), {
+  resume: null,
+  checkingDrafts: false,
+})
 
 const instruments = useInstrumentsStore()
 onMounted(() => { void instruments.load() })
@@ -27,7 +33,9 @@ function exploreAssessments(): void {
         <div class="discovery-caption"><span class="editorial-rule" /><p>你如何感受，如何选择，如何与世界相处。<br />给自己一点时间，看见那些还没被命名的部分。</p></div>
         <div class="discovery-actions">
           <button type="button" class="btn-primary" @click="exploreAssessments">找到适合我的测评 <span aria-hidden="true">↗</span></button>
-          <RouterLink to="/assess" class="link-quiet">继续上次的探索</RouterLink>
+          <RouterLink v-if="resume" :to="`/assess/${encodeURIComponent(resume.attemptId)}`" class="link-quiet" data-platform-resume>继续上次的探索</RouterLink>
+          <span v-else-if="checkingDrafts" class="discovery-pending" role="status">正在确认上次进度…</span>
+          <RouterLink v-else to="/assess" class="link-quiet">查看我的测评</RouterLink>
         </div>
       </div>
       <div class="discovery-illustration atelier-cover" aria-hidden="true">

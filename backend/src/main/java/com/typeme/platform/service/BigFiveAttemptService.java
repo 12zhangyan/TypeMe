@@ -6,6 +6,7 @@ import com.typeme.ipip.domain.BigFiveItem;
 import com.typeme.jung.api.JungDtos;
 import com.typeme.jung.domain.JungAnswer;
 import com.typeme.jung.service.AttemptService;
+import com.typeme.jung.service.AttemptCreationWriter;
 import com.typeme.jung.service.IdempotencyGuard;
 import com.typeme.jung.service.JungApiException;
 import com.typeme.jung.service.TimeSource;
@@ -14,6 +15,7 @@ import com.typeme.platform.catalog.AssessmentCatalog;
 import com.typeme.platform.catalog.AssessmentRelease;
 import com.typeme.platform.catalog.InstrumentKind;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,18 +53,20 @@ public class BigFiveAttemptService {
     private final TimeSource time;
     private final IdempotencyGuard idempotency;
     private final AssessmentCatalog catalog;
+    private final AttemptCreationWriter creationWriter;
 
     public BigFiveAttemptService(
             JdbcTemplate jdbc,
             AttemptService attempts,
             TimeSource time,
             IdempotencyGuard idempotency,
-            AssessmentCatalog catalog) {
+            AssessmentCatalog catalog, AttemptCreationWriter creationWriter) {
         this.jdbc = jdbc;
         this.attempts = attempts;
         this.time = time;
         this.idempotency = idempotency;
         this.catalog = catalog;
+        this.creationWriter = creationWriter;
     }
 
     /** 幂等表里的操作名。与十六型的 {@code create_attempt} 分开：两者请求内容不同。 */
@@ -83,7 +87,7 @@ public class BigFiveAttemptService {
         }
         String key = IdempotencyGuard.normalizeKey(idempotencyKey);
         if (key == null) {
-            return createOnce(userId, baseReportId, release);
+            return creationWriter.createWithoutKey(() -> createOnce(userId, baseReportId, release));
         }
         IdempotencyGuard.requireUsableKey(key);
         String hash = IdempotencyGuard.fingerprint(OP_CREATE_ATTEMPT, release.packageId(), baseReportId);
@@ -97,7 +101,10 @@ public class BigFiveAttemptService {
             idempotency.forgetDangling(userId, OP_CREATE_ATTEMPT, key, replayId);
         }
 
-        if (!idempotency.claim(userId, OP_CREATE_ATTEMPT, key, hash)) {
+        try {
+            return creationWriter.create(userId, OP_CREATE_ATTEMPT, key, hash,
+                    () -> createOnce(userId, baseReportId, release), PlatformDtos.AttemptView::attemptId);
+        } catch (DuplicateKeyException collision) {
             String racedId = idempotency.completedRef(userId, OP_CREATE_ATTEMPT, key, hash);
             if (racedId != null) {
                 PlatformDtos.AttemptView raced = findView(userId, racedId);
@@ -105,28 +112,13 @@ public class BigFiveAttemptService {
                     return raced;
                 }
             }
+            if (idempotency.hasStaleClaim(userId, OP_CREATE_ATTEMPT, key)) {
+                throw JungApiException.idempotencyRecoveryRequired();
+            }
             throw JungApiException.idempotencyInProgress();
         }
-
-        PlatformDtos.AttemptView created;
-        try {
-            created = createOnce(userId, baseReportId, release);
-        } catch (RuntimeException ex) {
-            idempotency.release(userId, OP_CREATE_ATTEMPT, key);
-            throw ex;
-        }
-        try {
-            idempotency.complete(userId, OP_CREATE_ATTEMPT, key, created.attemptId());
-        } catch (RuntimeException ex) {
-            // 资源已经建好：标记失败只意味着"下次重放可能再建一份"，不影响这次响应。
-            // 与十六型同一个取舍（见 AttemptService.create 的注释）。
-            org.slf4j.LoggerFactory.getLogger(BigFiveAttemptService.class)
-                    .warn("幂等标记失败（资源已创建，attemptId={}）：{}", created.attemptId(), ex.toString());
-        }
-        return created;
     }
 
-    @Transactional
     public PlatformDtos.AttemptView createOnce(
             String userId, String baseReportId, AssessmentRelease release) {
         Integer packageRows = jdbc.queryForObject(

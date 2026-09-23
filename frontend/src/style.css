@@ -595,7 +595,8 @@
   .page-container[data-page='home'] > header > h1 { font-family: 'Songti SC','SimSun',serif; font-size: 50px; font-weight: 400; }
   .page-container[data-page='home'] > header > p { max-width: 580px; }
   .site-footer { margin-top: 30px; border-top: 1px solid #bdcbb3; background: #edf0e5; }
-  .footer-wordmark { font-family: Georgia,serif; font-style: italic; font-size: clamp(80px,17vw,245px); line-height: 1; letter-spacing: -.07em; color: #244b36; padding-bottom: 38px; border-bottom: 1px solid #becbbb; margin-bottom: 30px; display: flex; align-items: end; justify-content: space-between; }
+  .site-footer > div { container-type: inline-size; }
+  .footer-wordmark { font-family: Georgia,serif; font-style: italic; font-size: clamp(24px,17cqw,245px); line-height: 1; letter-spacing: -.07em; color: #244b36; padding-bottom: 38px; border-bottom: 1px solid #becbbb; margin-bottom: 30px; display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; }
   .footer-wordmark span { font-family: 'Songti SC','SimSun',serif; font-style: normal; font-size: 19px; line-height: 1.7; letter-spacing: .08em; padding-bottom: 10px; }
   @media (min-width: 768px) {
     .assessment-card-five { grid-template-columns: 1.1fr .9fr; }

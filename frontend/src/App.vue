@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
-import { useQuizStore } from '@/stores/quiz'
 import { useAuthStore } from '@/stores/auth'
-import { DEFAULT_PACKAGE_ID, FALLBACK_ASSESSMENT_PACKAGES, FALLBACK_ATTRIBUTION } from '@/content/fallback'
 import { instrumentHasTypeCode } from '@/domain/assessmentPackage'
 import type { Attribution } from '@/domain/contentTypes'
-import { fetchMeta } from '@/api/client'
-import { applyDevSeed } from '@/dev/seed'
+import type { useQuizStore } from '@/stores/quiz'
 import { useInstrumentV3Store } from '@/stores/instrumentV3'
 import { isLegacyEngineRoute, legacyInstrumentTagline } from '@/utils/instrumentNaming'
 import { useAdminProbe } from '@/composables/useAdminProbe'
@@ -33,7 +30,7 @@ import { useAdminProbe } from '@/composables/useAdminProbe'
  * 顶栏写「大五人格倾向自测」、页脚署名指向 IPIP（浏览器验收报告问题 1 / 问题 2）。
  * 现在按路由分开取：见 {@link legacyScope}。
  */
-const quiz = useQuizStore()
+const quiz = shallowRef<ReturnType<typeof useQuizStore> | null>(null)
 const instrument = useInstrumentV3Store()
 const auth = useAuthStore()
 const route = useRoute()
@@ -56,17 +53,16 @@ const accountNotice = ref<string | null>(null)
 const authRoutesReady = computed(() => router.hasRoute('login') && router.hasRoute('account'))
 
 /** 默认包（大五 IPIP-50）的署名：内容包还没装载时也不能先显示另一个量表的许可。 */
-const defaultPackage = FALLBACK_ASSESSMENT_PACKAGES[DEFAULT_PACKAGE_ID]
-const attribution = ref<Attribution>(defaultPackage?.attribution ?? FALLBACK_ATTRIBUTION)
+const attribution = ref<Attribution | null>(null)
 let unbindStorage: (() => void) | null = null
-let metaLoaded = false
+let legacyGeneration = 0
 
 /** 当前内容包的署名；没有装载成功时退回默认包的署名。只用于旧引擎页面。 */
-const activeAttribution = computed<Attribution>(
-  () => quiz.activePackage?.attribution ?? attribution.value,
+const activeAttribution = computed<Attribution | null>(
+  () => quiz.value?.activePackage?.attribution ?? attribution.value,
 )
 const hasTypeCode = computed(() =>
-  quiz.activePackage ? instrumentHasTypeCode(quiz.activePackage) : false,
+  quiz.value?.activePackage ? instrumentHasTypeCode(quiz.value.activePackage) : false,
 )
 
 /**
@@ -79,7 +75,7 @@ const legacyScope = computed(() => isLegacyEngineRoute(route.name))
 
 /** 副标题：旧引擎页面按当前内容包生成；新站页面用新测自己的量表名。 */
 const shellTagline = computed(() =>
-  legacyScope.value ? legacyInstrumentTagline(quiz.activePackage) : '多种测评，帮助你理解自己',
+  legacyScope.value ? legacyInstrumentTagline(quiz.value?.activePackage) : '多种测评，帮助你理解自己',
 )
 
 /** 答题页自己渲染完整的进度与操作区；这里不再重复导航，避免误触清空进度。 */
@@ -134,22 +130,31 @@ watch(
  */
 const startRouteName = computed(() => (router.hasRoute('instruments') ? 'instruments' : 'assess'))
 
-function loadMeta() {
-  if (metaLoaded) return
-  metaLoaded = true
-  void fetchMeta()
-    .then((resolved) => {
-      attribution.value = resolved.data.attribution
-    })
-    .catch(() => {
-      /* 沿用内置署名：BY 义务永远有兜底 */
-    })
-}
+watch(legacyScope, async (active) => {
+  const generation = ++legacyGeneration
+  unbindStorage?.()
+  unbindStorage = null
+  if (!active) {
+    quiz.value = null
+    return
+  }
+  const [{ useQuizStore }, fallback, { fetchMeta }, { applyDevSeed }] = await Promise.all([
+    import('@/stores/quiz'), import('@/content/fallback'), import('@/api/client'), import('@/dev/seed'),
+  ])
+  if (generation !== legacyGeneration) return
+  const current = useQuizStore()
+  quiz.value = current
+  attribution.value = fallback.FALLBACK_ASSESSMENT_PACKAGES[fallback.DEFAULT_PACKAGE_ID]?.attribution ?? fallback.FALLBACK_ATTRIBUTION
+  current.detectLegacy()
+  unbindStorage = current.bindStorageSync()
+  void fetchMeta().then((resolved) => {
+    if (generation === legacyGeneration) attribution.value = resolved.data.attribution
+  }).catch(() => { /* Keep the bundled attribution when the legacy metadata is offline. */ })
+  if (!current.activePackage) void current.load().then(() => applyDevSeed(current))
+  else applyDevSeed(current)
+}, { immediate: true })
 
 onMounted(() => {
-  quiz.detectLegacy()
-  unbindStorage = quiz.bindStorageSync()
-  loadMeta()
   // 新测的对外口径：读一次目录并缓存。未登录（401）或离线时 store 保留内置口径，
   // 页面不会因此空白，也不会退回旧内容包的量表名。
   void instrument.load()
@@ -157,14 +162,10 @@ onMounted(() => {
   // 失败也不提示——连不上服务器时"没确认登录状态"由登录页负责解释。
   void auth.ensureLoaded()
   // 仅开发环境：`?seed=` 写入一份可复现的答卷，用于截图与人工验收（见 dev/seed.ts）
-  if (!quiz.activePackage) {
-    void quiz.load().then(() => applyDevSeed(quiz))
-  } else {
-    applyDevSeed(quiz)
-  }
 })
 
 onBeforeUnmount(() => {
+  legacyGeneration++
   unbindStorage?.()
   unbindStorage = null
 })
@@ -210,9 +211,10 @@ async function onLogout() {
 }
 
 function loadLatest() {
-  quiz.loadLatest()
+  if (!quiz.value) return
+  quiz.value.loadLatest()
   // 载入后重新对齐当前页面的判断：处理完的留在结果页，没处理完的回答题页
-  if (route.name === 'result' && !quiz.isProcessed) void router.replace({ name: 'quiz' })
+  if (route.name === 'result' && !quiz.value.isProcessed) void router.replace({ name: 'quiz' })
 }
 
 /**
@@ -371,7 +373,7 @@ function navPill(active: boolean): string {
     </div>
 
     <!-- 另一标签页改动了这次测试：停止自动覆盖，由用户决定（§10.4） -->
-    <div v-if="quiz.externalChange" class="border-b border-accent-200 bg-accent-100">
+    <div v-if="legacyScope && quiz?.externalChange" class="border-b border-accent-200 bg-accent-100">
       <div class="mx-auto w-full max-w-shell-wide px-3 py-3 tablet:px-6 laptop:px-8">
         <div class="flex flex-wrap items-center justify-between gap-3" role="status">
           <p class="text-[14px] leading-relaxed text-accent-700">
@@ -407,7 +409,7 @@ function navPill(active: boolean): string {
             <p class="text-[13.5px] font-semibold text-ink">TypeMe · {{ shellTagline }}</p>
 
             <!-- 旧引擎页面：署名取当前内容包（OEJTS 非商业 / IPIP 公有领域）。 -->
-            <p v-if="legacyScope" class="fineprint">
+            <p v-if="legacyScope && activeAttribution" class="fineprint">
               题目基于 {{ activeAttribution.source }}（{{ activeAttribution.author }}），依
               <a
                 :href="activeAttribution.licenseUrl"
@@ -433,7 +435,7 @@ function navPill(active: boolean): string {
               这里不出现旧内容包的来源与许可 —— 一份十六型报告顶着 IPIP 大五的署名，
               是浏览器验收报告里的问题 2。
             -->
-            <p v-else class="fineprint" data-new-instrument-attribution>
+            <p v-else-if="!legacyScope" class="fineprint" data-new-instrument-attribution>
               十六型题目与报告文案为本项目自写参考稿；大五使用 IPIP 公有领域题目，中文为项目改写稿。本站
               <strong class="font-medium text-ink-soft">不隶属</strong>
               任何商业人格测评机构，也不是任何机构的官方测评。各量表独立计分，历史报告保留生成时的结果。
@@ -444,7 +446,7 @@ function navPill(active: boolean): string {
             <RouterLink to="/about" class="link-quiet">方法与隐私</RouterLink>
             <RouterLink to="/about#records" class="link-quiet">本地记录</RouterLink>
             <a
-              v-if="legacyScope"
+              v-if="legacyScope && activeAttribution"
               :href="activeAttribution.url"
               target="_blank"
               rel="noopener noreferrer nofollow"

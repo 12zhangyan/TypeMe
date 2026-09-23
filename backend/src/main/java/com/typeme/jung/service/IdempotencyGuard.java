@@ -33,9 +33,8 @@ import java.util.Map;
  * 允许重新占用（先删后插）。没有这条，"服务重启导致这次点击永远失败"会变成一个
  * 只有换客户端才能绕开的死结。
  *
- * <p>刻意不用 `@Transactional` 包住整个流程：占用、创建资源、标记完成是**三个独立事务**。
- * 理由见 {@code AttemptService#create} 的注释 —— 把它们揉进一个事务，
- * 要么拿不到"并发同 key 时谁赢"的原子性，要么让资源创建的回滚牵动幂等记录。
+ * <p>草稿创建由 {@link AttemptCreationWriter} 原子写入；旧的 claim/release 方法
+ * 留给已有记录及其他调用路径兼容，不在新建草稿路径上删除过期处理中记录。
  */
 @Service
 public class IdempotencyGuard {
@@ -136,6 +135,33 @@ public class IdempotencyGuard {
         }
     }
 
+    public boolean hasStaleClaim(String userId, String operation, String key) {
+        Map<String, Object> row = find(userId, operation, key);
+        return row != null && "IN_PROGRESS".equals(row.get("status"))
+                && TimeSource.utcFromJdbc(row.get("created_at"))
+                        .isBefore(time.nowUtc().minus(STALE_AFTER));
+    }
+
+    /** Creation writer calls this inside its transaction; legacy incomplete claims remain untouched. */
+    public void claimFresh(String userId, String operation, String key, String requestHash) {
+        LocalDateTime now = time.nowUtc();
+        jdbc.update("""
+                INSERT INTO api_idempotency
+                  (user_id, operation, idempotency_key, request_hash, response_ref, status, created_at, expires_at)
+                VALUES (?, ?, ?, ?, NULL, 'IN_PROGRESS', ?, ?)
+                """, userId, operation, key, requestHash, now, now.plus(TTL));
+    }
+
+    /** A missing or changed claim is not success; caller rolls the whole creation back. */
+    public int completeClaim(String userId, String operation, String key, String hash, String responseRef) {
+        return jdbc.update("""
+                UPDATE api_idempotency
+                   SET status = 'COMPLETED', response_ref = ?
+                 WHERE user_id = ? AND operation = ? AND idempotency_key = ?
+                   AND request_hash = ? AND status = 'IN_PROGRESS'
+                """, responseRef, userId, operation, key, hash);
+    }
+
     /** 标记完成，并记下这次创建出来的资源 id。 */
     public void complete(String userId, String operation, String key, String responseRef) {
         jdbc.update("""
@@ -195,8 +221,8 @@ public class IdempotencyGuard {
         }
         List<Map<String, Object>> rows = jdbc.queryForList("""
                 SELECT user_id, operation, idempotency_key
-                  FROM api_idempotency
-                 WHERE expires_at < ?
+                 FROM api_idempotency
+                 WHERE expires_at < ? AND status = 'COMPLETED'
                  ORDER BY expires_at
                  LIMIT ?
                 """, now, limit);
@@ -204,7 +230,8 @@ public class IdempotencyGuard {
         for (Map<String, Object> row : rows) {
             deleted += jdbc.update("""
                     DELETE FROM api_idempotency
-                     WHERE user_id = ? AND operation = ? AND idempotency_key = ? AND expires_at < ?
+                     WHERE user_id = ? AND operation = ? AND idempotency_key = ?
+                       AND expires_at < ? AND status = 'COMPLETED'
                     """, row.get("user_id"), row.get("operation"), row.get("idempotency_key"), now);
         }
         return deleted;

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import InstrumentArtwork from '@/components/InstrumentArtwork.vue'
 import { plainBigFiveRow } from '@/domain/plainReport'
+import { formatLocalTime } from '@/domain/localTime'
+import { bigFiveExport } from '@/domain/bigFiveExport'
 import { computed, watch, onBeforeUnmount, ref } from 'vue'
 import AiAnalysisPanel from '@/components/AiAnalysisPanel.vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
@@ -43,6 +45,83 @@ const error = ref<ErrorDisplay | null>(null)
 const detail = ref<ReportDetailView | null>(null)
 const report = ref<BigFiveReportView | null>(null)
 const renderError = ref<string | null>(null)
+const copying = ref(false)
+const downloading = ref(false)
+const actionNotice = ref<string | null>(null)
+const exportModel = computed(() => detail.value && report.value ? bigFiveExport(detail.value, report.value) : null)
+
+async function copySummary(): Promise<void> {
+  const model = exportModel.value
+  if (!model || copying.value) return
+  copying.value = true
+  actionNotice.value = null
+  try {
+    await navigator.clipboard.writeText(model.text)
+    actionNotice.value = '报告摘要已复制。'
+  } catch {
+    actionNotice.value = '自动复制失败，请展开下面的摘要手动复制。'
+  } finally {
+    copying.value = false
+  }
+}
+
+function imageBlob(model: NonNullable<typeof exportModel.value>): Promise<Blob> {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return Promise.reject(new Error('当前浏览器不支持图片导出'))
+  canvas.width = 1080
+  ctx.font = '32px system-ui, sans-serif'
+  const lines: string[] = []
+  for (const paragraph of model.text.split('\n')) {
+    let line = ''
+    for (const char of paragraph) {
+      if (ctx.measureText(line + char).width > 930 && line) {
+        lines.push(line)
+        line = ''
+      }
+      line += char
+    }
+    lines.push(line)
+  }
+  canvas.height = Math.max(1280, 190 + lines.length * 52)
+  ctx.fillStyle = '#F4F6F9'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.fillStyle = '#14617A'
+  ctx.fillRect(0, 0, canvas.width, 16)
+  ctx.fillStyle = '#0D1B2A'
+  ctx.font = '32px system-ui, sans-serif'
+  lines.forEach((line, index) => ctx.fillText(line, 75, 120 + index * 52))
+  return new Promise((resolve, reject) => canvas.toBlob(
+    (blob) => blob ? resolve(blob) : reject(new Error('浏览器未能生成图片')),
+    'image/png',
+  ))
+}
+
+async function downloadImage(): Promise<void> {
+  const model = exportModel.value
+  if (!model || downloading.value) return
+  downloading.value = true
+  actionNotice.value = null
+  try {
+    const blob = await imageBlob(model)
+    const url = URL.createObjectURL(blob)
+    try {
+      const link = document.createElement('a')
+      link.href = url
+      link.download = model.filename
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      actionNotice.value = `已发起下载：${model.filename}`
+    } finally {
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+    }
+  } catch (error) {
+    actionNotice.value = `图片导出失败：${error instanceof Error ? error.message : '未知原因'}。可以复制文字摘要。`
+  } finally {
+    downloading.value = false
+  }
+}
 
 const reportId = computed(() => {
   const value = route.params.reportId
@@ -51,7 +130,7 @@ const reportId = computed(() => {
 
 const createdAtText = computed(() => {
   const raw = detail.value?.createdAt
-  return raw ? raw.replace('T', ' ').slice(0, 19) : ''
+  return raw ? formatLocalTime(raw) : ''
 })
 
 /** 哪几维这次没给出方向。 */
@@ -159,6 +238,23 @@ function distanceLeft(distance: number, rangeLow: number, rangeHigh: number): nu
           这份旧报告保存的分数范围有误，因此暂不显示位置条。原始分与原报告保持不变；完整作答时各方面的正确范围均为 10–50 分。
         </p>
       </header>
+
+      <section class="mt-6 max-w-prose" aria-label="带走这份报告" data-bigfive-export>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="btn-primary btn-sm" :disabled="copying" @click="copySummary">
+            <AppIcon name="copy" :size="16" />{{ copying ? '正在复制…' : '复制报告摘要' }}
+          </button>
+          <button type="button" class="btn-secondary btn-sm" :disabled="downloading" @click="downloadImage">
+            <AppIcon name="download" :size="16" />{{ downloading ? '正在生成…' : '保存摘要图片' }}
+          </button>
+          <RouterLink to="/reports/compare/big-five" class="btn-ghost btn-sm">比较两次大五</RouterLink>
+        </div>
+        <p v-if="actionNotice" class="caption mt-2" role="status">{{ actionNotice }}</p>
+        <details class="mt-3"><summary class="cursor-pointer caption">查看可复制的摘要与图片替代文本</summary>
+          <pre class="mt-2 whitespace-pre-wrap break-words text-[13px] leading-relaxed">{{ exportModel?.text }}</pre>
+          <p class="caption mt-2">图片替代文本：{{ exportModel?.alt }}</p>
+        </details>
+      </section>
 
       <!-- ① 这次的结果 -->
       <section class="mt-8" aria-labelledby="bigfive-dimensions">

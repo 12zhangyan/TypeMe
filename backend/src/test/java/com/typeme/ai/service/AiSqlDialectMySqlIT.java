@@ -169,6 +169,10 @@ class AiSqlDialectMySqlIT {
     }
 
     private static void dropDatabaseQuietly(String database) {
+        if (Boolean.getBoolean("typeme.test.mysql.retainDatabase")) {
+            System.out.println("[AiSqlDialectMySqlIT] retained isolated database: " + database);
+            return;
+        }
         try (Connection connection = DriverManager.getConnection(SERVER_URL, USER, PASSWORD);
              Statement statement = connection.createStatement()) {
             statement.execute("DROP DATABASE IF EXISTS " + database);

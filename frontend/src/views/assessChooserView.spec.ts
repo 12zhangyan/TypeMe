@@ -65,11 +65,14 @@ interface Recorded {
   method: string
   url: string
   body: Record<string, unknown> | undefined
+  key: string | null
 }
 
 let calls: Recorded[] = []
 let drafts: Record<string, unknown>[] = []
 let catalogDelay: Promise<void> | null = null
+let draftsFail = false
+let createFailOnce = false
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -83,7 +86,7 @@ function installFetch(): void {
     const url = typeof input === 'string' ? input : input.toString()
     const method = (init?.method ?? 'GET').toUpperCase()
     const rawBody = typeof init?.body === 'string' ? JSON.parse(init.body) : undefined
-    calls.push({ method, url, body: rawBody })
+    calls.push({ method, url, body: rawBody, key: new Headers(init?.headers).get('Idempotency-Key') })
 
     if (url.includes('/auth/csrf')) {
       return jsonResponse({ token: 'csrf-token', headerName: 'X-XSRF-TOKEN', parameterName: '_csrf' })
@@ -93,9 +96,18 @@ function installFetch(): void {
       return jsonResponse(CATALOG)
     }
     if (method === 'GET' && url.includes('/platform/attempts')) {
-      return jsonResponse({ items: drafts, total: drafts.length, page: 0, size: 50 })
+      if (draftsFail) return jsonResponse({ code: 'SERVICE_UNAVAILABLE', message: '稍后再试' }, 503)
+      const open = url.includes('scope=open')
+        ? drafts.filter((item) => item.status === 'BASE_IN_PROGRESS' || item.status === 'CLARIFICATION_IN_PROGRESS')
+        : drafts
+      const page = Number(new URL(url, 'http://localhost').searchParams.get('page') ?? 0)
+      return jsonResponse({ items: open.slice(page * 50, (page + 1) * 50), total: open.length, page, size: 50 })
     }
     if (method === 'POST' && url.includes('/platform/attempts')) {
+      if (createFailOnce) {
+        createFailOnce = false
+        throw new TypeError('响应丢失')
+      }
       return jsonResponse(
         {
           attemptId: 'attempt-new',
@@ -205,6 +217,8 @@ beforeEach(() => {
   calls = []
   drafts = []
   catalogDelay = null
+  draftsFail = false
+  createFailOnce = false
   installFetch()
 })
 
@@ -262,7 +276,7 @@ describe('/assess 选择页', () => {
   })
 
   it('已有没答完的草稿时，卡片按钮继续那一份，不新建', async () => {
-    drafts = [draft()]
+    drafts = [draft({ status: 'BASE_IN_PROGRESS' })]
     const { wrapper, router } = await mountChooser()
 
     await clickCardStart(wrapper, 'bigfive50')
@@ -272,7 +286,7 @@ describe('/assess 选择页', () => {
   })
 
   it('带 slug 过来时若已有没答完的草稿，继续那一份而不是新建', async () => {
-    drafts = [draft()]
+    drafts = [draft({ status: 'BASE_IN_PROGRESS' })]
     const { router } = await mountChooser('?instrument=bigfive50')
 
     // "等草稿落定"这一条如果没做到，这里会先建一份新草稿：用户答过的 12 题
@@ -289,6 +303,40 @@ describe('/assess 选择页', () => {
     expect(post).toBeTruthy()
     expect(post!.url).toContain('/platform/attempts')
     expect(router.currentRoute.value.params.attemptId).toBe('attempt-new')
+  })
+
+  it('超过一页的开放草稿仍可见，服务端筛选先于分页', async () => {
+    drafts = Array.from({ length: 51 }, (_, index) => draft({
+      attemptId: `attempt-${index}`,
+      status: 'BASE_IN_PROGRESS',
+    }))
+    const { wrapper } = await mountChooser()
+    expect(wrapper.findAll('[data-draft]')).toHaveLength(51)
+    expect(calls.filter((call) => call.url.includes('scope=open'))).toHaveLength(2)
+  })
+
+  it('草稿查询失败时不把失败当成空列表，也不自动创建', async () => {
+    draftsFail = true
+    const { wrapper } = await mountChooser('?instrument=bigfive50')
+    expect(wrapper.find('[data-assess-drafts-retry]').exists()).toBe(true)
+    expect(calls.filter((call) => call.method === 'POST')).toHaveLength(0)
+    expect(wrapper.find('[data-start="bigfive50"]').attributes('disabled')).toBeDefined()
+  })
+
+  it('创建请求响应丢失后重试保持同一键，重复点击不会并发创建', async () => {
+    createFailOnce = true
+    const { wrapper } = await mountChooser()
+    const button = wrapper.find('[data-start="bigfive50"]')
+    await button.trigger('click')
+    await button.trigger('click')
+    await settle()
+    expect(calls.filter((call) => call.method === 'POST')).toHaveLength(1)
+    await button.trigger('click')
+    await settle()
+    const posts = calls.filter((call) => call.method === 'POST')
+    expect(posts).toHaveLength(2)
+    expect(posts[0]?.key).toBeTruthy()
+    expect(posts[1]?.key).toBe(posts[0]?.key)
   })
 })
 

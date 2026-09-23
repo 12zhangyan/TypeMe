@@ -1,22 +1,22 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import LandingView from '@/views/LandingView.vue'
-import QuizView from '@/views/QuizView.vue'
-import ResultView from '@/views/ResultView.vue'
-import AboutView from '@/views/AboutView.vue'
-import LoginView from '@/views/LoginView.vue'
-import RegisterView from '@/views/RegisterView.vue'
-import RecoverView from '@/views/RecoverView.vue'
-import AccountView from '@/views/AccountView.vue'
-import AssessChooserView from '@/views/AssessChooserView.vue'
-import AttemptRouterView from '@/views/AttemptRouterView.vue'
-import InstrumentsView from '@/views/InstrumentsView.vue'
-import InstrumentMethodView from '@/views/InstrumentMethodView.vue'
-import BigFiveReportView from '@/views/BigFiveReportView.vue'
-import ReportV3View from '@/views/ReportV3View.vue'
-import ReportsListView from '@/views/ReportsListView.vue'
-import CompareView from '@/views/CompareView.vue'
-import AdminView from '@/views/AdminView.vue'
 import { useAuthStore } from '@/stores/auth'
+const LandingView = () => import('@/views/LandingView.vue')
+const QuizView = () => import('@/views/QuizView.vue')
+const ResultView = () => import('@/views/ResultView.vue')
+const AboutView = () => import('@/views/AboutView.vue')
+const LoginView = () => import('@/views/LoginView.vue')
+const RegisterView = () => import('@/views/RegisterView.vue')
+const RecoverView = () => import('@/views/RecoverView.vue')
+const AccountView = () => import('@/views/AccountView.vue')
+const AssessChooserView = () => import('@/views/AssessChooserView.vue')
+const AttemptRouterView = () => import('@/views/AttemptRouterView.vue')
+const InstrumentsView = () => import('@/views/InstrumentsView.vue')
+const InstrumentMethodView = () => import('@/views/InstrumentMethodView.vue')
+const BigFiveReportView = () => import('@/views/BigFiveReportView.vue')
+const ReportV3View = () => import('@/views/ReportV3View.vue')
+const ReportsListView = () => import('@/views/ReportsListView.vue')
+const CompareView = () => import('@/views/CompareView.vue')
+const AdminView = () => import('@/views/AdminView.vue')
 
 /**
  * 路由 —— 用 **hash 模式**是刻意的选择：
@@ -136,6 +136,12 @@ export const router = createRouter({
     // 于是把它当成一份 id 为 "compare" 的报告去请求（结果是一个"报告打不开"的 404 页面）。
     // 服务端那边靠 Spring 的"字面量优先于模板变量"消歧，不依赖顺序 —— 两边机制不同。
     {
+      path: '/reports/compare/big-five',
+      name: 'big-five-compare',
+      component: () => import('@/views/BigFiveCompareView.vue'),
+      meta: { title: '大五复测比较 · TypeMe', requiresAuth: true },
+    },
+    {
       path: '/reports/compare',
       name: 'report-compare',
       component: CompareView,
@@ -200,7 +206,8 @@ function safeRedirect(value: unknown, fallback: string): string {
   return value
 }
 
-router.afterEach((to) => {
+router.afterEach((to, _from, failure) => {
+  if (failure) return
   const title = to.meta.title
   if (typeof title === 'string') document.title = title
 })

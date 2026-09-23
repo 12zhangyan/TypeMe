@@ -4,6 +4,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import BigFiveAssessView from './BigFiveAssessView.vue'
+import { useBigFiveStore } from '@/stores/bigFiveV3'
 
 /**
  * 大五答题页的行为测试。
@@ -150,11 +151,8 @@ function makeRouter(): Router {
       {
         path: '/assess/:attemptId',
         name: 'assess-attempt',
-        // 答题页用 `onBeforeRouteLeave` 保存未保存的改动，因此必须挂在
-        // `<router-view>` 之下才拿得到"当前路由记录"（否则 vue-router 会警告，
-        // 而且守卫根本不会生效 —— 测试就测不到离开前保存这件事）。
-        component: { template: '<router-view />' },
-        children: [{ path: '', name: 'assess-attempt-inner', component: BigFiveAssessView }],
+        // 和生产相同：答题页是路由组件的普通子组件，不是路由记录。
+        component: { components: { BigFiveAssessView }, template: '<BigFiveAssessView />' },
       },
       { path: '/instruments', name: 'instruments', component: { template: '<p>列表</p>' } },
       {
@@ -171,7 +169,7 @@ async function mountAssess() {
   const router = makeRouter()
   await router.push(`/assess/${ATTEMPT_ID}`)
   await router.isReady()
-  // 容器只放 `<router-view>`：答题页本身由子路由渲染，这样 `onBeforeRouteLeave` 有效。
+  // 由路由组件渲染普通子组件，避免测试替生产代码制造不存在的组件守卫。
   const wrapper = mount({ template: '<router-view />' }, { global: { plugins: [router] } })
   await flushPromises()
   await flushPromises()
@@ -202,6 +200,25 @@ afterEach(() => {
 })
 
 describe('大五答题页', () => {
+  it('会话失效后能走登录入口，未同步答案不被普通离页弹窗阻断', async () => {
+    server.patch = () => ({
+      status: 401,
+      body: { code: 'UNAUTHENTICATED', message: '登录状态已过期。', requestId: null, details: {} },
+    })
+    const { wrapper, router } = await mountAssess()
+    await choose(wrapper, 5)
+    await wrapper.find('[data-bigfive-next]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-bigfive-session-expired]').exists()).toBe(true)
+    expect(useBigFiveStore().unsavedCount).toBe(1)
+
+    await wrapper.find('[data-bigfive-session-expired] a').trigger('click')
+    await flushPromises()
+    expect(router.currentRoute.value.path).toBe('/login')
+    expect(useBigFiveStore().unsavedCount).toBe(1)
+    expect(wrapper.find('[role="alertdialog"]').exists()).toBe(false)
+  })
+
   it('载入后显示量表名、五档选项与「说不好」，且一开始没有未保存项', async () => {
     const { wrapper } = await mountAssess()
 
@@ -252,7 +269,7 @@ describe('大五答题页', () => {
     ])
   })
 
-  it('409 冲突之后停止自动保存，并给出「重新载入」这一个明确动作', async () => {
+  it('409 修订冲突之后停止自动保存，并提示核对服务端进度', async () => {
     server.patch = () => ({
       status: 409,
       body: { code: 'CONFLICT_REVISION', message: '另一台设备改过这份草稿。' },
@@ -265,7 +282,8 @@ describe('大五答题页', () => {
 
     expect(patchCalls()).toHaveLength(1)
     expect(wrapper.find('[data-bigfive-conflict]').exists()).toBe(true)
-    expect(wrapper.find('[data-bigfive-save-state]').text()).toContain('另一台设备')
+    expect(wrapper.find('[data-bigfive-save-state]').text()).toContain('服务端进度已变化')
+    expect(wrapper.find('[data-bigfive-conflict]').text()).toContain('读取服务端进度并核对')
 
     // 冲突未解决时再选一档 + 换题：**不允许**再发 PATCH。
     // 拿旧 revision 重试只会一直 409；"重试到成功"等于覆盖另一台设备的答案。
@@ -352,5 +370,59 @@ describe('大五答题页', () => {
 
     expect(router.currentRoute.value.name).toBe('big-five-report')
     expect(router.currentRoute.value.params.reportId).toBe('report-bigfive-1')
+  })
+
+  it('冲突先对照服务端与本机，默认不覆盖；勾选后才发送选中的题', async () => {
+    let revision = 3
+    let serverRating: number | null = null
+    server.detail = () => attemptView({ revision, answers: serverRating === null ? [] : [
+      { questionId: 'Q01', kind: 'RATING', rating: serverRating },
+    ] })
+    server.patch = (index) => index === 1
+      ? { status: 409, body: { code: 'CONFLICT_REVISION', message: '进度冲突' } }
+      : { status: 200, body: { revision: ++revision, status: 'DRAFT', answeredCount: 1,
+        requiredCount: 50, answerComplete: false, currentQuestionId: null } }
+    const { wrapper } = await mountAssess()
+    // 首次读取后另一台设备改变这一题。
+    revision = 8
+    serverRating = 3
+    await choose(wrapper, 5)
+    await wrapper.find('[data-bigfive-next]').trigger('click')
+    await flushPromises()
+    await wrapper.find('[data-bigfive-reload]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-bigfive-conflict-choices]').text()).toContain('服务端：')
+    expect(wrapper.find('[data-bigfive-conflict-choices]').text()).toContain('本机：')
+    expect(patchCalls()).toHaveLength(1)
+    await wrapper.find('[data-bigfive-conflict-choices] input[type="checkbox"]').setValue(true)
+    await wrapper.find('[data-bigfive-apply-conflict]').trigger('click')
+    await flushPromises()
+    expect(patchCalls()).toHaveLength(2)
+    expect(patchCalls()[1]!.body?.['expectedRevision']).toBe(8)
+    expect(patchCalls()[1]!.body?.['responses']).toEqual([
+      { questionId: 'Q01', kind: 'RATING', rating: 5 },
+    ])
+  })
+
+  it('嵌套答题页切换草稿时保存失败需明确确认，取消后保留作答', async () => {
+    server.patch = () => ({ status: 503, body: { code: 'UNAVAILABLE', message: '暂时无法保存' } })
+    const { wrapper, router } = await mountAssess()
+    await choose(wrapper, 4)
+
+    const navigation = router.push(`/assess/${ATTEMPT_ID}-other`)
+    await flushPromises()
+    expect(patchCalls()).toHaveLength(1)
+    expect(wrapper.find('[data-bigfive-leave-stay]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('会丢掉这 1 题的改动')
+    await wrapper.find('[data-bigfive-leave-stay]').trigger('click')
+    await navigation
+    expect(router.currentRoute.value.params.attemptId).toBe(ATTEMPT_ID)
+    expect(wrapper.find('[data-bigfive-save-state]').text()).toContain('有 1 题还没保存')
+
+    const leave = router.push('/instruments')
+    await flushPromises()
+    await wrapper.find('[data-bigfive-leave-anyway]').trigger('click')
+    await leave
+    expect(router.currentRoute.value.name).toBe('instruments')
   })
 })

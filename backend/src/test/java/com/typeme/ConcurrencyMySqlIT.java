@@ -2,18 +2,30 @@ package com.typeme;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.typeme.account.repository.DeletionJobRepository;
+import com.typeme.ipip.content.BigFivePackage;
+import com.typeme.ipip.content.BigFivePackageLoader;
 import com.typeme.jung.api.JungDtos;
 import com.typeme.jung.content.JungPackage;
 import com.typeme.jung.content.JungPackageLoader;
 import com.typeme.jung.domain.JungItem;
 import com.typeme.jung.service.AttemptService;
+import com.typeme.jung.service.AttemptCreationWriter;
 import com.typeme.jung.service.IdempotencyGuard;
 import com.typeme.jung.service.ReportService;
 import com.typeme.jung.service.TimeSource;
+import com.typeme.platform.catalog.AssessmentCatalog;
+import com.typeme.platform.catalog.AssessmentRelease;
+import com.typeme.platform.service.PlatformQueryService;
+import com.typeme.platform.service.BigFiveAttemptService;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -31,6 +43,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -40,6 +53,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -82,6 +101,15 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * 写成自动提交就复现不出上面那段时序。
  */
 class ConcurrencyMySqlIT {
+
+    @Configuration
+    @EnableTransactionManagement
+    static class CreationTransactionConfig {
+        @Bean
+        PlatformTransactionManager transactionManager(DataSource source) {
+            return new DataSourceTransactionManager(source);
+        }
+    }
 
     private static final String HOST = System.getProperty("typeme.test.mysql.host", "127.0.0.1");
     private static final String PORT = System.getProperty("typeme.test.mysql.port", "3306");
@@ -140,6 +168,150 @@ class ConcurrencyMySqlIT {
     @BeforeEach
     void requireMySql() {
         assumeTrue(mysqlAvailable, "本机 3306 没有可连的 MySQL，跳过真实并发验证");
+    }
+
+    @Test
+    @DisplayName("真实 MySQL 隔离库：合成报告列表负载的体积、查询计划与服务调用基线")
+    void reportListCostBaselineOnIsolatedMySql() {
+        JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+        String userId = seedUser(jdbc);
+        seedPackage(jdbc);
+        String body = "{\"summary\":\"合成摘要\",\"padding\":\"" + "x".repeat(8192) + "\"}";
+        Timestamp now = Timestamp.from(Instant.now());
+        for (int index = 0; index < 60; index++) {
+            String attemptId = seedAttempt(jdbc, userId);
+            jdbc.update("INSERT INTO assessment_report (id, attempt_id, user_id, status,"
+                            + " computed_type_code, score_json, report_json, report_hash, created_at)"
+                            + " VALUES (?, ?, ?, 'REFERENCE', 'INTJ', '{}', ?, REPEAT('a', 64), ?)",
+                    UUID.randomUUID().toString(), attemptId, userId, body, now);
+        }
+
+        List<Map<String, Object>> plan = jdbc.queryForList("""
+                EXPLAIN SELECT r.id, r.attempt_id, r.status, r.computed_type_code,
+                               r.report_json, r.created_at, a.package_id
+                          FROM assessment_report r
+                          JOIN assessment_attempt a ON a.id = r.attempt_id
+                         WHERE r.user_id = ?
+                         ORDER BY r.created_at DESC, r.id DESC LIMIT 50 OFFSET 0
+                """, userId);
+        Long bytes = jdbc.queryForObject(
+                "SELECT SUM(OCTET_LENGTH(report_json)) FROM assessment_report WHERE user_id = ?",
+                Long.class, userId);
+        PlatformQueryService service = new PlatformQueryService(jdbc,
+                new AssessmentCatalog(new JungPackageLoader(new DefaultResourceLoader()),
+                        new BigFivePackageLoader(new DefaultResourceLoader())),
+                new ObjectMapper(), null);
+        long[] millis = new long[3];
+        for (int pass = 0; pass < millis.length; pass++) {
+            long start = System.nanoTime();
+            var result = service.myReports(userId, 0, 50);
+            millis[pass] = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+            assertThat(result.items()).hasSize(50);
+            assertThat(result.total()).isEqualTo(60);
+            assertThat(result.items()).allSatisfy(row -> assertThat(row.summaryLine()).isEqualTo("合成摘要"));
+        }
+        assertThat(bytes).isNotNull().isGreaterThan(60L * 8192);
+        assertThat(plan).isNotEmpty();
+        System.out.printf("[report-list synthetic baseline] 60 reports; JSON total bytes=%d; "
+                        + "50-row service passes(ms)=%s; EXPLAIN report keys=%s%n",
+                bytes, java.util.Arrays.toString(millis),
+                plan.stream().map(row -> row.get("key")).toList());
+    }
+
+    @Test
+    @DisplayName("真实 MySQL：两种草稿创建在完成幂等记录失败时整体回滚，同键重试只创建一份")
+    void creationCompletionFailureRollsBackOnRealMySql() throws Exception {
+        JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+        String userId = seedUser(jdbc);
+        seedPackage(jdbc);
+        JungPackageLoader jungLoader = new JungPackageLoader(new DefaultResourceLoader());
+        BigFivePackageLoader bigFiveLoader = new BigFivePackageLoader(new DefaultResourceLoader());
+        AssessmentCatalog catalog = new AssessmentCatalog(jungLoader, bigFiveLoader);
+        BigFivePackage bigFive = bigFiveLoader.current();
+        jdbc.update("INSERT INTO assessment_package (package_id, instrument_id, scoring_version,"
+                        + " report_content_version, content_status, content_json, sha256, published_at)"
+                        + " VALUES (?, ?, ?, ?, ?, '{\"questions\":[]}', REPEAT('b', 64), ?)",
+                bigFive.packageId(), bigFive.instrumentId(), bigFive.scoringVersion(),
+                bigFive.reportContentVersion(), bigFive.contentStatus(), Timestamp.from(Instant.now()));
+
+        try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+            context.register(CreationTransactionConfig.class);
+            context.registerBean(DataSource.class, () -> dataSource);
+            context.registerBean(JdbcTemplate.class, () -> jdbc);
+            context.registerBean(TimeSource.class, () -> new TimeSource(jdbc));
+            context.registerBean(IdempotencyGuard.class,
+                    () -> spy(new IdempotencyGuard(jdbc, context.getBean(TimeSource.class))));
+            context.registerBean(AttemptCreationWriter.class,
+                    () -> new AttemptCreationWriter(context.getBean(IdempotencyGuard.class)));
+            context.refresh();
+
+            IdempotencyGuard guard = context.getBean(IdempotencyGuard.class);
+            AttemptCreationWriter writer = context.getBean(AttemptCreationWriter.class);
+            assertThat(org.springframework.aop.support.AopUtils.isAopProxy(writer))
+                    .as("必须经过 Spring 的事务代理").isTrue();
+            AttemptService jung = new AttemptService(jdbc, jungLoader, new TimeSource(jdbc), guard, writer);
+            BigFiveAttemptService big = new BigFiveAttemptService(jdbc, jung, new TimeSource(jdbc),
+                    guard, catalog, writer);
+
+            for (String kind : List.of("jung", "big_five")) {
+                boolean isJung = kind.equals("jung");
+                String operation = isJung ? "create_attempt" : "create_attempt_bigfive";
+                AssessmentRelease release = catalog.defaultRelease(isJung ? "jung48" : "bigfive50");
+                String key = "mysql-completion-failure-" + kind;
+                int before = jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM assessment_attempt WHERE user_id = ?", Integer.class, userId);
+                doThrow(new IllegalStateException("synthetic completion failure"))
+                        .when(guard).completeClaim(eq(userId), eq(operation), eq(key),
+                                anyString(), anyString());
+
+                assertThatThrownBy(() -> {
+                    if (isJung) {
+                        jung.create(userId, null, key, release);
+                    } else {
+                        big.create(userId, null, key, release);
+                    }
+                }).isInstanceOf(IllegalStateException.class).hasMessage("synthetic completion failure");
+                assertEquals(before, jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM assessment_attempt WHERE user_id = ?", Integer.class, userId));
+                assertEquals(0, jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM api_idempotency WHERE user_id = ? AND operation = ?"
+                                + " AND idempotency_key = ?", Integer.class, userId, operation, key));
+
+                reset(guard);
+                String first = isJung ? jung.create(userId, null, key, release).attemptId()
+                        : big.create(userId, null, key, release).attemptId();
+                String replay = isJung ? jung.create(userId, null, key, release).attemptId()
+                        : big.create(userId, null, key, release).attemptId();
+                assertEquals(first, replay);
+                assertEquals(before + 1, jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM assessment_attempt WHERE user_id = ?", Integer.class, userId));
+                assertEquals(first, jdbc.queryForObject(
+                        "SELECT response_ref FROM api_idempotency WHERE user_id = ? AND operation = ?"
+                                + " AND idempotency_key = ? AND status = 'COMPLETED'",
+                        String.class, userId, operation, key));
+
+                String concurrentKey = "mysql-concurrent-" + kind;
+                int beforeRace = jdbc.queryForObject(
+                        "SELECT COUNT(*) FROM assessment_attempt WHERE user_id = ?", Integer.class, userId);
+                ExecutorService pool = Executors.newFixedThreadPool(2);
+                try {
+                    CountDownLatch start = new CountDownLatch(1);
+                    Callable<String> creation = () -> {
+                        start.await();
+                        return isJung ? jung.create(userId, null, concurrentKey, release).attemptId()
+                                : big.create(userId, null, concurrentKey, release).attemptId();
+                    };
+                    Future<String> left = pool.submit(creation);
+                    Future<String> right = pool.submit(creation);
+                    start.countDown();
+                    assertEquals(left.get(30, TimeUnit.SECONDS), right.get(30, TimeUnit.SECONDS));
+                    assertEquals(beforeRace + 1, jdbc.queryForObject(
+                            "SELECT COUNT(*) FROM assessment_attempt WHERE user_id = ?", Integer.class, userId));
+                } finally {
+                    pool.shutdownNow();
+                }
+            }
+        }
     }
 
     /* ── ① 并发提交：报告行对普通一致性读不可见 ─────────────────────────────── */
@@ -336,7 +508,8 @@ class ConcurrencyMySqlIT {
         JungPackageLoader loader = new JungPackageLoader(new DefaultResourceLoader());
         TimeSource time = new TimeSource(jdbc);
         IdempotencyGuard guard = new IdempotencyGuard(jdbc, time);
-        AttemptService attempts = new AttemptService(jdbc, loader, time, guard);
+        AttemptService attempts = new AttemptService(jdbc, loader, time, guard,
+                new com.typeme.jung.service.AttemptCreationWriter(guard));
         return new ReportService(jdbc, loader, attempts, time, new ObjectMapper());
     }
 
@@ -467,6 +640,10 @@ class ConcurrencyMySqlIT {
     }
 
     private static void dropDatabaseQuietly() {
+        if (Boolean.getBoolean("typeme.test.mysql.retainDatabase")) {
+            System.out.println("[ConcurrencyMySqlIT] retained isolated database: " + DATABASE);
+            return;
+        }
         try (Connection connection = DriverManager.getConnection(SERVER_URL, USER, PASSWORD);
              Statement statement = connection.createStatement()) {
             statement.execute("DROP DATABASE IF EXISTS `" + DATABASE + "`");

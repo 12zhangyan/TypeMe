@@ -7,6 +7,7 @@ import { describeError, type ErrorDisplay } from '@/api/v3'
 import { fetchMyAttempts, type InstrumentCard, type MyAttemptRow } from '@/api/platformV3'
 import { useInstrumentsStore } from '@/stores/instrumentsV3'
 import { useBigFiveStore } from '@/stores/bigFiveV3'
+import { formatLocalTime } from '@/domain/localTime'
 import { useAssessmentStore } from '@/stores/assessmentV3'
 
 /**
@@ -63,7 +64,6 @@ const cards = computed(() => instruments.items)
 /** 未答完的草稿（时间倒序，最近动过的在最前）。 */
 const openDrafts = computed(() =>
   [...drafts.value]
-    .filter((draft) => draft.status !== 'SUBMITTED')
     .sort((left, right) => (right.updatedAt ?? '').localeCompare(left.updatedAt ?? '')),
 )
 
@@ -83,11 +83,24 @@ onMounted(() => {
 })
 
 async function loadDrafts(): Promise<void> {
+  if (draftsLoading.value) return
   draftsLoading.value = true
+  draftsLoaded.value = false
   draftsError.value = null
   try {
-    const page = await fetchMyAttempts(0, 50)
-    drafts.value = page.items.filter((item) => item.status !== 'SUBMITTED')
+    const found: MyAttemptRow[] = []
+    let pageIndex = 0
+    let total = 0
+    do {
+      const page = await fetchMyAttempts(pageIndex, 50, 'open')
+      if (page.items.length === 0 && found.length < page.total) {
+        throw new Error('草稿列表未能完整载入，请重试。')
+      }
+      found.push(...page.items)
+      total = page.total
+      pageIndex += 1
+    } while (found.length < total)
+    drafts.value = found
   } catch (error) {
     drafts.value = []
     draftsError.value = describeError(error)
@@ -99,6 +112,7 @@ async function loadDrafts(): Promise<void> {
 
 /** 开始（或继续）一项测评。 */
 async function start(slug: string): Promise<void> {
+  if (starting.value || draftsLoading.value || !draftsLoaded.value || draftsError.value) return
   // 已经有没答完的草稿时**继续那一份**，不要再建一份新的。
   //
   // 建新草稿的代价不是多一行数据：用户在旧草稿上答过的题会留在那里，
@@ -142,7 +156,7 @@ watch(
     if (autoStartHandled.value) return
     const slug = typeof route.query.instrument === 'string' ? route.query.instrument : null
     if (!slug) return
-    if (!instruments.attempted || !draftsLoaded.value) return
+    if (!instruments.attempted || !draftsLoaded.value || draftsError.value) return
     autoStartHandled.value = true
     if (!instruments.bySlug(slug)) {
       // 未知 slug 不静默忽略：URL 里带了一个不存在的量表，用户需要知道为什么没反应。
@@ -179,7 +193,7 @@ function draftStatusLabel(status: string): string {
 }
 
 function formatTime(iso: string | null): string {
-  return iso ? iso.replace('T', ' ').slice(0, 16) : '（没有记录时间）'
+  return formatLocalTime(iso)
 }
 
 function minutesText(card: InstrumentCard): string {
@@ -288,7 +302,7 @@ function minutesText(card: InstrumentCard): string {
             <button
               type="button"
               class="btn-primary btn-sm"
-              :disabled="starting !== null"
+               :disabled="starting !== null || !draftsLoaded || draftsLoading || draftsError !== null"
               :data-start="card.slug"
               @click="start(card.slug)"
             >

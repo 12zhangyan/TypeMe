@@ -189,18 +189,27 @@ public class PlatformController {
 
     /* ── 我的测评 / 我的报告 / 报告详情 ─────────────────────────────────── */
 
+    @GetMapping("/attempts/{attemptId}/metadata")
+    public ResponseEntity<PlatformDtos.AttemptMetadata> attemptMetadata(
+            @PathVariable("attemptId") String attemptId) {
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(queries.attemptMetadata(requireUser(), attemptId));
+    }
+
     @GetMapping("/attempts")
     public ResponseEntity<PlatformDtos.MyAttemptListResponse> myAttempts(
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size) {
-        return ResponseEntity.ok(queries.myAttempts(requireUser(), page, size));
+            @RequestParam(name = "size", defaultValue = "20") int size,
+            @RequestParam(name = "scope", required = false) String scope) {
+        return ResponseEntity.ok(queries.myAttempts(requireUser(), page, size, scope));
     }
 
     @GetMapping("/reports")
     public ResponseEntity<PlatformDtos.MyReportListResponse> myReports(
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size) {
-        return ResponseEntity.ok(queries.myReports(requireUser(), page, size));
+            @RequestParam(name = "size", defaultValue = "20") int size,
+            @RequestParam(name = "kind", required = false) String kind) {
+        return ResponseEntity.ok(queries.myReports(requireUser(), page, size, kind));
     }
 
     /** 报告详情：**原样**返回提交时冻结的快照，同时给出渲染需要的量表与种类信息。 */

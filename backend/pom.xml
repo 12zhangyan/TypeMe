@@ -118,6 +118,25 @@
 
   <build>
     <plugins>
+      <!-- Vite hashes filenames. A repeated Maven build must not ship old bundles
+           left in target/classes/static by an earlier frontend/dist snapshot. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clean-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>clear-stale-frontend-resources</id>
+            <phase>generate-resources</phase>
+            <goals><goal>clean</goal></goals>
+            <configuration>
+              <excludeDefaultDirectories>true</excludeDefaultDirectories>
+              <filesets>
+                <fileset><directory>${frontend.output.dir}</directory></fileset>
+              </filesets>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
