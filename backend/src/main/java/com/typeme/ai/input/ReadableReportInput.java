@@ -11,13 +11,27 @@ import java.util.Map;
 
 /** 通俗解释只发送固定报告的维度证据；不发送原始答卷或字母推导的过程结构。 */
 public final class ReadableReportInput {
-    public static final String PROMPT_VERSION = "typeme-ai-prompt-v4";
-    public static final java.util.Set<String> PROMPT_VERSIONS = java.util.Set.of("typeme-ai-prompt-v3", PROMPT_VERSION);
+    public static final String PROMPT_VERSION = "typeme-ai-prompt-v5";
+    public static final java.util.Set<String> PROMPT_VERSIONS = java.util.Set.of("typeme-ai-prompt-v3", "typeme-ai-prompt-v4", PROMPT_VERSION);
 
     public static boolean supports(String version) {
         return version != null && PROMPT_VERSIONS.contains(version);
     }
     public static final String SCHEMA_VERSION = "analysis-readable-v2";
+    public static final String GUIDED_SCHEMA_VERSION = "analysis-guided-v3";
+
+    public static String schemaVersion(String promptVersion) {
+        return PROMPT_VERSION.equals(promptVersion) ? GUIDED_SCHEMA_VERSION : SCHEMA_VERSION;
+    }
+
+    /** 仅新版收紧方向证据，历史任务保持原来的输入与校验白名单。 */
+    public static List<String> validationEvidenceIds(AiReportInput input) {
+        if (!PROMPT_VERSION.equals(input.promptVersion())) return input.evidenceIds();
+        Object ids = input.payload().get("usableEvidenceIds");
+        if (!(ids instanceof List<?> list)) throw new IllegalStateException("缺少可解释证据范围");
+        return list.stream().map(String.class::cast).toList();
+    }
+
     public static final String SCOPE_VERSION = "typeme-ai-scope-v3";
     private static final Map<String, String> MEANINGS = Map.of(
             "EI", "交流与独处的偏好，不是社交能力",
@@ -43,6 +57,7 @@ public final class ReadableReportInput {
         List<String> codes = bigFive ? List.of("E", "A", "C", "ES", "O") : List.of("EI", "SN", "TF", "JP");
         var evidence = new ArrayList<AiReportInput.Evidence>();
         var rows = new ArrayList<Map<String, Object>>();
+        var usableEvidenceIds = new ArrayList<String>();
         for (String code : codes) {
             JsonNode found = null;
             for (JsonNode row : body.path("dimensions")) {
@@ -60,6 +75,9 @@ public final class ReadableReportInput {
                 if (found.has(field)) row.put(field, mapper.convertValue(found.get(field), Object.class));
             }
             rows.add(row);
+            boolean usable = bigFive ? found.path("hasResult").asBoolean(false)
+                    : found.path("nFinal").asInt(0) > 0 && found.path("mFinal").isNumber();
+            if (usable) usableEvidenceIds.add(code + ":summary");
             String text = row.toString();
             evidence.add(new AiReportInput.Evidence(code + ":summary", text, code, null, null, rows.size()));
         }
@@ -75,7 +93,8 @@ public final class ReadableReportInput {
         payload.put("report", report);
         payload.put("evidence", evidence.stream().map(AiReportInput.Evidence::asPayload).toList());
         payload.put("userNote", normalizedNote);
-        payload.put("outputSchema", schema(mapper));
+        payload.put("outputSchema", schema(mapper, promptVersion));
+        if (PROMPT_VERSION.equals(promptVersion)) payload.put("usableEvidenceIds", List.copyOf(usableEvidenceIds));
         String hash = AiHashes.sha256(String.join("|", snapshot.userId(), snapshot.reportHash(),
                 promptVersion, model, topic.wire(), AiHashes.sha256(normalizedNote), SCOPE_VERSION));
         return new AiReportInput(snapshot.userId(), snapshot.reportId(), snapshot.reportHash(), type,
@@ -84,8 +103,8 @@ public final class ReadableReportInput {
                 evidence.stream().map(AiReportInput.Evidence::id).toList());
     }
 
-    private static JsonNode schema(ObjectMapper mapper) {
-        try (var stream = ReadableReportInput.class.getResourceAsStream("/ai/schemas/analysis-readable-v2.json")) {
+    private static JsonNode schema(ObjectMapper mapper, String promptVersion) {
+        try (var stream = ReadableReportInput.class.getResourceAsStream("/ai/schemas/" + schemaVersion(promptVersion) + ".json")) {
             if (stream == null) throw new IllegalStateException("缺少通俗分析契约");
             return mapper.readTree(stream);
         } catch (java.io.IOException ex) { throw new IllegalStateException("无法读取通俗分析契约", ex); }

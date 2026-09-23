@@ -5,6 +5,8 @@ import {
   AI_SCOPE_VERSION,
   aiFailureHint,
   fetchAiStatus,
+  fetchAnalysis,
+  evidenceLabels,
   isRetryable,
   isRunning,
   parseAnalysisResult,
@@ -272,5 +274,35 @@ describe('fetchAiStatus 的字段默认值', () => {
     const status = await fetchAiStatus()
 
     expect(status.remainingToday).toBe(0)
+  })
+})
+
+const guidedOutput = {
+  schemaVersion: 'analysis-guided-v3', referenceType: null, summary: '两边差别不大，先观察具体场景。',
+  observations: [{ title: '看看交流后的感受', plainText: '精力方向暂时不选边。', example: '如果聊天后想独处，可以留意人数和话题。', checkQuestion: '有没有一次感受相反？', evidenceIds: ['EI:summary'] }],
+  suggestedAction: { what: '记一次交流。', why: '核对这次平分的方向。', when: '下次聊天后。', observe: '看看场景有什么不同。', evidenceIds: ['EI:summary'] },
+  limitations: ['平分不推导完整类型。'],
+}
+
+describe('引导版分析与历史正文', () => {
+  afterEach(() => vi.unstubAllGlobals())
+  it('保留发现标题、证据、场景、核对问题与行动含义', () => {
+    const result = parseAnalysisResult(guidedOutput)!
+    expect(result.sections[0]).toMatchObject({ title: '看看交流后的感受', body: '精力方向暂时不选边。', example: guidedOutput.observations[0]!.example, checkQuestion: '有没有一次感受相反？', evidenceIds: ['EI:summary'] })
+    expect(result.actions[0]).toMatchObject({ why: '核对这次平分的方向。', stepLabels: ['怎么做', '何时试', '观察什么'] })
+    expect(evidenceLabels(['EI:summary', 'ES:summary', 'made-up', 'EI:summary'])).toEqual(['精力方向', '情绪稳定性'])
+  })
+  it('拒绝没有核对问题、没有依据的行动和额外字段', () => {
+    expect(parseAnalysisResult({ ...guidedOutput, observations: [{ ...guidedOutput.observations[0], checkQuestion: '' }] })).toBeNull()
+    expect(parseAnalysisResult({ ...guidedOutput, suggestedAction: { ...guidedOutput.suggestedAction, evidenceIds: ['TF:summary'] } })).toBeNull()
+    expect(parseAnalysisResult({ ...guidedOutput, unexpected: true })).toBeNull()
+    expect(parseAnalysisResult({ ...guidedOutput, observations: [], suggestedAction: null })).not.toBeNull()
+  })
+  it.each(['FAILED', 'UNKNOWN', 'QUEUED', 'RUNNING'])('%s 接口仍读出服务器保留的旧正文', async status => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ jobId: 'j', reportId: 'r', status, result: guidedOutput }), { headers: { 'content-type': 'application/json' } })))
+    const job = await fetchAnalysis('j')
+    expect(job.status).toBe(status)
+    expect(job.result?.summary).toBe(guidedOutput.summary)
+    expect(job.resultProblems).toEqual([])
   })
 })

@@ -170,7 +170,7 @@ public record TypemeProperties(
             baseUrl = baseUrl == null ? "" : baseUrl.trim();
             apiKey = apiKey == null ? "" : apiKey.trim();
             model = model == null || model.isBlank() ? "deepseek-chat" : model;
-            promptVersion = promptVersion == null || promptVersion.isBlank() ? "typeme-ai-prompt-v4" : promptVersion;
+            promptVersion = promptVersion == null || promptVersion.isBlank() ? "typeme-ai-prompt-v5" : promptVersion;
             dailyLimitPerUser = dailyLimitPerUser <= 0 ? 10 : dailyLimitPerUser;
             retryLimitPerHour = retryLimitPerHour <= 0 ? 5 : retryLimitPerHour;
             globalDailyCallBudget = globalDailyCallBudget <= 0 ? 500 : globalDailyCallBudget;
@@ -182,7 +182,7 @@ public record TypemeProperties(
         }
 
         static Ai defaults() {
-            return new Ai(false, "", "", "deepseek-chat", "typeme-ai-prompt-v4",
+            return new Ai(false, "", "", "deepseek-chat", "typeme-ai-prompt-v5",
                     10, 5, 500, 2_000_000L, 4, 5_000, 60_000, 2_000, false);
         }
     }

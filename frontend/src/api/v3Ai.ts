@@ -31,7 +31,7 @@ export type AnalysisTopic = 'overall' | 'communication' | 'studyWork' | 'growth'
 
 /** 主题的中文名与一句说明。顺序即界面顺序。 */
 export const ANALYSIS_TOPICS: { value: AnalysisTopic; label: string; hint: string }[] = [
-  { value: 'overall', label: '全面认识自己', hint: '把四维放一起看，先给一个整体印象。' },
+  { value: 'overall', label: '全面认识自己', hint: '结合各方面的回答，找到值得留意的习惯。' },
   { value: 'communication', label: '沟通相处', hint: '和别人来往时，你的表达与理解方式。' },
   { value: 'studyWork', label: '学习工作方式', hint: '怎么进入状态、怎么推进一件事。' },
   { value: 'growth', label: '成长建议', hint: '接下来可以练什么、避开什么。' },
@@ -62,10 +62,10 @@ export const AI_SCOPE_VERSION = 'typeme-ai-scope-v3'
 
 /**
  * 与后端 ReadableReportInput 的显式版本集合保持一致。
- * v3/v4 共用输出契约与发送范围；未知版本不能按版本大小猜测兼容性。
+ * v3/v4 使用旧可读输出，v5 使用引导版输出；三者共用维度摘要发送范围。未知版本不能按大小猜测兼容性。
  */
-export const READABLE_PROMPT_VERSION = 'typeme-ai-prompt-v4'
-export const READABLE_PROMPT_VERSIONS = ['typeme-ai-prompt-v3', READABLE_PROMPT_VERSION] as const
+export const READABLE_PROMPT_VERSION = 'typeme-ai-prompt-v5'
+export const READABLE_PROMPT_VERSIONS = ['typeme-ai-prompt-v3', 'typeme-ai-prompt-v4', READABLE_PROMPT_VERSION] as const
 
 export function isReadablePromptVersion(version: string | null | undefined): boolean {
   return READABLE_PROMPT_VERSIONS.some((known) => known === version)
@@ -92,11 +92,17 @@ export interface AnalysisSection {
   key: string
   title: string
   body: string
+  example?: string
+  checkQuestion?: string
+  evidenceIds?: string[]
 }
 
 export interface AnalysisAction {
   title: string
   steps: string[]
+  why?: string
+  stepLabels?: string[]
+  evidenceIds?: string[]
 }
 
 export interface AnalysisResultView {
@@ -125,7 +131,7 @@ export interface AnalysisResultView {
  */
 export function parseAnalysisResult(raw: unknown): AnalysisResultView | null {
   if (!isRecord(raw)) return null
-  if (raw['schemaVersion'] === 'analysis-readable-v2') return parseReadableAnalysis(raw)
+  if (raw['schemaVersion'] === 'analysis-readable-v2' || raw['schemaVersion'] === 'analysis-guided-v3') return parseReadableAnalysis(raw)
   const problems: string[] = []
 
   // schemaVersion 只做**提示**，不做拒绝：未知版本意味着前端比后端旧，
@@ -179,10 +185,21 @@ export function parseAnalysisResult(raw: unknown): AnalysisResultView | null {
   }
 }
 
+
+/** 证据引用只映射已知维度，不把模型生成的 ID 当文案显示。 */
+const EVIDENCE_LABELS: Record<string, string> = {
+  'EI:summary': '精力方向', 'SN:summary': '信息取向', 'TF:summary': '决策依据', 'JP:summary': '生活节奏',
+  'E:summary': '外向性', 'A:summary': '宜人性', 'C:summary': '尽责性', 'ES:summary': '情绪稳定性', 'O:summary': '开放性',
+}
+export function evidenceLabels(ids: string[] = []): string[] {
+  return [...new Set(ids.map(id => EVIDENCE_LABELS[id]).filter((label): label is string => !!label))]
+}
+
 /* ── 任务 ───────────────────────────────────────────────────────────────── */
 
 /** 新契约整份校验；旧分析继续走原解析器。 */
 function parseReadableAnalysis(raw: Record<string, unknown>): AnalysisResultView | null {
+  const guided = raw.schemaVersion === 'analysis-guided-v3'
   const text = (value: unknown, max: number): value is string =>
     typeof value === 'string' && value.trim().length > 0 && value.length <= max
   const ids = (value: unknown): boolean => Array.isArray(value) && value.length > 0 && value.length <= 8 &&
@@ -191,31 +208,41 @@ function parseReadableAnalysis(raw: Record<string, unknown>): AnalysisResultView
     Object.keys(value).length === keys.length && keys.every(key => Object.prototype.hasOwnProperty.call(value, key))
   if (!exact(raw, ['schemaVersion', 'referenceType', 'summary', 'observations', 'suggestedAction', 'limitations'])) return null
   if (raw.referenceType !== null && (typeof raw.referenceType !== 'string' || !/^[EI][SN][TF][JP]$/.test(raw.referenceType))) return null
-  if (!text(raw.summary, 200) || !Array.isArray(raw.observations) || raw.observations.length > 2) return null
+  if (!text(raw.summary, guided ? 240 : 200) || !Array.isArray(raw.observations) || raw.observations.length > (guided ? 3 : 2)) return null
   if (!Array.isArray(raw.limitations) || raw.limitations.length < 1 || raw.limitations.length > 4 ||
-      !raw.limitations.every(value => text(value, 160))) return null
+      !raw.limitations.every(value => text(value, guided ? 180 : 160))) return null
   const sections: AnalysisSection[] = []
   for (const [index, item] of raw.observations.entries()) {
-    if (!isRecord(item) || !exact(item, ['plainText', 'example', 'evidenceIds']) ||
-        !text(item.plainText, 180) || (item.example !== null && !text(item.example, 120)) || !ids(item.evidenceIds)) return null
-    sections.push({ key: `observation-${index}`, title: '为什么这样说',
-      body: item.plainText + (item.example ? `\n${item.example}` : '') })
+    const fields = guided ? ['title', 'plainText', 'example', 'checkQuestion', 'evidenceIds']
+      : ['plainText', 'example', 'evidenceIds']
+    if (!isRecord(item) || !exact(item, fields) || !text(item.plainText, guided ? 220 : 180) ||
+        !ids(item.evidenceIds)) return null
+    if (guided && (!text(item.title, 36) || !text(item.example, 160) || !text(item.checkQuestion, 100))) return null
+    if (!guided && item.example !== null && !text(item.example, 120)) return null
+    sections.push({ key: `observation-${index}`, title: guided ? item.title as string : '为什么这样说',
+      body: guided ? item.plainText : item.plainText + (item.example ? '\n' + item.example : ''),
+      ...(guided ? { example: item.example as string, checkQuestion: item.checkQuestion as string } : {}),
+      evidenceIds: item.evidenceIds as string[] })
   }
   const actions: AnalysisAction[] = []
   const action = raw.suggestedAction
   if (action !== null) {
-    if (!isRecord(action) || !exact(action, ['what', 'when', 'observe', 'evidenceIds']) ||
-        !text(action.what, 120) || !text(action.when, 120) || !text(action.observe, 120) || !ids(action.evidenceIds)) return null
-    actions.push({ title: '可以试一次', steps: [action.what, action.when, action.observe] })
+    const fields = guided ? ['what', 'why', 'when', 'observe', 'evidenceIds'] : ['what', 'when', 'observe', 'evidenceIds']
+    if (!isRecord(action) || !exact(action, fields) ||
+        !text(action.what, 120) || !text(action.when, 120) || !text(action.observe, guided ? 160 : 120) || !ids(action.evidenceIds)) return null
+    if (guided && (!text(action.why, 160) || !(action.evidenceIds as string[]).every(id => sections.some(section => section.evidenceIds?.includes(id))))) return null
+    actions.push({ title: '可以试一次', steps: [action.what, action.when, action.observe],
+      stepLabels: ['怎么做', '何时试', '观察什么'], evidenceIds: action.evidenceIds as string[],
+      ...(guided ? { why: action.why as string } : {}) })
   }
-  return { schemaVersion: 'analysis-readable-v2', referenceType: raw.referenceType as string | null,
+  return { schemaVersion: raw.schemaVersion as string, referenceType: raw.referenceType as string | null,
     summary: raw.summary, sections, boundaryNotes: raw.limitations as string[], actions,
     reflectionQuestions: [], problems: [] }
 }
 
 /**
  * 任务状态。`QUEUED` / `RUNNING` 是"还在跑"，`SUCCEEDED` 是终态，
- * `FAILED` / `UNKNOWN` 可重试（契约 §2 的 retry 只接受这两种）。
+ * `FAILED` / `UNKNOWN` 可重试；成功后的显式重新生成也复用 retry 端点。
  */
 export type AnalysisStatus = 'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'UNKNOWN'
 
@@ -231,7 +258,7 @@ export interface AnalysisJob {
   attemptCount: number
   createdAt: string | null
   finishedAt: string | null
-  /** 未成功时为 null；成功但结构读不出来时也是 null（另给 `resultProblems`）。 */
+  /** 可包含重生成前的成功正文；没有正文或结构无法解析时为 null（另给 resultProblems）。 */
   result: AnalysisResultView | null
   /** `result` 明明有内容却读不出来时的一句话说明。 */
   resultProblems: string[]
@@ -258,7 +285,7 @@ function readJob(raw: unknown): AnalysisJob {
     throw unexpectedResponse('AI 分析接口返回的任务没有编号。')
   }
   const status = parseStatus(raw['status'])
-  const parsed = status === 'SUCCEEDED' ? parseAnalysisResult(raw['result']) : null
+  const parsed = parseAnalysisResult(raw['result'])
   return {
     jobId,
     reportId: readText(raw['reportId']) ?? '',
@@ -278,7 +305,7 @@ function readJob(raw: unknown): AnalysisJob {
       // 会走成**零提示的空成功**：面板渲染 `data-ai-result` 却没有正文也没有说明。
       // 那种响应在当前后端产生不了（校验器拒绝非对象），但"只有后端恰好不这么干才不出问题"
       // 不是一条能依赖的性质 —— 少一个条件比多一个条件更安全。
-      status === 'SUCCEEDED' && parsed === null
+      (status === 'SUCCEEDED' || raw['result'] != null) && parsed === null
         ? ['这份分析的输出没能被当前页面解析出来（可能是旧版本的输出格式）。']
         : (parsed?.problems ?? []),
     mock: raw['mock'] === true,
@@ -415,7 +442,7 @@ export interface RetryAnalysisResult {
   attemptCount: number
 }
 
-/** `POST /analyses/{id}/retry` —— 只对 FAILED / UNKNOWN 有效；不新建任务行。 */
+/** `POST /analyses/{id}/retry` —— 失败重试或成功后重新生成，均复用原任务行。 */
 export async function retryAnalysis(jobId: string, signal?: AbortSignal): Promise<RetryAnalysisResult> {
   const response = await v3Request('POST', `/analyses/${encodeURIComponent(jobId)}/retry`, {
     body: {},

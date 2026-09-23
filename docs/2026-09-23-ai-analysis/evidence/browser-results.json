@@ -1,0 +1,2286 @@
+{
+  "scope": "frontend production build; synthetic reports; all APIs mocked; external network blocked",
+  "checks": [
+    {
+      "label": "readable source dimension",
+      "passed": true
+    },
+    {
+      "label": "self-check question visible",
+      "passed": true
+    },
+    {
+      "label": "action rationale visible",
+      "passed": true
+    },
+    {
+      "label": "result-jung-v2-320: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "action-jung-v2-320: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "focus moved into confirmation",
+      "passed": true
+    },
+    {
+      "label": "dimension-only sending range",
+      "passed": true
+    },
+    {
+      "label": "explicit consent required",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "unchanged consent scope",
+      "passed": true
+    },
+    {
+      "label": "submitted selected topic",
+      "passed": true
+    },
+    {
+      "label": "submitted synthetic context",
+      "passed": true
+    },
+    {
+      "label": "form context survives submission error",
+      "passed": true
+    },
+    {
+      "label": "form-error-jung-v2-320: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "unchanged consent scope",
+      "passed": true
+    },
+    {
+      "label": "submitted selected topic",
+      "passed": true
+    },
+    {
+      "label": "submitted synthetic context",
+      "passed": true
+    },
+    {
+      "label": "last successful result remains during regeneration",
+      "passed": true
+    },
+    {
+      "label": "old result marked during generation",
+      "passed": true
+    },
+    {
+      "label": "last result survives failed regeneration through real API parser",
+      "passed": true
+    },
+    {
+      "label": "retry-failed-jung-v2-320: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "zero quota disables retry while history remains",
+      "passed": true
+    },
+    {
+      "label": "history remains when AI disabled",
+      "passed": true
+    },
+    {
+      "label": "disabled service cannot retry",
+      "passed": true
+    },
+    {
+      "label": "status failure does not hide history",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "historical v3 analysis remains readable",
+      "passed": true
+    },
+    {
+      "label": "insufficient evidence does not invent observations or actions",
+      "passed": true
+    },
+    {
+      "label": "insufficient evidence has honest explanation",
+      "passed": true
+    },
+    {
+      "label": "no history has a clear generation entry",
+      "passed": true
+    },
+    {
+      "label": "empty-jung-v2-320: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "readable source dimension",
+      "passed": true
+    },
+    {
+      "label": "self-check question visible",
+      "passed": true
+    },
+    {
+      "label": "action rationale visible",
+      "passed": true
+    },
+    {
+      "label": "result-bigfive-320: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "action-bigfive-320: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "focus moved into confirmation",
+      "passed": true
+    },
+    {
+      "label": "dimension-only sending range",
+      "passed": true
+    },
+    {
+      "label": "explicit consent required",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "unchanged consent scope",
+      "passed": true
+    },
+    {
+      "label": "submitted selected topic",
+      "passed": true
+    },
+    {
+      "label": "submitted synthetic context",
+      "passed": true
+    },
+    {
+      "label": "form context survives submission error",
+      "passed": true
+    },
+    {
+      "label": "form-error-bigfive-320: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "unchanged consent scope",
+      "passed": true
+    },
+    {
+      "label": "submitted selected topic",
+      "passed": true
+    },
+    {
+      "label": "submitted synthetic context",
+      "passed": true
+    },
+    {
+      "label": "last successful result remains during regeneration",
+      "passed": true
+    },
+    {
+      "label": "old result marked during generation",
+      "passed": true
+    },
+    {
+      "label": "last result survives failed regeneration through real API parser",
+      "passed": true
+    },
+    {
+      "label": "retry-failed-bigfive-320: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "zero quota disables retry while history remains",
+      "passed": true
+    },
+    {
+      "label": "history remains when AI disabled",
+      "passed": true
+    },
+    {
+      "label": "disabled service cannot retry",
+      "passed": true
+    },
+    {
+      "label": "status failure does not hide history",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "historical v3 analysis remains readable",
+      "passed": true
+    },
+    {
+      "label": "insufficient evidence does not invent observations or actions",
+      "passed": true
+    },
+    {
+      "label": "insufficient evidence has honest explanation",
+      "passed": true
+    },
+    {
+      "label": "no history has a clear generation entry",
+      "passed": true
+    },
+    {
+      "label": "empty-bigfive-320: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "readable source dimension",
+      "passed": true
+    },
+    {
+      "label": "self-check question visible",
+      "passed": true
+    },
+    {
+      "label": "action rationale visible",
+      "passed": true
+    },
+    {
+      "label": "result-jung-v2-390: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "action-jung-v2-390: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "focus moved into confirmation",
+      "passed": true
+    },
+    {
+      "label": "dimension-only sending range",
+      "passed": true
+    },
+    {
+      "label": "explicit consent required",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "unchanged consent scope",
+      "passed": true
+    },
+    {
+      "label": "submitted selected topic",
+      "passed": true
+    },
+    {
+      "label": "submitted synthetic context",
+      "passed": true
+    },
+    {
+      "label": "form context survives submission error",
+      "passed": true
+    },
+    {
+      "label": "form-error-jung-v2-390: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "unchanged consent scope",
+      "passed": true
+    },
+    {
+      "label": "submitted selected topic",
+      "passed": true
+    },
+    {
+      "label": "submitted synthetic context",
+      "passed": true
+    },
+    {
+      "label": "last successful result remains during regeneration",
+      "passed": true
+    },
+    {
+      "label": "old result marked during generation",
+      "passed": true
+    },
+    {
+      "label": "last result survives failed regeneration through real API parser",
+      "passed": true
+    },
+    {
+      "label": "retry-failed-jung-v2-390: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "zero quota disables retry while history remains",
+      "passed": true
+    },
+    {
+      "label": "history remains when AI disabled",
+      "passed": true
+    },
+    {
+      "label": "disabled service cannot retry",
+      "passed": true
+    },
+    {
+      "label": "status failure does not hide history",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "historical v3 analysis remains readable",
+      "passed": true
+    },
+    {
+      "label": "insufficient evidence does not invent observations or actions",
+      "passed": true
+    },
+    {
+      "label": "insufficient evidence has honest explanation",
+      "passed": true
+    },
+    {
+      "label": "no history has a clear generation entry",
+      "passed": true
+    },
+    {
+      "label": "empty-jung-v2-390: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "readable source dimension",
+      "passed": true
+    },
+    {
+      "label": "self-check question visible",
+      "passed": true
+    },
+    {
+      "label": "action rationale visible",
+      "passed": true
+    },
+    {
+      "label": "result-bigfive-390: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "action-bigfive-390: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "focus moved into confirmation",
+      "passed": true
+    },
+    {
+      "label": "dimension-only sending range",
+      "passed": true
+    },
+    {
+      "label": "explicit consent required",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "unchanged consent scope",
+      "passed": true
+    },
+    {
+      "label": "submitted selected topic",
+      "passed": true
+    },
+    {
+      "label": "submitted synthetic context",
+      "passed": true
+    },
+    {
+      "label": "form context survives submission error",
+      "passed": true
+    },
+    {
+      "label": "form-error-bigfive-390: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "unchanged consent scope",
+      "passed": true
+    },
+    {
+      "label": "submitted selected topic",
+      "passed": true
+    },
+    {
+      "label": "submitted synthetic context",
+      "passed": true
+    },
+    {
+      "label": "last successful result remains during regeneration",
+      "passed": true
+    },
+    {
+      "label": "old result marked during generation",
+      "passed": true
+    },
+    {
+      "label": "last result survives failed regeneration through real API parser",
+      "passed": true
+    },
+    {
+      "label": "retry-failed-bigfive-390: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "zero quota disables retry while history remains",
+      "passed": true
+    },
+    {
+      "label": "history remains when AI disabled",
+      "passed": true
+    },
+    {
+      "label": "disabled service cannot retry",
+      "passed": true
+    },
+    {
+      "label": "status failure does not hide history",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "historical v3 analysis remains readable",
+      "passed": true
+    },
+    {
+      "label": "insufficient evidence does not invent observations or actions",
+      "passed": true
+    },
+    {
+      "label": "insufficient evidence has honest explanation",
+      "passed": true
+    },
+    {
+      "label": "no history has a clear generation entry",
+      "passed": true
+    },
+    {
+      "label": "empty-bigfive-390: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "readable source dimension",
+      "passed": true
+    },
+    {
+      "label": "self-check question visible",
+      "passed": true
+    },
+    {
+      "label": "action rationale visible",
+      "passed": true
+    },
+    {
+      "label": "result-jung-v2-1440: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "action-jung-v2-1440: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "focus moved into confirmation",
+      "passed": true
+    },
+    {
+      "label": "dimension-only sending range",
+      "passed": true
+    },
+    {
+      "label": "explicit consent required",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "unchanged consent scope",
+      "passed": true
+    },
+    {
+      "label": "submitted selected topic",
+      "passed": true
+    },
+    {
+      "label": "submitted synthetic context",
+      "passed": true
+    },
+    {
+      "label": "form context survives submission error",
+      "passed": true
+    },
+    {
+      "label": "form-error-jung-v2-1440: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "unchanged consent scope",
+      "passed": true
+    },
+    {
+      "label": "submitted selected topic",
+      "passed": true
+    },
+    {
+      "label": "submitted synthetic context",
+      "passed": true
+    },
+    {
+      "label": "last successful result remains during regeneration",
+      "passed": true
+    },
+    {
+      "label": "old result marked during generation",
+      "passed": true
+    },
+    {
+      "label": "last result survives failed regeneration through real API parser",
+      "passed": true
+    },
+    {
+      "label": "retry-failed-jung-v2-1440: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "zero quota disables retry while history remains",
+      "passed": true
+    },
+    {
+      "label": "history remains when AI disabled",
+      "passed": true
+    },
+    {
+      "label": "disabled service cannot retry",
+      "passed": true
+    },
+    {
+      "label": "status failure does not hide history",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "historical v3 analysis remains readable",
+      "passed": true
+    },
+    {
+      "label": "insufficient evidence does not invent observations or actions",
+      "passed": true
+    },
+    {
+      "label": "insufficient evidence has honest explanation",
+      "passed": true
+    },
+    {
+      "label": "no history has a clear generation entry",
+      "passed": true
+    },
+    {
+      "label": "empty-jung-v2-1440: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "readable source dimension",
+      "passed": true
+    },
+    {
+      "label": "self-check question visible",
+      "passed": true
+    },
+    {
+      "label": "action rationale visible",
+      "passed": true
+    },
+    {
+      "label": "result-bigfive-1440: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "action-bigfive-1440: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "focus moved into confirmation",
+      "passed": true
+    },
+    {
+      "label": "dimension-only sending range",
+      "passed": true
+    },
+    {
+      "label": "explicit consent required",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "unchanged consent scope",
+      "passed": true
+    },
+    {
+      "label": "submitted selected topic",
+      "passed": true
+    },
+    {
+      "label": "submitted synthetic context",
+      "passed": true
+    },
+    {
+      "label": "form context survives submission error",
+      "passed": true
+    },
+    {
+      "label": "form-error-bigfive-1440: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "unchanged consent scope",
+      "passed": true
+    },
+    {
+      "label": "submitted selected topic",
+      "passed": true
+    },
+    {
+      "label": "submitted synthetic context",
+      "passed": true
+    },
+    {
+      "label": "last successful result remains during regeneration",
+      "passed": true
+    },
+    {
+      "label": "old result marked during generation",
+      "passed": true
+    },
+    {
+      "label": "last result survives failed regeneration through real API parser",
+      "passed": true
+    },
+    {
+      "label": "retry-failed-bigfive-1440: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "zero quota disables retry while history remains",
+      "passed": true
+    },
+    {
+      "label": "history remains when AI disabled",
+      "passed": true
+    },
+    {
+      "label": "disabled service cannot retry",
+      "passed": true
+    },
+    {
+      "label": "status failure does not hide history",
+      "passed": true
+    },
+    {
+      "label": "keyboard action reachable",
+      "passed": true
+    },
+    {
+      "label": "primary action not covered",
+      "passed": true
+    },
+    {
+      "label": "historical v3 analysis remains readable",
+      "passed": true
+    },
+    {
+      "label": "insufficient evidence does not invent observations or actions",
+      "passed": true
+    },
+    {
+      "label": "insufficient evidence has honest explanation",
+      "passed": true
+    },
+    {
+      "label": "no history has a clear generation entry",
+      "passed": true
+    },
+    {
+      "label": "empty-bigfive-1440: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "no uncaught browser errors",
+      "passed": true
+    },
+    {
+      "label": "all APIs explicitly mocked",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "unexpectedApis": [],
+  "requests": [
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/auth/csrf",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/analyses/demo-v5-jung-v2/retry",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/analyses/demo-v5-jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/auth/csrf",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/analyses/demo-v5-bigfive/retry",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/analyses/demo-v5-bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/auth/csrf",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/analyses/demo-v5-jung-v2/retry",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/analyses/demo-v5-jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/auth/csrf",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/analyses/demo-v5-bigfive/retry",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/analyses/demo-v5-bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/auth/csrf",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/analyses/demo-v5-jung-v2/retry",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/analyses/demo-v5-jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/jung-v2/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/auth/csrf",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/analyses/demo-v5-bigfive/retry",
+      "method": "POST"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/analyses/demo-v5-bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/illustrations",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/catalog/current",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/me",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/admin/ai-settings",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/platform/reports/bigfive",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/ai/status",
+      "method": "GET"
+    },
+    {
+      "path": "/api/v3/reports/bigfive/analyses",
+      "method": "GET"
+    }
+  ],
+  "blockedExternalHosts": []
+}

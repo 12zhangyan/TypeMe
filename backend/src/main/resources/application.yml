@@ -150,7 +150,7 @@ typeme:
     # 主名沿用官方约定 DEEPSEEK_API_KEY；TYPEME_AI_API_KEY 作为兼容别名（若已注入则优先）。
     api-key: ${DEEPSEEK_API_KEY:${TYPEME_AI_API_KEY:}}
     model: ${TYPEME_AI_MODEL:deepseek-flash}
-    prompt-version: ${TYPEME_AI_PROMPT_VERSION:typeme-ai-prompt-v4}
+    prompt-version: ${TYPEME_AI_PROMPT_VERSION:typeme-ai-prompt-v5}
     # 连接超时 5s；单次总 deadline 90s（部署超时（网关/Nginx）必须一起校验）。
     connect-timeout: ${TYPEME_AI_CONNECT_TIMEOUT:5s}
     request-deadline: ${TYPEME_AI_REQUEST_DEADLINE:90s}

@@ -123,6 +123,8 @@ let generation = 0
  * （`loadJobs`）。两个并发 `loadJobs` 只有最后发起的那个可以写入状态。
  */
 let loadToken = 0
+let statusToken = 0
+let contextToken = 0
 /** 上一次轮询是否还没回来。慢请求下不允许叠加下一次（否则状态会短暂回退）。 */
 let pollInFlight = false
 let pollFailures = 0
@@ -210,15 +212,19 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
   actions: {
     /** 问"这台服务器开没开 AI、今天还剩几次"。失败不抛：页面降级成不显示入口。 */
     async loadStatus(): Promise<void> {
+      const token = ++statusToken
       this.statusLoading = true
       this.statusError = null
       try {
-        this.status = await fetchAiStatus()
+        const status = await fetchAiStatus()
+        if (token !== statusToken) return
+        this.status = status
       } catch (error) {
+        if (token !== statusToken) return
         this.status = null
         this.statusError = describeError(error)
       } finally {
-        this.statusLoading = false
+        if (token === statusToken) this.statusLoading = false
       }
     },
 
@@ -233,6 +239,9 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
      */
     async loadJobs(reportId: string): Promise<void> {
       if (this.reportId !== reportId) {
+        contextToken += 1
+        this.creating = false
+        this.retrying = false
         this.stopPolling()
         this.reportId = reportId
         this.jobs = []
@@ -265,64 +274,63 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
      * 幂等键在这里生成并在**同一次点击**内保持不变：`createAnalysis` 的调用只有一次，
      * 但服务端可能因为超时重发而收到两次，键相同就不会扣两次额度、也不会建两个任务。
      * 服务端还会对"同一份范围"做去重（`cached=true`）。
-     * 若命中的是**已经成功**的同一份分析，这里接着走重试：同一输入只能有一行，
+     * 若命中的是已结束的同一份分析，这里接着走显式重试：同一输入只能有一行，
      * 再生成必须复用它，而不是告诉用户"已经有了"就停住。
      */
-    async create(reportId: string): Promise<void> {
-      if (this.creating) return
-      // 归属由 `loadJobs` 设定；这里只在"还没认领"时补上，认领了别的报告就不动。
+    async create(reportId: string): Promise<boolean> {
+      if (this.creating || this.retrying || this.hasRunning) return false
       if (this.reportId === null) this.reportId = reportId
-      if (this.reportId !== reportId) return
-      const owner = reportId
+      if (this.reportId !== reportId) return false
+      const token = contextToken
+      const { topic, note } = this
+      const current = () => token === contextToken && this.reportId === reportId
       this.creating = true
       this.createError = null
       this.createCached = false
       this.pollingGaveUp = false
       try {
         const result = await createAnalysis({
-          reportId,
-          topic: this.topic,
-          note: this.note,
+          reportId, topic, note,
           scopeVersion: isReadablePromptVersion(this.status?.promptVersion)
             ? 'typeme-ai-scope-v3' : 'typeme-ai-scope-v2',
           idempotencyKey: newIdempotencyKey(),
         })
-        // 请求在途时用户可能已经离开或换了一份报告：这份结果就不要再写进状态了。
-        if (this.reportId !== owner) return
-        this.activeJobId = result.jobId
-        if (result.cached && result.status === 'SUCCEEDED') {
-          await this.retry(result.jobId)
-          return
+        if (!current()) return false
+        // 命中本页未加载的历史任务时先读完整记录，避免空占位盖掉旧正文。
+        if (result.cached && !this.ownJobs.some(job => job.jobId === result.jobId)) {
+          const existing = await fetchAnalysis(result.jobId)
+          if (!current() || existing.reportId !== reportId) return false
+          this.jobs = [existing, ...this.jobs.filter(job => job.jobId !== existing.jobId)]
         }
-        // 先放一条占位：界面立刻能看到"已排队"，而不用等第一次轮询。
+        this.activeJobId = result.jobId
+        // 另一标签页可能已重排同一任务，以最近读到的状态为准，接上轮询。
+        const existing = this.ownJobs.find(job => job.jobId === result.jobId)
+        if (result.cached && (isRunning(existing ?? null) || result.status === 'QUEUED' || result.status === 'RUNNING')) {
+          if (existing && !isRunning(existing)) this.patchJob(result.jobId, job => ({ ...job, status: result.status }))
+          this.createCached = true
+          this.startPolling()
+          void this.loadStatus()
+          return true
+        }
+        if (result.cached && result.status !== 'QUEUED' && result.status !== 'RUNNING') return await this.retry(result.jobId)
         this.jobs = [
-          {
-            jobId: result.jobId,
-            reportId,
-            status: result.status,
-            topic: this.topic,
-            promptVersion: null,
-            modelRequested: null,
-            modelReturned: null,
-            errorCode: null,
-            attemptCount: 0,
-            createdAt: new Date().toISOString(),
-            finishedAt: null,
-            result: null,
-            resultProblems: [],
-            mock: this.status?.mock === true,
+          existing ?? {
+            jobId: result.jobId, reportId, status: result.status, topic,
+            promptVersion: null, modelRequested: null, modelReturned: null, errorCode: null,
+            attemptCount: 0, createdAt: new Date().toISOString(), finishedAt: null,
+            result: null, resultProblems: [], mock: this.status?.mock === true,
           },
-          ...this.jobs.filter((job) => job.jobId !== result.jobId),
+          ...this.jobs.filter(job => job.jobId !== result.jobId),
         ]
         this.createCached = result.cached
         this.startPolling()
-        // 额度可能变了（或者刚才是 -1），刷新一次状态。
         void this.loadStatus()
+        return true
       } catch (error) {
-        if (this.reportId !== owner) return
-        this.createError = describeError(error)
+        if (current()) this.createError = describeError(error)
+        return false
       } finally {
-        this.creating = false
+        if (current()) this.creating = false
       }
     },
 
@@ -333,26 +341,30 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
      * 这一条是必需的，因为面板共用同一个 store，而 `activeJob` 曾经可能指向别的报告
      * （见文件头 §2026-09-18）。不在这里比对的话，B 页面上点"再试一次"重排的可能是 A 的任务。
      */
-    async retry(jobId: string): Promise<void> {
-      if (this.retrying) return
+    async retry(jobId: string): Promise<boolean> {
+      if (this.retrying || this.hasRunning) return false
+      const token = contextToken
       const owner = this.reportId
       const target = this.ownJobs.find((job) => job.jobId === jobId)
-      if (owner === null || !target) return
+      if (owner === null || !target) return false
       this.retrying = true
       this.createError = null
       this.createCached = false
       this.pollingGaveUp = false
       try {
         const result = await retryAnalysis(jobId)
-        if (this.reportId !== owner) return
+        if (token !== contextToken || this.reportId !== owner) return false
         this.activeJobId = result.jobId
         this.patchJob(result.jobId, (job) => ({ ...job, status: result.status, attemptCount: result.attemptCount }))
         this.startPolling()
+        void this.loadStatus()
+        return true
       } catch (error) {
-        if (this.reportId !== owner) return
+        if (token !== contextToken || this.reportId !== owner) return false
         this.createError = describeError(error)
+        return false
       } finally {
-        this.retrying = false
+        if (token === contextToken && this.reportId === owner) this.retrying = false
       }
     },
 
@@ -430,7 +442,7 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
           }
         }
       } finally {
-        pollInFlight = false
+        if (myGeneration === generation) pollInFlight = false
       }
       if (myGeneration === generation) {
         pollFailures = failed ? Math.min(pollFailures + 1, 4) : 0
@@ -471,6 +483,11 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
       this.stopPolling()
       // 让在途的 loadJobs / create / retry 结果全部失效。
       loadToken += 1
+      statusToken += 1
+      contextToken += 1
+      this.statusLoading = false
+      this.creating = false
+      this.retrying = false
       this.reportId = null
       this.jobs = []
       this.jobsLoading = false

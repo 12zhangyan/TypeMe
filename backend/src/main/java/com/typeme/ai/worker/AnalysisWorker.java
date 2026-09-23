@@ -247,9 +247,9 @@ public class AnalysisWorker {
 
         // 校验并写回（写回必须在事务 3 里带 status='RUNNING' 条件）。
         ReportAnalysisValidator.MapResult result = validator.validate(
-                response, input.computedTypeCode(), input.evidenceIds(), settings.maxTokens());
+                response, input.computedTypeCode(), com.typeme.ai.input.ReadableReportInput.validationEvidenceIds(input), settings.maxTokens());
         String expectedSchema = com.typeme.ai.input.ReadableReportInput.supports(row.promptVersion())
-                ? com.typeme.ai.input.ReadableReportInput.SCHEMA_VERSION : "1";
+                ? com.typeme.ai.input.ReadableReportInput.schemaVersion(row.promptVersion()) : "1";
         if (!expectedSchema.equals(result.node().path("schemaVersion").asText())) {
             throw AnalysisValidationException.invalidJson("分析输出版本与本次任务不一致。");
         }

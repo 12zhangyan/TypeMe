@@ -1,0 +1,54 @@
+{
+  "date": "2026-09-23",
+  "scope": "源码与前端生产构建；合成报告、模拟 AI、内存 H2；未部署",
+  "frontend": {
+    "typecheck": "passed",
+    "testFiles": 56,
+    "tests": 1158,
+    "failures": 0,
+    "aiFocusedTests": 67,
+    "build": "passed"
+  },
+  "backend": {
+    "java": 21,
+    "classes": 57,
+    "tests": 416,
+    "passed": 415,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "skipReason": "AssessmentPackageLoadingTest.emptyDirectoryDoesNotBlockV1Startup: content YAML already exists; covered by package retrieval assertion",
+    "excluded": [
+      "AccountSqlDialectMySqlIT",
+      "AiSqlDialectMySqlIT",
+      "ConcurrencyMySqlIT"
+    ],
+    "credentials": "DEEPSEEK_API_KEY and TYPEME_AI_API_KEY removed only from test child environment"
+  },
+  "browser": {
+    "checks": 224,
+    "widths": [
+      320,
+      390,
+      1440
+    ],
+    "errors": [],
+    "unexpectedApis": [],
+    "externalNetwork": "blocked",
+    "api": "mocked"
+  },
+  "hashes": [
+    {
+      "file": "backend/src/main/resources/ai/prompts/typeme-ai-prompt-v5.txt",
+      "sha256": "fbc2fe4a98c746ba0365e225713b968a14cb02106f658e0f13a240094725ccda"
+    },
+    {
+      "file": "backend/src/main/resources/ai/schemas/analysis-guided-v3.json",
+      "sha256": "d5b553a502faab8da356ac4056add64d13c8c769285f28be827acb3ceed6b7c5"
+    },
+    {
+      "file": "frontend/dist/index.html",
+      "sha256": "527b1e5cb77c25376e8f563267a4b4f0b6a4428dfee8e59ba4726b795ce12b82"
+    }
+  ]
+}

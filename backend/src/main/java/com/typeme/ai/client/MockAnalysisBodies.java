@@ -26,20 +26,32 @@ final class MockAnalysisBodies {
         String referenceType = input == null ? null : text(input.path("report").path("referenceType"));
         List<String> evidenceIds = evidenceIds(input);
         String topic = input == null ? "overall" : text(input.path("topic"));
-        if (input != null && com.typeme.ai.input.ReadableReportInput.SCHEMA_VERSION.equals(
+        boolean guided = input != null && com.typeme.ai.input.ReadableReportInput.GUIDED_SCHEMA_VERSION.equals(
+                input.path("outputSchema").path("properties").path("schemaVersion").path("const").asText());
+        if (guided) {
+            evidenceIds = new ArrayList<>();
+            for (JsonNode id : input.path("usableEvidenceIds")) evidenceIds.add(id.asText());
+        }
+        if (guided || input != null && com.typeme.ai.input.ReadableReportInput.SCHEMA_VERSION.equals(
                 input.path("outputSchema").path("properties").path("schemaVersion").path("const").asText())) {
             ObjectNode readable = mapper.createObjectNode();
-            readable.put("schemaVersion", com.typeme.ai.input.ReadableReportInput.SCHEMA_VERSION);
+            readable.put("schemaVersion", guided ? com.typeme.ai.input.ReadableReportInput.GUIDED_SCHEMA_VERSION
+                    : com.typeme.ai.input.ReadableReportInput.SCHEMA_VERSION);
             if (referenceType == null) readable.putNull("referenceType");
             else readable.put("referenceType", referenceType);
             readable.put("summary", "这是一份演示解释，用来查看页面如何呈现本次结果。请结合固定报告逐个阅读各方面的回答，差距较小或回答不足的地方先保留疑问，不急着给自己下结论。");
             ArrayNode observations = readable.putArray("observations");
             if (!evidenceIds.isEmpty()) {
                 ObjectNode observation = observations.addObject();
+                if (guided) {
+                    observation.put("title", "把一个回答倾向放回具体场景");
+                    observation.put("checkQuestion", "最近有没有一次做法与这个描述相反，当时的情境有什么不同？");
+                }
                 observation.put("plainText", "报告中的每个方面分别说明一种回答倾向，不能把其中一项扩展成对整个人的评价。也不需要把所有描述都当成自己在每个场合的固定表现。");
                 observation.put("example", "例如，可以选一个自己最想了解的方面，回想最近一次相关情境，看看当时的做法是否与报告一致。");
                 observation.putArray("evidenceIds").add(evidenceIds.get(0));
                 ObjectNode action = readable.putObject("suggestedAction");
+                if (guided) action.put("why", "用一段具体经历核对这条发现，看看它在什么场景有帮助。");
                 action.put("what", "选一个想了解的方面，记下一次与之相关的经历。");
                 action.put("when", "下一次遇到类似场景时，花一分钟记录。");
                 action.put("observe", "看看哪些描述符合自己、哪些不符合；没有帮助的建议不必坚持。");
