@@ -31,6 +31,25 @@ export const ANSWER_CAPTIONS: Readonly<Record<number, string>> = {
   5: '完全是右边',
 }
 
+/**
+ * 大五（单句陈述格式）的五档文案。
+ *
+ * 逐字取自内容包 `backend/src/main/resources/content/bigfive50-zh-v1.json` 的
+ * `answerAnchors`（生成源：`scripts/gen-platform-content.mjs`）。放在这里而不是
+ * 读接口，是因为接口目前不返回 anchors —— 而**答错档位的含义**比省一次请求严重得多，
+ * 所以宁可在这里留一份可核对的副本。
+ *
+ * ⚠️ 改内容包里的 anchors 时这里必须一起改；两处不一致时的判据是内容包，
+ * 因为服务端计分用的是内容包的键表。
+ */
+export const BIG_FIVE_ANCHORS: readonly string[] = [
+  '非常不符合',
+  '比较不符合',
+  '说不上符合或不符合',
+  '比较符合',
+  '非常符合',
+]
+
 /** 值是否是「有效作答」——1–5 的整数。非数字、字符串、NaN、小数、越界一律 false。 */
 export function isValidAnswerValue(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value >= ANSWER_MIN && value <= ANSWER_MAX

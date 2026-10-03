@@ -33,7 +33,7 @@ class AdminApiIT extends AccountIntegrationTestBase {
     private AiSettingRepository aiSettingRepository;
 
     private TestAccounts testAccounts() {
-        return new TestAccounts(mockMvc, objectMapper, userRepository);
+        return new TestAccounts(mockMvc, objectMapper, userRepository, invitationJdbc);
     }
 
     @Test

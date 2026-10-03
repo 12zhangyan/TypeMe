@@ -69,6 +69,9 @@ public class ReportInputBuilder {
 
     private static final List<String> DIMENSIONS = List.of("EI", "SN", "TF", "JP");
 
+    /** 大五的维度码，只用于识别"这不是十六型报告"。 */
+    private static final List<String> BIG_FIVE_DIMENSIONS = List.of("E", "A", "C", "ES", "O");
+
     /** 过程层的 slot 归属：前两个是相对省力的（主导 / 辅助），后两个是尚未偏好的。 */
     private static final List<String> PREFERRED_SLOTS = List.of("dominant", "auxiliary");
 
@@ -116,6 +119,20 @@ public class ReportInputBuilder {
         }
 
         JsonNode report = readJson(snapshot.reportJson());
+        if (ReadableReportInput.supports(promptVersion)) {
+            return ReadableReportInput.build(snapshot, report, topic, note, promptVersion, model, mapper);
+        }
+        // 量表判别必须**显式**做，不能靠"找不到 EI 维就抛异常"兜住。
+        //
+        // 大五报告也有一个 `dimensions` 数组，但维度是 E/A/C/ES/O，没有
+        // `computedPole`。不做判别的话，用户在大五报告上点"AI 解读"会拿到一个
+        // IllegalStateException → 500，而真正的事实是"这一版 AI 解读还不支持大五"
+        // （它的输入投影、提示词与输出契约都还是按四个二分维度写的）。
+        // 500 会让用户以为服务坏了并反复重试；明确的不支持说法才能让他停下来。
+        if (isBigFiveReport(report)) {
+            throw com.typeme.ai.config.AiException.unsupported(
+                    "AI 解读目前只支持十六型人格参考测评的报告；大五倾向测评的报告还没有对应的解读口径。");
+        }
         String computedTypeCode = blankToNull(snapshot.computedTypeCode(), text(report.path("computedTypeCode")));
         String status = blankToNull(snapshot.status(), text(report.path("status")));
 
@@ -179,6 +196,41 @@ public class ReportInputBuilder {
             }
         }
         return null;
+    }
+
+    /**
+     * 这份报告是不是大五的。
+     *
+     * <p>判据有两条，任一条成立即可，因为**两种报告形状都可能出现**：
+     * <ul>
+     *   <li>v2 外壳里有 {@code reportKind = big_five_profile}（新报告走这条）；</li>
+     *   <li>报告体里带了大五特有的维度码、而四个二分维度一个都没有
+     *       （没有外壳的早期快照走这条）。</li>
+     * </ul>
+     * 刻意**不用** {@code hasTypeCode == false} 单独当判据：那个字段只有外壳才有，
+     * 拿它判会漏掉旧快照，而漏掉的后果正好是走到下面 {@code dimensions(...)}
+     * 的异常分支上去（也就是这次要修的那个 500）。
+     */
+    private static boolean isBigFiveReport(JsonNode report) {
+        if ("big_five_profile".equals(text(report.path("reportKind")))) {
+            return true;
+        }
+        JsonNode dimensions = report.path("dimensions");
+        if (!dimensions.isArray() || dimensions.isEmpty()) {
+            return false;
+        }
+        boolean hasJungDimension = false;
+        boolean hasBigFiveDimension = false;
+        for (JsonNode row : dimensions) {
+            String code = text(row.path("dimension"));
+            if (DIMENSIONS.contains(code)) {
+                hasJungDimension = true;
+            }
+            if (BIG_FIVE_DIMENSIONS.contains(code)) {
+                hasBigFiveDimension = true;
+            }
+        }
+        return hasBigFiveDimension && !hasJungDimension;
     }
 
     private List<Map<String, Object>> candidates(JsonNode report) {
@@ -394,6 +446,7 @@ public class ReportInputBuilder {
         List<AiReportInput.Evidence> selected = new ArrayList<>();
 
         // 1) + 2)：每个边界/平分维度各取一条同向、一条反向。
+        List<String> orderedBoundaryDimensions = new ArrayList<>(dimensions.size());
         for (DimensionInput dimension : dimensions) {
             if (!dimension.boundary() && dimension.computedPole() != null) {
                 continue;
@@ -406,6 +459,28 @@ public class ReportInputBuilder {
             QuestionContribution opposite = strongestOpposite(items, dimension.computedPole());
             if (opposite != null) {
                 add(selected, used, opposite, dimension.dimension());
+            }
+            orderedBoundaryDimensions.add(dimension.dimension());
+        }
+
+        // 2b) 边界维度再补一条"用户自己选了中间档"的作答。
+        //
+        // 为什么必须有：提示词第 3 条要求"倾向较轻的维度要给出『另一侧也值得一起看』的**具体**读法"，
+        // 而当事人自己选"两边差不多"的那一题，正是这句话最硬的依据。
+        // 从前这条路走不通：同向取的是 |c| 最大、反向显式跳过 c == 0，
+        // 于是中间档**永远进不了证据**（describe() 早就能正确写出"选了中间（两边差不多）"，
+        // 只是没人选得中它）。边界维度最需要的恰恰是这条材料。
+        //
+        // 只对边界/平分维度补，不设边界的维度不补：那会挤掉真正有信息量的同向/反向证据。
+        // 名额不够时后面的维度自然取不到 —— 优先保住"每题一条"的对称，而不是让某一维吃掉全部名额。
+        for (String dimension : orderedBoundaryDimensions) {
+            List<QuestionContribution> items = byDimension.getOrDefault(dimension, List.of());
+            QuestionContribution neutral = items.stream()
+                    .filter(item -> item.c() == 0)
+                    .findFirst()
+                    .orElse(null);
+            if (neutral != null) {
+                add(selected, used, neutral, dimension);
             }
         }
 
@@ -459,7 +534,7 @@ public class ReportInputBuilder {
                 if (answer == null || !answer.rated()) {
                     continue;
                 }
-                int c = contribution(question, answer.rating());
+                int c = contribution(dimension, question.path("rightPole").asText(null), answer.rating());
                 pool.add(new QuestionContribution(questionId, dimension,
                         text(question.path("scenario")),
                         text(question.path("leftPole")), text(question.path("rightPole")),
@@ -505,11 +580,16 @@ public class ReportInputBuilder {
      *
      * <p>这里刻意**从极点重新推导方向**，而不是复用报告里的 S：S 是求和结果，
      * 无法还原单题贡献。极点取错会让整条证据链反向，所以结果用 `Math.clamp` 钉在 [−2, 2]。
+     *
+     * <p><b>维度必须由调用方传入</b>：本方法原先从题目节点上读 {@code dimension}，而
+     * {@link #packageQuestions} 重建节点时**刻意不带**该字段（每维度已经分组过），
+     * 于是它永远读到 null 并静默返回 0 —— 后果是每道题的位置都被算成"中间档"，
+     * 最硬的同向/反向证据根本挑不出来，证据退化成按 order 的前几条。
+     * 这类"缺字段即静默算 0"的写法不允许再出现：宁可让调用方显式给出，也不要猜。
      */
-    static int contribution(JsonNode question, int rating) {
-        String rightPole = text(question.path("rightPole"));
-        String dimension = text(question.path("dimension"));
-        if (rightPole == null || dimension == null || rating < 1 || rating > 5) {
+    static int contribution(String dimension, String rightPole, int rating) {
+        if (rightPole == null || rightPole.isBlank() || dimension == null || dimension.isBlank()
+                || rating < 1 || rating > 5) {
             return 0;
         }
         boolean rightIsPositive = isPositivePole(dimension, rightPole);
@@ -727,7 +807,13 @@ public class ReportInputBuilder {
     /** 落 {@code ai_consent.scope} 的结构化摘要：字段名列表 + 片段数 + 是否含用户文字。 */
     public String scopeSummary(AiReportInput input) {
         List<String> fields = new ArrayList<>(List.of(
-                "topic", "report.status", "report.referenceType", "report.dimensions", "report.candidates"));
+                "topic", "report.status", "report.referenceType", "report.dimensions"));
+        if (ReadableReportInput.supports(input.promptVersion())) {
+            fields.add("report.instrument");
+        } else {
+            fields.add("report.candidates");
+            fields.add("report.processLayer");
+        }
         if (input.evidence() != null && !input.evidence().isEmpty()) {
             fields.add("evidence");
         }

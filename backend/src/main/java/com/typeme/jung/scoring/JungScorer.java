@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 新测权威计分（scoringVersion = typeme-jung48-score-v1）。
+ * 新测权威计分（计分口径由内容包声明的 {@link JungScoringPolicy} 分派，见该类的版本表）。
  *
  * <p>纯函数：不读文件、不读数据库、不取当前时间、不做日志。所有输入来自
  * {@link JungPackage} 与答案 map，所有输出是值对象。这样同一份 fixtures 才能被
@@ -32,7 +32,10 @@ import java.util.Map;
  *   <li>{@code c = direction × (rating − 3)}，{@code S = Σc}，{@code m = S / (2n)}。</li>
  *   <li>{@code unknown} 不计入 n；中立 3 计入 n；**未处理与 unknown 不是一回事**。</li>
  *   <li>方向只看整数 {@code S} 的符号，不看舍入后的 {@code m} 或图示位置。</li>
- *   <li>触发阈值 {@code T(n) = floor(2n/10)}，边界标记 {@code B(n) = T(n) − 1}。</li>
+ *   <li>触发阈值 {@code T(n) = floor(numerator × n / denominator)}，边界标记 {@code B(n)}
+ *       由 {@link JungScoringPolicy} 按该维的 {@code scoringVersion} 决定
+ *       （历史版本 {@code B = T − 1}；{@code score-v3/v4} 为 {@code B = T}）。
+ *       **不要在这里写死常数**：同一个数字在 v3 与 v4 下含义不同。</li>
  *   <li>方向轻微不再隐藏整份结果：{@code TENTATIVE} 照样给四字母。</li>
  * </ul>
  */

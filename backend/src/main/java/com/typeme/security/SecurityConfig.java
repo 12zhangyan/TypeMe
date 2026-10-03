@@ -93,6 +93,28 @@ public class SecurityConfig {
                                 "/api/v3/auth/register",
                                 "/api/v3/auth/login",
                                 "/api/v3/auth/recover").permitAll()
+                        // 1b) 测评目录：公开。它只包含产品定义（有哪些测评、每项问什么、
+                        //     当前绑定哪一版内容），不含任何用户数据 —— 用户在决定
+                        //     "要不要注册"之前有权知道站点上有什么。
+                        //     ⚠️ 只放开这些只读路径：`/api/v3/platform/attempts`
+                        //     与 `/reports` 仍然落在下面的 authenticated 规则里。
+                        .requestMatchers(HttpMethod.GET,
+                                // 十六型目录：摘要与完整内容包。
+                                // 2026-09-21：这两条原本落在 2) 的 authenticated 里，
+                                // 而契约 §7 一直把 "公开内容 GET" 写为不需要会话 ——
+                                // 实现与契约不一致（未登录 401，首页只能退到前端内置口径）。
+                                // 放开后与上面 platform 那一组口径一致：同为产品定义、
+                                // 同样不含用户数据、同样支持匿名首屏。
+                                // 代价的应对在 JungController#catalogReadAllowed：
+                                // 匿名请求按 IP 限流（已登录用户不计入）。
+                                "/api/v3/catalog/current",
+                                "/api/v3/catalog/current/package",
+                                "/api/v3/platform/instruments",
+                                "/api/v3/platform/instruments/*",
+                                // 公开插画地址：首页是匿名页，首屏出图不能要求先登录。
+                                // 只放开 GET；同路径的 PUT（改地址）落在下面的 authenticated，
+                                // 并且额外要求 ADMIN（方法级 @PreAuthorize）。
+                                "/api/v3/platform/illustrations").permitAll()
                         // 2) /api/v3 的其它路径（含 admin）一律要认证；admin 的 ADMIN 判定在方法级
                         //    @PreAuthorize，这样"忘记加 ADMIN 检查"会同时被测试与注解双重约束。
                         .requestMatchers("/api/v3/**").authenticated()
@@ -112,12 +134,16 @@ public class SecurityConfig {
                         .referrerPolicy(referrer -> referrer.policy(
                                 org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter
                                         .ReferrerPolicy.SAME_ORIGIN))
-                        .frameOptions(frame -> frame.deny())
-                        // 刻意不配置 CSP：本轮不动前端，加 CSP 会打断既有行内脚本（契约 §7.3 同义）。
-                        // 这里给一个空配置 lambda（等价于"不加这条头"），而不是调用某个 disable()：
-                        // HeadersConfigurer 没有为 CSP 提供 disable()，用空 lambda 表达"我们明确不加"。
-                        .contentSecurityPolicy(csp -> {
-                        }));
+                        .frameOptions(frame -> frame.deny()));
+        // 刻意**不调用** contentSecurityPolicy(...)：本轮不动前端，加 CSP 会打断既有行内脚本。
+        //
+        // ⚠️ 这里有一个踩过的坑（2026-09-20 实测）：调用 `.contentSecurityPolicy(csp -> {})`
+        // **不等于**"不加这条头"。Spring Security 6 一旦被调用就装上默认 writer，实际发出
+        // `Content-Security-Policy: default-src 'self'`，而 `default-src` 会兜住 `img-src`，
+        // 于是所有跨域图片请求被浏览器拦掉 —— 页面看上去正常（回退到本地素材），
+        // 但"图片走对象存储"这件事在生产环境等于没做。
+        // 因此这里连空 lambda 都不能留（HeadersConfigurer 也没有为此提供 disable()）。
+        // 回归断言在 IllustrationAssetIT#noContentSecurityPolicyHeader。
 
         // 绝对期限过滤器排在 BasicAuthenticationFilter 之后：那时 SecurityContext 已经装好，
         // 我们才知道这次请求属于哪个用户、该查哪个会话的期限。

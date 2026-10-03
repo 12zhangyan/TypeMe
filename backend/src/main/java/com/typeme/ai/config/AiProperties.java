@@ -26,8 +26,8 @@ public class AiProperties {
 
     private String model = "deepseek-flash";
 
-    /** 默认提示词版本；v2 在 v1 的边界之上补了过程层（{@code dynamics}/{@code processPlan}）的规则。 */
-    private String promptVersion = "typeme-ai-prompt-v2";
+    /** 默认提示词版本；v5 增加可核对发现与行动理由，沿用维度摘要发送范围。 */
+    private String promptVersion = "typeme-ai-prompt-v5";
 
     private Duration connectTimeout = Duration.ofSeconds(5);
 

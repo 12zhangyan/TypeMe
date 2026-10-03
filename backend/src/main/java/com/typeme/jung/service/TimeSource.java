@@ -59,6 +59,44 @@ public class TimeSource {
         return utc.toInstant(ZoneOffset.UTC);
     }
 
+    /**
+     * 把 JDBC 取回来的时间值统一成 UTC 的 {@link LocalDateTime}。
+     *
+     * <p><b>为什么必须有它</b>（2026-09-17 用内存 H2 起真实后端时抓到）：
+     * {@code JdbcTemplate.queryForList(...)} 走的是 {@code ColumnMapRowMapper}，
+     * 它对 {@code DATETIME}/{@code TIMESTAMP} 列调的是 {@code ResultSet.getObject(name)}，
+     * 返回什么类型**由驱动决定**：
+     * <ul>
+     *   <li>H2 2.x 返回 {@link java.sql.Timestamp}；</li>
+     *   <li>Connector/J 8 的默认时区行为下 {@code DATETIME} 返回 {@link LocalDateTime}。</li>
+     * </ul>
+     * 于是 {@code (LocalDateTime) row.get("started_at")} 这类写法在 MySQL 上跑得通、
+     * 在 H2 上抛 {@code ClassCastException: java.sql.Timestamp cannot be cast to
+     * java.time.LocalDateTime}。表现是 **{@code GET /api/v3/attempts/{id}} 直接 500**，
+     * 也就是"注册能成功、一进答题页就全黑"——而当时的自动化测试全绿，因为它们
+     * 要么用 RowMapper（{@code rs.getObject(name, LocalDateTime.class)}），
+     * 要么整类只在真 MySQL 上跑。
+     *
+     * <p>只接受能**无歧义**换算的三种类型；其它类型直接抛，不做"尽力而为"的猜测 ——
+     * 静默返回错误时间比抛异常更难查。
+     */
+    public static LocalDateTime utcFromJdbc(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof LocalDateTime local) {
+            return local;
+        }
+        if (value instanceof java.sql.Timestamp timestamp) {
+            return timestamp.toLocalDateTime();
+        }
+        if (value instanceof java.time.OffsetDateTime offset) {
+            return LocalDateTime.ofInstant(offset.toInstant(), ZoneOffset.UTC);
+        }
+        throw new IllegalArgumentException(
+                "无法把 JDBC 时间值换算成 UTC LocalDateTime：类型 " + value.getClass().getName());
+    }
+
     public static String iso(Instant instant) {
         return instant == null ? null : ISO.format(instant);
     }

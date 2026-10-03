@@ -64,6 +64,7 @@ public class JungPackageRegistrar implements ApplicationRunner {
 
     private final JdbcTemplate jdbc;
     private final JungPackageLoader loader;
+    private final com.typeme.ipip.content.BigFivePackageLoader bigFiveLoader;
     private final TimeSource time;
 
     /**
@@ -75,40 +76,76 @@ public class JungPackageRegistrar implements ApplicationRunner {
      * {@link TimeSource}（它本身就是为了"测试能塞固定时刻"而存在的），
      * 于是这里既没有第二个构造器，测试也照样能控时。
      */
-    public JungPackageRegistrar(JdbcTemplate jdbc, JungPackageLoader loader, TimeSource time) {
+    public JungPackageRegistrar(
+            JdbcTemplate jdbc,
+            JungPackageLoader loader,
+            com.typeme.ipip.content.BigFivePackageLoader bigFiveLoader,
+            TimeSource time) {
         this.jdbc = jdbc;
         this.loader = loader;
+        this.bigFiveLoader = bigFiveLoader;
         this.time = time;
     }
 
     @Override
     public void run(ApplicationArguments args) {
-        registerCurrentPackage();
+        registerAll();
     }
 
     /**
-     * 落库当前内容包。
+     * 落库全部已加载的内容包（十六型的每一版 + 大五的每一版）。
      *
-     * @return 写入/更新的 packageId
+     * <p><b>为什么是"全部"而不是"当前版"</b>：{@code assessment_attempt.package_id} 有外键。
+     * 只登记当前版时，一份绑定旧版的草稿在重启后会变成不可继续（外键不成立、
+     * 或按 package_id 解析不到内容），而"按草稿自己的版本继续作答"正是这次改造的核心。
+     * 多版本共存的代价只是表里多几行，收益是历史草稿与历史报告都能解释自己。
+     *
+     * @return 写入/更新的 packageId 列表
      */
+    public java.util.List<String> registerAll() {
+        java.util.List<String> registered = new java.util.ArrayList<>();
+        for (JungPackage pkg : loader.packages()) {
+            registered.add(register(pkg, loader.canonicalJson(pkg)));
+        }
+        for (com.typeme.ipip.content.BigFivePackage pkg : bigFiveLoader.packages()) {
+            registered.add(register(
+                    pkg.packageId(),
+                    pkg.instrumentId(),
+                    pkg.scoringVersion(),
+                    pkg.reportContentVersion(),
+                    pkg.contentStatus(),
+                    pkg.sha256(),
+                    bigFiveLoader.canonicalJson(pkg)));
+        }
+        return java.util.List.copyOf(registered);
+    }
+
+    /** 兼容既有调用点与测试：落库默认十六型内容包。 */
     public String registerCurrentPackage() {
         JungPackage pkg = loader.current();
-        String contentJson = loader.canonicalJson(pkg);
+        return register(pkg, loader.canonicalJson(pkg));
+    }
+
+    private String register(JungPackage pkg, String contentJson) {
+        return register(pkg.packageId(), pkg.instrumentId(), pkg.scoringVersion(),
+                pkg.reportContentVersion(), pkg.contentStatus().token(), pkg.sha256(), contentJson);
+    }
+
+    private String register(
+            String packageId,
+            String instrumentId,
+            String scoringVersion,
+            String reportContentVersion,
+            String contentStatus,
+            String sha256,
+            String contentJson) {
         LocalDateTime publishedAt = TimeSource.toUtc(time.now());
-
         jdbc.update(UPSERT,
-                pkg.packageId(),
-                pkg.instrumentId(),
-                pkg.scoringVersion(),
-                pkg.reportContentVersion(),
-                pkg.contentStatus().token(),
-                contentJson,
-                pkg.sha256(),
-                publishedAt);
-
+                packageId, instrumentId, scoringVersion, reportContentVersion,
+                contentStatus, contentJson, sha256, publishedAt);
         log.info("内容包已落库：packageId={} sha256={}… 审校状态={} 内容字节数={}",
-                pkg.packageId(), abbrev(pkg.sha256()), pkg.contentStatus().token(), contentJson.length());
-        return pkg.packageId();
+                packageId, abbrev(sha256), contentStatus, contentJson.length());
+        return packageId;
     }
 
     private static String abbrev(String sha256) {

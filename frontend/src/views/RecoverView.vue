@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import EditorialScene from '@/components/EditorialScene.vue'
+import IllustrationFrame from '@/components/IllustrationFrame.vue'
 import { computed, onMounted, ref, useId } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { refreshCsrfToken } from '@/api/v3'
 import PageContainer from '@/components/PageContainer.vue'
+import AppIcon from '@/components/AppIcon.vue'
 
 /**
  * 用恢复码重置密码 —— 契约 `02-数据模型与API-v1.md` §7.2（`POST /auth/recover`）。
@@ -16,7 +19,22 @@ import PageContainer from '@/components/PageContainer.vue'
  * 所以成功后不自动登录，而是把用户送回登录页 —— 这也是"新密码确实能用"的最短验证路径。
  */
 const auth = useAuthStore()
+const route = useRoute()
 const router = useRouter()
+
+/**
+ * 重置成功后回登录页时要带上的 `redirect`。
+ *
+ * <p>用户是从别的页面被送到这里的（"登录态失效，请重新登录" → 登录页 → "用恢复码重置"），
+ * 原来这里写死 `/account`，等于在重置密码之后把用户**从原来的目的地丢掉**：
+ * 他是从答题页来的，就再也回不到那道题（第 17 轮）。
+ */
+const loginRedirect = computed(() => {
+  const raw = route.query.redirect
+  if (typeof raw !== 'string') return '/account'
+  if (!raw.startsWith('/') || raw.startsWith('//')) return '/account'
+  return raw
+})
 
 const username = ref('')
 const recoveryCode = ref('')
@@ -64,22 +82,29 @@ async function onSubmit() {
 }
 
 function goLogin() {
-  void router.replace({ name: 'login', query: { redirect: '/account' } })
+  void router.replace({ name: 'login', query: { redirect: loginRedirect.value } })
 }
 </script>
 
 <template>
-  <PageContainer page="article">
-    <section v-if="succeeded" aria-labelledby="recover-done-heading">
-      <p class="section-kicker">账号</p>
-      <h1
-        id="recover-done-heading"
-        class="mt-2 font-display text-[26px] font-bold leading-tight text-ink tablet:text-[32px]"
-      >
-        新密码已经生效
-      </h1>
-      <div class="notice-info mt-5 max-w-[34rem] text-[14.5px] leading-relaxed" role="status" aria-live="polite">
-        <p>这个恢复码已经用掉了。同一账号其余恢复码也一并作废，需要的话登录后重新生成一组。</p>
+  <PageContainer page="article" class="auth-page">
+    <section v-if="succeeded" class="auth-complete" aria-labelledby="recover-done-heading">
+      <header>
+        <p class="section-kicker">账号</p>
+        <h1
+          id="recover-done-heading"
+          class="mt-2 font-display text-[26px] font-bold leading-tight text-ink tablet:text-[32px]"
+        >
+          新密码已经生效
+        </h1>
+        <IllustrationFrame name="welcome" class="auth-art auth-scene"><EditorialScene scene="welcome" /></IllustrationFrame>
+      </header>
+      <!-- 这一屏是"已完成"的确认，不是解释：所以用 notice-success，和上面的失败红块分得开 -->
+      <div class="notice-success mt-5 max-w-prose text-[14.5px] leading-relaxed" role="status" aria-live="polite">
+        <p class="flex items-start gap-2">
+          <AppIcon name="check" :size="17" class="mt-0.5" />
+          <span>这个恢复码已经用掉了。同一账号其余恢复码也一并作废，需要的话登录后重新生成一组。</span>
+        </p>
         <p class="mt-2">
           为了安全，这个账号在<strong class="font-medium">所有设备</strong>上的登录都已经退出 ——
           包括你可能还开着的手机或另一台电脑。请用新密码重新登录一次。
@@ -88,7 +113,7 @@ function goLogin() {
       <button type="button" class="btn-primary mt-5" @click="goLogin">去登录</button>
     </section>
 
-    <section v-else aria-labelledby="recover-heading">
+    <section v-else class="auth-body" aria-labelledby="recover-heading">
       <header>
         <p class="section-kicker">账号</p>
         <h1
@@ -97,13 +122,15 @@ function goLogin() {
         >
           用恢复码重置密码
         </h1>
-        <p class="mt-3 prose-cn">
+        <p class="mt-3 prose-cn max-w-prose">
           注册时那 8 个恢复码里，任意一个都可以用来设置新密码。用掉一个就少一个，
           而且成功之后其他设备上的登录都会退出。
         </p>
+        <IllustrationFrame name="welcome" class="auth-art auth-scene"><EditorialScene scene="welcome" /></IllustrationFrame>
       </header>
 
-      <form class="mt-6 max-w-[30rem]" novalidate @submit.prevent="onSubmit">
+      <!-- 表单是这一页唯一的焦点元素，所以收进一张卡片，和页头的说明拉开层次 -->
+      <form class="card mt-6 max-w-[30rem]" novalidate @submit.prevent="onSubmit">
         <div>
           <label :for="usernameId" class="block text-[14.5px] font-medium text-ink">用户名</label>
           <input
@@ -164,7 +191,10 @@ function goLogin() {
         </div>
 
         <div v-if="error" class="notice-error mt-4" role="alert" aria-live="assertive" data-recover-error>
-          <p class="text-[14.5px] font-medium leading-relaxed">{{ error.message }}</p>
+          <p class="flex items-start gap-2 text-[14.5px] font-medium leading-relaxed">
+            <AppIcon name="alert" :size="17" class="mt-0.5" />
+            <span>{{ error.message }}</span>
+          </p>
           <ul v-if="error.fields.length" class="mt-2 space-y-1 text-[13.5px] leading-relaxed">
             <li v-for="field in error.fields" :key="field.field">
               {{ field.label }}：{{ field.message }}
@@ -194,8 +224,8 @@ function goLogin() {
         </button>
       </form>
 
-      <div class="mt-6 max-w-[34rem] space-y-2">
-        <p class="text-[14px] leading-relaxed text-ink-soft">
+      <div class="mt-6 max-w-prose space-y-2">
+        <p class="prose-sm">
           想起来了密码？<RouterLink to="/login" class="link">直接登录</RouterLink>。
         </p>
         <p class="fineprint">

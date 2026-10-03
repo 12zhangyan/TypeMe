@@ -10,6 +10,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
  * 限流（任务书测试清单 7 / 契约 §5.4）。
@@ -33,6 +34,10 @@ class RateLimitIT extends AccountIntegrationTestBase {
         registry.add("typeme.ratelimit.login.window", () -> "5m");
         registry.add("typeme.ratelimit.register.ip-limit", () -> "100");
         registry.add("typeme.ratelimit.recover.ip-limit", () -> "100");
+        // 匿名目录也压到很小：这样下面那条用例才不用发几百个请求就能测到 429。
+        // 其余用例根本不读匿名目录，改小不影响它们。
+        registry.add("typeme.ratelimit.catalog.ip-limit", () -> "2");
+        registry.add("typeme.ratelimit.catalog.window", () -> "5m");
     }
 
     @Test
@@ -129,5 +134,62 @@ class RateLimitIT extends AccountIntegrationTestBase {
         assertThat(body.path("requestId").asText()).isNotBlank();
         assertThat(body.path("message").asText()).isNotBlank();
         assertThat(result.getResponse().getContentType()).contains(MediaType.APPLICATION_JSON_VALUE);
+    }
+
+    /* ── 匿名目录：放开访问边界后的配套限流（A58，2026-09-21） ─────────────── */
+
+    /**
+     * 同一个 IP 发起的匿名目录请求超过上限 → 429。
+     *
+     * <p>这是"把 `/api/v3/**` 里切出公开路径"这件事的代价测试：只放开访问而不管限流，
+     * 等于把整份题库（`/catalog/current/package`）变成可无限拉取的资源。
+     */
+    @Test
+    @DisplayName("匿名目录 GET 超过 IP 上限 → 429 RATE_LIMITED（放开访问边界的配套代价）")
+    void anonymousCatalogReadsAreRateLimited() throws Exception {
+        String ip = "10.88.88.1";
+        for (int i = 0; i < 2; i++) {
+            MvcResult ok = mockMvc.perform(get("/api/v3/catalog/current")
+                            .with(request -> {
+                                request.setRemoteAddr(ip);
+                                return request;
+                            }))
+                    .andReturn();
+            assertThat(ok.getResponse().getStatus())
+                    .as("第 %d 次匿名读目录应在阈值内（200）", i + 1)
+                    .isEqualTo(200);
+        }
+
+        MvcResult limited = mockMvc.perform(get("/api/v3/catalog/current")
+                        .with(request -> {
+                            request.setRemoteAddr(ip);
+                            return request;
+                        }))
+                .andReturn();
+        assertThat(limited.getResponse().getStatus()).isEqualTo(429);
+        assertThat(body(limited).path("code").asText()).isEqualTo("RATE_LIMITED");
+        // 前端靠这个字段显示"请 N 秒后再试"；限流响应没有它等于让用户盲试。
+        assertThat(body(limited).path("details").path("retryAfterSeconds").asInt()).isGreaterThan(0);
+    }
+
+    /**
+     * 已登录用户读目录**不计入匿名桶**。
+     *
+     * <p>为什么要有这条：公共壳每次整页加载都会读一次目录。如果已登录用户也算，
+     * 正常浏览（比如在报告页之间来回走）会把自己挡在 429 上，而这是普遍操作，不是滥用。
+     * 反过来，若把这条限流写成"所有请求都计数"，本用例会红 —— 这就是它的分辨力。
+     */
+    @Test
+    @DisplayName("已登录用户连续读目录不会被匿名限流误伤")
+    void authenticatedCatalogReadsAreNotInAnonymousBucket() throws Exception {
+        RegisteredAccount account = register(uniqueUsername("catalogauth"), "TestPassw0rd!");
+
+        for (int i = 0; i < 4; i++) {
+            MvcResult result = mockMvc.perform(get("/api/v3/catalog/current").session(account.session()))
+                    .andReturn();
+            assertThat(result.getResponse().getStatus())
+                    .as("第 %d 次已登录读目录应为 200（阈值 2 已远超）", i + 1)
+                    .isEqualTo(200);
+        }
     }
 }

@@ -48,7 +48,9 @@ class PasswordEncoderParametersTest {
     private static PasswordEncoder encoderWithIterations(int iterations) {
         TypemeProperties properties = new TypemeProperties(
                 new TypemeProperties.Auth(
-                        Duration.ofDays(7), Duration.ofSeconds(60), false, "Lax", "pbkdf2", iterations),
+                        // 最后一个 boolean 是 disclaimer-required（2026-09-17 新增）：
+                        // 这个用例只关心 PBKDF2 参数，取生产默认值 true 即可。
+                        Duration.ofDays(7), Duration.ofSeconds(60), false, "Lax", "pbkdf2", iterations, true),
                 null, null, null, null);
         return new PasswordEncoderConfig().passwordEncoder(properties);
     }

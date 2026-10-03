@@ -17,9 +17,11 @@ import { DIMENSIONS, NEGATIVE_POLE, POSITIVE_POLE, type Dimension } from '@/doma
  *
  * ## 为什么还留了一份内置口径
  *
- * `/api/v3/catalog/current` 在 `SecurityConfig` 里是 `authenticated`（实测未登录访问
- * 返回 401），而首页允许未登录阅读；接口挂了也是一样。这两种情况都必须给出**新测自己的**
- * 口径 —— 退回旧引擎的内容包正是本次要修的 bug，所以内置副本描述的是新测量表本身。
+ * `GET /api/v3/catalog/current` **从 2026-09-21 起是公开的**（`SecurityConfig` 里单独
+ * `permitAll`，并配套匿名按 IP 限流）：未登录访客现在拿得到服务端的最新口径。
+ * 内置副本仍然保留，因为接口挂掉、离线、或匿名限流命中（429）时，公共壳与首页
+ * 必须仍然给出**新测自己的**口径 —— 退回旧引擎的内容包正是本次要修的 bug，
+ * 所以内置副本描述的是新测量表本身。
  *
  * ⚠️ 内置口径里的数字要改时，两处必须一起改：
  *   - 内容包 `backend/src/main/resources/content/typeme-jung48-zh-v1.json`
@@ -159,7 +161,7 @@ function factsOf(catalog: CatalogSummary | null): NewInstrumentFacts {
 
 export const useInstrumentV3Store = defineStore('instrumentV3', {
   state: () => ({
-    /** `GET /api/v3/catalog/current` 的响应；读不到（未登录 401 / 离线）时为 null。 */
+    /** `GET /api/v3/catalog/current` 的响应；读不到（离线 / 接口失败 / 匿名被限流）时为 null。 */
     catalog: null as CatalogSummary | null,
     loading: false,
     /** 已经问过一次（成败都算）：首页与公共壳各调一次 `load()`，不会真的发两次请求。 */
@@ -177,7 +179,7 @@ export const useInstrumentV3Store = defineStore('instrumentV3', {
     /**
      * 读一次目录并缓存。
      *
-     * 失败（未登录 401 / 离线）时**保留内置对外口径**，绝不退回旧内容包；
+     * 失败（离线 / 接口失败 / 匿名被限流）时**保留内置对外口径**，绝不退回旧内容包；
      * 失败不抛异常：调用方是在 `onMounted` 里 fire-and-forget 的，抛出去只会变成
      * 一个没人处理的 rejection。
      */
@@ -197,8 +199,9 @@ export const useInstrumentV3Store = defineStore('instrumentV3', {
     /**
      * 强制重新读一次。
      *
-     * 报告页用它兜住一个真实路径：访客在首页读过一次（401，记下 `attempted`），
-     * 随后登录并进入报告页 —— 此时账号才刚能读到目录。
+     * 报告页用它兜住一条真实路径：访客在首页读过一次且**没读到**
+     * （离线 / 接口失败 / 匿名限流命中），记下了 `attempted`；
+     * 之后网络恢复或登录后再进报告页，应该再试一次而不是一直用内置口径。
      */
     async refresh(): Promise<void> {
       this.attempted = false

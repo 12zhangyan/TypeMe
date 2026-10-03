@@ -1,0 +1,162 @@
+[
+  {
+    "code": "INTJ",
+    "title": "路线绘制者",
+    "traits": "独立思考 / 长程规划",
+    "caption": "把远处的想法，画成可以一步步走的路线。",
+    "prop": "map",
+    "color": "#536B69",
+    "background": "#E4EAE1",
+    "index": 0
+  },
+  {
+    "code": "INTP",
+    "title": "模型搭建者",
+    "traits": "分析 / 探索解释",
+    "caption": "拆开一个小问题，也打开一个新问题。",
+    "prop": "model",
+    "color": "#72878B",
+    "background": "#E5ECEA",
+    "index": 1
+  },
+  {
+    "code": "ENTJ",
+    "title": "远行组织者",
+    "traits": "组织 / 目标导向",
+    "caption": "把共同的方向，变成清楚的下一步。",
+    "prop": "map",
+    "color": "#3E6555",
+    "background": "#DEE8DC",
+    "index": 2
+  },
+  {
+    "code": "ENTP",
+    "title": "点子试验者",
+    "traits": "新点子 / 灵活推演",
+    "caption": "如果换一种拼法，会发生什么？",
+    "prop": "model",
+    "color": "#8A8260",
+    "background": "#EDE9D9",
+    "index": 3
+  },
+  {
+    "code": "INFJ",
+    "title": "提灯倾听者",
+    "traits": "意义 / 理解他人",
+    "caption": "为一段尚未说完的话，留一盏灯。",
+    "prop": "lantern",
+    "color": "#6E7860",
+    "background": "#E7E9DD",
+    "index": 4
+  },
+  {
+    "code": "INFP",
+    "title": "故事收藏者",
+    "traits": "价值感 / 想象",
+    "caption": "把平常的一刻，收进自己的故事里。",
+    "prop": "book",
+    "color": "#A07465",
+    "background": "#F0E5DC",
+    "index": 5
+  },
+  {
+    "code": "ENFJ",
+    "title": "圆桌召集者",
+    "traits": "共情 / 协作成长",
+    "caption": "让每个人，都有加入谈话的位置。",
+    "prop": "table",
+    "color": "#597E6C",
+    "background": "#E1EBDF",
+    "index": 6
+  },
+  {
+    "code": "ENFP",
+    "title": "灵感漫游者",
+    "traits": "热情 / 可能性",
+    "caption": "走着走着，就发现了另一条有趣的小路。",
+    "prop": "kite",
+    "color": "#BB8655",
+    "background": "#F1E7D6",
+    "index": 7
+  },
+  {
+    "code": "ISTJ",
+    "title": "手记整理者",
+    "traits": "可靠 / 细节秩序",
+    "caption": "把值得记住的小事，稳稳地安放好。",
+    "prop": "book",
+    "color": "#6D7977",
+    "background": "#E4E9E2",
+    "index": 8
+  },
+  {
+    "code": "ISFJ",
+    "title": "日常照料者",
+    "traits": "体贴 / 尽责",
+    "caption": "记住一件小事，也是一种关心。",
+    "prop": "plant",
+    "color": "#899878",
+    "background": "#E9EDDE",
+    "index": 9
+  },
+  {
+    "code": "ESTJ",
+    "title": "计划推进者",
+    "traits": "务实 / 执行组织",
+    "caption": "事情一件件完成，计划就有了形状。",
+    "prop": "blocks",
+    "color": "#927955",
+    "background": "#EDE5D7",
+    "index": 10
+  },
+  {
+    "code": "ESFJ",
+    "title": "暖桌主人",
+    "traits": "合作 / 关照需求",
+    "caption": "把相聚需要的东西，提前准备一点。",
+    "prop": "table",
+    "color": "#A27E68",
+    "background": "#EEE4DB",
+    "index": 11
+  },
+  {
+    "code": "ISTP",
+    "title": "器物修补者",
+    "traits": "动手 / 实际解题",
+    "caption": "先看看它怎么工作，再动手试一试。",
+    "prop": "tool",
+    "color": "#587B77",
+    "background": "#E0E9E4",
+    "index": 12
+  },
+  {
+    "code": "ISFP",
+    "title": "色彩拾取者",
+    "traits": "感受当下 / 个人价值",
+    "caption": "今天的颜色，值得多看一眼。",
+    "prop": "flower",
+    "color": "#B78C7B",
+    "background": "#F1E5DE",
+    "index": 13
+  },
+  {
+    "code": "ESTP",
+    "title": "现场探路者",
+    "traits": "行动 / 灵活应对",
+    "caption": "先走近现场，再决定怎么继续。",
+    "prop": "compass",
+    "color": "#A9854C",
+    "background": "#EDE7D7",
+    "index": 14
+  },
+  {
+    "code": "ESFP",
+    "title": "即兴同伴",
+    "traits": "友善 / 参与当下",
+    "caption": "把此刻的小小快乐，分享给身边的人。",
+    "prop": "music",
+    "color": "#B77F62",
+    "background": "#F0E3D6",
+    "index": 15
+  }
+]

@@ -92,6 +92,17 @@ public class AiException extends RuntimeException {
         return new AiException("CONFLICT", 409, message);
     }
 
+    /**
+     * 这份报告所属的量表还没有 AI 解读口径。
+     *
+     * <p>用 400 而不是 500：用户没有做错任何事，服务端也没有坏 —— 事实是"这个能力
+     * 还没有覆盖到这类报告"。500 会让用户以为服务故障并反复重试，而这句 400 能让他
+     * 直接明白边界在哪。
+     */
+    public static AiException unsupported(String message) {
+        return new AiException("UNSUPPORTED_INSTRUMENT", 400, message);
+    }
+
     public static AiException unauthenticated() {
         return new AiException("UNAUTHENTICATED", 401, "请先登录。");
     }

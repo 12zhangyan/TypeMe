@@ -63,6 +63,14 @@ typeme:
   app-version: "1.0.0"
   content-version: "2026-09-01"
 
+  # 公开插画的远端地址（库表 illustration_asset 的写入边界）。
+  illustration:
+    # 允许写进 illustration_asset 的域名（逗号分隔）。不在这里的域名一律拒绝写入：
+    # 管理员接口写的是"公开页面去加载哪个地址"，放开等于允许把任意第三方图片挂到本站。
+    # 换 CDN / 自有域名时改这里（或用 TYPEME_ILLUSTRATION_ALLOWED_HOSTS 覆盖），
+    # 并且**同时**改 CSP 的 img-src（若那个头还在，见 REPORT §12）。
+    allowed-hosts: yan-public-1407914221.cos.ap-beijing.myqcloud.com
+
   # 账号与会话（开发方案 §5）。这里**不含任何 secret 值**。
   auth:
     # 绝对会话上限：过滤链每个已认证请求都校验 app_user_session.absolute_expires_at。
@@ -79,6 +87,13 @@ typeme:
     # 生产按服务器成本核验后调整（开发方案 §5）。测试 profile 会覆盖成小值。
     pbkdf2-iterations: 210000
 
+    # 注册是否必须勾选「测评定位与数据处理说明」（2026-09-17 新增，见 RegisterRequest 注释）。
+    # 默认 true：账号一建立就开始把作答内容存到服务器，这件事必须先被告知并同意；
+    # 缺省即拒绝，并且回 VALIDATION_FAILED + disclaimerAccepted 字段，前端会渲染成中文标签。
+    # 设为 false 只用于灰度放量（旧客户端请求体没有该字段时不会突然 400）：
+    # 服务端只是不拦，前端仍然显示勾选项 —— 关闭开关**不会**假装用户同意过。
+    disclaimer-required: true
+
   # 限流（契约 §5.4）：固定窗口计数，登录同时按 ip 与 user 两个 key 计数。
   ratelimit:
     enabled: true
@@ -92,6 +107,15 @@ typeme:
     recover:
       window: 1h
       ip-limit: 10
+    # 匿名目录（`GET /api/v3/catalog/current` 与 `/catalog/current/package`）。
+    # 这两条 2026-09-21 从"要登录"放开为公开，这里是放开访问边界的**配套代价**：
+    # 匿名请求按 IP 计数（已登录用户不计入，见 RateLimitService#checkCatalogRead）。
+    # 取 5m/120 的理由：匿名访客读目录是"进站时读一次"，不是高频行为；
+    # 120 次/5 分钟足够覆盖共享出口（公司/学校 NAT）下的正常浏览，
+    # 同时把"循环拉整份题库"压到每分钟 24 次以内。
+    catalog:
+      window: 5m
+      ip-limit: 120
     ai:
       window: 1h
       ip-limit: 30
@@ -107,10 +131,10 @@ typeme:
     # 生产必须通过 TYPEME_SETTINGS_SECRET 注入（>=16 字符，且与数据库同级的保密级别）。
     settings-secret: ${TYPEME_SETTINGS_SECRET:}
 
-  # 管理员引导：仅当"系统里一个 ADMIN 都没有"时，把同名已存在账号提升为 ADMIN。
-  # 这是本地开发的一次性入口；生产不建议配置（或配置后立即清掉）。
+  # 首次部署提供初始密码才创建管理员；已有管理员时不重设密码、不提升已有同名用户。
   admin:
     bootstrap-username: ${TYPEME_ADMIN_BOOTSTRAP_USERNAME:typeme_admin}
+    bootstrap-password: ${TYPEME_ADMIN_BOOTSTRAP_PASSWORD:}
 
   # AI（DeepSeek）配置 —— 契约 03 §1 的**兜底值**。
   #
@@ -126,11 +150,11 @@ typeme:
     # 主名沿用官方约定 DEEPSEEK_API_KEY；TYPEME_AI_API_KEY 作为兼容别名（若已注入则优先）。
     api-key: ${DEEPSEEK_API_KEY:${TYPEME_AI_API_KEY:}}
     model: ${TYPEME_AI_MODEL:deepseek-flash}
-    prompt-version: ${TYPEME_AI_PROMPT_VERSION:typeme-ai-prompt-v2}
+    prompt-version: ${TYPEME_AI_PROMPT_VERSION:typeme-ai-prompt-v5}
     # 连接超时 5s；单次总 deadline 90s（部署超时（网关/Nginx）必须一起校验）。
     connect-timeout: ${TYPEME_AI_CONNECT_TIMEOUT:5s}
     request-deadline: ${TYPEME_AI_REQUEST_DEADLINE:90s}
-    # 输出上限：800–1200 汉字正文 + JSON 包装（契约 03 §1）。
+    # 保留旧任务的输出预算；v3 正文编辑目标为 250–450 字，不凑字数。
     max-tokens: ${TYPEME_AI_MAX_TOKENS:2600}
     # thinking 关闭时有效（契约 §0：本场景用普通生成，不要推理链）。
     temperature: ${TYPEME_AI_TEMPERATURE:0.4}

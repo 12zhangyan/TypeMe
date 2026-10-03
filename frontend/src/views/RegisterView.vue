@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import EditorialScene from '@/components/EditorialScene.vue'
+import IllustrationFrame from '@/components/IllustrationFrame.vue'
 import { computed, onMounted, ref, useId } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { refreshCsrfToken } from '@/api/v3'
+import { DISCLAIMER_TEXT } from '@/domain/disclaimerV3'
 import PageContainer from '@/components/PageContainer.vue'
+import AppIcon from '@/components/AppIcon.vue'
 
 /**
  * 注册 —— 契约 `02-数据模型与API-v1.md` §7.2（`POST /auth/register`）。
@@ -23,23 +27,31 @@ const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 
+const invitationCode = ref('')
 const username = ref('')
 const nickname = ref('')
 const password = ref('')
 const confirm = ref('')
+/**
+ * 免责声明同意（2026-09-17 新增）。默认**不勾**：默认勾上等于替用户同意，
+ * 那正是这条要求想避免的事。后端同样要求显式 true。
+ */
+const disclaimerAccepted = ref(false)
 
 /** 注册成功后的恢复码（只活在内存里，刷新就没了——这正是"只显示一次"的含义）。 */
 const recoveryCodes = ref<string[]>([])
-const policyVersion = ref<string | null>(null)
 const codesCopied = ref(false)
 const registered = ref(false)
 
+const invitationId = `reg-invitation-${useId()}`
 const usernameId = `reg-username-${useId()}`
 const nicknameId = `reg-nickname-${useId()}`
 const passwordId = `reg-password-${useId()}`
 const confirmId = `reg-confirm-${useId()}`
 const hintId = `reg-hint-${useId()}`
 const copiedId = `reg-copied-${useId()}`
+const disclaimerId = `reg-disclaimer-${useId()}`
+const disclaimerText = DISCLAIMER_TEXT
 
 const error = computed(() => auth.lastError)
 const done = computed(() => registered.value)
@@ -53,22 +65,45 @@ const redirectTarget = computed(() => {
   return raw
 })
 
+function problem(message: string, controlId: string) {
+  return { message, controlId }
+}
+
 const localProblem = computed(() => {
   const name = username.value.trim()
-  if (!name) return '先填用户名。'
-  if (!/^[A-Za-z0-9_]{4,32}$/.test(name)) return '用户名要是 4–32 位的字母、数字或下划线。'
-  if (password.value.length < 8) return '密码至少 8 位。'
-  if (password.value.length > 72) return '密码最多 72 位。'
-  if (!/^[\x20-\x7E]+$/.test(password.value)) return '密码只能用英文、数字和键盘上的符号，暂不支持中文。'
-  if (confirm.value !== password.value) return '两次输入的密码不一样。'
-  if (nickname.value.trim().length > 32) return '昵称最多 32 个字。'
+  if (!name) return problem('先填用户名。', usernameId)
+  if (!/^[A-Za-z0-9_]{4,32}$/.test(name)) return problem('用户名要是 4–32 位的字母、数字或下划线。', usernameId)
+  if (password.value.length < 8) return problem('密码至少 8 位。', passwordId)
+  if (password.value.length > 72) return problem('密码最多 72 位。', passwordId)
+  if (!/^[\x20-\x7E]+$/.test(password.value)) return problem('密码只能用英文、数字和键盘上的符号，暂不支持中文。', passwordId)
+  if (confirm.value !== password.value) return problem('两次输入的密码不一样。', confirmId)
+  if (nickname.value.trim().length > 32) return problem('昵称最多 32 个字。', nicknameId)
+  // 同意项放在最后校验：前面的格式问题更常发生，先让人把字打对。
+  // 服务端也校验这一条 —— 这里只是让用户少一次注定失败的往返。
+  if (!disclaimerAccepted.value) return problem('请先勾选并阅读下面的说明，再创建账号。', disclaimerId)
+  if (!/^[A-Za-z0-9_-]{32}$/.test(invitationCode.value.trim())) return problem('请输入管理员提供的 32 位邀请码。', invitationId)
   return null
 })
 
 const disabledReason = computed(() => {
   if (auth.busy) return '正在创建账号，请稍等。'
-  return localProblem.value
+  return localProblem.value?.message ?? null
 })
+
+/**
+ * 未填完时提交按钮是禁用的，手机上点它不会有任何反馈，勾选框又经常被粘性顶栏盖住。
+ * 这一下把挡住提交的那一格滚到顶栏下面并聚焦。
+ */
+function revealBlockedField() {
+  const id = localProblem.value?.controlId
+  const el = id ? document.getElementById(id) : null
+  if (!el) return
+  el.scrollIntoView?.({ block: 'center', inline: 'nearest' })
+  el.focus({ preventScroll: true })
+}
+
+/** iOS Safari：label 里面有链接时，没有点击监听就不会勾选关联的复选框。 */
+function keepDisclaimerTappable() {}
 
 const leaveReason = computed(() => {
   if (auth.busy) return '正在处理，请稍等。'
@@ -85,9 +120,14 @@ onMounted(() => {
 async function onSubmit() {
   if (disabledReason.value) return
   try {
-    const result = await auth.register(username.value.trim(), password.value, nickname.value.trim())
+    const result = await auth.register(
+      username.value.trim(),
+      password.value,
+      nickname.value.trim(),
+      disclaimerAccepted.value,
+      invitationCode.value.trim(),
+    )
     recoveryCodes.value = result.recoveryCodes
-    policyVersion.value = result.recoveryCodePolicyVersion
     registered.value = true
   } catch {
     // 失败已存进 auth.lastError
@@ -101,24 +141,26 @@ async function leave() {
 </script>
 
 <template>
-  <PageContainer page="article">
+  <PageContainer page="article" class="auth-page">
     <!-- 第二屏：恢复码。只显示这一次，所以文案与操作都围绕"抄下来"设计。 -->
-    <section v-if="done" aria-labelledby="recovery-heading">
+    <section v-if="done" class="auth-complete" aria-labelledby="recovery-heading">
       <p class="section-kicker">最后一步</p>
       <h1
         id="recovery-heading"
         class="mt-2 font-display text-[26px] font-bold leading-tight text-ink tablet:text-[32px]"
       >
-        账号建好了。这 8 个恢复码，请抄下来 —— 只显示这一次
+        保存恢复码
       </h1>
-      <p class="mt-3 prose-cn">
-        忘记密码时，用其中任意一个就能重置密码。每个码只能用一次，用完即作废。
-        离开这一页之后就再也查不到这组码了；真丢了，只能登录后用密码重新生成一组。
+      <p class="mt-3 prose-cn max-w-prose">
+        仅显示一次，忘记密码时可用。每个码只能使用一次。
       </p>
 
       <!-- 服务端没回恢复码：不装作成功，也不把用户留在一个空列表前面 -->
       <div v-if="codesMissing" class="notice-error mt-5 text-[14px] leading-relaxed" role="alert" aria-live="assertive">
-        <p class="font-medium">账号已经建好、也登录上了，但服务器这次没有返回恢复码。</p>
+        <p class="flex items-start gap-2 font-medium">
+          <AppIcon name="alert" :size="17" class="mt-0.5" />
+          <span>账号已经建好、也登录上了，但服务器这次没有返回恢复码。</span>
+        </p>
         <p class="mt-1">
           不要关掉这个页面就以为手里有码。请到「账号与数据」里输入密码重新生成一组，
           并当场抄下来。
@@ -126,26 +168,28 @@ async function leave() {
       </div>
 
       <div v-else class="notice-uncertain mt-5 text-[14px] leading-relaxed" role="note">
-        <p class="font-medium">现在请用纸笔或你自己的密码管理器记下来。</p>
-        <p class="mt-1">
-          页面不会自动把它们复制到剪贴板 —— 那样你很容易在下次粘贴时把它覆盖掉，而自己还不知道。
-          也不要把它们截图发到聊天工具或群里：那等于把账号的另一把钥匙公开了。
+        <p class="flex items-start gap-2 font-medium">
+          <AppIcon name="shield" :size="17" class="mt-0.5" />
+          <span>现在请用纸笔或你自己的密码管理器记下来。</span>
         </p>
+        <p class="mt-1">不要将恢复码截图或转发给他人。</p>
       </div>
 
-      <ol v-if="!codesMissing" class="mt-5 max-w-[30rem] space-y-2" data-recovery-codes>
+      <!-- 8 个码是一个整体：收在一张卡里、用细分隔线分开，避免八块相同的方框把页面压碎 -->
+      <ol
+        v-if="!codesMissing"
+        class="card mt-5 max-w-[30rem] divide-y divide-line-soft"
+        data-recovery-codes
+      >
         <li
           v-for="(code, index) in recoveryCodes"
           :key="code"
-          class="flex items-baseline gap-3 rounded-control border border-line bg-surface px-3 py-2.5"
+          class="flex items-baseline gap-3 py-2 first:pt-0 last:pb-0"
         >
-          <span class="w-5 shrink-0 text-right text-[13px] text-ink-faint">{{ index + 1 }}</span>
+          <span class="w-5 shrink-0 text-right text-[13px] text-ink-faint tabular">{{ index + 1 }}</span>
           <code class="min-w-0 break-all font-mono text-[15.5px] tracking-wide text-ink">{{ code }}</code>
         </li>
       </ol>
-      <p v-if="policyVersion && !codesMissing" class="mt-3 fineprint max-w-[34rem]">
-        恢复码规则版本：<code class="font-mono">{{ policyVersion }}</code>
-      </p>
 
       <div class="mt-6 max-w-[30rem]">
         <div v-if="!codesMissing" class="flex items-start gap-2.5">
@@ -156,7 +200,7 @@ async function leave() {
             class="mt-1 h-5 w-5 shrink-0 rounded border-line-strong"
           />
           <label :for="copiedId" class="text-[14.5px] leading-relaxed text-ink">
-            我已经把这 8 个恢复码抄下来，并放在只有我能拿到的地方了。
+            我已保存这 {{ recoveryCodes.length }} 个恢复码。
           </label>
         </div>
 
@@ -175,7 +219,7 @@ async function leave() {
     </section>
 
     <!-- 第一屏：注册表单 -->
-    <section v-else aria-labelledby="register-heading">
+    <section v-else class="auth-body" aria-labelledby="register-heading">
       <header>
         <p class="section-kicker">账号</p>
         <h1
@@ -184,12 +228,19 @@ async function leave() {
         >
           注册
         </h1>
-        <p class="mt-3 prose-cn">
-          注册后测评进度和报告会存在服务器上，换设备也能接着看。只需要一个用户名和密码，不要邮箱、不要手机号。
+        <p class="mt-3 prose-cn max-w-prose">
+          注册需要邀请码。
         </p>
+        <IllustrationFrame name="welcome" class="auth-art auth-scene"><EditorialScene scene="welcome" /></IllustrationFrame>
       </header>
 
-      <form class="mt-6 max-w-[30rem]" novalidate @submit.prevent="onSubmit">
+      <!-- 表单是这一页唯一的焦点元素，所以收进一张卡片，和页头的说明拉开层次 -->
+      <form class="card mt-6 max-w-[30rem]" novalidate @submit.prevent="onSubmit">
+        <div class="mb-5">
+          <label :for="invitationId" class="block text-[14.5px] font-medium text-ink">邀请码</label>
+          <input :id="invitationId" v-model="invitationCode" name="invitationCode" class="mt-1.5 w-full min-w-0 rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[16px] text-ink" autocomplete="off" autocapitalize="none" :spellcheck="false" maxlength="32" :disabled="auth.busy" aria-describedby="invitation-help" />
+          <p id="invitation-help" class="caption mt-2">请向管理员领取。一码仅能注册一个账号，过期或撤销后不可使用。</p>
+        </div>
         <div>
           <label :for="usernameId" class="block text-[14.5px] font-medium text-ink">用户名</label>
           <input
@@ -252,48 +303,80 @@ async function leave() {
           />
         </div>
 
-        <div
-          v-if="error"
-          class="notice-error mt-4"
-          role="alert"
-          aria-live="assertive"
-          data-register-error
-        >
-          <p class="text-[14.5px] font-medium leading-relaxed">{{ error.message }}</p>
-          <ul v-if="error.fields.length" class="mt-2 space-y-1 text-[13.5px] leading-relaxed">
-            <li v-for="field in error.fields" :key="field.field">
-              {{ field.label }}：{{ field.message }}
-            </li>
-          </ul>
-          <p v-if="error.serverMessage" class="mt-2 text-[13.5px] leading-relaxed">
-            服务器说明：{{ error.serverMessage }}
-          </p>
-          <p v-if="error.retryAfterSeconds" class="mt-2 text-[13.5px] leading-relaxed">
-            大约 {{ error.retryAfterSeconds }} 秒后再试就来得及。
-          </p>
-          <p v-if="error.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
-            报障编号：<code class="font-mono">{{ error.requestId }}</code>
-            <span class="block text-ink-faint">（反馈问题时把这个编号一起发过来，能直接查到这次请求。）</span>
-          </p>
+        <div class="mt-5">
+          <!--
+            免责声明同意（2026-09-17）。三件事是刻意的：
+              1. 默认不勾 —— 默认勾上等于替用户同意；
+              2. 整句都包在一个 <label> 里（含两个链接）—— 点文字也能勾，读屏一次读完；
+              3. 两个链接指向 /about 里**已经写实的**那两节，不在这里另写一套说法。
+                 注意 /about 的锚点滚不动：`router/index.ts` 的 scrollBehavior 固定回顶部
+                 （hash 模式下 `#/about#source` 这种二级 hash 也解析不了）。所以只承诺
+                 "到关于页去读"，不写"直接跳到那一节"。
+          -->
+          <!-- 同意项是一整块需要读的文字：用下沉的浅底把它和上面的输入框分开，不要靠再加一层白卡 -->
+          <div class="rounded-card border border-line bg-surface-soft px-4 py-3.5">
+            <div class="flex items-start gap-1">
+              <input
+                :id="disclaimerId"
+                v-model="disclaimerAccepted"
+                name="disclaimer-accepted"
+                type="checkbox"
+                class="auth-disclaimer-check"
+                :aria-describedby="`${disclaimerId}-help`"
+              />
+              <label :for="disclaimerId" class="auth-disclaimer-copy text-[14px] leading-relaxed text-ink" @click="keepDisclaimerTappable">
+                <span>{{ disclaimerText.before
+                }}<RouterLink to="/about" class="link" @click.stop>{{ disclaimerText.limitLink }}</RouterLink
+                >{{ disclaimerText.middle
+                }}<RouterLink to="/about" class="link" @click.stop>{{ disclaimerText.dataLink }}</RouterLink
+                >{{ disclaimerText.after }}我知晓本站管理员可查看账号状态、测评进度和报告，并分配 AI 使用额度。</span>
+              </label>
+            </div>
+            <p :id="`${disclaimerId}-help`" class="caption mt-1.5">
+              这一项必须勾选才能创建账号；不做职业、招聘、恋爱配对之类的判定，也不给人群比较结论。
+            </p>
+          </div>
         </div>
+
+        <FormErrorNotice
+          v-if="error"
+          :error="error"
+          class="mt-4"
+          data-register-error
+        />
 
         <p v-if="disabledReason" :id="hintId" class="caption mt-3">{{ disabledReason }}</p>
 
-        <button
-          type="submit"
-          class="btn-primary btn-block mt-5"
-          :disabled="disabledReason !== null"
-          :aria-describedby="disabledReason ? hintId : undefined"
-        >
-          {{ auth.busy ? '正在创建…' : '创建账号' }}
-        </button>
+        <div class="relative mt-5">
+          <button
+            type="submit"
+            class="btn-primary btn-block"
+            :disabled="disabledReason !== null"
+            :aria-describedby="disabledReason ? hintId : undefined"
+          >
+            {{ auth.busy ? '正在创建…' : '创建账号' }}
+          </button>
+          <!--
+            禁用按钮不接收点按。手机上表单还差一项时，用户点的就是这块灰色区域，
+            必须把人带到真正挡住提交的那一格，而不是毫无反应。
+          -->
+          <button
+            v-if="localProblem"
+            type="button"
+            class="absolute inset-0 z-[1] rounded-full"
+            tabindex="-1"
+            aria-hidden="true"
+            data-register-blocked
+            @click="revealBlockedField"
+          />
+        </div>
       </form>
 
-      <p class="mt-5 text-[14px] leading-relaxed text-ink-soft">
+      <p class="mt-5 prose-sm">
         已经有账号了？<RouterLink to="/login" class="link">直接登录</RouterLink>。
       </p>
 
-      <p class="mt-6 fineprint max-w-[34rem]">
+      <p class="mt-6 fineprint max-w-prose">
         注册成功后会给一组恢复码，用来在忘记密码时重置，所以下一步别急着关掉页面。
       </p>
     </section>

@@ -94,12 +94,39 @@ public final class JungReportBuilder {
     }
 
     /**
+     * 构造报告快照（使用"当前默认包"）。
+     *
+     * <p>保留这个重载只是为了不让老的调用点在同一轮改动里全被牵动；
+     * **新代码一律走 {@link #build(JungPackage, JungPackageLoader.TypeReportContent, JungProcessCopy, ...)}**，
+     * 因为"用哪一版内容"必须来自这份草稿自己绑定的 package_id，
+     * 用默认包去套一份旧草稿的答案正是要修掉的那个缺陷。
+     *
+     * @deprecated 改用显式传入内容包的版本。
+     */
+    @Deprecated
+    public static Map<String, Object> build(
+            JungPackageLoader loader,
+            JungScoringResult result,
+            String reportId,
+            String attemptId,
+            LocalDateTime createdAtUtc,
+            LocalDateTime submittedAtUtc) {
+        return build(loader.current(), loader.currentTypeReports(), loader.processCopy(),
+                loader, result, reportId, attemptId, createdAtUtc, submittedAtUtc);
+    }
+
+    /**
      * 构造报告快照。
      *
+     * @param pkg          这份草稿绑定的内容包（**不是**"当前包"）
+     * @param typeContent  与 {@code pkg.reportContentVersion()} 对应的类型报告文案
+     * @param processCopy  过程层文案（不含题目，因此不随内容包版本变化）
      * @param result       服务端计分结果（唯一权威）
-     * @param typeCodeBasis {@code result.computedTypeCode}；TIED 时为 null
      */
     public static Map<String, Object> build(
+            JungPackage pkg,
+            JungPackageLoader.TypeReportContent typeContent,
+            JungProcessCopy processCopy,
             JungPackageLoader loader,
             JungScoringResult result,
             String reportId,
@@ -110,8 +137,12 @@ public final class JungReportBuilder {
         if (result.status() == JungResultStatus.NEEDS_REVIEW) {
             throw new IllegalStateException("覆盖不足不应生成报告：调用方必须先检查 status");
         }
-        JungPackage pkg = loader.current();
-        var typeContent = loader.currentTypeReports();
+        if (!pkg.reportContentVersion().equals(typeContent.reportContentVersion())) {
+            // 内容包指向的报告版本与实际传入的报告版本不一致时直接失败：
+            // 否则会用另一版文案描述这一版题目，而报告看起来完全正常。
+            throw new IllegalStateException("内容包 " + pkg.packageId() + " 需要报告版本 "
+                    + pkg.reportContentVersion() + "，实际传入 " + typeContent.reportContentVersion());
+        }
         String typeCode = result.computedTypeCode() == null ? null : result.computedTypeCode().value();
 
         Map<String, Object> report = new LinkedHashMap<>();
@@ -139,10 +170,10 @@ public final class JungReportBuilder {
         report.put("clarificationSkipped", result.clarificationSkipped());
         report.put("typeSections", typeSections(typeReport));
         report.put("nextActions", nextActions(typeReport));
-        report.put("dynamics", dynamics(loader.processCopy(), result));
-        report.put("processPlan", processPlan(loader.processCopy(), result));
+        report.put("dynamics", dynamics(processCopy, result));
+        report.put("processPlan", processPlan(processCopy, result));
         report.put("share", share(result, typeCode, typeReport));
-        report.put("methodology", methodology(loader, pkg, submittedAtUtc));
+        report.put("methodology", methodology(pkg, processCopy, loader, submittedAtUtc));
         return report;
     }
 
@@ -194,6 +225,19 @@ public final class JungReportBuilder {
 
     private static String summarize(
             JungPackage pkg, JungScoringResult result, JungPackageLoader.TypeReport typeReport) {
+
+        if (typeReport != null && typeReport.readableSummary() != null && !typeReport.readableSummary().isBlank()) {
+            String text = typeReport.readableSummary();
+            if (result.status() == JungResultStatus.TENTATIVE) {
+                text += "其中这些方面两边差距较小：" + result.dimensions().stream()
+                        .filter(JungDimensionScore::boundary)
+                        .map(score -> pkg.copyOf(score.dimension()).name())
+                        .collect(java.util.stream.Collectors.joining("、")) + "。先不要把它当成固定习惯。";
+            }
+            if (result.clarificationSkipped()) text += "本次跳过了补充题，只依据主测回答。";
+            assertNoBannedWords(text);
+            return text;
+        }
 
         List<String> leaned = new ArrayList<>();
         List<String> boundaryLetters = new ArrayList<>();
@@ -355,6 +399,10 @@ public final class JungReportBuilder {
     private static List<Map<String, Object>> nextActions(JungPackageLoader.TypeReport typeReport) {
         if (typeReport == null) {
             return List.of();
+        }
+        if (typeReport.readableFirstSteps() != null && !typeReport.readableFirstSteps().isEmpty()) {
+            typeReport.readableFirstSteps().forEach(JungReportBuilder::assertNoBannedWords);
+            return List.of(Map.of("title", "选一件事试一次", "steps", typeReport.readableFirstSteps()));
         }
         List<Map<String, Object>> actions = new ArrayList<>(typeReport.nextActions().size());
         for (JungPackageLoader.Action action : typeReport.nextActions()) {
@@ -747,14 +795,19 @@ public final class JungReportBuilder {
     }
 
     private static Map<String, Object> methodology(
-            JungPackageLoader loader, JungPackage pkg, LocalDateTime submittedAtUtc) {
+            JungPackage pkg,
+            JungProcessCopy processCopy,
+            JungPackageLoader loader,
+            LocalDateTime submittedAtUtc) {
         Map<String, Object> methodology = new LinkedHashMap<>();
         methodology.put("scoringVersion", pkg.scoringVersion());
         methodology.put("packageId", pkg.packageId());
         methodology.put("reportContentVersion", pkg.reportContentVersion());
         methodology.put("contentStatus", pkg.contentStatus().token());
         methodology.put("contentSha256", pkg.sha256());
-        methodology.put("processCopyVersion", loader.processCopy().version());
+        methodology.put("processCopyVersion", processCopy.version());
+        // 过程层指纹按**它自己的版本**取：多版本共存后，"loader 上唯一的那个值"
+        // 已经不成立了，取错会把报告标注成另一个版本算的。
         methodology.put("processCopySha256", loader.recomputedProcessCopySha256());
         methodology.put("dynamicsVersion", DYNAMICS_VERSION);
         methodology.put("policyVersion", pkg.scoringPolicy().version());

@@ -9,26 +9,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
 
-/**
- * 管理员引导：**只在系统里一个 ADMIN 都没有时**，把配置里指定的已存在账号提升为 ADMIN。
- *
- * <p>选的方案是任务书里的 (a)（配置项 + 启动期一次性提升），理由：
- * <ul>
- *   <li>不需要开发者手工改数据库 —— 手工 {@code UPDATE} 这种"口头流程"在真实项目里
- *       要么没人做、要么被做成脚本长期留存，两者都比配置项危险；</li>
- *   <li>它是<b>幂等且自动失效</b>的：一旦系统中有了任何 ADMIN，本组件就什么都不做。
- *       因此不需要"用完记得删配置"这种纪律；</li>
- *   <li>它不创建账号、不设默认密码：只提升一个**已经用它自己的密码注册过**的账号。
- *       这避免了"部署时自动种一个 admin/admin"这个最经典的后门。</li>
- * </ul>
- *
- * <p>顺序是"先注册账号、再重启（或本组件在下次启动时提升）"。为了让本地开发不必重启，
- * 它还提供了 {@link #promoteBootstrapUserIfNeeded()} 供管理员引导接口/测试显式调用。
- *
- * <p>日志纪律：只记"已提升"，不记密码，也不记被提升账号的其它凭据材料。
- */
+/** First administrator is created only from explicitly supplied deployment credentials. */
 @Component
 public class AdminBootstrapService implements ApplicationRunner {
 
@@ -37,12 +19,20 @@ public class AdminBootstrapService implements ApplicationRunner {
     private final UserRepository users;
     private final TypemeProperties properties;
     private final AiSettingRepository aiSettings;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbc;
+    private final org.springframework.security.crypto.password.PasswordEncoder encoder;
+    private final org.springframework.transaction.support.TransactionTemplate transaction;
 
     public AdminBootstrapService(UserRepository users, TypemeProperties properties,
-                                 AiSettingRepository aiSettings) {
+                                 AiSettingRepository aiSettings, org.springframework.jdbc.core.JdbcTemplate jdbc,
+                                 org.springframework.security.crypto.password.PasswordEncoder encoder,
+                                 org.springframework.transaction.PlatformTransactionManager manager) {
         this.users = users;
         this.properties = properties;
         this.aiSettings = aiSettings;
+        this.jdbc = jdbc;
+        this.encoder = encoder;
+        this.transaction = new org.springframework.transaction.support.TransactionTemplate(manager);
     }
 
     @Override
@@ -52,31 +42,27 @@ public class AdminBootstrapService implements ApplicationRunner {
     }
 
     /**
-     * 提升引导管理员。返回是否发生了提升（便于测试断言，也便于日志区分两种情形）。
+     * 创建初始管理员；已有管理员时不会重设其密码或创建第二个。
      */
     public boolean promoteBootstrapUserIfNeeded() {
-        String configured = properties.admin().bootstrapUsername();
-        if (configured.isBlank()) {
-            return false;
-        }
-        // 已有管理员：立刻放弃。这是"本机制自动失效"的实现，也是它安全的关键。
-        if (users.existsAdmin()) {
-            return false;
-        }
-        Optional<UserRecord> candidate = users.findByNormalizedUsername(UserRepository.normalize(configured));
-        if (candidate.isEmpty()) {
-            // 账号还不存在（例如刚部署、还没注册）：不报错、不创建，等下次启动或显式调用。
-            log.info("admin bootstrap configured user not found yet");
-            return false;
-        }
-        UserRecord user = candidate.get();
-        if (!user.active()) {
-            log.warn("admin bootstrap skipped: account not active");
-            return false;
-        }
-        users.updateRole(user.id(), UserRecord.ROLE_ADMIN);
-        log.info("admin bootstrap promoted configured account to ADMIN");
-        return true;
+        String username = properties.admin().bootstrapUsername();
+        String password = properties.admin().bootstrapPassword();
+        if (username.isBlank() || password.isBlank()) return false;
+        return Boolean.TRUE.equals(transaction.execute(status -> {
+            jdbc.queryForObject("SELECT id FROM admin_bootstrap_lock WHERE id = 1 FOR UPDATE", Integer.class);
+            if (users.existsAdmin()) return false;
+            if (!username.matches("[A-Za-z0-9_]{4,32}") || !password.matches("[\\x20-\\x7E]{12,72}")) {
+                throw new IllegalStateException("管理员初始化配置无效：用户名需 4–32 位字母数字下划线，初始密码需 12–72 位可打印 ASCII 字符。");
+            }
+            // Never elevate an account someone may have registered earlier.
+            if (users.findByNormalizedUsername(UserRepository.normalize(username)).isPresent()) {
+                throw new IllegalStateException("管理员初始化名称已被占用；请配置一个未使用的管理员名称。");
+            }
+            users.insert(UserRepository.newId(), UserRepository.normalize(username), username,
+                    encoder.encode(password), "管理员", UserRecord.ROLE_ADMIN, java.time.Instant.now());
+            log.info("initial administrator created");
+            return true;
+        }));
     }
 
     /**

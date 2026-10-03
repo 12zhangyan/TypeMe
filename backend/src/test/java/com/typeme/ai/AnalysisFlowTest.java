@@ -120,7 +120,71 @@ class AnalysisFlowTest {
         asUser(U1);
     }
 
+    @Test
+    void personalQuotaOverridesDefaultAndLoweringDoesNotResetUsage() throws Exception {
+        jdbc.update("UPDATE app_user SET ai_daily_limit=3 WHERE id=?", U1);
+        for (int i = 0; i < 3; i++) mockMvc.perform(create(REPORT_1, "personal-" + i,
+                CREATE_BODY.replace("最近在准备转岗，有点累。", "quota sample " + i))).andExpect(status().isAccepted());
+        assertEquals(3, reservedCalls(U1));
+        mockMvc.perform(create(REPORT_1, "personal-over", CREATE_BODY)).andExpect(status().isTooManyRequests());
+        jdbc.update("UPDATE app_user SET ai_daily_limit=1 WHERE id=?", U1);
+        mockMvc.perform(get("/api/v3/ai/status")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.dailyLimitPerUser").value(1)).andExpect(jsonPath("$.remainingToday").value(0));
+        assertEquals(3, reservedCalls(U1));
+        assertEquals(3, reservedCallsGlobal());
+        asUser(U2);
+        mockMvc.perform(get("/api/v3/ai/status")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.dailyLimitPerUser").value(2)).andExpect(jsonPath("$.remainingToday").value(2));
+    }
+
+    @Test
+    void zeroQuotaBlocksCreationAndRetryWithoutChargingOrCallingProvider() throws Exception {
+        jdbc.update("UPDATE app_user SET ai_daily_limit=0 WHERE id=?", U1);
+        mockMvc.perform(create(REPORT_1, "zero", CREATE_BODY)).andExpect(status().isTooManyRequests());
+        assertEquals(0, countJobs()); assertEquals(0, reservedCalls(U1)); assertEquals(0, mock.calls());
+        jdbc.update("UPDATE app_user SET ai_daily_limit=2 WHERE id=?", U1);
+        String id = createJob("before-zero", CREATE_BODY);
+        jdbc.update("UPDATE ai_analysis_job SET status='FAILED' WHERE id=?", id);
+        jdbc.update("UPDATE app_user SET ai_daily_limit=0 WHERE id=?", U1);
+        mockMvc.perform(post("/api/v3/analyses/{id}/retry", id)).andExpect(status().isTooManyRequests());
+        assertEquals(1, reservedCalls(U1)); assertEquals(1, reservedCallsGlobal());
+        assertEquals("FAILED", job(id).status()); assertEquals(0, mock.calls());
+    }
+
     /* ── 1. 未同意 ─────────────────────────────────────────────────────── */
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings = {"typeme-ai-prompt-v3", "typeme-ai-prompt-v4", "typeme-ai-prompt-v5"})
+    void readableJobKeepsItsConsentedVersionAfterSettingsChange(String version) throws Exception {
+        String previous = aiProperties.getPromptVersion();
+        try {
+            aiProperties.setPromptVersion(version);
+            settingsProvider.invalidate();
+            mockMvc.perform(create(REPORT_1, "k-stale-scope", CREATE_BODY))
+                    .andExpect(status().isBadRequest());
+            assertEquals(0, countJobs());
+            assertEquals(0, reservedCalls(U1));
+            String jobId = createJob("k-readable", CREATE_BODY.replace("scope-v2", "scope-v3"));
+            aiProperties.setPromptVersion("typeme-ai-prompt-v2");
+            settingsProvider.invalidate();
+            runQueued();
+            assertEquals("SUCCEEDED", job(jobId).status());
+            assertEquals("typeme-ai-prompt-v5".equals(version) ? "analysis-guided-v3" : "analysis-readable-v2",
+                    mapper.readTree(job(jobId).responseJson()).path("schemaVersion").asText());
+            assertEquals(version, job(jobId).promptVersion());
+            assertTrue(mock.lastRequest().systemPrompt().contains(
+                    "typeme-ai-prompt-v3".equals(version) ? "250–450" : "typeme-ai-prompt-v4".equals(version) ? "450–700" : "600–1000"));
+            assertFalse(mock.lastRequest().userPrompt().contains("processLayer"));
+            assertEquals(1, mock.calls());
+            // 反向切换也必须重新确认，不能按更小范围的确认去发送更大的旧范围。
+            mockMvc.perform(create(REPORT_1, "k-stale-v3", CREATE_BODY.replace("scope-v2", "scope-v3")))
+                    .andExpect(status().isBadRequest());
+            assertEquals(1, countJobs());
+        } finally {
+            aiProperties.setPromptVersion(previous);
+            settingsProvider.invalidate();
+        }
+    }
 
     @Test
     @DisplayName("缺 consent → 400 CONSENT_REQUIRED，且上游零调用")
@@ -252,6 +316,9 @@ class AnalysisFlowTest {
         assertEquals("QUEUED", afterFirst.status(), "429 应重新排队等待退避");
         assertEquals("UPSTREAM_429", afterFirst.errorCode(), "标记'已自动重试过'");
         assertNotNull(job(jobId).nextRunAt(), "必须写入退避时间（尊重 Retry-After）");
+        // A53⑥：重新入队后那一次重试还没发出去，预留必须留给它；退掉会让当日额度少算一次。
+        assertEquals(1, reservedCalls(U1), "429 重新入队不得退还预留给下一次重试");
+        assertEquals(1, reservedCallsGlobal(), "全局预留同理");
 
         // 退避到点后执行第二次：这一轮不得再自动重试。
         clock.advance(Duration.ofSeconds(5));
@@ -262,6 +329,9 @@ class AnalysisFlowTest {
         assertEquals("FAILED", afterSecond.status());
         assertEquals("UPSTREAM_429", afterSecond.errorCode());
         assertEquals(2, afterSecond.attemptCount());
+        // 重试再次 429：这次明确未计费且不再重试，预留才退。
+        assertEquals(0, reservedCalls(U1), "重试再次 429 后必须退还预留");
+        assertEquals(0, reservedCallsGlobal(), "全局预留同样退还");
 
         // 再驱动一轮也不该再调用（状态已终态）。
         clock.advance(Duration.ofMinutes(1));
@@ -603,9 +673,11 @@ class AnalysisFlowTest {
     }
 
     @Test
-    @DisplayName("重试接口：FAILED → QUEUED（复用同一行，attempt_count+1），未知状态拒绝")
+    @DisplayName("重试接口：FAILED → QUEUED（复用同一行，attempt_count+1）；进行中的任务拒绝")
     void retryReusesSameRow() throws Exception {
         String jobId = createJob("k-retry", CREATE_BODY);
+        mockMvc.perform(post("/api/v3/analyses/{id}/retry", jobId))
+                .andExpect(status().isConflict());
         mock.setFailureMode(MockFailureMode.UNAUTHORIZED);
         runQueued();
         assertEquals("FAILED", job(jobId).status());
@@ -621,10 +693,21 @@ class AnalysisFlowTest {
 
         runQueued();
         assertEquals("SUCCEEDED", job(jobId).status());
+    }
 
-        // 已成功的任务不能再重试。
+    @Test
+    @DisplayName("已成功的任务可以重新生成：复用同一行入队，不新建")
+    void retrySucceededRequeuesSameRow() throws Exception {
+        String jobId = createJob("k-regen", CREATE_BODY);
+        runQueued();
+        assertEquals("SUCCEEDED", job(jobId).status());
+
         mockMvc.perform(post("/api/v3/analyses/{id}/retry", jobId))
-                .andExpect(status().isConflict());
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.jobId").value(jobId))
+                .andExpect(jsonPath("$.status").value("QUEUED"));
+        assertEquals(1, countJobs(), "重新生成也必须复用同一行");
+        assertEquals("QUEUED", job(jobId).status());
     }
 
     @Test

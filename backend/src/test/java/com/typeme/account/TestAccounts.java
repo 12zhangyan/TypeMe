@@ -34,9 +34,11 @@ public class TestAccounts {
     private final MockMvc mockMvc;
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
     private final UserRepository userRepository;
+    private final org.springframework.jdbc.core.JdbcTemplate jdbc;
 
     public TestAccounts(MockMvc mockMvc, com.fasterxml.jackson.databind.ObjectMapper objectMapper,
-                        UserRepository userRepository) {
+                        UserRepository userRepository, org.springframework.jdbc.core.JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
         this.mockMvc = mockMvc;
         this.objectMapper = objectMapper;
         this.userRepository = userRepository;
@@ -53,7 +55,9 @@ public class TestAccounts {
                         .session(session)
                         .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
-                                Map.of("username", username, "password", password)))))
+                                Map.of("username", username, "password", password,
+                                        // 注册必带免责声明同意（2026-09-17 起，见 AccountService）。
+                                        "disclaimerAccepted", true, "invitationCode", TestInvitations.create(jdbc))))))
                 .andReturn();
         JsonNode body = objectMapper.readTree(
                 registered.getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8));

@@ -12,6 +12,8 @@ import com.typeme.jung.domain.JungResultStatus;
 import com.typeme.jung.domain.JungScoringResult;
 import com.typeme.jung.domain.JungTypeCode;
 import com.typeme.jung.scoring.JungScorer;
+import com.typeme.platform.catalog.AssessmentRelease;
+import com.typeme.platform.report.ReportEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
@@ -71,9 +73,13 @@ public class ReportService {
     public JungDtos.SubmitResponse submit(
             String userId, String attemptId, JungDtos.SubmitRequest request) {
 
-        Map<String, Object> row = attempts.requireRow(userId, attemptId);
+        Map<String, Object> row = attempts.requireRowForUpdate(userId, attemptId);
         String status = (String) row.get("status");
         long revision = ((Number) row.get("revision")).longValue();
+
+        // 这份草稿锁定的题目版本。**先解析再分支**：已提交分支里的覆盖信息也要按它算，
+        // 否则旧草稿的幂等重放会因为"当前包已经换成新版"而已读不到旧题目。
+        JungPackage pkg = attempts.requirePackage(row);
 
         if ("SUBMITTED".equals(status)) {
             // 幂等：已提交就返回既有报告（同一份 attempt 只有一份报告）
@@ -88,7 +94,7 @@ public class ReportService {
                     (String) existing.get("status"),
                     (String) existing.get("computed_type_code"),
                     candidateCodesFromJson((String) existing.get("report_json")),
-                    attempts.coverageViews(JungScorer.checkCoverage(loader.current(),
+                    attempts.coverageViews(pkg, JungScorer.checkCoverage(pkg,
                             attempts.answerMap(attempts.readAnswers(attemptId)))),
                     true);
         }
@@ -98,16 +104,23 @@ public class ReportService {
                     Map.of("currentRevision", revision));
         }
 
-        JungPackage pkg = loader.current();
         List<JungDtos.AnswerView> answers = attempts.readAnswers(attemptId);
         Map<String, JungAnswer> answerMap = attempts.answerMap(answers);
 
         JungScorer.CoverageReport coverage = JungScorer.checkCoverage(pkg, answerMap);
-        boolean skipped = request != null && Boolean.TRUE.equals(request.clarificationSkipped());
-        if (request != null && Boolean.TRUE.equals(request.clarificationSkipped())) {
-            jdbc.update("UPDATE assessment_attempt SET clarification_skipped = 1 WHERE id = ? AND user_id = ?",
-                    attemptId, userId);
-        } else {
+        /*
+         * 「用户明确跳过补充题」先只放进内存，不在这里落库（A34）。
+         *
+         * 这一次提交可能根本不产生报告（覆盖不足 → NEEDS_REVIEW，或结果需要复核），
+         * 那时草稿必须保持「还没决定跳过」的样子：原先在这里直接写
+         * clarification_skipped = 1，会让用户之后回来补答补充题时走进下面的 else 分支
+         * （服务端以为他仍然选择跳过），撞上 400「已选择跳过补充题，就不应该再有补充题答案」。
+         * 那一次提交并没有产生报告，用户也无法靠派生新测评绕开，草稿就此锁死。
+         * 所以落库推迟到「确定要写报告」之后，与 status='SUBMITTED' 在同一个事务里一起生效。
+         */
+        boolean skipRequested = request != null && Boolean.TRUE.equals(request.clarificationSkipped());
+        boolean skipped = skipRequested;
+        if (!skipRequested) {
             List<Map<String, Object>> existingSkipped = jdbc.queryForList(
                     "SELECT clarification_skipped FROM assessment_attempt WHERE id = ? AND user_id = ?",
                     attemptId, userId);
@@ -118,7 +131,7 @@ public class ReportService {
             // 覆盖不足：不生成报告，返回 200 + NEEDS_REVIEW，让前端引导回看具体缺哪几题
             return new JungDtos.SubmitResponse(
                     null, attemptId, "NEEDS_REVIEW", null, List.of(),
-                    attempts.coverageViews(coverage), false);
+                    attempts.coverageViews(pkg, coverage), false);
         }
 
         // 服务端重新计算澄清集合，并校验"已安排题必须全部被处理"
@@ -148,7 +161,7 @@ public class ReportService {
         if (result.status() == JungResultStatus.NEEDS_REVIEW) {
             return new JungDtos.SubmitResponse(
                     null, attemptId, "NEEDS_REVIEW", null, List.of(),
-                    attempts.coverageViews(coverage), false);
+                    attempts.coverageViews(pkg, coverage), false);
         }
 
         // 报告 id 由 attemptId 派生：同一 attempt 的重复提交天然得到同一个 id，
@@ -156,13 +169,27 @@ public class ReportService {
         String reportId = UUID.nameUUIDFromBytes(("typeme-report:" + attemptId).getBytes(StandardCharsets.UTF_8))
                 .toString();
         LocalDateTime now = time.nowUtc();
-        Map<String, Object> report = JungReportBuilder.build(loader, result, reportId, attemptId, now, now);
+        // 报告体按**这份草稿锁定的内容包与它引用的报告版本**构造，
+        // 然后用中性外壳包起来（外壳负责声明"这是什么量表、哪一版"）。
+        Map<String, Object> body = JungReportBuilder.build(
+                pkg,
+                loader.findTypeReports(pkg.reportContentVersion()),
+                loader.processCopy(),
+                loader,
+                result,
+                reportId,
+                attemptId,
+                now,
+                now);
+        Map<String, Object> report = ReportEnvelope.wrap(
+                AssessmentRelease.ofJung(pkg), reportId, attemptId,
+                TimeSource.isoFromUtc(now), body);
         // 追加 reportHash 这一步收在 Builder 里：哈希必须覆盖除自己以外的每个字段，
         // 散在这里的话，谁在两次序列化之间插一个字段就会让它逃出哈希覆盖。
         String reportJson = JungReportBuilder.finalizeWithHash(mapper, report);
         String reportHash = (String) report.get("reportHash");
 
-        Map<String, Object> score = scoreJson(result, reportHash);
+        Map<String, Object> score = scoreJson(pkg, result, reportHash);
         String typeCode = result.computedTypeCode() == null ? null : result.computedTypeCode().value();
 
         try {
@@ -176,15 +203,22 @@ public class ReportService {
         } catch (DuplicateKeyException ex) {
             // 唯一约束兜底：另一路已经提交成功，返回既有报告，不再插入
             log.info("重复提交被唯一约束拦截，返回既有报告 attemptId={}", attemptId);
-            Map<String, Object> existing = readReportRow(reportId, userId);
+            Map<String, Object> existing = readReportRowForUpdate(reportId, userId);
             return new JungDtos.SubmitResponse(
                     reportId,
                     attemptId,
                     (String) existing.get("status"),
                     (String) existing.get("computed_type_code"),
                     candidateCodesFromJson((String) existing.get("report_json")),
-                    attempts.coverageViews(coverage),
+                    attempts.coverageViews(pkg, coverage),
                     true);
+        }
+
+        // 到这里才确定这次提交会留下一份报告，把「跳过补充题」的选择落库。
+        // 与下面的 status='SUBMITTED' 同一事务：要么报告与标记一起生效，要么都不生效。
+        if (skipRequested) {
+            jdbc.update("UPDATE assessment_attempt SET clarification_skipped = 1 WHERE id = ? AND user_id = ?",
+                    attemptId, userId);
         }
 
         jdbc.update("""
@@ -200,7 +234,7 @@ public class ReportService {
                 result.status().name(),
                 typeCode,
                 result.candidates().stream().map(candidate -> candidate.typeCode().value()).toList(),
-                attempts.coverageViews(coverage),
+                attempts.coverageViews(pkg, coverage),
                 true);
     }
 
@@ -232,7 +266,10 @@ public class ReportService {
                         rs.getString("self_selected_type_code"),
                         summaryLine(rs.getString("report_json")),
                         rs.getString("package_id"),
-                        loader.current().scoringVersion()),
+                        // 每行按**它自己绑定的内容包**取计分版本：
+                        // 用 loader.current() 会把所有历史报告标注成当前版本，
+                        // 而报告页正是靠这个字段说明"这份结论是按哪版算法算的"。
+                        scoringVersionOf(rs.getString("package_id"))),
                 userId, safeSize, safePage * safeSize);
 
         return new JungDtos.ReportListResponse(items, safePage, safeSize, total == null ? 0 : total);
@@ -300,7 +337,7 @@ public class ReportService {
         return new JungDtos.SelfReflectionView(
                 (String) row.get("self_selected_type_code"),
                 (String) row.get("note"),
-                TimeSource.isoFromUtc((LocalDateTime) row.get("updated_at")));
+                TimeSource.isoFromUtc(TimeSource.utcFromJdbc(row.get("updated_at"))));
     }
 
     /* ── 删除 ───────────────────────────────────────────────────────────── */
@@ -354,7 +391,7 @@ public class ReportService {
             JungDtos.ReportSummary summary = new JungDtos.ReportSummary(
                     reportId,
                     (String) row.get("attempt_id"),
-                    TimeSource.isoFromUtc((LocalDateTime) row.get("created_at")),
+                    TimeSource.isoFromUtc(TimeSource.utcFromJdbc(row.get("created_at"))),
                     (String) row.get("status"),
                     (String) row.get("computed_type_code"),
                     null,
@@ -403,58 +440,15 @@ public class ReportService {
         return new JungDtos.CompareResponse(summaries, differences, samePackage, notes);
     }
 
-    /* ── 导出 ───────────────────────────────────────────────────────────── */
-
-    /**
-     * 导出本人数据。
+    /*
+     * 这里**不再**提供 `exportData(userId)`。
      *
-     * <p>**不含**密码 hash、恢复码 hash、内部会话、幂等记录。
-     * 这些字段在 SQL 里就不选，而不是查出来再删 —— 少一次"忘了删"的机会。
+     * 账号模块已有唯一的导出实现 `com.typeme.account.service.DataExportService`：
+     * 它把「表还没建」与「查询失败」分开记进 `degradedSections` 并随响应返回，页面据此
+     * 如实告知"这不是完整备份"。此前这里留着一份无调用方的副本，它会把
+     * `BadSqlGrammarException` 静默吞成空数组 —— 两份实现行为不同，谁先被接上谁就决定口径。
+     * 删除它，导出只有一处定义。
      */
-    public Map<String, Object> exportData(String userId) {
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("exportedAt", TimeSource.iso(time.now()));
-        data.put("schemaVersion", 1);
-        data.put("attempts", jdbc.queryForList("""
-                SELECT id, package_id, status, revision, current_question_id,
-                       clarification_dimensions, clarification_skipped, base_attempt_id,
-                       started_at, updated_at, submitted_at
-                  FROM assessment_attempt WHERE user_id = ? ORDER BY started_at
-                """, userId));
-        data.put("answers", jdbc.queryForList("""
-                SELECT aa.attempt_id, aa.question_id, aa.kind, aa.rating, aa.updated_at
-                  FROM assessment_answer aa
-                  JOIN assessment_attempt a ON a.id = aa.attempt_id
-                 WHERE a.user_id = ? ORDER BY aa.attempt_id, aa.question_id
-                """, userId));
-        List<Map<String, Object>> reports = jdbc.queryForList("""
-                SELECT id, attempt_id, status, computed_type_code, score_json, report_json,
-                       report_hash, created_at
-                  FROM assessment_report WHERE user_id = ? ORDER BY created_at
-                """, userId);
-        for (Map<String, Object> report : reports) {
-            Object timestamp = report.get("created_at");
-            if (timestamp instanceof LocalDateTime utc) {
-                report.put("created_at", TimeSource.isoFromUtc(utc));
-            }
-        }
-        data.put("reports", reports);
-        data.put("selfReflections", jdbc.queryForList("""
-                SELECT report_id, self_selected_type_code, note, updated_at
-                  FROM report_self_reflection WHERE user_id = ? ORDER BY updated_at
-                """, userId));
-        try {
-            data.put("aiAnalyses", jdbc.queryForList("""
-                    SELECT id, report_id, topic, prompt_version, model_requested, model_returned,
-                           status, error_code, usage_json, response_json, created_at, finished_at
-                      FROM ai_analysis_job WHERE user_id = ? ORDER BY created_at
-                    """, userId));
-        } catch (org.springframework.jdbc.BadSqlGrammarException ex) {
-            log.warn("AI 相关表尚不可用，导出中 AI 部分为空：{}", ex.getMostSpecificCause().getMessage());
-            data.put("aiAnalyses", List.of());
-        }
-        return data;
-    }
 
     /* ── 内部工具 ───────────────────────────────────────────────────────── */
 
@@ -469,9 +463,32 @@ public class ReportService {
         return rows.get(0);
     }
 
-    private Map<String, Object> scoreJson(JungScoringResult result, String reportHash) {
+    /**
+     * 锁定读报告行（当前读）。**"重复提交被唯一约束拦截"那条分支必须用它。**
+     *
+     * <p>2026-09-18 在真实 MySQL 8.4 上确认过的失败形态：两个并发提交里，第二个事务的
+     * 快照建立于它自己的第一条 SELECT（`requireRow`）。第一个事务随后提交了报告行，
+     * 而那一行对第二个事务的**普通一致性读永远不可见** —— 于是"唯一约束已经拦住了
+     * 重复插入"之后却读不到既有报告，`readReportRow` 抛 404「这份报告」。
+     * 用户提交成功了却被告知报告不存在。
+     *
+     * <p>`FOR UPDATE` 是当前读：能看到最新已提交版本（也会等对方事务结束再返回）。
+     * 顺带把这一行锁住，避免第三个并发请求在读到行之后、返回之前又被删掉。
+     */
+    Map<String, Object> readReportRowForUpdate(String reportId, String userId) {
+        List<Map<String, Object>> rows = jdbc.queryForList("""
+                SELECT id, attempt_id, user_id, status, computed_type_code, report_json, report_hash, created_at
+                  FROM assessment_report WHERE id = ? AND user_id = ? FOR UPDATE
+                """, reportId, userId);
+        if (rows.isEmpty()) {
+            throw JungApiException.notFound("这份报告");
+        }
+        return rows.get(0);
+    }
+
+    private Map<String, Object> scoreJson(JungPackage pkg, JungScoringResult result, String reportHash) {
         Map<String, Object> score = new LinkedHashMap<>();
-        score.put("scoringVersion", loader.current().scoringVersion());
+        score.put("scoringVersion", pkg.scoringVersion());
         score.put("status", result.status().name());
         score.put("computedTypeCode", result.computedTypeCode() == null ? null : result.computedTypeCode().value());
         score.put("coverageOk", result.coverageOk());
@@ -505,7 +522,7 @@ public class ReportService {
     }
 
     private String summaryLine(String reportJson) {
-        Map<String, Object> report = readJsonMap(reportJson);
+        Map<String, Object> report = reportBody(readJsonMap(reportJson));
         String summary = asString(report.get("summary"));
         if (summary == null) {
             return "";
@@ -513,9 +530,33 @@ public class ReportService {
         return summary.length() <= 80 ? summary : summary.substring(0, 80) + "…";
     }
 
+    /**
+     * 取出报告体：v2 报告是"中性外壳 + {@code report} 体"，v1 报告体就是根节点。
+     *
+     * <p>这个判断只做一次并且**只用于读**：历史报告的结构一个字节都不能改。
+     * 判据是"根节点有 {@code report} 且它是个对象"，而不是 schemaVersion ——
+     * 有些早期快照没有写 schemaVersion 字段，用版本号判会把它们误判成 v2。
+     */
+    private static Map<String, Object> reportBody(Map<String, Object> root) {
+        Map<String, Object> nested = asMap(root.get("report"));
+        return nested == null ? root : nested;
+    }
+
+    /**
+     * 按内容包取计分版本；包已经不在 classpath 时返回 {@code null} 而不是抛错。
+     *
+     * <p>列表页是"能看到的都列出来"：某一份历史报告的旧内容包已经下线，
+     * 不应该让整页 500（那份报告本身仍然可以按快照打开）。
+     */
+    private String scoringVersionOf(String packageId) {
+        JungPackage pkg = loader.find(packageId);
+        return pkg == null ? null : pkg.scoringVersion();
+    }
+
     private Map<String, Object> dimensionIndex(Map<String, Object> report) {
+        Map<String, Object> source = reportBody(report);
         Map<String, Object> index = new LinkedHashMap<>();
-        Object value = report.get("dimensions");
+        Object value = source.get("dimensions");
         if (value instanceof List<?> list) {
             for (Object item : list) {
                 Map<String, Object> row = asMap(item);
@@ -528,7 +569,7 @@ public class ReportService {
     }
 
     private List<String> candidateCodesFromJson(String reportJson) {
-        Map<String, Object> report = readJsonMap(reportJson);
+        Map<String, Object> report = reportBody(readJsonMap(reportJson));
         List<String> codes = new ArrayList<>();
         Object value = report.get("candidates");
         if (value instanceof List<?> list) {

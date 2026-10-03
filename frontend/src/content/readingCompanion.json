@@ -1,0 +1,1326 @@
+[
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-01",
+    "scenario": "活动之后的精力",
+    "textLeft": "留点时间自己安静待着",
+    "textRight": "再找个人聊聊刚发生的事",
+    "example": "和熟人一起玩了一下午。活动结束后，你通常更想怎样休息？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-01",
+    "scenario": "开始了解新东西",
+    "textLeft": "一个能照着做的具体例子",
+    "textRight": "它整体怎么运作、各部分怎么连",
+    "example": "朋友介绍一个你没接触过的东西。你更希望他先讲例子，还是先讲整体思路？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-01",
+    "scenario": "两个方案影响不同人",
+    "textLeft": "谁会受到什么影响，哪些需要被照顾",
+    "textRight": "用同一套标准比较，看前后是否一致",
+    "example": "两种安排都能把事情办好，但对大家的影响不同。你会先考虑什么？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-01",
+    "scenario": "自己安排的一天",
+    "textLeft": "先把大致顺序和时间定下来",
+    "textRight": "先留出空间，到那时再决定",
+    "example": "周末有一天完全由你安排。你更习惯提前定好，还是当天再决定？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-02",
+    "scenario": "想法还没理清时",
+    "textLeft": "先说出口，一边说一边理顺",
+    "textRight": "自己先想一遍，再拿出来说",
+    "example": "脑子里有个还没想清楚的想法，也有人愿意听。你通常会怎么做？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-02",
+    "scenario": "说明一件刚发生的事",
+    "textLeft": "按顺序把经过和原话说清楚",
+    "textRight": "先说它说明什么、和什么有关",
+    "example": "你要给朋友讲一件刚发生的事。你会先讲事情经过，还是先讲自己的理解？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-02",
+    "scenario": "朋友来找你商量",
+    "textLeft": "先弄清他真正在意什么、为难在哪",
+    "textRight": "帮他看清哪个选择更站得住",
+    "example": "朋友在两个选择之间犹豫，来找你商量。你更自然的第一反应是什么？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-02",
+    "scenario": "没有期限的任务",
+    "textLeft": "先定下一套做法，往下推进",
+    "textRight": "同时留着几套做法，看情况再说",
+    "example": "你有一件不赶时间的事，有几种办法都能做。你会先选定一种，还是继续比较？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-03",
+    "scenario": "到了不太熟的场合",
+    "textLeft": "先走动，和几个人聊上几句",
+    "textRight": "先待在旁边看一会儿，等有人来搭话",
+    "example": "去参加聚会，现场只有几个熟人。刚到的时候，你通常会怎么做？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-03",
+    "scenario": "读一份介绍材料",
+    "textLeft": "它讲到的实际情况和具体做法",
+    "textRight": "它背后的思路和整体方向",
+    "example": "看到一份新产品或新活动的介绍。你更容易先注意到哪些内容？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-03",
+    "scenario": "规定遇上特殊情况",
+    "textLeft": "先看这个人现在具体难在哪",
+    "textRight": "先问这条规定为什么这样定",
+    "example": "有人有特殊困难，希望不完全按规定办。你会先问他的情况，还是先问规定的理由？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-03",
+    "scenario": "原定安排被改动",
+    "textLeft": "很快接受改动，重新安排就好",
+    "textRight": "先照原来的计划走，再想怎么补回来",
+    "example": "原本安排好的行程临时有变化。下面哪种反应更像平时的你？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-04",
+    "scenario": "话头被人接过去",
+    "textLeft": "先听他说完，再接着讲自己想讲的",
+    "textRight": "顺势聊下去，想到哪说到哪",
+    "example": "你还没说完，别人接过了话题。接下来你更常怎么做？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-04",
+    "scenario": "学一样新技能",
+    "textLeft": "先跟着做几遍，把动作学会",
+    "textRight": "先弄懂它为什么管用",
+    "example": "学习做一道菜或使用一个新工具。你更想先跟着做，还是先弄懂原理？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-04",
+    "scenario": "看法被当面反驳",
+    "textLeft": "对方为什么这么在意这件事",
+    "textRight": "对方的理由在哪里不成立",
+    "example": "你提出看法，对方当面反对。你通常先关注对方在意什么，还是他的理由是否合理？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-04",
+    "scenario": "事情快做完的时候",
+    "textLeft": "先告一段落，剩下的地方以后再改",
+    "textRight": "再多留一点时间，接着改下去",
+    "example": "事情已经快做完了，还有一些地方能修改。你更常怎么安排接下来的时间？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-05",
+    "scenario": "忙完一天之后",
+    "textLeft": "和熟悉的人待着更让我缓过来",
+    "textRight": "自己待一会儿才真正缓过来",
+    "example": "忙碌的一天结束了，现在可以自由休息。和熟人待着或独处，哪个更让你放松？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-05",
+    "scenario": "新点子刚被提出",
+    "textLeft": "先说它还能延伸出哪些做法",
+    "textRight": "先说它能用在哪些具体场景",
+    "example": "有人提出一个新点子。你会先想到更多可能的做法，还是它具体能用在哪？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-05",
+    "scenario": "一群人商量事情",
+    "textLeft": "先把标准说清楚，再按标准定",
+    "textRight": "先看大家各自的想法和感受",
+    "example": "几个人一起商量怎么办一件事。你更想先统一判断标准，还是听大家的想法和感受？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-05",
+    "scenario": "面对还没到期的决定",
+    "textLeft": "早点定下，心里就不用再挂着",
+    "textRight": "多留几天，说不定有更合适的",
+    "example": "有一件事必须二选一，但离最后期限还早。你更想早点定下，还是多看几天？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-06",
+    "scenario": "复杂问题摆在面前",
+    "textLeft": "找人一起讨论，边聊边理",
+    "textRight": "自己安静琢磨，想通再说",
+    "example": "碰到一个复杂问题，身边也有人可以商量。你更想先讨论，还是先自己想？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-06",
+    "scenario": "接手一件陌生的事",
+    "textLeft": "先知道大方向，细节自己摸",
+    "textRight": "先有一份说清步骤的说明",
+    "example": "第一次做一件不熟悉的事。你更希望先知道目标，还是先拿到具体步骤？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-06",
+    "scenario": "两边都有理由的争执",
+    "textLeft": "分清楚哪边的道理更站得住",
+    "textRight": "先照顾双方在意的和关系本身",
+    "example": "两个人意见不同，双方都有理由，气氛也僵住了。你会先处理哪一部分？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-06",
+    "scenario": "手上攒着几件事",
+    "textLeft": "排个先后，做完一件再开下一件",
+    "textRight": "几件交替着做，看当时的状态",
+    "example": "今天有几件事要做，顺序由你决定。你更常逐件完成，还是交替着做？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-07",
+    "scenario": "休息时想要的动静",
+    "textLeft": "有些热闹和说话声在周围",
+    "textRight": "安静一点，最好没人来打扰",
+    "example": "有一个可以自由休息的下午。你更喜欢有些人声的地方，还是安静的地方？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-07",
+    "scenario": "回想去过的一个地方",
+    "textLeft": "那个地方给我的整体感觉",
+    "textRight": "当时看到听到的画面和细节",
+    "example": "回想最近去过的一个地方。先浮现在脑海里的是整体感觉，还是具体画面？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-07",
+    "scenario": "安排集体活动",
+    "textLeft": "先问大家想要什么，再凑出做法",
+    "textRight": "先把要求列出来，再挑合适的做法",
+    "example": "你来安排一次几个人参加的活动。你会先了解大家想要什么，还是先列活动要求？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-07",
+    "scenario": "一天里空出半天",
+    "textLeft": "随手看看当时想做什么",
+    "textRight": "前一天就想好要做哪几件事",
+    "example": "突然空出了半天，也没有约人。你更喜欢临时选，还是提前想好做什么？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-08",
+    "scenario": "坐进一群正在聊的人",
+    "textLeft": "听一会儿，有把握了再开口",
+    "textRight": "先接上话，聊着聊着就有了",
+    "example": "你坐到一群正在聊天的人旁边。你通常先听一会儿，还是很快加入？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-08",
+    "scenario": "讨论一件很具体的事",
+    "textLeft": "把已经掌握的情况摆清楚",
+    "textRight": "顺着可以想到的关联往外推",
+    "example": "大家讨论一件具体的事。你更想把已知情况讲清楚，还是谈它可能与什么有关？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-08",
+    "scenario": "发现说法和事实对不上",
+    "textLeft": "先把说法改到和事实一致",
+    "textRight": "先想怎么讲对方才接得住",
+    "example": "别人说了一件事，你发现和事实不符。你先想纠正内容，还是想怎样说对方容易接受？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-08",
+    "scenario": "别人临时来约",
+    "textLeft": "先看这一刻想不想去",
+    "textRight": "先想今天原定的安排要不要动",
+    "example": "朋友今天才约你今晚出去。你通常先想此刻想不想去，还是先看原来的安排？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-09",
+    "scenario": "连着几天和人打交道",
+    "textLeft": "中间插一段独处就恢复过来",
+    "textRight": "有人一起反而越待越有劲",
+    "example": "连续几天都有聚会或需要和人交流。你更想找时间独处，还是继续和人待着？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-09",
+    "scenario": "一件小事出了岔子",
+    "textLeft": "先想它和前后哪些环节有关",
+    "textRight": "先看这一步具体是哪里错了",
+    "example": "一件事出了问题，需要找原因。你先检查出错的步骤，还是先想前后环节的关系？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-09",
+    "scenario": "评价两个都做得不错的结果",
+    "textLeft": "各自做得怎么样，合乎原来的要求吗",
+    "textRight": "各自在这件事上投入了多少心思",
+    "example": "两个人都交出了不错的成果。评价时，你会先看结果符合要求吗，还是各自的投入？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-09",
+    "scenario": "计划中途冒出别的事",
+    "textLeft": "先把手头这件事按原样做完",
+    "textRight": "先转向那件事，回头再接着说",
+    "example": "正在按计划做事，又来了另一件不紧急的事。你更常先完成手头的，还是先换一件？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-10",
+    "scenario": "准备把自己的看法讲出来",
+    "textLeft": "先在对话里试一下，说到哪算哪",
+    "textRight": "先在心里过一遍，再完整说出来",
+    "example": "准备告诉别人你的看法。你更常边聊边整理，还是先在心里想一遍？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-10",
+    "scenario": "听人介绍一个没做过的事",
+    "textLeft": "它本身会怎么一步步发生",
+    "textRight": "它和我知道的哪些事对得上",
+    "example": "别人介绍一件你没有做过的事。你想先听具体步骤，还是把它和已知的事情联系起来？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-10",
+    "scenario": "有人带着难处来找你",
+    "textLeft": "他当时遇到的情况是怎样的",
+    "textRight": "他心里的感受和在意的东西",
+    "example": "有人告诉你一件让他为难的事。你更先想知道事情经过，还是他的感受和顾虑？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-10",
+    "scenario": "一件事暂时做完",
+    "textLeft": "就让它这样，留些地方以后再看",
+    "textRight": "顺手把还能改的地方改掉",
+    "example": "一件事已经交出去了，暂时算完成。发现还能改进时，你更常怎么做？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-11",
+    "scenario": "分享一件自己的好事",
+    "textLeft": "先自己高兴一阵，再挑人讲",
+    "textRight": "马上找几个人讲一遍",
+    "example": "刚得知一个自己的好消息。你通常先自己高兴一会儿，还是马上找人分享？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-11",
+    "scenario": "看待手边正在做的事",
+    "textLeft": "它最后会通向哪里",
+    "textRight": "现在这一步可以怎么做扎实",
+    "example": "正在做一件还需要一段时间的事。你更常想最后的方向，还是眼前这一步？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-11",
+    "scenario": "两个人都想把事做好",
+    "textLeft": "谁的做法更经得起推敲",
+    "textRight": "谁在这件事上更被为难",
+    "example": "两个人都认真投入，但主张的做法不同。你更先比较做法的理由，还是了解谁遇到困难？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-11",
+    "scenario": "有几个选项摆在眼前",
+    "textLeft": "先挑一个最合适的用起来",
+    "textRight": "先不挑，等看得更清楚一点",
+    "example": "面前有几个都还不错的选项。你更想先选一个用起来，还是再了解一下？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-12",
+    "scenario": "事情没做成之后",
+    "textLeft": "自己待一会儿，慢慢消化掉",
+    "textRight": "找人说说，说着说着就没那么闷",
+    "example": "一件事没做成，你心里有些失落。你通常想独自缓一缓，还是找人说说？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-12",
+    "scenario": "学一样东西学过一阵",
+    "textLeft": "顺着兴趣往深处探，练出新路",
+    "textRight": "把基础反复练熟，先稳下来",
+    "example": "一件事已经学了一阵子。接下来你更想尝试新做法，还是多练习已有的基础？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-12",
+    "scenario": "几个人一起评一个做法",
+    "textLeft": "先让在场的人把话说完再接",
+    "textRight": "先把做法本身说通，再看情绪",
+    "example": "几个人在评价一个做法，气氛有点紧张。你更想先听大家讲完，还是先讨论做法本身？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-12",
+    "scenario": "一个安排做到一半",
+    "textLeft": "按原样走完，中途不折腾",
+    "textRight": "中途想到更好的就换成新的",
+    "example": "计划做到一半，你想到了另一个办法。你更常按原计划完成，还是换成新办法？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-C1",
+    "scenario": "和几个人同桌吃饭",
+    "textLeft": "顺着话题一直聊下去",
+    "textRight": "主要听，偶尔接一两句",
+    "example": "和几个人同桌吃饭，大家随意聊天。你更常一直参与，还是听得多、说得少？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-C2",
+    "scenario": "排队时旁边有人搭话",
+    "textLeft": "接上几句就好，等轮到自己",
+    "textRight": "顺势聊起来，队伍慢了也不在意",
+    "example": "排队时，旁边不认识的人和你搭话。你更常简单回应，还是接着聊起来？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-C3",
+    "scenario": "接起一个电话",
+    "textLeft": "先想一下要说什么再接",
+    "textRight": "直接接起来，边说边想",
+    "example": "电话响了，但不需要立刻接。你更常先想想要说什么，还是接起来再说？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "EI-C4",
+    "scenario": "事情堆在一起的时候",
+    "textLeft": "先找人聊两句再开始",
+    "textRight": "先自己理清顺序再动手",
+    "example": "几件事同时压过来，你一时有点乱。你会先找人聊聊，还是自己整理顺序？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-C1",
+    "scenario": "去一个没去过的地方",
+    "textLeft": "先记住路上看到的标志和路口",
+    "textRight": "先弄清它在城里的大致方位",
+    "example": "第一次去一个地方。你更习惯记路口和标志，还是先了解它的大致方位？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-C2",
+    "scenario": "买一件没买过的东西",
+    "textLeft": "先看用过的人怎么说、参数如何",
+    "textRight": "先想清楚自己到底需不需要",
+    "example": "准备买一个以前没买过的东西。你先查使用评价和参数，还是先想自己需要它吗？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-C3",
+    "scenario": "朋友问周末过得怎么样",
+    "textLeft": "说这两天挺松快、状态不错",
+    "textRight": "把去了哪、做了什么讲一遍",
+    "example": "朋友问你周末过得怎样。你更常先说自己的感受，还是讲去了哪、做了什么？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "SN-C4",
+    "scenario": "别人给你讲一件麻烦事",
+    "textLeft": "先听出这事的关键卡在哪儿",
+    "textRight": "先问到具体是哪一步出了问题",
+    "example": "别人讲了一件还没解决的麻烦事。你先想找出关键原因，还是先问具体哪一步出了问题？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-C1",
+    "scenario": "朋友临时向你借一笔钱",
+    "textLeft": "先想这件事合不合理、还得上吗",
+    "textRight": "先想他为什么会开这个口",
+    "example": "朋友临时向你借钱。你先考虑借钱的理由与还款情况，还是他为什么需要求助？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-C2",
+    "scenario": "看到一条新出的规定",
+    "textLeft": "它会不会让一些人变得很难做",
+    "textRight": "它能不能解决原来那个问题",
+    "example": "看到一条新规定。你更先想它对人有什么影响，还是它能解决什么问题？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-C3",
+    "scenario": "张罗一次多人聚会",
+    "textLeft": "先问一圈谁方便，再定下来",
+    "textRight": "先把时间地点定死，好安排",
+    "example": "你来约几个人聚会。你通常先问大家的时间，还是先定好时间地点？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "TF-C4",
+    "scenario": "话没错但说得不好听",
+    "textLeft": "先把准确的说法讲清楚",
+    "textRight": "先看现在怎么把话说开",
+    "example": "别人指出的问题有道理，但说话让人不舒服。你更想先说清内容，还是先缓和沟通？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-C1",
+    "scenario": "出门采购的时候",
+    "textLeft": "到了看有什么合适的再买",
+    "textRight": "出门前先列好要买什么",
+    "example": "准备去采购日用品。你习惯出门列清单，还是到店里看到合适的再买？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-C2",
+    "scenario": "一趟不太远的出行",
+    "textLeft": "先看清车怎么走、几点到",
+    "textRight": "大概知道方向，到了再说",
+    "example": "准备去一个不远的地方，有几条路线可选。你会先查好怎么走，还是大致知道方向就出发？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-C3",
+    "scenario": "几件小事排在今天",
+    "textLeft": "一件接一件按顺序做完",
+    "textRight": "先做哪个看当时顺不顺手",
+    "example": "今天有几件小事，顺序由你安排。你习惯按顺序做，还是当时哪个顺手就做哪个？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v1",
+    "id": "JP-C4",
+    "scenario": "事情只差一点收尾",
+    "textLeft": "先放着，等哪天想接着做再说",
+    "textRight": "顺手把它做完，不留个尾巴",
+    "example": "一件事只差最后一点，也不急着交。你更常先放一放，还是顺手做完？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-01",
+    "scenario": "活动之后的精力",
+    "textLeft": "留点时间自己安静待着",
+    "textRight": "再找个人聊聊刚发生的事",
+    "example": "和熟人一起玩了一下午。活动结束后，你通常更想怎样休息？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-01",
+    "scenario": "开始了解新东西",
+    "textLeft": "一个能照着做的具体例子",
+    "textRight": "它整体怎么运作、各部分怎么连",
+    "example": "朋友介绍一个你没接触过的东西。你更希望他先讲例子，还是先讲整体思路？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-01",
+    "scenario": "两个方案影响不同人",
+    "textLeft": "谁会受到什么影响，哪些需要被照顾",
+    "textRight": "用同一套标准比较，看前后是否一致",
+    "example": "两种安排都能把事情办好，但对大家的影响不同。你会先考虑什么？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-01",
+    "scenario": "自己安排的一天",
+    "textLeft": "先把大致顺序和时间定下来",
+    "textRight": "先留出空间，到那时再决定",
+    "example": "周末有一天完全由你安排。你更习惯提前定好，还是当天再决定？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-02",
+    "scenario": "想法还没理清时",
+    "textLeft": "先说出口，一边说一边理顺",
+    "textRight": "自己先想一遍，再拿出来说",
+    "example": "脑子里有个还没想清楚的想法，也有人愿意听。你通常会怎么做？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-02",
+    "scenario": "说明一件刚发生的事",
+    "textLeft": "按顺序把经过和原话说清楚",
+    "textRight": "先说它说明什么、和什么有关",
+    "example": "你要给朋友讲一件刚发生的事。你会先讲事情经过，还是先讲自己的理解？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-02",
+    "scenario": "朋友来找你商量",
+    "textLeft": "先弄清他真正在意什么、为难在哪",
+    "textRight": "帮他看清哪个选择更站得住",
+    "example": "朋友在两个选择之间犹豫，来找你商量。你更自然的第一反应是什么？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-02",
+    "scenario": "没有期限的任务",
+    "textLeft": "同时留着几套做法，看情况再说",
+    "textRight": "先定下一套做法，往下推进",
+    "example": "你有一件不赶时间的事，有几种办法都能做。你会先选定一种，还是继续比较？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-03",
+    "scenario": "到了不太熟的场合",
+    "textLeft": "先走动，和几个人聊上几句",
+    "textRight": "先待在旁边看一会儿，等有人来搭话",
+    "example": "去参加聚会，现场只有几个熟人。刚到的时候，你通常会怎么做？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-03",
+    "scenario": "读一份介绍材料",
+    "textLeft": "它讲到的实际情况和具体做法",
+    "textRight": "它背后的思路和整体方向",
+    "example": "看到一份新产品或新活动的介绍。你更容易先注意到哪些内容？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-03",
+    "scenario": "规定遇上特殊情况",
+    "textLeft": "先看这个人现在具体难在哪",
+    "textRight": "先问这条规定为什么这样定",
+    "example": "有人有特殊困难，希望不完全按规定办。你会先问他的情况，还是先问规定的理由？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-03",
+    "scenario": "原定安排被改动",
+    "textLeft": "不重新排，顺着当时的情况走",
+    "textRight": "马上重新排一遍，把后面的时间重新定下来",
+    "example": "原本安排好的行程临时有变化。下面哪种反应更像平时的你？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-04",
+    "scenario": "话头被人接过去",
+    "textLeft": "先听他说完，再接着讲自己想讲的",
+    "textRight": "顺势聊下去，想到哪说到哪",
+    "example": "你还没说完，别人接过了话题。接下来你更常怎么做？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-04",
+    "scenario": "学一样新技能",
+    "textLeft": "先跟着做几遍，把动作学会",
+    "textRight": "先弄懂它为什么管用",
+    "example": "学习做一道菜或使用一个新工具。你更想先跟着做，还是先弄懂原理？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-04",
+    "scenario": "看法被当面反驳",
+    "textLeft": "对方为什么这么在意这件事",
+    "textRight": "对方的理由在哪里不成立",
+    "example": "你提出看法，对方当面反对。你通常先关注对方在意什么，还是他的理由是否合理？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-04",
+    "scenario": "事情快做完的时候",
+    "textLeft": "再多留一点时间，接着改下去",
+    "textRight": "先告一段落，剩下的地方以后再改",
+    "example": "事情已经快做完了，还有一些地方能修改。你更常怎么安排接下来的时间？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-05",
+    "scenario": "忙完一天之后",
+    "textLeft": "和熟悉的人待着更让我缓过来",
+    "textRight": "自己待一会儿才真正缓过来",
+    "example": "忙碌的一天结束了，现在可以自由休息。和熟人待着或独处，哪个更让你放松？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-05",
+    "scenario": "新点子刚被提出",
+    "textLeft": "先说它还能延伸出哪些做法",
+    "textRight": "先说它能用在哪些具体场景",
+    "example": "有人提出一个新点子。你会先想到更多可能的做法，还是它具体能用在哪？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-05",
+    "scenario": "一群人商量事情",
+    "textLeft": "先把标准说清楚，再按标准定",
+    "textRight": "先看大家各自的想法和感受",
+    "example": "几个人一起商量怎么办一件事。你更想先统一判断标准，还是听大家的想法和感受？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-05",
+    "scenario": "面对还没到期的决定",
+    "textLeft": "早点定下，心里就不用再挂着",
+    "textRight": "多留几天，说不定有更合适的",
+    "example": "有一件事必须二选一，但离最后期限还早。你更想早点定下，还是多看几天？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-06",
+    "scenario": "复杂问题摆在面前",
+    "textLeft": "找人一起讨论，边聊边理",
+    "textRight": "自己安静琢磨，想通再说",
+    "example": "碰到一个复杂问题，身边也有人可以商量。你更想先讨论，还是先自己想？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-06",
+    "scenario": "接手一件陌生的事",
+    "textLeft": "先知道大方向，细节自己摸",
+    "textRight": "先有一份说清步骤的说明",
+    "example": "第一次做一件不熟悉的事。你更希望先知道目标，还是先拿到具体步骤？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-06",
+    "scenario": "两边都有理由的争执",
+    "textLeft": "分清楚哪边的道理更站得住",
+    "textRight": "先照顾双方在意的和关系本身",
+    "example": "两个人意见不同，双方都有理由，气氛也僵住了。你会先处理哪一部分？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-06",
+    "scenario": "手上攒着几件事",
+    "textLeft": "排个先后，做完一件再开下一件",
+    "textRight": "几件交替着做，看当时的状态",
+    "example": "今天有几件事要做，顺序由你决定。你更常逐件完成，还是交替着做？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-07",
+    "scenario": "休息时想要的动静",
+    "textLeft": "有些热闹和说话声在周围",
+    "textRight": "安静一点，最好没人来打扰",
+    "example": "有一个可以自由休息的下午。你更喜欢有些人声的地方，还是安静的地方？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-07",
+    "scenario": "回想去过的一个地方",
+    "textLeft": "那个地方给我的整体感觉",
+    "textRight": "当时看到听到的画面和细节",
+    "example": "回想最近去过的一个地方。先浮现在脑海里的是整体感觉，还是具体画面？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-07",
+    "scenario": "安排集体活动",
+    "textLeft": "先问大家想要什么，再凑出做法",
+    "textRight": "先把要求列出来，再挑合适的做法",
+    "example": "你来安排一次几个人参加的活动。你会先了解大家想要什么，还是先列活动要求？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-07",
+    "scenario": "一天里空出半天",
+    "textLeft": "随手看看当时想做什么",
+    "textRight": "前一天就想好要做哪几件事",
+    "example": "突然空出了半天，也没有约人。你更喜欢临时选，还是提前想好做什么？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-08",
+    "scenario": "坐进一群正在聊的人",
+    "textLeft": "听一会儿，有把握了再开口",
+    "textRight": "先接上话，聊着聊着就有了",
+    "example": "你坐到一群正在聊天的人旁边。你通常先听一会儿，还是很快加入？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-08",
+    "scenario": "讨论一件很具体的事",
+    "textLeft": "把已经掌握的情况摆清楚",
+    "textRight": "顺着可以想到的关联往外推",
+    "example": "大家讨论一件具体的事。你更想把已知情况讲清楚，还是谈它可能与什么有关？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-08",
+    "scenario": "发现说法和事实对不上",
+    "textLeft": "先把说法改到和事实一致",
+    "textRight": "先想怎么讲对方才接得住",
+    "example": "别人说了一件事，你发现和事实不符。你先想纠正内容，还是想怎样说对方容易接受？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-08",
+    "scenario": "别人临时来约",
+    "textLeft": "先看这一刻想不想去",
+    "textRight": "先想今天原定的安排要不要动",
+    "example": "朋友今天才约你今晚出去。你通常先想此刻想不想去，还是先看原来的安排？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-09",
+    "scenario": "连着几天和人打交道",
+    "textLeft": "中间插一段独处就恢复过来",
+    "textRight": "有人一起反而越待越有劲",
+    "example": "连续几天都有聚会或需要和人交流。你更想找时间独处，还是继续和人待着？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-09",
+    "scenario": "一件小事出了岔子",
+    "textLeft": "先想它和前后哪些环节有关",
+    "textRight": "先看这一步具体是哪里错了",
+    "example": "一件事出了问题，需要找原因。你先检查出错的步骤，还是先想前后环节的关系？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-09",
+    "scenario": "评价两个都做得不错的结果",
+    "textLeft": "各自做得怎么样，合乎原来的要求吗",
+    "textRight": "各自在这件事上投入了多少心思",
+    "example": "两个人都交出了不错的成果。评价时，你会先看结果符合要求吗，还是各自的投入？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-09",
+    "scenario": "计划中途冒出别的事",
+    "textLeft": "先把手头这件事按原样做完",
+    "textRight": "先转向那件事，回头再接着说",
+    "example": "正在按计划做事，又来了另一件不紧急的事。你更常先完成手头的，还是先换一件？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-10",
+    "scenario": "准备把自己的看法讲出来",
+    "textLeft": "先在对话里试一下，说到哪算哪",
+    "textRight": "先在心里过一遍，再完整说出来",
+    "example": "准备告诉别人你的看法。你更常边聊边整理，还是先在心里想一遍？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-10",
+    "scenario": "听人介绍一个没做过的事",
+    "textLeft": "它本身会怎么一步步发生",
+    "textRight": "它和我知道的哪些事对得上",
+    "example": "别人介绍一件你没有做过的事。你想先听具体步骤，还是把它和已知的事情联系起来？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-10",
+    "scenario": "有人带着难处来找你",
+    "textLeft": "他当时遇到的情况是怎样的",
+    "textRight": "他心里的感受和在意的东西",
+    "example": "有人告诉你一件让他为难的事。你更先想知道事情经过，还是他的感受和顾虑？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-10",
+    "scenario": "一件暂时做完的事",
+    "textLeft": "先不做最终决定，放一放再看看",
+    "textRight": "尽快收个尾，把它定下来",
+    "example": "一件事已经交出去了，暂时算完成。发现还能改进时，你更常怎么做？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-11",
+    "scenario": "分享一件自己的好事",
+    "textLeft": "先自己高兴一阵，再挑人讲",
+    "textRight": "马上找几个人讲一遍",
+    "example": "刚得知一个自己的好消息。你通常先自己高兴一会儿，还是马上找人分享？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-11",
+    "scenario": "看待手边正在做的事",
+    "textLeft": "它最后会通向哪里",
+    "textRight": "现在这一步可以怎么做扎实",
+    "example": "正在做一件还需要一段时间的事。你更常想最后的方向，还是眼前这一步？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-11",
+    "scenario": "两个人都想把事做好",
+    "textLeft": "谁的做法更经得起推敲",
+    "textRight": "谁在这件事上更被为难",
+    "example": "两个人都认真投入，但主张的做法不同。你更先比较做法的理由，还是了解谁遇到困难？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-11",
+    "scenario": "有几个选项摆在眼前",
+    "textLeft": "先挑一个最合适的用起来",
+    "textRight": "先不挑，等看得更清楚一点",
+    "example": "面前有几个都还不错的选项。你更想先选一个用起来，还是再了解一下？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-12",
+    "scenario": "事情没做成之后",
+    "textLeft": "自己待一会儿，慢慢消化掉",
+    "textRight": "找人说说，说着说着就没那么闷",
+    "example": "一件事没做成，你心里有些失落。你通常想独自缓一缓，还是找人说说？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-12",
+    "scenario": "学一样东西学过一阵",
+    "textLeft": "顺着兴趣往深处探，练出新路",
+    "textRight": "把基础反复练熟，先稳下来",
+    "example": "一件事已经学了一阵子。接下来你更想尝试新做法，还是多练习已有的基础？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-12",
+    "scenario": "几个人一起评一个做法",
+    "textLeft": "先让在场的人把话说完再接",
+    "textRight": "先把做法本身说通，再看情绪",
+    "example": "几个人在评价一个做法，气氛有点紧张。你更想先听大家讲完，还是先讨论做法本身？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-12",
+    "scenario": "一个安排做到一半",
+    "textLeft": "按原样走完，中途不折腾",
+    "textRight": "中途想到更好的就换成新的",
+    "example": "计划做到一半，你想到了另一个办法。你更常按原计划完成，还是换成新办法？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-C1",
+    "scenario": "和几个人同桌吃饭",
+    "textLeft": "顺着话题一直聊下去",
+    "textRight": "主要听，偶尔接一两句",
+    "example": "和几个人同桌吃饭，大家随意聊天。你更常一直参与，还是听得多、说得少？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-C2",
+    "scenario": "排队时旁边有人搭话",
+    "textLeft": "接上几句就好，等轮到自己",
+    "textRight": "顺势聊起来，队伍慢了也不在意",
+    "example": "排队时，旁边不认识的人和你搭话。你更常简单回应，还是接着聊起来？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-C3",
+    "scenario": "接起一个电话",
+    "textLeft": "先想一下要说什么再接",
+    "textRight": "直接接起来，边说边想",
+    "example": "电话响了，但不需要立刻接。你更常先想想要说什么，还是接起来再说？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "EI-C4",
+    "scenario": "事情堆在一起的时候",
+    "textLeft": "先找人聊两句再开始",
+    "textRight": "先自己理清顺序再动手",
+    "example": "几件事同时压过来，你一时有点乱。你会先找人聊聊，还是自己整理顺序？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-C1",
+    "scenario": "去一个没去过的地方",
+    "textLeft": "先记住路上看到的标志和路口",
+    "textRight": "先弄清它在城里的大致方位",
+    "example": "第一次去一个地方。你更习惯记路口和标志，还是先了解它的大致方位？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-C2",
+    "scenario": "买一件没买过的东西",
+    "textLeft": "先看用过的人怎么说、参数如何",
+    "textRight": "先想清楚自己到底需不需要",
+    "example": "准备买一个以前没买过的东西。你先查使用评价和参数，还是先想自己需要它吗？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-C3",
+    "scenario": "朋友问周末过得怎么样",
+    "textLeft": "说这两天挺松快、状态不错",
+    "textRight": "把去了哪、做了什么讲一遍",
+    "example": "朋友问你周末过得怎样。你更常先说自己的感受，还是讲去了哪、做了什么？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "SN-C4",
+    "scenario": "别人给你讲一件麻烦事",
+    "textLeft": "先听出这事的关键卡在哪儿",
+    "textRight": "先问到具体是哪一步出了问题",
+    "example": "别人讲了一件还没解决的麻烦事。你先想找出关键原因，还是先问具体哪一步出了问题？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-C1",
+    "scenario": "朋友临时向你借一笔钱",
+    "textLeft": "先想这件事合不合理、还得上吗",
+    "textRight": "先想他为什么会开这个口",
+    "example": "朋友临时向你借钱。你先考虑借钱的理由与还款情况，还是他为什么需要求助？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-C2",
+    "scenario": "看到一条新出的规定",
+    "textLeft": "它会不会让一些人变得很难做",
+    "textRight": "它能不能解决原来那个问题",
+    "example": "看到一条新规定。你更先想它对人有什么影响，还是它能解决什么问题？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-C3",
+    "scenario": "张罗一次多人聚会",
+    "textLeft": "先问一圈谁方便，再定下来",
+    "textRight": "先把时间地点定死，好安排",
+    "example": "你来约几个人聚会。你通常先问大家的时间，还是先定好时间地点？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "TF-C4",
+    "scenario": "话没错但说得不好听",
+    "textLeft": "先把准确的说法讲清楚",
+    "textRight": "先看现在怎么把话说开",
+    "example": "别人指出的问题有道理，但说话让人不舒服。你更想先说清内容，还是先缓和沟通？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-C1",
+    "scenario": "出门采购的时候",
+    "textLeft": "到了看有什么合适的再买",
+    "textRight": "出门前先列好要买什么",
+    "example": "准备去采购日用品。你习惯出门列清单，还是到店里看到合适的再买？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-C2",
+    "scenario": "一趟不太远的出行",
+    "textLeft": "先看清车怎么走、几点到",
+    "textRight": "大概知道方向，到了再说",
+    "example": "准备去一个不远的地方，有几条路线可选。你会先查好怎么走，还是大致知道方向就出发？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-C3",
+    "scenario": "几件小事排在今天",
+    "textLeft": "一件接一件按顺序做完",
+    "textRight": "先做哪个看当时顺不顺手",
+    "example": "今天有几件小事，顺序由你安排。你习惯按顺序做，还是当时哪个顺手就做哪个？"
+  },
+  {
+    "packageId": "typeme-jung48-zh-v2",
+    "id": "JP-C4",
+    "scenario": "事情只差一点收尾",
+    "textLeft": "先放着，等哪天想接着做再说",
+    "textRight": "顺手把它做完，不留个尾巴",
+    "example": "一件事只差最后一点，也不急着交。你更常先放一放，还是顺手做完？"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q01",
+    "statement": "我是聚会里活跃气氛的那个人。",
+    "example": "这题问的是在聚会一类场合里，你是否常主动带动气氛、让场面热起来。例如一群人都在等谁先开口时，你会不会自然地接话。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q02",
+    "statement": "我很少关心别人的情况。",
+    "example": "这题问的是你平时对别人的处境和近况关注多少。比如同事提到家里遇到麻烦，你会不会想多问一句。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q03",
+    "statement": "我通常提前做好准备。",
+    "example": "这题问的是做事之前是否习惯先把东西准备好。比如出门前检查证件、开会前把材料理一遍。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q04",
+    "statement": "我很容易感到压力大。",
+    "example": "这题问的是面对要求和时间压力时，你的身体和情绪绷紧得快不快。比如几件事同时要交时，你会不会先感到紧张。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q05",
+    "statement": "我的词汇量比较丰富。",
+    "example": "这题问的是你平时掌握和使用的词语多不多。比如写一段说明或和人聊天时，你能不能比较容易找到合适的词。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q06",
+    "statement": "我平时话不多。",
+    "example": "这题问的是日常交流里你说话的分量多不多。比如几个人一起聊天时，你更常接话还是更多在听。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q07",
+    "statement": "我对别人的事情感兴趣。",
+    "example": "这题问的是你对别人的经历、想法和近况有没有好奇。比如新同事来了，你会不会想了解他之前做什么。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q08",
+    "statement": "我的东西经常随手乱放。",
+    "example": "这题问的是你的东西平时放在哪里。比如钥匙、衣服、文件是不是常常随手一放，过后再找。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q09",
+    "statement": "我大多数时候比较放松。",
+    "example": "这题问的是你平时的底色是松弛还是紧绷。比如没有特别事情发生时，你多数时候是不是比较平静。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q10",
+    "statement": "理解抽象的概念对我来说比较困难。",
+    "example": "这题问的是理解抽象内容时的顺手程度。比如听一场只讲概念和推演的讲座，你会不会觉得跟不上。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q11",
+    "statement": "和别人在一起时我感到自在。",
+    "example": "这题问的是和一群众人待在一起时你自不自在。比如聚餐、团建这类场合，你会不会觉得放松。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q12",
+    "statement": "我会说让人难堪的话。",
+    "example": "这题问的是你说话时会不会让对方难堪。比如着急或不同意时，你会不会用带刺的话回应。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q13",
+    "statement": "我会留意事情里的细节。",
+    "example": "这题问的是你做事时会不会留意小处。比如核对数字、检查错别字这类需要细看的地方。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q14",
+    "statement": "我常为各种事情担心。",
+    "example": "这题问的是你多久会为还没发生的事操心。比如第二天有一场重要的沟通，你前一晚会反复想各种可能。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q15",
+    "statement": "我的想象力比较丰富。",
+    "example": "这题问的是你脑子里画面和联想丰不丰富。比如读一段文字或听别人描述时，你会不会自动浮现出场景。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q16",
+    "statement": "在集体场合我习惯待在不起眼的位置。",
+    "example": "这题问的是在集体场合你更愿意站在什么位置。比如开会或活动时，你习惯靠前还是靠后、多说话还是少说话。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q17",
+    "statement": "我能体谅别人的感受。",
+    "example": "这题问的是别人说出自己的处境时，你能不能体会到他的感受。比如朋友说最近很累，你会不会先理解他的难处。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q18",
+    "statement": "我常把事情弄得一团糟。",
+    "example": "这题问的是你做事时出岔子的频率。比如照着说明装东西，是不是常漏掉步骤或弄错顺序。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q19",
+    "statement": "我很少感到情绪低落。",
+    "example": "这题问的是你多久会出现情绪低落的时段。比如一段时间里事情都还顺利时，你多数时候心情如何。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q20",
+    "statement": "我对抽象的想法不太感兴趣。",
+    "example": "这题问的是你对纯想法、纯概念一类话题的兴趣。比如有人聊假设、定义、理论推演时，你会不会觉得没意思。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q21",
+    "statement": "我常主动和别人搭话。",
+    "example": "这题问的是你会不会主动开口搭话。比如在电梯里、排队时或新场合，你通常等别人先说还是自己先开口。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q22",
+    "statement": "我对别人的困难不太感兴趣。",
+    "example": "这题问的是别人跟你讲自己的麻烦时，你有多大兴趣听下去。比如同事抱怨工作上的难处，你会不会想了解细节。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q23",
+    "statement": "家务和杂事我会马上做完。",
+    "example": "这题问的是日常杂事你会不会尽快处理。比如该洗的碗、该回的消息，你通常先做还是先放着。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q24",
+    "statement": "我很容易被周围的事情扰乱心绪。",
+    "example": "这题问的是外界的小变化会不会搅动你的心绪。比如计划被临时改动，你会不会半天静不下来。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q25",
+    "statement": "我常有不错的点子。",
+    "example": "这题问的是你想出点子的频率。比如讨论一个活动怎么办时，你会不会常提出新的做法。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q26",
+    "statement": "我没什么话要说。",
+    "example": "这题问的是在需要发言的场合你通常有多少话想说。比如被问到一个话题时，你会不会觉得没什么可补充的。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q27",
+    "statement": "我的心比较软。",
+    "example": "这题问的是看到别人难受或遇到不幸时你的心软程度。比如听到陌生人的遭遇，你会不会心里不好受。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q28",
+    "statement": "我常忘记把东西放回原处。",
+    "example": "这题问的是用完的东西你会不会放回原处。比如剪刀、充电线、餐具用完后放在哪里。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q29",
+    "statement": "我容易感到心里不痛快。",
+    "example": "这题问的是遇到不顺时你多快会心里不痛快。比如安排被临时改掉或被否定一句，你会不会一下就闷住。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q30",
+    "statement": "我的想象力不太好。",
+    "example": "这题问的是你需要构想或编例子时顺不顺手。比如要设计一个方案、想一个例子，你会不会觉得想不出来。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q31",
+    "statement": "在聚会上我会和很多不同的人交谈。",
+    "example": "这题问的是在聚会里你会和多少人交谈。比如一个晚上下来，你是围着几个人聊还是不断换人搭话。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q32",
+    "statement": "我对别人没什么兴趣。",
+    "example": "这题问的是你对身边人的整体兴趣。比如别人分享日常生活时，你会不会觉得和自己关系不大。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q33",
+    "statement": "我喜欢事情有条理。",
+    "example": "这题问的是你对整齐和条理的偏好。比如桌面、文件和日程，你是不是希望它们各归各位。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q34",
+    "statement": "我的心情变化比较大。",
+    "example": "这题问的是你的心情一天里会不会明显起落。比如上午还挺好，下午因为一件小事就沉下来。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q35",
+    "statement": "我理解事情比较快。",
+    "example": "这题问的是接触新说法、新内容时你上手快不快。比如看一份以前没接触过的说明，你能不能很快抓住要点。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q36",
+    "statement": "我不喜欢让别人注意到我。",
+    "example": "这题问的是你愿不愿意被大家注意到。比如被点名表扬或在会上发言，你会不会希望换个方式。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q37",
+    "statement": "我愿意为别人留出时间。",
+    "example": "这题问的是你愿不愿意为别人挪出自己的时间。比如朋友临时找你帮忙，你会不会调整原定安排。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q38",
+    "statement": "我会回避自己该做的事。",
+    "example": "这题问的是面对该自己承担的事情你会不会绕开。比如分工里属于自己的那部分，你会不会想推给别人或往后拖。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q39",
+    "statement": "我的情绪起伏比较频繁。",
+    "example": "这题问的是你的情绪起伏有多频繁。比如一周里心情在好和差之间来回切换的次数。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q40",
+    "statement": "我说话时会用比较生僻的词。",
+    "example": "这题问的是你说话和写东西时的用词习惯。比如表达一个意思时，你会不会选不太常见的词。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q41",
+    "statement": "我不介意成为大家关注的焦点。",
+    "example": "这题问的是被众人注视时你的感受。比如上台介绍自己或当众讲话，你会不会觉得可以接受。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q42",
+    "statement": "我能感受到别人的情绪。",
+    "example": "这题问的是你能不能觉察到别人情绪的变化。比如对方嘴上说没事，你会不会感到他其实不太舒服。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q43",
+    "statement": "我通常按计划安排事情。",
+    "example": "这题问的是你做事有没有固定的时间安排。比如一周的任务，你会不会按事先排好的顺序推进。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q44",
+    "statement": "我容易感到烦躁。",
+    "example": "这题问的是日常小事会不会让你烦躁。比如被打断、排队、反复解释时，你会不会很快失去耐心。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q45",
+    "statement": "我会花时间反思一些事情。",
+    "example": "这题问的是你会不会留出时间想事情。比如一天结束后，你会不会回想自己做过的事和当时的想法。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q46",
+    "statement": "和不熟的人在一起时我比较安静。",
+    "example": "这题问的是面对不熟的人时你的状态。比如第一次见面的场合，你通常是话多还是安静。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q47",
+    "statement": "我能让别人感到自在。",
+    "example": "这题问的是别人和你相处时会不会放松。比如初次见面，你会不会主动找话、照顾对方的节奏。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q48",
+    "statement": "我对自己的工作标准要求比较严格。",
+    "example": "这题问的是你对自己做事标准的要求。比如交出去的东西，你会不会反复检查到满意为止。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q49",
+    "statement": "我常感到情绪低落。",
+    "example": "这题问的是你出现低落心情的频率。比如一段时间里，你是不是常常提不起劲。"
+  },
+  {
+    "packageId": "typeme-bigfive50-zh-v1",
+    "id": "Q50",
+    "statement": "我常常有很多想法。",
+    "example": "这题问的是你脑子里想法多不多。比如聊天或做事时，你会不会同时冒出好几个方向。"
+  }
+]

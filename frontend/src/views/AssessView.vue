@@ -1,22 +1,21 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
-import { useAssessmentStore } from '@/stores/assessmentV3'
+import AppIcon from '@/components/AppIcon.vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import { useAssessmentStore, SCALE_CAPTIONS } from '@/stores/assessmentV3'
 import { useAuthStore } from '@/stores/auth'
+import { describeError, isSessionExpired } from '@/api/v3'
 import type { Dimension, Item } from '@/domain/jung/types'
 import { DIMENSION_SHORT_NAME } from '@/domain/jung/labels'
 import { ANSWER_VALUES } from '@/domain/answers'
+import { questionExample } from '@/domain/readingCompanion'
 
 /**
- * 新测的五档文案（契约 §7.4 固定为这五个词）。
- *
- * ⚠️ **刻意不复用**旧引擎的 `ANSWER_CAPTIONS`：那是「完全是左边 / 一半一半 / 完全是右边」，
- * 描述的是位置；新测要的是"哪一侧更像你"的程度（很像 / 更像 / 差不多），
- * 两者在"3 分"这一档上的含义不同（旧的是"一半一半"，新的是"两边差不多"）。
- * 契约把文案写死成这五个词，就是为了避免两代产品在同一个控件上说两套话。
+ * 五档文案本身定义在 store（`SCALE_CAPTIONS`），因为同步冲突提示也要引用同一份。
+ * 这里保留 `captionOf` 作为"1 基档位 → 文案"的取值口，避免各处写 `[value - 1]`。
  */
-const SCALE_CAPTIONS = ['很像左边', '更像左边', '两边差不多', '更像右边', '很像右边'] as const
 
 /** 档位 → 文案（1 基）。 */
 function captionOf(value: number): string {
@@ -61,12 +60,41 @@ const liveMessage = ref('')
 const loading = ref(false)
 const loadFailure = ref<string | null>(null)
 const showUnanswered = ref(false)
+const leaveDialog = ref(false)
+let leaveResolve: ((allowed: boolean) => void) | null = null
 /** 交卷请求进行中（防连点）。 */
 const submitting = ref(false)
 const submitNotice = ref<string | null>(null)
 /** 覆盖不足时服务端给的"还差哪几维"。 */
 const needsReview = ref<{ dimension: Dimension; name: string; note: string }[]>([])
-
+/**
+ * 会话在答题过程中失效了。
+ *
+ * <p>答题页在 `App.vue` 里是**隐藏常规导航**的（只剩「暂时离开」），登录入口不在页面上，
+ * 所以这里必须自己给出回登录的路：否则用户看到"请先登录"+一个注定失败的「重试」，
+ * 页面上没有任何能走通的操作。路由守卫本来就支持 `redirect`，登录后会回到原处续答。
+ */
+const sessionExpired = ref(false)
+/**
+ * 载入失败的**错误码**（用于区分"再试一次就能好"和"再试一万次也不会变"）。
+ *
+ * <p>没有它的时候，任何载入失败都只给一个「重试」：测评被删掉（404）或内容包已下线
+ * （409 `PACKAGE_UNAVAILABLE`）时，用户会对着一个必然失败的按钮反复点（第 17 轮）。
+ */
+const loadErrorCode = ref<string | null>(null)
+/**
+ * 这一类失败重试不会改变结果，必须给别的出路。
+ *
+ * <p>`NOT_FOUND`：这份测评在服务端已经不存在（被删除、或链接来自别的账号/别的时间）。
+ * `PACKAGE_UNAVAILABLE`：这次测评锁定的内容包已经不能用了，草稿无法继续。
+ * `FORBIDDEN`：这份测评不属于当前账号 —— 重试同样没有意义。
+ */
+const loadUnrecoverable = computed(
+  () =>
+    !sessionExpired.value &&
+    loadErrorCode.value !== null &&
+    ['NOT_FOUND', 'PACKAGE_UNAVAILABLE', 'FORBIDDEN'].includes(loadErrorCode.value),
+)
 const attemptId = computed(() => (typeof route.params.attemptId === 'string' ? route.params.attemptId : null))
 const baseQuestions = computed(() => assessment.baseQuestions)
 const clarificationQuestions = computed(() => assessment.scheduledClarificationQuestions)
@@ -81,6 +109,7 @@ const activeIndex = computed(() =>
   step.value === 'clarification' ? clarificationIndex.value : baseIndex.value,
 )
 const currentQuestion = computed<Item | null>(() => activeQuestions.value[activeIndex.value] ?? null)
+const readingExample = computed(() => questionExample(assessment.packageView?.packageId, currentQuestion.value))
 const activeNumber = computed(() => activeIndex.value + 1)
 const activeTotal = computed(() => activeQuestions.value.length)
 const isLastInStage = computed(() => activeTotal.value > 0 && activeIndex.value === activeTotal.value - 1)
@@ -131,8 +160,12 @@ const saveLabel = computed(() => {
       return '已保存'
     case 'conflict':
       return '未同步（另一台设备改过进度）'
-    case 'error':
-      return '未同步（网络或登录已失效）'
+    case 'error': {
+      // 说清"还有几条没写上去"，而不是笼统一句"未同步"：
+      // 用户需要知道回去补哪几题，也需要知道这不是又一次徒劳的重试。
+      const outstanding = assessment.listUnconfirmedIds().length
+      return outstanding > 0 ? `未同步（${outstanding} 题的作答还没写上去）` : '未同步（网络或登录已失效）'
+    }
     default:
       return '还没有需要保存的内容'
   }
@@ -163,6 +196,65 @@ const clarificationReason = computed(() => {
   return `${names}这${dimensions.length > 1 ? '几' : '一'}维两边差不多，再问几题才能看出方向。`
 })
 
+/** 还没写上去的作答条数（保存失败提示里要说清"几题"）。 */
+const unsavedCount = computed(() => assessment.listUnconfirmedIds().length)
+const pendingLeaveCount = computed(() => assessment.conflict?.lostAnswers.length ?? unsavedCount.value)
+
+function onBeforeUnload(event: BeforeUnloadEvent): void {
+  event.preventDefault()
+  event.returnValue = ''
+}
+
+watch(pendingLeaveCount, (count) => {
+  if (count > 0) window.addEventListener('beforeunload', onBeforeUnload)
+  else window.removeEventListener('beforeunload', onBeforeUnload)
+})
+
+async function protectDeparture(): Promise<boolean> {
+  if (!assessment.attemptId || assessment.status === 'SUBMITTED') return true
+  if (submitting.value || assessment.loading) return false
+  if (!assessment.conflict && pendingLeaveCount.value > 0) await assessment.retryUnconfirmed()
+  if (pendingLeaveCount.value === 0 && !assessment.conflict) return true
+  leaveDialog.value = true
+  return new Promise<boolean>((resolve) => { leaveResolve = resolve })
+}
+
+function resolveLeave(allowed: boolean): void {
+  leaveDialog.value = false
+  leaveResolve?.(allowed)
+  leaveResolve = null
+}
+
+const removeLeaveGuard = router.beforeEach((to, from) => {
+  if (from.name !== 'assess-attempt' && from.name !== 'assess') return true
+  if (from.params.attemptId !== assessment.attemptId) return true
+  if (to.fullPath === from.fullPath) return true
+  return protectDeparture()
+})
+
+/**
+ * 这次保存失败是**会话失效**造成的吗？
+ *
+ * <p>是的话就不该给「重试保存」：在那个状态下重试必然再失败一次，
+ * 用户会一直点一个永远不会成功的按钮。要给的是"去登录"（第 17 轮）。
+ */
+const saveNeedsLogin = computed(() => assessment.lastError?.sessionExpired === true)
+
+/**
+ * 重试把没写上去的作答保存好。
+ *
+ * <p>`retryUnconfirmed()` 不抛异常：成败都反映在 `saveState`/`lastError` 里
+ * （失败时 store 自己记好），这里只负责把结果播报给屏幕阅读器 —— 它们看不到横幅变化。
+ */
+async function retrySave(): Promise<void> {
+  await assessment.retryUnconfirmed()
+  announce(
+    assessment.saveState === 'saved'
+      ? '刚才没保存上的作答已经补写好了。'
+      : '还是没能保存，可以稍后再试。',
+  )
+}
+
 /* ── 载入 / 断点续答 ─────────────────────────────────────────────────────── */
 
 onMounted(async () => {
@@ -171,7 +263,10 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  removeLeaveGuard()
   window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('beforeunload', onBeforeUnload)
+  leaveResolve?.(false)
 })
 
 async function bootstrap(): Promise<void> {
@@ -180,6 +275,13 @@ async function bootstrap(): Promise<void> {
   try {
     if (attemptId.value) {
       await assessment.load(attemptId.value)
+      // 这份测评**已经交过卷**了（交卷成功但用户当时没看到结果、或直接刷新了页面）：
+      // 这一页已经没有可做的事，直接把他送到那份报告。以前这里会把他留在题目页，
+      // 再点交卷只会得到一句没有链接的「已经提交过」（第 17 轮）。
+      if (assessment.status === 'SUBMITTED' && assessment.reportId) {
+        await router.replace({ name: 'report-detail', params: { reportId: assessment.reportId } })
+        return
+      }
     } else {
       if (!auth.isAuthenticated) {
         await router.replace({ name: 'login', query: { redirect: '/assess' } })
@@ -191,7 +293,21 @@ async function bootstrap(): Promise<void> {
     }
     restorePosition()
   } catch (error) {
-    loadFailure.value = error instanceof Error ? error.message : '这份测评没能载入。'
+    // 会话失效要单独说：答题页没有登录入口，只给「重试」会让用户卡死在这里。
+    sessionExpired.value = isSessionExpired(error)
+    loadErrorCode.value = describeError(error).code
+    if (sessionExpired.value) {
+      loadFailure.value = '登录状态已经失效。登录后可以接着答，已经保存的作答不会丢。'
+    } else if (loadUnrecoverable.value) {
+      loadFailure.value =
+        loadErrorCode.value === 'PACKAGE_UNAVAILABLE'
+          ? '这次测评已经下线，没法继续。可以重新开始一次。'
+          : loadErrorCode.value === 'FORBIDDEN'
+            ? '这份测评不属于当前登录的账号，所以打不开。'
+            : '这份测评已经不存在了（可能已经被删除，或这个链接不是本机的）。'
+    } else {
+      loadFailure.value = error instanceof Error ? error.message : '这份测评没能载入。'
+    }
   } finally {
     loading.value = false
   }
@@ -201,13 +317,31 @@ async function bootstrap(): Promise<void> {
  * 断点续答的落点选择。
  *
  * 规则刻意简单且可解释：
- *   - 服务端记了 `currentQuestionId` 就回到那一题（用户上次离开的地方）；
- *   - 否则回到第一道**未作答**的主测题；
- *   - 主测全部处理过、且已安排补充题时，直接进入补充阶段。
+ *   - **优先回到第一道还没作答的主测题**；
+ *   - 主测都处理过了、且已安排补充题时，直接进入补充阶段；
+ *   - 都答完了才回到服务端记下的那一题（此时它是"最后停在哪"，用于回看）。
+ *
+ * 顺序为什么是"未答优先"而不是"记住的指针优先"（2026-09-17 真实浏览器抓到）：
+ * `next()` 写进服务端的 `currentQuestionId` 是**刚答完的那一题**（见那里的注释：
+ * 这是安全值，写下一题会让跳过未答题变得可能）。如果恢复时把这个安全值当权威，
+ * 就会出现"答到第 47 题 → 刷新 → 回到第 1 题"——因为指针一直停在第 47 题，
+ * 而第 48 题是未作答的。实测就是如此。放在已答完的题上既不丢数据也说不通，
+ * 所以恢复落点以"第一道未作答"为准；两个条件在常见情况下指向同一题
+ * （指针=刚答完的题，它已经有答案，所以第一道未作答其实是它的下一题附近）。
  */
 function restorePosition(): void {
-  const remembered = assessment.currentQuestionId
   const base = baseQuestions.value
+  const firstUnanswered = base.findIndex((question) => !assessment.answerOf(question.id))
+  if (firstUnanswered >= 0) {
+    baseIndex.value = firstUnanswered
+    step.value = 'base'
+    return
+  }
+  if (clarificationQuestions.value.length > 0) {
+    step.value = 'clarification'
+    return
+  }
+  const remembered = assessment.currentQuestionId
   if (remembered) {
     const index = base.findIndex((question) => question.id === remembered)
     if (index >= 0) {
@@ -223,16 +357,6 @@ function restorePosition(): void {
       step.value = 'clarification'
       return
     }
-  }
-  const firstUnanswered = base.findIndex((question) => !assessment.answerOf(question.id))
-  if (firstUnanswered >= 0) {
-    baseIndex.value = firstUnanswered
-    step.value = 'base'
-    return
-  }
-  if (clarificationQuestions.value.length > 0) {
-    step.value = 'clarification'
-    return
   }
   step.value = 'base'
 }
@@ -318,11 +442,62 @@ async function jumpTo(questionId: string): Promise<void> {
   }
 }
 
-/** 跳到第一道未作答的主测题。 */
+/**
+ * needs-review 时「回去改答」该落在哪一题。
+ *
+ * <p>`finishStage()` 只在**本地没有未答题**时才调 `runReview()`，所以走进
+ * needs-review 这一步时「未答清单」通常是空的 —— 原先 `jumpToFirstUnanswered()`
+ * 在这种情况下**静默返回**，按钮点了毫无反应，用户只能刷新页面才出得来（死路）。
+ *
+ * <p>所以这里按"用户能做什么"排优先级：
+ * <ol>
+ *   <li>真有未答的题 → 去那一题（把它答掉最直接）；</li>
+ *   <li>否则去覆盖不足那一维的第一道主测题 —— 那一维多半有题被标了「这题我说不好」，
+ *       改成一个真实档位就能把有效作答数补上去；</li>
+ *   <li>再不行才退回第一道主测题。</li>
+ * </ol>
+ */
+const reviewFallbackQuestionId = computed<string | null>(() => {
+  const firstUnanswered = unansweredBaseIds.value[0]
+  if (firstUnanswered) return firstUnanswered
+  const baseQuestions =
+    assessment.contentPackage?.questions.filter((item) => item.stage === 'base') ?? []
+  const firstShortDimension = needsReview.value[0]?.dimension
+  if (firstShortDimension) {
+    const inDimension = baseQuestions.find((item) => item.dimension === firstShortDimension)
+    if (inDimension) return inDimension.id
+  }
+  return baseQuestions[0]?.id ?? null
+})
+
+/** needs-review 这一步按钮该说什么：有未答题就是"回到未答的题"，否则是"回去改答"。 */
+const reviewFallbackLabel = computed(() =>
+  unansweredBaseIds.value.length > 0 ? '回到未答的题' : '回到题目继续调整',
+)
+
+/** 跳到第一道未作答的主测题；没有未答题时退回到覆盖不足那一维（见上面说明）。 */
 async function jumpToFirstUnanswered(): Promise<void> {
-  const first = unansweredBaseIds.value[0]
+  const target = reviewFallbackQuestionId.value
+  if (!target) return
+  await jumpTo(target)
+}
+
+/**
+ * 从补充题阶段回到主测改答。
+ *
+ * <p>回到**第一道主测题**而不是"刚才离开的那道"：用户点这个按钮的动机通常是
+ * "发现前面某题选错了"，而第一道未答题（若有）或开头是最容易找起的位置；
+ * 主测阶段的「跳到未答的题」也能立刻把他送到真正还没处理的地方。
+ */
+async function backToBase(): Promise<void> {
+  const first = baseQuestions.value[0]
   if (!first) return
-  await jumpTo(first)
+  step.value = 'base'
+  baseIndex.value = 0
+  showUnanswered.value = false
+  hint.value = null
+  announce('已回到主测。改答会重新计算要问的补充题。')
+  await assessment.rememberPosition(first.id)
 }
 
 /* ── 阶段收尾：review → 补充题或直接交卷 ─────────────────────────────────── */
@@ -399,9 +574,40 @@ async function submit(skipped: boolean): Promise<void> {
     }
     await router.push({ name: 'report-detail', params: { reportId: result.reportId } })
   } catch (error) {
-    const display = error instanceof Error ? error.message : '提交没能完成。'
+    sessionExpired.value = isSessionExpired(error)
+    // 交卷失败里最常见、也最让用户卡住的一种是"其实已经交上去了"（响应丢在路上、
+    // 或用户重复点了交卷）。这时把他留在一句错误上没有意义：报告已经生成，
+    // 契约里 `attempt.reportId` 就是为这条路准备的，只是前端以前从来没读它（第 17 轮）。
+    if (!sessionExpired.value) {
+      const probe = await assessment.probeSubmission()
+      if (probe.submitted) {
+        if (probe.reportId) {
+          submitNotice.value =
+            '这次测评其实已经交上去了 —— 上一次交卷的响应没有回到浏览器。正在打开那份报告。'
+          announce('这次测评已经提交过了，正在打开报告。')
+          await router.push({ name: 'report-detail', params: { reportId: probe.reportId } })
+          return
+        }
+        // 交上去了，但服务端复核后没有生成报告（信息不足）：如实说明，并给出补答入口。
+        needsReview.value = assessment.insufficientDetails()
+        step.value = 'needs-review'
+        submitNotice.value =
+          '这次测评其实已经交上去了；服务端复核后认为信息还不够，没有生成报告。草稿完整保留，可以接着补答。'
+        announce('这次测评已经提交过了，覆盖不足未生成报告。')
+        return
+      }
+    }
+    const display = sessionExpired.value
+      ? '登录状态已经失效，所以这次没能交卷。登录后可以接着答，草稿还在。'
+      : error instanceof Error
+        ? error.message
+        : '提交没能完成。'
     submitNotice.value = display
-    announce('提交失败。')
+    if (sessionExpired.value && step.value !== 'needs-review') {
+      step.value = 'needs-review'
+      needsReview.value = assessment.insufficientDetails()
+    }
+    announce(sessionExpired.value ? '登录状态已失效。' : '提交失败。')
   } finally {
     submitting.value = false
   }
@@ -477,14 +683,6 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 
-/** 页面上的维度名（内容包优先）。 */
-function dimensionName(dimension: Dimension): string {
-  return (
-    assessment.contentPackage?.dimensions.find((copy) => copy.dimension === dimension)?.name ??
-    DIMENSION_SHORT_NAME[dimension]
-  )
-}
-
 /** 主测是否全部处理完（决定"完成主测"按钮是否可用）。 */
 const baseReady = computed(() => totalBase.value > 0 && unansweredBaseIds.value.length === 0)
 /** 当前这一题**之前**还有多少题没处理（服务端要求全处理，界面要提前说清楚）。 */
@@ -497,48 +695,113 @@ const earlierUnanswered = computed(() =>
 
 <template>
   <PageContainer page="quiz" tight>
-    <div class="py-4 tablet:py-6 laptop:grid laptop:grid-cols-[17rem_minmax(0,1fr)] laptop:gap-8">
+    <div class="jung-workspace py-4 tablet:py-6 laptop:grid laptop:grid-cols-[17rem_minmax(0,1fr)] laptop:gap-8">
       <!-- 左栏：进度与状态（laptop 起固定在左） -->
       <aside class="laptop:sticky laptop:top-6 laptop:self-start">
-        <p class="section-kicker">人格倾向自测（新测）</p>
-        <h1 class="mt-1 font-display text-[20px] font-bold leading-tight text-ink tablet:text-[23px]">
-          一屏一题，选完点「下一题」
-        </h1>
+        <!--
+          进度与保存状态收进一张卡里（2026-09-18 视觉重构）。
+          答题页是"一屏一题"的专注界面，散落的几行小字会让"我答到哪了、存住了吗"
+          这两件事没有落点；收成一块面板后，它在左栏里是明确的、可一眼扫过的，
+          同时不与右边的题卡抢焦点。
+        -->
+        <div class="jung-progress">
+          <p class="section-kicker">十六型人格参考测评</p>
+          <h1 class="mt-1 font-display text-[19px] font-bold leading-tight text-ink tablet:text-[22px]">
+            第 {{ activeNumber }} / {{ activeTotal }} 题
+          </h1>
 
-        <div class="mt-4 space-y-1.5">
-          <p v-if="step === 'base' || step === 'clarify-offer'" class="text-[14px] font-medium text-ink">
-            主测 {{ processedBase }} / {{ totalBase }}
+          <div class="mt-4 space-y-1.5">
+            <p v-if="step === 'base' || step === 'clarify-offer'" class="text-[14px] font-medium text-ink">
+              主测 {{ processedBase }} / {{ totalBase }}
+            </p>
+            <p
+              v-if="step === 'clarification' || (step === 'clarify-offer' && totalClarification > 0)"
+              class="text-[14px] font-medium text-ink"
+            >
+              补充 {{ clarificationProcessed }} / {{ totalClarification }}
+            </p>
+            <p v-if="step === 'base'" class="text-[13px] text-ink-soft">
+              第 {{ activeNumber }} 题 / 共 {{ activeTotal }} 题
+            </p>
+            <p v-else-if="step === 'clarification'" class="text-[13px] text-ink-soft">
+              补充题 第 {{ activeNumber }} 题 / 共 {{ activeTotal }} 题
+            </p>
+          </div>
+
+          <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-line-soft" role="presentation">
+            <div
+              class="h-full rounded-full bg-primary-500 transition-[width] duration-300"
+              :style="{
+                width: `${totalBase > 0 ? Math.round((processedBase / totalBase) * 100) : 0}%`,
+              }"
+            />
+          </div>
+
+          <p class="mt-3 flex items-start gap-2 text-[13px] leading-relaxed" :class="saveTone" data-save-state>
+            <AppIcon name="refresh" :size="14" class="mt-[3px] shrink-0 opacity-70" />
+            <span>{{ saveLabel }}</span>
           </p>
-          <p
-            v-if="step === 'clarification' || (step === 'clarify-offer' && totalClarification > 0)"
-            class="text-[14px] font-medium text-ink"
+
+        <!--
+          保存失败的真实三态之一：**未同步**。
+          原先这里只有一行字，既没有原因（`assessment.lastError` 从来没被渲染过），
+          也没有重试入口；而下一次成功保存把状态翻回「已保存」之后，
+          那几条没写上去的作答就再也看不出问题了。
+        -->
+        <div
+          v-if="assessment.saveState === 'error'"
+          class="notice-uncertain mt-2 rounded-control px-3 py-2.5"
+          role="alert"
+          aria-live="assertive"
+          data-save-failed
+        >
+          <p class="text-[13px] leading-relaxed">
+            有 {{ unsavedCount }} 题的作答还没写上去，刷新或离开会丢掉它们。
+          </p>
+          <p v-if="assessment.lastError" class="mt-1 text-[12.5px] leading-relaxed text-ink-soft">
+            {{ assessment.lastError.message }}
+            <span v-if="assessment.lastError.requestId" class="ml-1">
+              （报障编号 <code class="font-mono">{{ assessment.lastError.requestId }}</code>）
+            </span>
+          </p>
+          <!--
+            保存失败的原因里有一种是**重试永远不会成功**的：会话已经失效。
+            那时只给「重试保存」等于把用户按在一个必然失败的按钮上（第 17 轮）。
+            这里据 `lastError.sessionExpired` 换成一个真的能解决问题的入口。
+          -->
+          <template v-if="saveNeedsLogin">
+            <RouterLink
+              :to="{ name: 'login', query: { redirect: route.fullPath } }"
+              class="btn-primary btn-sm mt-2"
+              data-save-login-link
+            >
+              登录后接着答
+            </RouterLink>
+            <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-soft">
+              已经写上去的作答留在服务端，登录后回到这一页就能接着答。
+            </p>
+          </template>
+          <button
+            v-else
+            type="button"
+            class="btn-secondary btn-sm mt-2"
+            data-retry-save
+            :disabled="assessment.loading"
+            @click="retrySave"
           >
-            补充 {{ clarificationProcessed }} / {{ totalClarification }}
-          </p>
-          <p v-if="step === 'base'" class="text-[13px] text-ink-soft">
-            第 {{ activeNumber }} 题 / 共 {{ activeTotal }} 题
-          </p>
-          <p v-else-if="step === 'clarification'" class="text-[13px] text-ink-soft">
-            补充题 第 {{ activeNumber }} 题 / 共 {{ activeTotal }} 题
-          </p>
+            重试保存
+          </button>
+        </div>
         </div>
 
-        <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-line-soft" role="presentation">
-          <div
-            class="h-full rounded-full bg-primary-500 transition-[width] duration-300"
-            :style="{
-              width: `${totalBase > 0 ? Math.round((processedBase / totalBase) * 100) : 0}%`,
-            }"
-          />
-        </div>
-
-        <p class="mt-3 text-[13px] leading-relaxed" :class="saveTone" data-save-state>
-          {{ saveLabel }}
-        </p>
-
-        <!-- 本地预览：明确标注为"目前的粗略倾向"，不是结论 -->
-        <div v-if="previewLines.length > 0" class="mt-4 rounded-control border border-line bg-surface-soft px-3 py-3">
-          <p class="text-[12.5px] font-medium text-ink-soft">目前的粗略倾向（仅供参考）</p>
+        <!-- 本地预览：明确标注为"目前的粗略倾向"，不是结论。放在进度卡外面：
+             它是"参考"，和"答到哪了 / 存住了吗"不是同一层级。 -->
+        <details v-if="previewLines.length > 0" class="jung-preview mt-4">
+          <summary class="cursor-pointer min-h-[44px] py-2 text-[13px] text-ink-soft">查看目前的粗略倾向</summary>
+          <p class="flex items-center gap-2 text-[12.5px] font-medium text-ink-soft">
+            <AppIcon name="chart" :size="14" class="text-primary-500" />
+            目前的粗略倾向（仅供参考）
+          </p>
           <p class="mt-1 text-[12px] leading-relaxed text-ink-faint">
             这是边答边算的即时预览，不是结论；交卷后以服务端生成的报告为准。
           </p>
@@ -547,7 +810,7 @@ const earlierUnanswered = computed(() =>
               {{ line.name }}：{{ line.text }}
             </li>
           </ul>
-        </div>
+        </details>
 
         <div class="mt-4 hidden laptop:block">
           <button type="button" class="btn-secondary btn-block" data-jump-unanswered @click="jumpToFirstUnanswered">
@@ -576,8 +839,20 @@ const earlierUnanswered = computed(() =>
           <p class="mt-1 text-[13.5px] leading-relaxed">
             {{ assessment.conflict.message }}
           </p>
+          <!-- 只写"没写上去"是不够的：用户需要知道**是哪一题、自己选了什么**，
+               否则他既没法核对，也没法在载入之后把那题补回来。 -->
+          <ul
+            v-if="assessment.lostAnswerLabels.length"
+            class="mt-2 space-y-1 text-[13.5px] leading-relaxed"
+            data-lost-answers
+          >
+            <li v-for="label in assessment.lostAnswerLabels" :key="label" data-lost-answer>
+              · {{ label }}
+            </li>
+          </ul>
           <p class="mt-1 text-[13px] leading-relaxed">
-            本机刚才的改动没有写上去；载入最新进度后，以另一台设备的版本为准。
+            上面这些本机改动没有写上去；载入最新进度后，以另一台设备的版本为准，
+            被覆盖的题需要重新作答一遍。
           </p>
           <button
             type="button"
@@ -592,8 +867,33 @@ const earlierUnanswered = computed(() =>
 
         <!-- 载入失败 -->
         <div v-if="loadFailure" class="notice-error mt-4" role="alert">
-          <p class="text-[14.5px] font-medium">这份测评没能载入：{{ loadFailure }}</p>
-          <button type="button" class="btn-secondary mt-3" @click="bootstrap">重试</button>
+          <p class="text-[14.5px] font-medium">
+            {{ sessionExpired ? loadFailure : `这份测评没能载入：${loadFailure}` }}
+          </p>
+          <!--
+            会话失效时给的是**去登录**而不是「重试」：答题页没有登录入口
+            （App.vue 在这一路由下隐藏了常规导航），而重试在登录之前必然再失败一次。
+            路由守卫支持 redirect，登录后会回到当前这一页继续答。
+          -->
+          <RouterLink
+            v-if="sessionExpired"
+            class="btn-secondary mt-3 inline-block"
+            data-assess-login-link
+            :to="{ name: 'login', query: { redirect: route.fullPath } }"
+          >
+            去登录，然后接着答
+          </RouterLink>
+          <!--
+            重试不会改变结果的那几类失败：给"重新开始一次"，而不是一个必然失败的按钮。
+            同时把「重试」也留着，但不再是唯一出路。
+          -->
+          <template v-else-if="loadUnrecoverable">
+            <RouterLink to="/assess" class="btn-primary mt-3 inline-block" data-assess-restart>
+              重新开始一次测评
+            </RouterLink>
+            <button type="button" class="btn-ghost btn-sm ml-2 mt-3" @click="bootstrap">再试一次</button>
+          </template>
+          <button v-else type="button" class="btn-secondary mt-3" @click="bootstrap">重试</button>
         </div>
 
         <p v-else-if="loading && !currentQuestion" class="mt-6 text-[15px] text-ink-soft">正在载入题目…</p>
@@ -639,9 +939,12 @@ const earlierUnanswered = computed(() =>
               <p class="mt-0.5 text-[13px] leading-relaxed text-ink-soft">{{ item.note }}</p>
             </li>
           </ul>
+          <p class="mt-3 prose-cn text-[13.5px]">
+            标成「这题我说不好」的题不计入有效作答，所以把其中几道改成一个更接近你的档位就行。
+          </p>
           <div class="mt-4 flex flex-col gap-2 tablet:flex-row">
             <button type="button" class="btn-primary" data-back-to-unanswered @click="jumpToFirstUnanswered">
-              回到未答的题
+              {{ reviewFallbackLabel }}
             </button>
             <button
               type="button"
@@ -654,30 +957,46 @@ const earlierUnanswered = computed(() =>
           </div>
         </div>
 
-        <!-- 题卡 -->
-        <div v-else-if="currentQuestion" class="card" data-question-card>
-          <p class="text-[12.5px] font-medium tracking-wide text-accent-500">
-            {{ currentQuestion.dimension }} · {{ dimensionName(currentQuestion.dimension) }}
-            <span class="ml-1 text-ink-faint">{{ currentQuestion.facet }}</span>
-          </p>
-          <h2 class="mt-2 font-display text-[19px] font-bold leading-snug text-ink tablet:text-[22px]">
+        <!-- 题卡：整页唯一的焦点，所以它拿到最大的留白与最重的一层投影 -->
+        <div v-else-if="currentQuestion" class="jung-question card tablet:px-7 tablet:py-6" data-question-card>
+          <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+            <span class="chip chip-primary">
+              日常选择
+            </span>
+            <span class="ml-auto text-[12.5px] text-ink-faint">第 {{ activeNumber }} / {{ activeTotal }} 题</span>
+          </div>
+          <h2 class="mt-3 font-display text-[20px] font-bold leading-[1.45] text-ink tablet:text-[24px]">
             {{ currentQuestion.scenario }}
           </h2>
+          <p v-if="readingExample" class="reading-example" data-question-example><span>想一个这样的场景</span>{{ readingExample }}</p>
+          <p v-if="activeNumber === 1" class="mt-3 text-[13px] leading-relaxed text-ink-soft">选择更像平时自己的做法。</p>
 
-          <!-- 两端陈述 -->
-          <div class="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 tablet:gap-x-10">
-            <p class="border-t border-line-strong pt-3 text-[16px] font-medium leading-[1.5] text-ink tablet:text-[19px]">
+          <!--
+            两端陈述：中间加一条短轴线，让"这两句是同一根轴的两端"在没有刻度的情况下
+            也看得出来。轴线是装饰（`aria-hidden`），语义仍由两段文字自己承担。
+          -->
+          <div class="mt-5 grid grid-cols-2 gap-x-4 gap-y-2 tablet:gap-x-10">
+            <p class="border-t-2 border-line-strong pt-3 text-[16px] font-medium leading-[1.5] text-ink tablet:text-[19px]">
               <span class="mb-1 block text-[12px] font-normal text-ink-faint">左边这一侧</span>
               {{ currentQuestion.textLeft }}
             </p>
-            <p class="border-t border-line-strong pt-3 text-[16px] font-medium leading-[1.5] text-ink tablet:text-[19px]">
+            <p class="border-t-2 border-line-strong pt-3 text-[16px] font-medium leading-[1.5] text-ink tablet:text-[19px]">
               <span class="mb-1 block text-[12px] font-normal text-ink-faint">右边这一侧</span>
               {{ currentQuestion.textRight }}
             </p>
           </div>
 
           <!-- 五档：1 左 ── 中间 ── 5 右 -->
-          <div class="mt-5 grid grid-cols-5 gap-1.5 tablet:gap-3" role="radiogroup" :aria-label="`第 ${activeNumber} 题的五档选择，1 为最靠左，5 为最靠右`">
+          <p class="mt-5 grid grid-cols-[1fr_auto_1fr] items-center gap-1 text-[11.5px] leading-tight text-ink-faint" aria-hidden="true">
+            <span>← 偏左</span>
+            <span>两边差不多</span>
+            <span class="text-right">偏右 →</span>
+          </p>
+          <div
+            class="mt-2 grid grid-cols-5 gap-1.5 tablet:gap-3"
+            role="radiogroup"
+            :aria-label="`第 ${activeNumber} 题的五档选择，1 为最靠左，5 为最靠右`"
+          >
             <button
               v-for="value in ANSWER_VALUES"
               :key="value"
@@ -689,6 +1008,11 @@ const earlierUnanswered = computed(() =>
               :data-rating="value"
               @click="chooseRating(value)"
             >
+              <!--
+                选中不能只靠颜色（色觉差异 / 灰度打印 / 低对比屏幕都会丢掉这个信息），
+                所以补上 CSS 里早就定义好、模板里一直没渲染的勾标。
+              -->
+              <AppIcon v-if="selectedRating === value" name="check" :size="14" class="option-check" />
               <span class="option-index">{{ value }}</span>
               <span class="option-caption">{{ captionOf(value) }}</span>
             </button>
@@ -703,21 +1027,22 @@ const earlierUnanswered = computed(() =>
               :aria-pressed="isUnknown"
               @click="chooseUnknown"
             >
+              <!-- 已选状态同时给图标与文字，不靠按钮颜色区分 -->
+              <AppIcon :name="isUnknown ? 'check' : 'question'" :size="15" />
               {{ isUnknown ? '已选：这题我说不好' : '这题我说不好' }}
             </button>
             <span class="text-[12.5px] leading-relaxed text-ink-faint">
-              这也是一次作答：不计分，但不会算作"没答"。
+              暂时无法判断；本题不计分。
             </span>
           </div>
 
           <p class="mt-3 text-[13px] leading-relaxed" data-answer-state>
             <template v-if="isUnanswered">
               <span class="font-medium text-accent-700">还没有作答。</span>
-              选一档，或点「这题我说不好」——两者都算处理过这一题。
+              请选择一档或「这题我说不好」。
             </template>
             <template v-else-if="isUnknown">
-              <span class="font-medium text-primary-700">我说不好（已作答，不计分）。</span>
-              之后想改也可以再选一档。
+              <span class="font-medium text-primary-700">已作答：我说不好（本题不计分）。</span>
             </template>
             <template v-else>
               <span class="font-medium text-primary-700">
@@ -726,6 +1051,7 @@ const earlierUnanswered = computed(() =>
             </template>
           </p>
 
+          <p v-if="activeNumber === 1" class="mt-3 text-[12.5px] leading-relaxed text-ink-soft">中间档：两边差不多；说不好：暂时无法判断。</p>
           <details v-if="currentQuestion.help" class="mt-3">
             <summary class="link cursor-pointer text-[13.5px]">这题是什么意思？</summary>
             <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft">{{ currentQuestion.help }}</p>
@@ -761,6 +1087,31 @@ const earlierUnanswered = computed(() =>
               @click="next"
             >
               {{ isLastInStage ? (step === 'clarification' ? '完成并交卷' : '完成主测') : '下一题' }}
+            </button>
+          </div>
+
+          <!--
+            补充阶段必须留一个回主测的出口。契约把「跳过补充题」写成用户可以选的动
+            作，但原先只有 `clarify-offer` 那一步有跳过按钮；一旦点了「开始补充题」，
+            就只能把补充题全部答完，刷新也会被 restorePosition() 重新落回补充阶段。
+          -->
+          <div v-if="step === 'clarification'" class="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="btn-ghost btn-sm"
+              data-back-to-base
+              @click="backToBase"
+            >
+              回到主测改答
+            </button>
+            <button
+              type="button"
+              class="btn-ghost btn-sm"
+              data-skip-clarification-in-progress
+              :disabled="submitting"
+              @click="skipClarification"
+            >
+              跳过补充题，直接交卷
             </button>
           </div>
 
@@ -803,5 +1154,17 @@ const earlierUnanswered = computed(() =>
         <p class="sr-only" aria-live="polite" data-live>{{ liveMessage }}</p>
       </section>
     </div>
+
+    <ConfirmDialog
+      :open="leaveDialog"
+      title="这次改动还没同步"
+      :description="`还有 ${pendingLeaveCount} 题的本地改动没有得到服务端确认。继续留在页面可以重试保存；仍然离开会丢掉这些未同步改动。`"
+      confirm-label="仍然离开"
+      cancel-label="留在这页"
+      danger
+      initial-focus="cancel"
+      @cancel="resolveLeave(false)"
+      @confirm="resolveLeave(true)"
+    />
   </PageContainer>
 </template>

@@ -148,7 +148,8 @@ class AccountSqlDialectMySqlIT {
                 original.register(),
                 new TypemeProperties.Login(Duration.ofMinutes(15), ipLimit, 10),
                 original.recover(),
-                original.ai());
+                original.ai(),
+                original.catalog());
         return new RateLimitService(jdbc, new TypemeProperties(null, tuned, null, null, null));
     }
 
@@ -394,6 +395,10 @@ class AccountSqlDialectMySqlIT {
     }
 
     private static void dropDatabaseQuietly(String database) {
+        if (Boolean.getBoolean("typeme.test.mysql.retainDatabase")) {
+            System.out.println("[AccountSqlDialectMySqlIT] retained isolated database: " + database);
+            return;
+        }
         try (Connection connection = DriverManager.getConnection(SERVER_URL, USER, PASSWORD);
              Statement statement = connection.createStatement()) {
             statement.execute("DROP DATABASE IF EXISTS " + database);

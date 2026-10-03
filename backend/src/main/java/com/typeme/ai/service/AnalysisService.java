@@ -100,12 +100,13 @@ public class AnalysisService {
 
         String policyVersion = consentPolicyVersion == null || consentPolicyVersion.isBlank()
                 ? settingsProvider.loadConsentPolicyVersion() : consentPolicyVersion;
-        String scope = scopeVersion == null || scopeVersion.isBlank()
-                ? ReportInputBuilder.SCOPE_VERSION : scopeVersion;
 
         // 报告归属校验也在这一步（不属于本人 → 404，与不存在同形）。
         AiReportInput input = inputBuilder.build(reportId, userId, topic, note,
                 settings.promptVersion(), settings.model());
+        if (!input.scopeVersion().equals(scopeVersion)) {
+            throw AiException.validation("发送范围已更新，请刷新页面并重新确认后再生成。");
+        }
 
         AnalysisJobRepository.JobRow existing = resolveExisting(userId, idempotencyKey, input.requestHash());
         if (existing != null) {
@@ -169,16 +170,20 @@ public class AnalysisService {
     /* ── 重试 ───────────────────────────────────────────────────────────── */
 
     /**
-     * 用户主动重试：只允许 {@code FAILED}/{@code UNKNOWN}，复用同一行（不新建），
-     * 受每小时重试上限与预算约束。
+     * 用户主动重试或重新生成：允许 {@code FAILED}/{@code UNKNOWN}/{@code SUCCEEDED}，
+     * 复用同一行（不新建），受每小时重试上限与预算约束。
+     *
+     * <p>同一输入受 {@code uk_ai_job_request} 限制只能有一行，所以"再生成一次"
+     * 不能再建任务，只能把这一行重新入队。成功后再跑一次会重新预留额度。
      */
     public RetryResult retry(String userId, String jobId) {
         AnalysisJobRepository.JobRow row = jobs.findById(jobId)
                 .filter(job -> job.userId().equals(userId))
                 .orElseThrow(() -> AiException.notFound("这条分析任务"));
 
-        if (!"FAILED".equals(row.status()) && !"UNKNOWN".equals(row.status())) {
-            throw AiException.conflict("只有失败或状态未知的任务才能重试（当前 " + row.status() + "）。");
+        if (!"FAILED".equals(row.status()) && !"UNKNOWN".equals(row.status())
+                && !"SUCCEEDED".equals(row.status())) {
+            throw AiException.conflict("进行中的任务不能重试或重新生成（当前 " + row.status() + "）。");
         }
         AiRuntimeSettings settings = settingsProvider.settings();
         if (!settings.enabled() || !settings.hasApiKey()) {
@@ -200,21 +205,37 @@ public class AnalysisService {
     /** {@code GET /api/v3/ai/status}：绝不含 key 与 baseUrl 内部细节（只给 host）。 */
     public StatusView status(String userId) {
         AiRuntimeSettings settings = settingsProvider.settings();
+        /*
+         * 额度是**按账号**算的，所以"今天还能生成几次"只在有账号时才有意义：
+         *   - 未登录：算不清（契约用 -1 表达，前端据此不显示次数）；
+         *   - 已登录但读额度失败：也算不清 —— 见下面的 A53② 注释。
+         * 两种情况都走 -1，而不是"0 次"（那是"用完了"）或"满额度"（那是编的）。
+         */
+        boolean quotaKnown = userId != null && !userId.isBlank();
         int used = 0;
-        if (userId != null && !userId.isBlank()) {
+        int userLimit = settings.dailyLimitPerUser();
+        if (quotaKnown) {
             try {
+                userLimit = budgets.effectiveUserLimit(userId, settings.dailyLimitPerUser(), false);
                 used = budgets.reservedCalls("user:" + userId, budgets.today());
             } catch (RuntimeException ex) {
-                // 读额度失败不应该让状态接口 500：状态接口是前端决定"要不要显示 AI 入口"的依据。
-                log.debug("读取用户 AI 额度失败，按 0 处理：{}", ex.getMessage());
+                /*
+                 * 读额度失败不应该让状态接口 500：状态接口是前端决定"要不要显示 AI 入口"的依据。
+                 *
+                 * 但**不能**按 used=0 算 remaining（A53②）：那样界面会理直气壮地写
+                 * "今天还可以生成 N 次" —— 一个我们并不知道的数字。用户按它做决定，第一次生成
+                 * 就可能撞 429，而界面上一秒刚保证过额度充足。
+                 */
+                log.warn("读取用户 AI 额度失败，这次状态按「次数未知」返回：{}", ex.getMessage());
+                quotaKnown = false;
             }
         }
-        int remaining = Math.max(0, settings.dailyLimitPerUser() - used);
+        int remaining = quotaKnown ? Math.max(0, userLimit - used) : -1;
         return new StatusView(
                 settings.enabled() && settings.hasApiKey(),
                 settings.mockMode(),
                 settings.model(),
-                settings.dailyLimitPerUser(),
+                userLimit,
                 remaining,
                 settings.apiKeySource().wire(),
                 hostOf(settings.baseUrl()),

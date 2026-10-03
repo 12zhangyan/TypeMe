@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import EditorialScene from '@/components/EditorialScene.vue'
+import IllustrationFrame from '@/components/IllustrationFrame.vue'
 import { computed, onMounted, ref, useId } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -60,28 +62,30 @@ async function onSubmit() {
 </script>
 
 <template>
-  <PageContainer page="article">
+  <PageContainer page="article" class="auth-page">
     <header>
       <p class="section-kicker">账号</p>
       <h1 class="mt-2 font-display text-[26px] font-bold leading-tight text-ink tablet:text-[32px]">
         登录
       </h1>
-      <p class="mt-3 prose-cn">
-        登录后才能把测评记录和报告放在服务器上，换设备也能接着看。答案与报告只属于你自己。
+      <p class="mt-3 prose-cn max-w-prose">
+        登录后可保存进度和报告。
       </p>
+      <IllustrationFrame name="welcome" class="auth-art auth-scene"><EditorialScene scene="welcome" /></IllustrationFrame>
     </header>
 
     <!-- 会话检查没成功（网络/服务端问题）时的低调提示：这**不是**登录失败 -->
     <p
       v-if="auth.sessionNotice"
-      class="notice-neutral mt-5 text-[13.5px] leading-relaxed"
+      class="notice-neutral mt-5 max-w-prose text-[14px] leading-relaxed"
       role="status"
       aria-live="polite"
     >
       {{ auth.sessionNotice }}
     </p>
 
-    <form class="mt-6 max-w-[30rem]" novalidate @submit.prevent="onSubmit">
+    <!-- 表单是这一页唯一的焦点元素，所以收进一张卡片，和页头的说明拉开层次 -->
+    <form class="card mt-6 max-w-[30rem]" novalidate @submit.prevent="onSubmit">
       <div>
         <label :for="usernameId" class="block text-[14.5px] font-medium text-ink">用户名</label>
         <input
@@ -109,30 +113,12 @@ async function onSubmit() {
         />
       </div>
 
-      <div
+      <FormErrorNotice
         v-if="error"
-        class="notice-error mt-4"
-        role="alert"
-        aria-live="assertive"
+        :error="error"
+        class="mt-4"
         data-login-error
-      >
-        <p class="text-[14.5px] font-medium leading-relaxed">{{ error.message }}</p>
-        <ul v-if="error.fields.length" class="mt-2 space-y-1 text-[13.5px] leading-relaxed">
-          <li v-for="field in error.fields" :key="field.field">
-            {{ field.label }}：{{ field.message }}
-          </li>
-        </ul>
-        <p v-if="error.serverMessage" class="mt-2 text-[13.5px] leading-relaxed">
-          服务器说明：{{ error.serverMessage }}
-        </p>
-        <p v-if="error.retryAfterSeconds" class="mt-2 text-[13.5px] leading-relaxed">
-          大约 {{ error.retryAfterSeconds }} 秒后再试就来得及。
-        </p>
-        <p v-if="error.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
-          报障编号：<code class="font-mono">{{ error.requestId }}</code>
-          <span class="block text-ink-faint">（反馈问题时把这个编号一起发过来，能直接查到这次请求。）</span>
-        </p>
-      </div>
+      />
 
       <p v-if="disabledReason" :id="hintId" class="caption mt-3">
         {{ disabledReason }}
@@ -148,16 +134,12 @@ async function onSubmit() {
       </button>
     </form>
 
-    <p class="mt-5 text-[14px] leading-relaxed text-ink-soft">
+    <p class="mt-5 prose-sm">
       还没有账号？
-      <RouterLink to="/register" class="link">注册一个</RouterLink>
+      <RouterLink :to="{ name: 'register', query: route.query }" class="link">注册一个</RouterLink>
       。忘记了密码？
-      <RouterLink to="/recover" class="link">用恢复码重置</RouterLink>
+      <RouterLink :to="{ name: 'recover', query: route.query }" class="link">用恢复码重置</RouterLink>
       。
-    </p>
-
-    <p class="mt-6 fineprint max-w-[34rem]">
-      登录状态保存在服务器的 HttpOnly cookie 里，这个网站不会把任何登录凭据写进浏览器的本地存储。
     </p>
   </PageContainer>
 </template>

@@ -51,6 +51,22 @@ public class RateLimitService {
     public static final String OP_RECOVER = "recover";
     public static final String OP_AI_CREATE = "ai_create";
 
+    /**
+     * 匿名目录（{@code GET /api/v3/catalog/current} 与 {@code /catalog/current/package}）。
+     *
+     * <p>这两条路径在 2026-09-21 从 {@code authenticated} 放开为公开，因为它们只返回
+     * <b>产品定义</b>（有哪些量表、每项问什么、当前绑定哪一版内容），不含任何用户数据；
+     * 而"站上有哪些测评"正是用户决定要不要注册的依据。放开的同时必须回答
+     * "匿名请求要不要限流"这一问题 —— 顺带也修掉了一个<b>已存在</b>的口径不一致：
+     * 同为产品定义、同样不含用户数据的 `GET /api/v3/platform/instruments`
+     * 在测试 profile 下本来就是公开的。
+     *
+     * <p>为什么单独开一个 operation 而不是复用 {@code register}/{@code login}：
+     * 桶是 {@code <operation>:<scope>:<value>:<windowStart>}，复用会让"浏览目录"
+     * 消耗"注册"的额度（匿名访客多刷几次首页就把自己挡在注册之外）。
+     */
+    public static final String OP_CATALOG = "catalog";
+
     /** 窗口起点用 UTC 分钟精度字符串，保证 key 可读、可比较、长度稳定。 */
     private static final DateTimeFormatter WINDOW_FORMAT =
             DateTimeFormatter.ofPattern("yyyyMMddHHmm").withZone(ZoneOffset.UTC);
@@ -105,6 +121,26 @@ public class RateLimitService {
         TypemeProperties.Login cfg = properties.ratelimit().ai();
         count(OP_AI_CREATE, "ip", clientIp, cfg.window(), cfg.ipLimit(), "操作过于频繁，请稍后再试。");
         count(OP_AI_CREATE, "user", userId, cfg.window(), cfg.userLimit(), "操作过于频繁，请稍后再试。");
+    }
+
+    /**
+     * 匿名目录：按来源 IP 计数（契约 §5.4 "其余公开 GET"）。
+     *
+     * <p><b>只在未认证时计数</b>：已登录用户读目录不计入匿名桶，理由有两条 ——
+     * ① 已登录用户另有登录/AI 等按账号维度的限流，再算一次等于把"翻自己已有的报告"
+     * 和"匿名访客"混为一谈；② 浏览器整页刷新会连发若干次静态资源请求，若公共壳每页
+     * 都要读一次目录，正常用户的点击很快就会被自己的浏览行为挡掉。
+     *
+     * <p>因此调用方必须传 {@code authenticated} 而不是自己判断 —— 判定由认证主体决定，
+     * 不由请求头决定。
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void checkCatalogRead(String clientIp, boolean authenticated) {
+        if (authenticated) {
+            return;
+        }
+        TypemeProperties.Window cfg = properties.ratelimit().catalog();
+        count(OP_CATALOG, "ip", clientIp, cfg.window(), cfg.ipLimit(), "访问过于频繁，请稍后再试。");
     }
 
     /** 供测试与运维查看某个 key 的当前计数（不影响计数）。 */

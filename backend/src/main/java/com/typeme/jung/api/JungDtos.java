@@ -1,5 +1,6 @@
 package com.typeme.jung.api;
 
+import com.typeme.jung.content.JungPackage;
 import com.typeme.jung.content.JungPackageLoader;
 import com.typeme.jung.domain.JungDimension;
 import com.typeme.jung.domain.JungItem;
@@ -121,7 +122,19 @@ public final class JungDtos {
 
     /* ── 测评 attempt ───────────────────────────────────────────────────── */
 
-    public record CreateAttemptRequest(String baseReportId) {
+    /**
+     * 新建测评请求。
+     *
+     * @param baseReportId 从哪份报告派生（可空）
+     * @param instrument   量表 slug（可空 = 默认十六型）；见
+     *                     {@code com.typeme.platform.catalog.AssessmentCatalog}
+     */
+    public record CreateAttemptRequest(String baseReportId, String instrument) {
+
+        /** 兼容既有调用点（只给 baseReportId）。 */
+        public CreateAttemptRequest(String baseReportId) {
+            this(baseReportId, null);
+        }
     }
 
     public record AttemptSummary(
@@ -295,8 +308,24 @@ public final class JungDtos {
                 List.copyOf(dimensions));
     }
 
+    /**
+     * 内容包视图（使用"当前默认包"）。保留它是为了兼容既有调用点；
+     * 需要"这份草稿锁定的那一版"时用 {@link #packageView(JungPackage, JungPackageLoader.TypeReportContent)}。
+     */
     public static PackageResponse packageView(JungPackageLoader loader) {
-        var pkg = loader.current();
+        JungPackage current = loader.current();
+        return packageView(current, loader.findTypeReports(current.reportContentVersion()));
+    }
+
+    /**
+     * 内容包视图。
+     *
+     * <p>第四项 {@code clarificationItemsPerDimension} 与 {@code maxClarificationItems} 从内容包
+     * 实际题目数推出，不再写死 4/16：写死的话，将来某版把补充题改成每维 2 道，
+     * 界面仍会显示"最多 16 道补充题"。
+     */
+    public static PackageResponse packageView(
+            JungPackage pkg, JungPackageLoader.TypeReportContent typeContent) {
         List<DimensionView> dimensions = new ArrayList<>(4);
         for (JungDimension dimension : JungDimension.values()) {
             var copy = pkg.copyOf(dimension);
@@ -333,6 +362,7 @@ public final class JungDtos {
                     item.order(),
                     item.reviewStatus().token()));
         }
+        int clarPerDimension = pkg.clarificationItems(JungDimension.EI).size();
         return new PackageResponse(
                 3,
                 pkg.packageId(),
@@ -343,9 +373,9 @@ public final class JungDtos {
                         pkg.reportContentVersion(),
                         "bipolar",
                         true,
-                        12,
-                        4,
-                        16),
+                        pkg.baseItems(JungDimension.EI).size(),
+                        clarPerDimension,
+                        clarPerDimension * JungDimension.values().length),
                 pkg.title(),
                 pkg.contentStatus().token(),
                 new ScoringPolicyView(
