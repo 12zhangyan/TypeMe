@@ -235,7 +235,7 @@ function navPill(active: boolean): string {
 
     <header
       class="site-header sticky top-0 z-30 border-b backdrop-blur-md"
-      :class="quizActive ? 'border-transparent bg-paper/95' : 'border-line bg-surface/85'"
+      :class="quizActive ? 'border-transparent bg-paper tablet:bg-paper/95' : 'border-line bg-surface tablet:bg-surface/85'"
     >
       <div
         class="mx-auto flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3 py-2.5 tablet:px-6 tablet:py-3 laptop:px-8"

@@ -27,6 +27,20 @@
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--header-h) + 12px);
+  }
+
+  @media (max-width: 767px) {
+    :root {
+      /* 窄屏顶栏是两行（品牌 + 导航），实测约 113px，不能再用单行的 60px。 */
+      --header-h: 120px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    :root {
+      --header-h: 64px;
+    }
   }
 
   @media (min-width: 768px) {
@@ -548,7 +562,34 @@
   .auth-page .auth-art { max-width: 390px; width: 120%; margin: 22px -10% -30px; }
   .auth-page form { grid-column: 2; border: 0; border-radius: 0; background: transparent; padding: 16px 0; margin-top: 20px; }
   .auth-page > p,.auth-page > div,.auth-page > section > p,.auth-page > section > div { grid-column: 2; }
-  .auth-page > .auth-body { display: contents; }
+  /*
+   * 注册/重置页的表单包在 section 里。以前用 display:contents 让子元素直接参加
+   * 外层网格，但 WebKit（手机 Safari、微信内置浏览器）对 contents 的命中测试
+   * 会失效：按钮看得见，点下去没有反应。这里让 section 自己成为网格，
+   * 铺满外层两列，桌面分栏不变，点按落在真实盒子上。
+   */
+  .auth-page > .auth-body { display: grid; grid-column: 1 / -1; grid-template-columns: .95fr 1fr; column-gap: 70px; align-items: start; min-width: 0; }
+  .auth-disclaimer-check {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    flex: none;
+    cursor: pointer;
+    background: transparent center / 44px 44px no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Crect x='12.75' y='12.75' width='18.5' height='18.5' rx='4' fill='%23ffffff' stroke='%23BECBC0' stroke-width='1.5'/%3E%3C/svg%3E");
+  }
+  .auth-disclaimer-check:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Crect x='12' y='12' width='20' height='20' rx='4' fill='%232D6652'/%3E%3Cpath d='M18 22.2 l2.8 2.8 6.2-6.6' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+  .auth-disclaimer-check:focus-visible { outline: 2px solid #2D6652; outline-offset: 2px; border-radius: 8px; }
+  .auth-disclaimer-copy { cursor: pointer; }
+  .auth-disclaimer-copy > span { pointer-events: none; }
+  .auth-disclaimer-copy a { pointer-events: auto; }
+  .auth-page [data-register-blocked] { appearance: none; margin: 0; padding: 0; border: 0; background: transparent; color: transparent; cursor: pointer; }
   .auth-page > .auth-complete { grid-column: 1/-1; max-width: 720px; margin-inline: auto; }
   .auth-page > .auth-complete header { min-height: 0; padding: 30px; }
   .auth-page input:not([type='checkbox']) { min-height: 52px; background: #fcfcf8; border-radius: 2px; }
@@ -607,6 +648,7 @@
     .discovery-copy h1 { font-size: 70px; }
     .assessment-card-content { padding: 35px; }
     .page-container.auth-page { column-gap: 35px; }
+    .auth-page > .auth-body { column-gap: 35px; }
     .auth-page header { padding: 30px; }
     .jung-preview { margin-top: 0; }
     .jung-preview:not([open]) { padding-bottom: 10px; }
@@ -667,7 +709,9 @@
     .discovery-principles h3 { margin-top: 0; }
     .discovery-principles p { margin-top: 5px; }
     .page-container.auth-page { display: block; padding-top: 28px; }
-    .auth-page header { min-height: 0; padding: 27px 25px; }
+    .auth-page > .auth-body { display: block; }
+    .auth-page header { min-height: 0; padding: 27px 25px; grid-column: auto; grid-row: auto; }
+    .site-header { background: #f7f8f2; }
     .auth-page header h1 { font-size: 38px; margin-top: 13px; }
     .auth-page header p:last-of-type { font-size: 13px; max-width: 100%; margin-top: 14px; }
     .auth-page .auth-art { display: none; }

@@ -65,26 +65,45 @@ const redirectTarget = computed(() => {
   return raw
 })
 
+function problem(message: string, controlId: string) {
+  return { message, controlId }
+}
+
 const localProblem = computed(() => {
   const name = username.value.trim()
-  if (!name) return '先填用户名。'
-  if (!/^[A-Za-z0-9_]{4,32}$/.test(name)) return '用户名要是 4–32 位的字母、数字或下划线。'
-  if (password.value.length < 8) return '密码至少 8 位。'
-  if (password.value.length > 72) return '密码最多 72 位。'
-  if (!/^[\x20-\x7E]+$/.test(password.value)) return '密码只能用英文、数字和键盘上的符号，暂不支持中文。'
-  if (confirm.value !== password.value) return '两次输入的密码不一样。'
-  if (nickname.value.trim().length > 32) return '昵称最多 32 个字。'
+  if (!name) return problem('先填用户名。', usernameId)
+  if (!/^[A-Za-z0-9_]{4,32}$/.test(name)) return problem('用户名要是 4–32 位的字母、数字或下划线。', usernameId)
+  if (password.value.length < 8) return problem('密码至少 8 位。', passwordId)
+  if (password.value.length > 72) return problem('密码最多 72 位。', passwordId)
+  if (!/^[\x20-\x7E]+$/.test(password.value)) return problem('密码只能用英文、数字和键盘上的符号，暂不支持中文。', passwordId)
+  if (confirm.value !== password.value) return problem('两次输入的密码不一样。', confirmId)
+  if (nickname.value.trim().length > 32) return problem('昵称最多 32 个字。', nicknameId)
   // 同意项放在最后校验：前面的格式问题更常发生，先让人把字打对。
   // 服务端也校验这一条 —— 这里只是让用户少一次注定失败的往返。
-  if (!disclaimerAccepted.value) return '请先勾选并阅读下面的说明，再创建账号。'
-  if (!/^[A-Za-z0-9_-]{32}$/.test(invitationCode.value.trim())) return '请输入管理员提供的 32 位邀请码。'
+  if (!disclaimerAccepted.value) return problem('请先勾选并阅读下面的说明，再创建账号。', disclaimerId)
+  if (!/^[A-Za-z0-9_-]{32}$/.test(invitationCode.value.trim())) return problem('请输入管理员提供的 32 位邀请码。', invitationId)
   return null
 })
 
 const disabledReason = computed(() => {
   if (auth.busy) return '正在创建账号，请稍等。'
-  return localProblem.value
+  return localProblem.value?.message ?? null
 })
+
+/**
+ * 未填完时提交按钮是禁用的，手机上点它不会有任何反馈，勾选框又经常被粘性顶栏盖住。
+ * 这一下把挡住提交的那一格滚到顶栏下面并聚焦。
+ */
+function revealBlockedField() {
+  const id = localProblem.value?.controlId
+  const el = id ? document.getElementById(id) : null
+  if (!el) return
+  el.scrollIntoView?.({ block: 'center', inline: 'nearest' })
+  el.focus({ preventScroll: true })
+}
+
+/** iOS Safari：label 里面有链接时，没有点击监听就不会勾选关联的复选框。 */
+function keepDisclaimerTappable() {}
 
 const leaveReason = computed(() => {
   if (auth.busy) return '正在处理，请稍等。'
@@ -296,21 +315,21 @@ async function leave() {
           -->
           <!-- 同意项是一整块需要读的文字：用下沉的浅底把它和上面的输入框分开，不要靠再加一层白卡 -->
           <div class="rounded-card border border-line bg-surface-soft px-4 py-3.5">
-            <div class="flex items-start gap-2.5">
+            <div class="flex items-start gap-1">
               <input
                 :id="disclaimerId"
                 v-model="disclaimerAccepted"
                 name="disclaimer-accepted"
                 type="checkbox"
-                class="mt-1 h-5 w-5 shrink-0 rounded border-line-strong"
+                class="auth-disclaimer-check"
                 :aria-describedby="`${disclaimerId}-help`"
               />
-              <label :for="disclaimerId" class="text-[14px] leading-relaxed text-ink">
-                {{ disclaimerText.before
-                }}<RouterLink to="/about" class="link">{{ disclaimerText.limitLink }}</RouterLink
+              <label :for="disclaimerId" class="auth-disclaimer-copy text-[14px] leading-relaxed text-ink" @click="keepDisclaimerTappable">
+                <span>{{ disclaimerText.before
+                }}<RouterLink to="/about" class="link" @click.stop>{{ disclaimerText.limitLink }}</RouterLink
                 >{{ disclaimerText.middle
-                }}<RouterLink to="/about" class="link">{{ disclaimerText.dataLink }}</RouterLink
-                >{{ disclaimerText.after }}我知晓本站管理员可查看账号状态、测评进度和报告，并分配 AI 使用额度。
+                }}<RouterLink to="/about" class="link" @click.stop>{{ disclaimerText.dataLink }}</RouterLink
+                >{{ disclaimerText.after }}我知晓本站管理员可查看账号状态、测评进度和报告，并分配 AI 使用额度。</span>
               </label>
             </div>
             <p :id="`${disclaimerId}-help`" class="caption mt-1.5">
@@ -328,14 +347,29 @@ async function leave() {
 
         <p v-if="disabledReason" :id="hintId" class="caption mt-3">{{ disabledReason }}</p>
 
-        <button
-          type="submit"
-          class="btn-primary btn-block mt-5"
-          :disabled="disabledReason !== null"
-          :aria-describedby="disabledReason ? hintId : undefined"
-        >
-          {{ auth.busy ? '正在创建…' : '创建账号' }}
-        </button>
+        <div class="relative mt-5">
+          <button
+            type="submit"
+            class="btn-primary btn-block"
+            :disabled="disabledReason !== null"
+            :aria-describedby="disabledReason ? hintId : undefined"
+          >
+            {{ auth.busy ? '正在创建…' : '创建账号' }}
+          </button>
+          <!--
+            禁用按钮不接收点按。手机上表单还差一项时，用户点的就是这块灰色区域，
+            必须把人带到真正挡住提交的那一格，而不是毫无反应。
+          -->
+          <button
+            v-if="localProblem"
+            type="button"
+            class="absolute inset-0 z-[1] rounded-full"
+            tabindex="-1"
+            aria-hidden="true"
+            data-register-blocked
+            @click="revealBlockedField"
+          />
+        </div>
       </form>
 
       <p class="mt-5 prose-sm">
