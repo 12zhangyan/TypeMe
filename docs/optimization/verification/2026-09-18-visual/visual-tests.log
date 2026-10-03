@@ -1,0 +1,482 @@
+
+ RUN  v2.1.9 D:/develop/develop/code/TypeMe/frontend
+
+stderr | src/views/assessView.spec.ts > 答题页：手动下一题 > 选一档之后仍停在同一题（没有任何自动跳题）
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/accountAdminEntry.spec.ts > 账号页 · 管理后台入口 > 服务端回 200 → 显示入口，链接指向 /admin
+[Vue Router warn]: No match found for location with path "/about"
+
+stderr | src/views/accountAdminEntry.spec.ts > 账号页 · 管理后台入口 > 服务端回 403 → 不显示入口，且账号页其它内容照常显示
+[Vue Router warn]: No match found for location with path "/about"
+
+stderr | src/views/assessView.spec.ts > 答题页：手动下一题 > 手动点「下一题」才前进，并记住当前位置
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/accountAdminEntry.spec.ts > 账号页 · 管理后台入口 > 探测失败（网络/5xx）→ 不显示入口，但**不缓存**这个结论：重试能拿到入口
+[Vue Router warn]: No match found for location with path "/about"
+
+stderr | src/views/assessView.spec.ts > 答题页：手动下一题 > 未作答时点「下一题」给可见提示且不前进
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/accountAdminEntry.spec.ts > 账号页 · 管理后台入口 > 401 之后重新登录：入口能重新拿到（会话失效不能被缓存成"不是管理员"）
+[Vue Router warn]: No match found for location with path "/about"
+
+stderr | src/views/assessView.spec.ts > 答题页：手动下一题 > 每一题都能看到键盘与五档说明，且五档文案与契约一致
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：unknown 与「未作答」是两件事 > 未作答时显示"还没有作答"
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：unknown 与「未作答」是两件事 > 标「这题我说不好」之后显示已作答案，并且不会被当成未作答
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/accountAdminEntry.spec.ts > 账号页 · 管理后台入口 > 换账号（先管理员后普通用户）：上一个账号的探测结论必须作废
+[Vue Router warn]: No match found for location with path "/about"
+
+ ✓ src/views/accountAdminEntry.spec.ts (5 tests) 386ms
+stderr | src/views/assessView.spec.ts > 答题页：unknown 与「未作答」是两件事 > 标了 unknown 之后点「下一题」可以前进（unknown 算处理过）
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：unknown 与「未作答」是两件事 > unknownown 可以被数字答案替换
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：409 冲突走"重新拉取"，不静默覆盖 > 409 之后显示冲突提示，并且**不再发出任何写入**
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：409 冲突走"重新拉取"，不静默覆盖 > 点「载入最新进度」重新拉取，并以服务端 revision 继续
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：409 冲突走"重新拉取"，不静默覆盖 > 冲突横幅要说清丢的是哪一题、自己选了什么（否则用户没法核对）
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：409 冲突走"重新拉取"，不静默覆盖 > 「这题我说不好」被丢弃时也如实列出，不显示成空白档位
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：覆盖不足时说明还差哪几维 > 提交返回 NEEDS_REVIEW 时列出未达标的维度与人话原因
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：覆盖不足时说明还差哪几维 > 点「回到题目继续调整」真的能回到题卡（不是一条死路）
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：补充题阶段必须留有出口 > 点了「开始补充题」之后，仍能回到主测改答
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：补充题阶段必须留有出口 > 补充阶段也能跳过并直接交卷
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：会话在作答过程中失效 > 载入时 401：给出「去登录」而不是一个必然失败的「重试」
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：会话在作答过程中失效 > 保存时 401：给的是「登录后接着答」，而不是「重试保存」
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：会话在作答过程中失效 > 测评在服务端已不存在（404）：给「重新开始一次」而不是只有一个重试
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：会话在作答过程中失效 > 内容包已下线（409 PACKAGE_UNAVAILABLE）：如实说明原因，并给出重新开始的路
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：保存失败不能被下一次成功掩盖 > 第一条保存失败后再答一条：不许中途显示「已保存」，恢复时要把它补发上去
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：保存失败不能被下一次成功掩盖 > 「重试保存」能把未写上去的作答补上，补上之后状态回到「已保存」
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：保存失败不能被下一次成功掩盖 > 保存失败提示里说清有几题没写上去
+[Vue Router warn]: No match found for location with path "/reports"
+
+ ✓ src/domain/answers.spec.ts (22 tests) 378ms
+stderr | src/views/assessView.spec.ts > 答题页：本地预览只是"粗略倾向" > 预览区明确写出它不是结论
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：本地预览只是"粗略倾向" > 保存状态有三态文案，初始是"还没有需要保存的内容"
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：键盘 > 数字键 1–5 直接作答，且同样不自动跳题
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：键盘 > 数字键 1–5 直接作答，且同样不自动跳题
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：键盘 > 方向键切换题目
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：断点续答 > 进入时恢复服务端记下的位置与已答
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：断点续答 > 服务端的指针停在已答过的题上时，刷新落到第一道未作答，而不是回退到那道题
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：断点续答 > 主测全部答完时，才回到服务端记下的那一题（用于回看）
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：快速操作不会制造假冲突 > 在途期间的第二次点击不会另发一个 PATCH，也不会被说成"另一台设备改过"
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：快速操作不会制造假冲突 > 自己的写入已落地却回了 409：按"已保存"收敛，不弹「另一台设备」横幅
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：快速操作不会制造假冲突 > 服务端存的东西与本机不一致时，仍然按真冲突处理（不能把真冲突说成已保存）
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：交卷响应丢失也要能到报告 > 交卷响应丢失后发现其实已提交：直接带到那份报告
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：交卷响应丢失也要能到报告 > 带着一份已交卷的测评刷新答题页：自动打开那份报告，而不是停在一堆答完的题上
+[Vue Router warn]: No match found for location with path "/reports"
+
+ ✓ src/views/assessView.spec.ts (35 tests) 2052ms
+ ✓ src/views/landingResume.spec.ts (8 tests) 986ms
+ ✓ src/api/v3Ai.spec.ts (18 tests) 37ms
+ ✓ src/api/platformV3.spec.ts (11 tests) 60ms
+ ✓ src/stores/assessmentV3.spec.ts (4 tests) 149ms
+stderr | src/views/adminView.spec.ts > 管理后台 · AI 设置 > 网络失败：说"没问到"，不能冒充成没有权限
+[typeme] 未预期的前端错误： boom Error: boom
+    at D:\develop\develop\code\TypeMe\frontend\src\views\adminView.spec.ts:111:44
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:146:14
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1271:3)
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/vitest/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+stderr | src/views/adminView.spec.ts > 管理后台 · AI 设置 > baseUrl 不预填：留空时不进补丁（避免把主机名当完整地址写进去）
+[typeme] 未预期的前端错误： Cannot read properties of undefined (reading 'enabled') TypeError: Cannot read properties of undefined (reading 'enabled')
+    at fillForm (D:\develop\develop\code\TypeMe\frontend\src\views\AdminView.vue:117:23)
+    at save (D:\develop\develop\code\TypeMe\frontend\src\views\AdminView.vue:266:5)
+
+stderr | src/views/views.spec.ts > 首页（产品方案 §3.1） > 首屏出现新主文案、说明与题数耗时
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/views.spec.ts > 首页（产品方案 §3.1） > 不计分的教学例子四条齐全，且不再承诺"测出真实类型"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/views.spec.ts > 首页（产品方案 §3.1） > 结果示例卡明确标「示例」，并用 INFP 的原创描述名（不冒充用户已有结果）
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/views.spec.ts > 首页（产品方案 §3.1） > 「你会得到什么」三项标题与 FAQ 前三项都在首屏
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 列出来源目录里的两项，并说明各自会得到什么
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+stderr | src/views/views.spec.ts > 首页（产品方案 §3.1） > 后端不可用时依然渲染（首页走新测自己的内置口径，不装载旧内容包）
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 带 ?instrument=<slug> 过来时自动开始那一项，不需要再点一次
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 目录还没回来时不会拿着 slug 去建草稿
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+stderr | src/views/adminView.spec.ts > 管理后台 · AI 设置 > 保存失败：显示错误与报障编号，且不假装成功
+[typeme] 未预期的前端错误： boom Error: boom
+    at D:\develop\develop\code\TypeMe\frontend\src\views\adminView.spec.ts:298:45
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:146:14
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1271:3)
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/vitest/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > URL 里带的量表不存在时明确说出来，而不是毫无反应
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+ ✓ src/views/adminView.spec.ts (15 tests) 1677ms
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 已有没答完的草稿时，卡片按钮继续那一份，不新建
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 已有没答完的草稿时，卡片按钮继续那一份，不新建
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 带 slug 过来时若已有没答完的草稿，继续那一份而不是新建
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 已经提交过的记录不算草稿入口
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+stderr | src/views/compareView.spec.ts > 复测比较页 > 比较失败：显示错误与重试机会，不显示半张表
+[typeme] 未预期的前端错误： boom Error: boom
+    at D:\develop\develop\code\TypeMe\frontend\src\views\compareView.spec.ts:213:38
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:146:14
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1271:3)
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/vitest/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+ ✓ src/views/assessChooserView.spec.ts (7 tests) 1274ms
+   ✓ /assess 选择页 > 列出来源目录里的两项，并说明各自会得到什么 449ms
+ ✓ src/views/compareView.spec.ts (9 tests) 1761ms
+   ✓ 复测比较页 > 只有一份报告时：说清还差什么，不给比较按钮 525ms
+ ✓ src/views/bigFiveAssessView.spec.ts (8 tests) 2241ms
+   ✓ 大五答题页 > 保存只带上还没保存的那几题（已保存的不会重复发） 349ms
+   ✓ 大五答题页 > 「说不好」以 UNKNOWN 提交，再点一次撤销回未作答 424ms
+ ✓ src/views/instrumentMethodView.spec.ts (8 tests) 1741ms
+   ✓ 结果长什么样：必须按量表说 > 大五：说清没有类型码、也没有总分 537ms
+stderr | src/views/accountExport.spec.ts > 账号页 · 导出完整性提示 > 导出完整时：说「都在里面」，且不显示不完整警告，注销区也没有警告
+Not implemented: navigation to another Document
+
+ ✓ src/components/aiAnalysisPanel.spec.ts (10 tests) 1966ms
+   ✓ AI 分析面板 > 大五遇到旧提示词时禁用生成并解释原因，切换新版后可用 559ms
+   ✓ AI 分析面板 > 未勾选同意范围时不能提交（不会替用户同意外发） 324ms
+stderr | src/views/accountExport.spec.ts > 账号页 · 导出完整性提示 > 有段落没导出成功时：**不说**「都在里面」，明确说不是完整备份，并点名缺了什么
+Not implemented: navigation to another Document
+
+stderr | src/views/accountExport.spec.ts > 账号页 · 导出完整性提示 > 导出不完整时，注销区也给出「先别注销」的最后一道提示
+Not implemented: navigation to another Document
+
+stderr | src/views/accountExport.spec.ts > 账号页 · 导出完整性提示 > 认不出的段名原样显示，不能因为翻译不了就把警告吞掉
+Not implemented: navigation to another Document
+
+ ✓ src/views/accountExport.spec.ts (4 tests) 435ms
+stderr | src/views/instrumentCopy.spec.ts > 公共壳的量表文案（App.vue） > 副标题与页脚署名跟着当前内容包走（四维 / 大五，各自不许串台）
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+
+stderr | src/views/instrumentCopy.spec.ts > 首页的量表文案与抽象图形（LandingView.vue） > 维度说明与首屏图形永远是首页主推的新测四维，不跟随本机装载的旧内容包
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/views.spec.ts > 答题页（产品方案 §3.2 / §3.3） > 内容包装载失败时给出错误态与重试入口（不白屏）
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/views/instrumentCopy.spec.ts > 首页的量表文案与抽象图形（LandingView.vue） > 维度说明与首屏图形永远是首页主推的新测四维，不跟随本机装载的旧内容包
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/instrumentCopy.spec.ts > 首页的量表文案与抽象图形（LandingView.vue） > 两个包都不出现「最准 / 权威 / 官方测评结果」这类红线词
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/stores/quiz.spec.ts > STATE-02 存储不可用 > setItem 抛错时仍可作答，且 status 如实标为 unavailable
+[typeme] 写入本地记录失败（不影响本次作答） DOMException {}
+
+stderr | src/stores/quiz.spec.ts > STATE-04 内容包变化 > 没有同 ID 内置副本时 selectPackage 失败并给出可读原因
+[typeme] GET /assessment-packages/nope-not-registered 不可用（Failed to parse URL from /api/v2/assessment-packages/nope-not-registered），且没有同 ID 的内置副本
+
+stderr | src/stores/quiz.spec.ts > STATE-04 内容包变化 > 空会话下可以切换到另一个内置包
+[typeme] GET /assessment-packages/oejts32-zh2-preview-r1 请求失败（Failed to parse URL from /api/v2/assessment-packages/oejts32-zh2-preview-r1），已降级到同 ID 内置副本
+
+stderr | src/stores/quiz.spec.ts > 内容版本偏好：选过哪一版，刷新后还是哪一版 > 切换内容版本会写下偏好键；不指定包 ID 的 load() 读回这一版
+[typeme] GET /assessment-packages/oejts32-zh1-report2 请求失败（Failed to parse URL from /api/v2/assessment-packages/oejts32-zh1-report2），已降级到同 ID 内置副本
+[typeme] GET /assessment-packages/oejts32-zh1-report2 请求失败（Failed to parse URL from /api/v2/assessment-packages/oejts32-zh1-report2），已降级到同 ID 内置副本
+
+stderr | src/stores/quiz.spec.ts > 内容版本偏好：选过哪一版，刷新后还是哪一版 > 没有偏好时回到站点默认包，偏好不会被前一次测试或旧版本带偏
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/stores/quiz.spec.ts > 内容版本偏好：选过哪一版，刷新后还是哪一版 > 认不出来的偏好（旧版本残留 / 被人手改）被忽略，仍然装默认包
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/stores/quiz.spec.ts > 内容版本偏好：选过哪一版，刷新后还是哪一版 > 显式传入包 ID 时优先于偏好（调用方明确指定就不该被本地偏好覆盖）
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/stores/quiz.spec.ts > 内容版本偏好：选过哪一版，刷新后还是哪一版 > 清除本地记录会连偏好一起清掉，之后回到默认量表
+[typeme] GET /assessment-packages/oejts32-zh1-report2 请求失败（Failed to parse URL from /api/v2/assessment-packages/oejts32-zh1-report2），已降级到同 ID 内置副本
+
+stderr | src/stores/quiz.spec.ts > 内容版本偏好：选过哪一版，刷新后还是哪一版 > 偏好键不含任何作答内容，且与 v3 会话键互不影响
+[typeme] GET /assessment-packages/oejts32-zh1-report2 请求失败（Failed to parse URL from /api/v2/assessment-packages/oejts32-zh1-report2），已降级到同 ID 内置副本
+
+stderr | src/stores/quiz.spec.ts > 新默认包：IPIP-50 大五（无类型码） > 不指定包 ID 时装载站点默认包 ipip50-zh1；题数 50、维度顺序 E/A/C/ES/O
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/stores/quiz.spec.ts > 新默认包：IPIP-50 大五（无类型码） > 默认包的作答格式是 agreement（单句贴切度），不再是 OEJTS 的双极选择
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/stores/quiz.spec.ts > 内容包接口路径：线上形态（显式 null）必须被真正采用 > 接口返回另一个包的 ID 时仍然降级，不会把 B 的题面贴到 A 上
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（内容包 ID 不一致：请求 ipip50-zh1，返回 oejts32-zh1-report2），已降级到同 ID 内置副本
+
+ ✓ src/stores/quiz.spec.ts (54 tests) 3371ms
+   ✓ STATE-07 改答案即作废旧报告 > selectRating / selectUnknown 都清空提交状态 775ms
+   ✓ STATE-05（自我观察）不改量表分数 > saveSelfReflection 只更新独立区域；responses 与报告指纹不变 518ms
+   ✓ STATE-05（自我观察）不改量表分数 > 不是当前内容包的维度会被忽略（不许把 OEJTS 的 SN 写进大五会话） 327ms
+   ✓ STATE-05（自我观察）不改量表分数 > 自我观察会被保存并随会话恢复 414ms
+   ✓ STATE-05（自我观察）不改量表分数 > 大五会话里的自我观察在刷新后仍然恢复（token 是「低/高」，不是字母） 400ms
+stderr | src/views/instrumentCopy.spec.ts > 首页的量表文案与抽象图形（LandingView.vue） > 两个包都不出现「最准 / 权威 / 官方测评结果」这类红线词
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/instrumentCopy.spec.ts > 首页的量表文案与抽象图形（LandingView.vue） > 教学例子、价值三项与 FAQ 只讲首页主推新测的双极作答格式
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/instrumentCopy.spec.ts > 首页的量表文案与抽象图形（LandingView.vue） > 教学例子、价值三项与 FAQ 只讲首页主推新测的双极作答格式
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+ ✓ src/views/instrumentCopy.spec.ts (7 tests) 3148ms
+   ✓ 公共壳的量表文案（App.vue） > 副标题与页脚署名跟着当前内容包走（四维 / 大五，各自不许串台） 1784ms
+   ✓ 首页的量表文案与抽象图形（LandingView.vue） > 维度说明与首屏图形永远是首页主推的新测四维，不跟随本机装载的旧内容包 712ms
+   ✓ 首页的量表文案与抽象图形（LandingView.vue） > 两个包都不出现「最准 / 权威 / 官方测评结果」这类红线词 303ms
+ ✓ src/domain/reportV3.spec.ts (40 tests) 36ms
+ ✓ src/domain/assessmentPackage.spec.ts (29 tests) 55ms
+ ✓ src/content/fallback.spec.ts (34 tests) 171ms
+ ✓ src/domain/assessment.spec.ts (41 tests) 103ms
+前端内置副本已是最新，无需改动
+  题库 32 题 / 类型文案 16 型 / 方法页 5 节 / 内容包 3 个（ipip50-zh1, oejts32-zh1-report2, oejts32-zh2-preview-r1） / contentVersion 2026-09-01
+ ✓ src/design/contrast.spec.ts (45 tests) 14ms
+ ✓ src/utils/shareImage.spec.ts (45 tests) 565ms
+ ✓ src/domain/scoring.spec.ts (30 tests) 939ms
+   ✓ 区间不变量（随机 1000 组作答） > 每维得分恒在 [8, 40] 且为整数，intensity ∈ [0, 100] 903ms
+✓ 前端内置副本与后端 YAML 一致
+ ✓ src/components/formErrorNotice.spec.ts (5 tests) 126ms
+ ✓ src/views/reportV3View.spec.ts (29 tests) 4478ms
+   ✓ 报告页：REFERENCE > 渲染四字母 + 类型名 + 八段解读 1081ms
+   ✓ 报告页：过程层（由四字母推导，不是测量） > 建议块给出 3 段发展任务、4 个决策步（标出用不上偏好功能的两步）、互补与沟通规则 401ms
+ ✓ src/content/consistency.spec.ts (40 tests) 1152ms
+   ✓ IM-1 生成脚本自身的守卫 > 生成脚本存在，且 --check 时报告产物与后端 YAML 完全一致 891ms
+stderr | src/views/views.spec.ts > 分享（产品方案 §5.1 第 7 条 / 开发方案 §7.4） > 下载后提示「已发起下载」，不说「已保存到相册」
+Not implemented: navigation to another Document
+
+ ✓ src/api/v3RecoveryCodes.spec.ts (5 tests) 55ms
+stderr | src/views/shellNav.spec.ts > 顶栏导航（App.vue） > 指向「开始测评」的入口只出现一次
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/views/shellNav.spec.ts > 顶栏导航（App.vue） > 停在关于页时，导航项写的仍然是它自己的目标名
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/views/shellNav.spec.ts > 顶栏导航（App.vue） > 停在关于页时，导航项写的仍然是它自己的目标名
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+
+ ✓ src/domain/clarity.spec.ts (9 tests) 8ms
+ ✓ src/api/v3Export.spec.ts (6 tests) 23ms
+stderr | src/views/shellNav.spec.ts > 顶栏导航（App.vue） > 未登录时不渲染重复的账号入口
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+ ✓ src/domain/jung/dynamics.spec.ts (94 tests) 34ms
+ ✓ src/domain/jung/scoring.fixture.spec.ts (129 tests) 42ms
+stderr | src/views/views.spec.ts > 分享（产品方案 §5.1 第 7 条 / 开发方案 §7.4） > canvas 不可用时给出可复制文字的失败反馈，报告仍在
+[typeme] 生成分享图失败 Error: 当前浏览器不支持 canvas 2d，无法生成分享图
+    at renderShareCard (D:\develop\develop\code\TypeMe\frontend\src\utils\shareImage.ts:448:19)
+    at Module.shareCardBlob (D:\develop\develop\code\TypeMe\frontend\src\utils\shareImage.ts:460:18)
+    at generateShare (D:\develop\develop\code\TypeMe\frontend\src\views\ResultView.vue:163:24)
+    at callWithErrorHandling (D:\develop\develop\code\TypeMe\frontend\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:200:19)
+    at Object.callWithAsyncErrorHandling (D:\develop\develop\code\TypeMe\frontend\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:207:17)
+    at HTMLButtonElement.invoker (D:\develop\develop\code\TypeMe\frontend\node_modules\@vue\runtime-dom\dist\runtime-dom.cjs.js:707:19)
+    at HTMLButtonElement.callTheUserObjectsOperation (D:\develop\develop\code\TypeMe\frontend\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (D:\develop\develop\code\TypeMe\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (D:\develop\develop\code\TypeMe\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLButtonElementImpl._dispatch (D:\develop\develop\code\TypeMe\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+
+ ✓ src/views/shellNav.spec.ts (3 tests) 432ms
+stderr | src/views/registerView.spec.ts > 注册页：免责声明同意项 > 默认不勾选：不能提交，且不会静默替用户同意
+[Vue warn]: Failed to resolve component: FormErrorNotice
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <RegisterView ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+stderr | src/api/v3Assessment.spec.ts > 请求形状 > 409 被识别成"版本冲突"并读出服务端的最新 revision
+[typeme] 取 CSRF token 失败（GET /api/v3/auth/csrf 返回 409），且读不到 XSRF-TOKEN cookie；写操作可能会被服务端以 CSRF_INVALID 拒绝。
+
+stderr | src/views/registerView.spec.ts > 注册页：免责声明同意项 > 勾选后提交，请求体里带着 disclaimerAccepted: true
+[Vue warn]: Failed to resolve component: FormErrorNotice
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <RegisterView ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+stderr | src/views/views.spec.ts > 分享（产品方案 §5.1 第 7 条 / 开发方案 §7.4） > Blob 为空也按失败处理，不给用户一张空图
+[typeme] canvas.toBlob 返回空产物，降级为 dataURL 转换
+[typeme] 生成分享图失败 Error: 分享图生成失败：图片数据为空
+    at Module.shareCardBlob (D:\develop\develop\code\TypeMe\frontend\src\utils\shareImage.ts:481:34)
+    at generateShare (D:\develop\develop\code\TypeMe\frontend\src\views\ResultView.vue:163:18)
+
+stderr | src/components/platformIntro.spec.ts > 多量表首页入口 > 失败时能重试，空目录不编造测评卡片
+ ✓ src/api/v3Assessment.spec.ts (9 tests) 35ms
+[typeme] 未预期的前端错误： offline Error: offline
+    at D:\develop\develop\code\TypeMe\frontend\src\components\platformIntro.spec.ts:37:44
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:146:14
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1271:3)
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/vitest/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+stderr | src/views/registerView.spec.ts > 注册页：免责声明同意项 > label 是整句可点的，并且那句里有两个指向关于页的入口
+[Vue warn]: Failed to resolve component: FormErrorNotice
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <RegisterView ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+ ✓ src/components/platformIntro.spec.ts (2 tests) 226ms
+ ✓ src/views/registerView.spec.ts (3 tests) 310ms
+stderr | src/stores/aiAnalysisV3.spec.ts > AI 分析 store：归属与轮询清理 > 列表读失败时如实留痕，并且不把"读不到"当成"没有分析"以外的东西
+[typeme] 未预期的前端错误： boom Error: boom
+    at D:\develop\develop\code\TypeMe\frontend\src\stores\aiAnalysisV3.spec.ts:128:47
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:146:14
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1271:3)
+
+stderr | src/views/views.spec.ts > 关于页（产品方案 §3 / §8） > 包含四个必需部分
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+ ✓ src/stores/aiAnalysisV3.spec.ts (8 tests) 39ms
+stderr | src/views/views.spec.ts > 关于页（产品方案 §3 / §8） > 使用统一的隐私表达，不写「不存储任何数据」
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/views/views.spec.ts > 关于页（产品方案 §3 / §8） > 更早保存的作答只用人话说明：不会自动套用，且不出现 v1/v2/派生会话等术语
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+ ✓ src/stores/reportLoadingV3.spec.ts (2 tests) 9ms
+ ✓ src/views/views.spec.ts (68 tests) 8166ms
+   ✓ 答题页（产品方案 §3.2 / §3.3） > 全部处理但有「暂时无法判断」：给出复查文案，点了「按现有答案查看报告」才提交并跳转 317ms
+   ✓ 答题页（产品方案 §3.2 / §3.3） > 手机/PC 都必须手动点「下一题」才前进（没有自动跳题） 497ms
+
+ Test Files  38 passed (38)
+      Tests  901 passed (901)
+   Start at  14:25:56
+   Duration  23.11s (transform 24.07s, setup 0ms, collect 68.66s, tests 38.68s, environment 195.75s, prepare 18.08s)
+

@@ -1,0 +1,31 @@
+{
+  "label": "csp",
+  "mode": "csp-repro",
+  "site": "http://127.0.0.1:5197",
+  "imageBase": "https://yan-public-1407914221.cos.ap-beijing.myqcloud.com",
+  "csp": "default-src 'self'",
+  "scope": "reproduce the backend Content-Security-Policy header against cross-origin images",
+  "passed": 3,
+  "failed": 0,
+  "failures": [],
+  "notes": [
+    "CSP/390：COS 请求 20 条、失败 41 条、CSP 报错 41 条、本地回退 20 条、实际显示来源 {\"127.0.0.1:5197\": 21}、frames=21 withImg=21"
+  ],
+  "checks": [
+    {
+      "label": "CSP/390：复现成功——跨域图片确实被 CSP 拦下",
+      "passed": true,
+      "detail": "CSP 报错 41 条、加载失败 41 条"
+    },
+    {
+      "label": "CSP/390：最终显示的图片全部来自源站（迁移在生产环境不生效）",
+      "passed": true,
+      "detail": "{\"127.0.0.1:5197\": 21}"
+    },
+    {
+      "label": "CSP/390：页面仍然显示图片（回退兜住了，所以肉眼很难发现）",
+      "passed": true,
+      "detail": "frames=21 withImg=21，本地回退 20 条"
+    }
+  ]
+}

@@ -1,0 +1,446 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.typeme:typeme-backend >----------------------
+[INFO] Building typeme-backend 1.0.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ typeme-backend ---
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] Copying 30 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:copy-resources (copy-frontend-dist) @ typeme-backend ---
+[INFO] Copying 26 resources from ..\frontend\dist to target\classes\static
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ typeme-backend ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 177 source files with javac [debug parameters release 21] to target\classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ typeme-backend ---
+[INFO] Copying 7 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ typeme-backend ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 71 source files with javac [debug parameters release 21] to target\test-classes
+[INFO] /D:/develop/develop/code/TypeMe/backend/src/test/java/com/typeme/jung/service/JungReportSchemaTest.java: D:\develop\develop\code\TypeMe\backend\src\test\java\com\typeme\jung\service\JungReportSchemaTest.java使用或覆盖了已过时的 API。
+[INFO] /D:/develop/develop/code/TypeMe/backend/src/test/java/com/typeme/jung/service/JungReportSchemaTest.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.2.5:test (default-test) @ typeme-backend ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.typeme.jung.api.SubmitReportIT
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-09-22T16:14:01.134+08:00  INFO 44908 --- [typeme] [           main] com.typeme.jung.api.SubmitReportIT       : Starting SubmitReportIT using Java 21.0.12.1 with PID 44908 (started by 22518 in D:\develop\develop\code\TypeMe\backend)
+2026-09-22T16:14:01.137+08:00  INFO 44908 --- [typeme] [           main] com.typeme.jung.api.SubmitReportIT       : No active profile set, falling back to 1 default profile: "default"
+2026-09-22T16:14:03.828+08:00  INFO 44908 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-22T16:14:04.142+08:00  INFO 44908 --- [typeme] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:typeme_submitreportit_00d715653d32 user=SA
+2026-09-22T16:14:04.147+08:00  INFO 44908 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-22T16:14:04.233+08:00  INFO 44908 --- [typeme] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:typeme_submitreportit_00d715653d32 (H2 2.2)
+2026-09-22T16:14:04.246+08:00  WARN 44908 --- [typeme] [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.2.224 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.220.
+2026-09-22T16:14:04.303+08:00  INFO 44908 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-09-22T16:14:04.307+08:00  INFO 44908 --- [typeme] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 10 migrations (execution time 00:00.037s)
+2026-09-22T16:14:04.316+08:00  INFO 44908 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-09-22T16:14:04.362+08:00  INFO 44908 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-09-22T16:14:04.382+08:00  INFO 44908 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - account and session"
+2026-09-22T16:14:04.417+08:00  INFO 44908 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - assessment content and attempt"
+2026-09-22T16:14:04.437+08:00  INFO 44908 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - report and self reflection"
+2026-09-22T16:14:04.456+08:00  INFO 44908 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - ai analysis"
+2026-09-22T16:14:04.478+08:00  INFO 44908 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - idempotency and deletion"
+2026-09-22T16:14:04.492+08:00  INFO 44908 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - admin and ai settings"
+2026-09-22T16:14:04.502+08:00  INFO 44908 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - ai job user note"
+2026-09-22T16:14:04.524+08:00  INFO 44908 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - widen credential hash"
+2026-09-22T16:14:04.531+08:00  INFO 44908 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "9 - invitations and user ai limit"
+2026-09-22T16:14:04.550+08:00  INFO 44908 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "10 - illustration asset"
+2026-09-22T16:14:04.565+08:00  INFO 44908 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 10 migrations to schema "public", now at version v10 (execution time 00:00.093s)
+2026-09-22T16:14:05.101+08:00  INFO 44908 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 内容包指纹：939232e360a2…（typeme-jung48-zh-v1，与文件声明一致）
+2026-09-22T16:14:05.115+08:00  INFO 44908 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 内容包指纹：9e61f1459725…（typeme-jung48-zh-v2，与文件声明一致）
+2026-09-22T16:14:05.124+08:00  INFO 44908 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 内容包指纹：44fbb3d374f1…（typeme-jung48-zh-v3，与文件声明一致）
+2026-09-22T16:14:05.144+08:00  INFO 44908 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 内容包指纹：a5208fcd387c…（typeme-jung48-zh-v4，与文件声明一致）
+2026-09-22T16:14:05.193+08:00  INFO 44908 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测内容包已加载：{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-22T16:14:05.194+08:00  WARN 44908 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，没有信度/效度证据，不得对外宣传为已验证。（packageId=typeme-jung48-zh-v1）
+2026-09-22T16:14:05.194+08:00  INFO 44908 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测内容包已加载：{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-22T16:14:05.194+08:00  WARN 44908 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，没有信度/效度证据，不得对外宣传为已验证。（packageId=typeme-jung48-zh-v2）
+2026-09-22T16:14:05.194+08:00  INFO 44908 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测内容包已加载：{packageId=typeme-jung48-zh-v3, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v3, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=44fbb3d374f13772eb5ac1ffb69586a2a240e8977237f2c6c74a8ec17d770dd6, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-22T16:14:05.194+08:00  WARN 44908 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，没有信度/效度证据，不得对外宣传为已验证。（packageId=typeme-jung48-zh-v3）
+2026-09-22T16:14:05.195+08:00  INFO 44908 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测内容包已加载：{packageId=typeme-jung48-zh-v4, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v4, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=a5208fcd387c34d2c4907a0cc6eff3790782f47cf144a82de2fd71c3c423f103, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-22T16:14:05.195+08:00  WARN 44908 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，没有信度/效度证据，不得对外宣传为已验证。（packageId=typeme-jung48-zh-v4）
+2026-09-22T16:14:05.268+08:00  INFO 44908 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : 大五内容包指纹：47a09253ce7a…（typeme-bigfive50-zh-v1，与文件声明一致）
+2026-09-22T16:14:05.269+08:00  INFO 44908 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : 大五内容包已加载：{packageId=typeme-bigfive50-zh-v1, instrumentId=ipip50, scoringVersion=ipip-bfm50-1.0, reportContentVersion=typeme-bigfive-report-zh-v1, contentStatus=draft_review_pending, sha256=47a09253ce7a9ed914f731aa9917ab14f2a3291fb0411fe470fa10a061beda59, itemCount=50, itemsPerDimension={E=10, A=10, C=10, ES=10, O=10}}
+2026-09-22T16:14:05.269+08:00  WARN 44908 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : 大五题目与解释的审校状态是「draft_review_pending」：中文题面未做真人试读与试测，没有信度/效度证据，也不代表已与常模比对。（packageId=typeme-bigfive50-zh-v1）
+2026-09-22T16:14:05.284+08:00  INFO 44908 --- [typeme] [           main] c.t.platform.catalog.AssessmentCatalog   : 量表目录登记：slug=jung48 名称=十六型人格参考测评 默认版本=typeme-jung48-zh-v4 主测题数=48 补充题上限=16
+2026-09-22T16:14:05.284+08:00  INFO 44908 --- [typeme] [           main] c.t.platform.catalog.AssessmentCatalog   : 量表目录登记：slug=bigfive50 名称=大五人格倾向测评 默认版本=typeme-bigfive50-zh-v1 主测题数=50 补充题上限=0
+2026-09-22T16:14:06.672+08:00  INFO 44908 --- [typeme] [           main] com.typeme.service.ContentService        : 内容包加载并校验通过: packageId=ipip50-zh1 questions=50 status=draft
+2026-09-22T16:14:06.686+08:00  INFO 44908 --- [typeme] [           main] com.typeme.service.ContentService        : 内容包加载并校验通过: packageId=oejts32-zh1-report2 questions=32 status=draft
+2026-09-22T16:14:06.703+08:00  INFO 44908 --- [typeme] [           main] com.typeme.service.ContentService        : 内容包加载并校验通过: packageId=oejts32-zh2-preview-r1 questions=32 status=draft
+2026-09-22T16:14:06.707+08:00  INFO 44908 --- [typeme] [           main] com.typeme.service.ContentService        : 题库加载并校验通过: version=quick questions=32 sha256=83c112bdfb43fa62e942402adf963c90cc0d18e6b3a21aaf7033161b6f5cf754
+2026-09-22T16:14:06.707+08:00  INFO 44908 --- [typeme] [           main] com.typeme.service.ContentService        : 方法说明页加载并校验通过: sections=5 license=CC BY-NC-SA 4.0
+2026-09-22T16:14:06.707+08:00  INFO 44908 --- [typeme] [           main] com.typeme.service.ContentService        : 类型文案加载并校验通过: types=16
+2026-09-22T16:14:07.035+08:00  INFO 44908 --- [typeme] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name typemeUserDetailsService
+2026-09-22T16:14:07.546+08:00  INFO 44908 --- [typeme] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-09-22T16:14:08.242+08:00  INFO 44908 --- [typeme] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-09-22T16:14:09.112+08:00  INFO 44908 --- [typeme] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-22T16:14:09.112+08:00  INFO 44908 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-22T16:14:09.114+08:00  INFO 44908 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-22T16:14:09.196+08:00  INFO 44908 --- [typeme] [           main] com.typeme.jung.api.SubmitReportIT       : Started SubmitReportIT in 8.498 seconds (process running for 9.65)
+2026-09-22T16:14:09.307+08:00  INFO 44908 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-jung48-zh-v1 sha256=939232e360a2… 审校状态=draft_review_pending 内容字节数=28168
+2026-09-22T16:14:09.309+08:00  INFO 44908 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-jung48-zh-v2 sha256=9e61f1459725… 审校状态=draft_review_pending 内容字节数=28179
+2026-09-22T16:14:09.311+08:00  INFO 44908 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-jung48-zh-v3 sha256=44fbb3d374f1… 审校状态=draft_review_pending 内容字节数=28179
+2026-09-22T16:14:09.314+08:00  INFO 44908 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-jung48-zh-v4 sha256=a5208fcd387c… 审校状态=draft_review_pending 内容字节数=28178
+2026-09-22T16:14:09.317+08:00  INFO 44908 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-bigfive50-zh-v1 sha256=47a09253ce7a… 审校状态=draft_review_pending 内容字节数=22615
+2026-09-22T16:14:09.319+08:00  INFO 44908 --- [typeme] [           main] c.t.ai.config.AiRuntimeSettingsProvider  : AI 设置已加载：enabled=false, model=deepseek-flash, apiKeySource=none, mockMode=true, baseUrl=https://api.deepseek.com
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (D:\develop\maven\mavenpom\net\bytebuddy\byte-buddy-agent\1.14.19\byte-buddy-agent-1.14.19.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+2026-09-22T16:14:11.362+08:00  INFO 44908 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-22T16:14:11.403+08:00  INFO 44908 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-22T16:14:11.750+08:00  INFO 44908 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-22T16:14:11.770+08:00  INFO 44908 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-22T16:14:11.851+08:00  INFO 44908 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-22T16:14:11.868+08:00  INFO 44908 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+
+MockHttpServletRequest:
+      HTTP Method = GET
+      Request URI = /api/v3/auth/csrf
+       Parameters = {}
+          Headers = []
+             Body = null
+    Session Attrs = {}
+
+Handler:
+             Type = com.typeme.account.controller.AuthController
+           Method = com.typeme.account.controller.AuthController#csrf(CsrfToken)
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 200
+    Error message = null
+          Headers = [X-Request-Id:"d21bea45-9372-4b82-a954-e86b4963dd14", Set-Cookie:"XSRF-TOKEN=7be478ea-137c-4864-b73b-a4a44a7b8d55; Path=/", Cache-Control:"no-store", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", X-Frame-Options:"DENY", Referrer-Policy:"same-origin"]
+     Content type = application/json
+             Body = {"token":"7be478ea-137c-4864-b73b-a4a44a7b8d55","headerName":"X-XSRF-TOKEN","parameterName":"_csrf"}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = [[Cookie@3ba8fbc8 name = 'XSRF-TOKEN', value = '7be478ea-137c-4864-b73b-a4a44a7b8d55', comment = [null], domain = [null], maxAge = -1, path = '/', secure = false, version = 0, httpOnly = false]]
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /api/v3/auth/register
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", X-XSRF-TOKEN:"7be478ea-137c-4864-b73b-a4a44a7b8d55", Content-Length:"141", Cookie:"XSRF-TOKEN=7be478ea-137c-4864-b73b-a4a44a7b8d55"]
+             Body = {"disclaimerAccepted":true,"password":"Submit-A34!2026","username":"submit_a34_689200_3","invitationCode":"f4ad026272854f70a8a9cd7a692e3977"}
+    Session Attrs = {SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=TypemeUserPrincipal[username=submit_a34_689200_3, authorities=[ROLE_USER]], Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[ROLE_USER]]]}
+
+Handler:
+             Type = com.typeme.account.controller.AuthController
+           Method = com.typeme.account.controller.AuthController#register(RegisterRequest, HttpServletRequest)
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 201
+    Error message = null
+          Headers = [X-Request-Id:"b1b79aec-5dcc-4f6a-b0ef-7a1766d47a03", Cache-Control:"no-store", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", X-Frame-Options:"DENY", Referrer-Policy:"same-origin"]
+     Content type = application/json
+             Body = {"userId":"255b5b85-2b57-4163-8b69-f50e54905906","username":"submit_a34_689200_3","nickname":null,"recoveryCodes":["NNHZ-SVN9-F6NM-52CF","XK7F-TGYJ-7Q4F-Q3FK","6ZMW-E2FA-FNUJ-P9SB","H894-QJCF-HJZV-7CWW","RYQX-Y7MX-YAW2-EGJ2","8FNK-Y749-DBHD-ZB3P","G7FB-JNT6-ZDM3-38KF","9BME-R8G2-PHG8-VVDK"],"recoveryCodePolicyVersion":"typeme-recovery-code-v1"}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = GET
+      Request URI = /api/v3/auth/csrf
+       Parameters = {}
+          Headers = []
+             Body = null
+    Session Attrs = {typeme.session.lastSeenWrittenAt=1790064851881, SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=TypemeUserPrincipal[username=submit_a34_689200_3, authorities=[ROLE_USER]], Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[ROLE_USER]]]}
+
+Handler:
+             Type = com.typeme.account.controller.AuthController
+           Method = com.typeme.account.controller.AuthController#csrf(CsrfToken)
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 200
+    Error message = null
+          Headers = [X-Request-Id:"78312e83-8e82-46d9-843c-5433eb87a60c", Set-Cookie:"XSRF-TOKEN=04ce84ab-964a-45d8-a3a6-136f019c07e6; Path=/", Cache-Control:"no-store", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", X-Frame-Options:"DENY", Referrer-Policy:"same-origin"]
+     Content type = application/json
+             Body = {"token":"04ce84ab-964a-45d8-a3a6-136f019c07e6","headerName":"X-XSRF-TOKEN","parameterName":"_csrf"}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = [[Cookie@113a89c5 name = 'XSRF-TOKEN', value = '04ce84ab-964a-45d8-a3a6-136f019c07e6', comment = [null], domain = [null], maxAge = -1, path = '/', secure = false, version = 0, httpOnly = false]]
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /api/v3/attempts
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", X-XSRF-TOKEN:"04ce84ab-964a-45d8-a3a6-136f019c07e6", Content-Length:"2", Cookie:"XSRF-TOKEN=04ce84ab-964a-45d8-a3a6-136f019c07e6"]
+             Body = {}
+    Session Attrs = {typeme.session.lastSeenWrittenAt=1790064851881, SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=TypemeUserPrincipal[username=submit_a34_689200_3, authorities=[ROLE_USER]], Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[ROLE_USER]]]}
+
+Handler:
+             Type = com.typeme.jung.api.JungController
+           Method = com.typeme.jung.api.JungController#createAttempt(String, CreateAttemptRequest)
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 201
+    Error message = null
+          Headers = [X-Request-Id:"9e316cd2-bd84-4157-b6c3-be4059f3a17d", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", Cache-Control:"no-cache, no-store, max-age=0, must-revalidate", Pragma:"no-cache", Expires:"0", X-Frame-Options:"DENY", Referrer-Policy:"same-origin"]
+     Content type = application/json
+             Body = {"attemptId":"94c734e5-2e9d-4fe8-8941-880cb5b02fc1","packageId":"typeme-jung48-zh-v4","status":"BASE_IN_PROGRESS","revision":0,"currentQuestionId":"EI-01","clarificationDimensions":[],"clarificationSkipped":false,"startedAt":"2026-09-22T08:14:11.896610200Z","updatedAt":"2026-09-22T08:14:11.896610200Z","submittedAt":null,"reportId":null}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = GET
+      Request URI = /api/v3/catalog/current/package
+       Parameters = {}
+          Headers = []
+             Body = null
+    Session Attrs = {typeme.session.lastSeenWrittenAt=1790064851881, SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=TypemeUserPrincipal[username=submit_a34_689200_3, authorities=[ROLE_USER]], Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[ROLE_USER]]]}
+
+Handler:
+             Type = com.typeme.jung.api.JungController
+           Method = com.typeme.jung.api.JungController#currentPackage(HttpServletRequest)
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 200
+    Error message = null
+          Headers = [X-Request-Id:"5c286f46-960f-464c-adea-131d48ce561d", Set-Cookie:"XSRF-TOKEN=e84c2333-b97d-45f7-90fb-7d46b806837b; Path=/", ETag:""a5208fcd387c34d2c4907a0cc6eff3790782f47cf144a82de2fd71c3c423f103"", Cache-Control:"no-cache", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", X-Frame-Options:"DENY", Referrer-Policy:"same-origin"]
+     Content type = application/json
+             Body = {"schemaVersion":3,"packageId":"typeme-jung48-zh-v4","instrument":{"id":"typeme-jung48","revision":"v4","scoringVersion":"typeme-jung48-score-v4","reportContentVersion":"typeme-type-report-zh-v1","format":"bipolar","hasTypeCode":true,"baseItemsPerDimension":12,"clarificationItemsPerDimension":4,"maxClarificationItems":16},"title":"十六型人格参考测评","contentStatus":"draft_review_pending","scoringPolicy":{"version":"typeme-jung48-score-v4","minBaseRatingsPerDimension":9,"boundaryNumerator":2,"boundaryDenominator":5,"ratingMin":1,"ratingMax":5,"ratingNeutral":3},"dimensions":[{"dimension":"EI","name":"精力方向","question":"你的精力更多从哪里来","negativePole":{"pole":"I","label":"偏内","description":"你的精力更容易在安静、人少的场合回补。想法通常先在脑子里过一遍，再决定要不要说出口。和熟人待一下午也会开心，但散场之后往往需要一段独处时间才觉得缓过来。人数多、节奏快的场合你能应付，只是持续久了会明显想找个角落。","dailySigns":["在人多的场合待久了，会想找个安静的地方待一会儿","有想法时习惯先自己理一遍，再决定跟谁说","电话和消息不一定马上回，但不是不在意","更喜欢一对一的深聊，而不是同时应付很多人","一个人吃饭、走路、通勤，不太觉得难熬"]},"positivePole":{"pole":"E","label":"偏外","description":"你的精力更容易在有人互动、有事情发生的场合回补。想法常常边说边成形，说着说着才想清楚自己要表达什么。一个人待久了会觉得闷，想找人说说话或者出门走走。热闹过后不太需要缓，反而可能更有精神。","dailySigns":["一个人待久了会觉得闷，想找人聊两句","讨论时容易边说边想出结论，而不是想好了才开口","参加完聚会回家，通常不觉得被耗空","更喜欢和一群人一起做事，而不是独自推进","遇到事情倾向于先找人说说，而不是先自己消化"]},"balanced":{"summary":"这一维你两边差不多，说明你的精力补充方式会随场合、心情和阶段变化。","reading":"常见的表现是：有时候很想找人说话，有时候只想安静待着；工作日和周末可能完全不一样。这不代表你「没定性」，而是这一维对你来说本来就比较灵活——你可以按当下需要选更省力的那一边。"},"tiedNotice":"这一维两边一样多，所以不给出这一位的字母。你可以想一下最近一个月里，哪种情况出现得更多。"},{"dimension":"SN","name":"信息取向","question":"你更信哪一类信息","negativePole":{"pole":"S","label":"偏实","description":"你更容易被具体、能验证的信息说服：做过的例子、实际的数字、具体的做法。听人介绍新东西时，先想知道它到底怎么运作、第一步做什么。对「听起来很好」但说不清细节的说法，你会自然留个心。已经跑通的做法你更愿意沿用，改之前希望先看到证据。","dailySigns":["听人介绍新东西，先问具体怎么做、有没有例子","更信自己亲眼看到或亲手做过的事","描述一件事时容易讲清时间、地点、经过","对「大概」「差不多」这类说法会想追问到底是多少","用过好用的方法，通常不愿意随便换"]},"positivePole":{"pole":"N","label":"偏想","description":"你更容易被整体走向、背后的思路和可能性吸引。听人介绍新东西时，先想知道它整体是怎么回事、各部分怎么连起来。具体细节可以后面再补，先抓住方向更重要。你也善于从一个领域想到另一个领域，把看似无关的事情连起来。","dailySigns":["听新东西时先想知道整体思路，细节可以后补","经常从一个话题跳到另一个相关的话题","对「以后可能会怎样」比「现在具体如何」更有兴趣","描述一件事时容易先讲道理和含义，再讲经过","喜欢琢磨事情背后的原因和走向"]},"balanced":{"summary":"这一维你两边差不多，说明你既看具体做法，也在意整体方向。","reading":"常见的表现是：听新东西时既想要例子，也想知道整体思路；有时先动手，有时先想清楚。这不是「夹在中间」，而是你有两套都还算顺手的处理方式，可以按任务性质切换。"},"tiedNotice":"这一维两边一样多，所以不给出这一位的字母。你可以回想最近学新东西时，更常从哪一头入手。"},{"dimension":"TF","name":"决策依据","question":"做取舍时你先看什么","negativePole":{"pole":"T","label":"偏理","description":"做取舍时，你先看标准是否一致、理由站不站得住、结果能不能解释清楚。不是不在意别人的感受，而是倾向于先把事情本身理清，再考虑怎么安置各方的感受。意见不合时，你更愿意对着依据讨论，而不是先安抚情绪。被人指出逻辑漏洞，你通常不会觉得被冒犯。","dailySigns":["决定前先看依据和标准，再看各方感受","被人反驳时先想对方说得对不对，而不是先想关系","给建议时倾向于直接说哪里不行、怎么改","觉得「按同一套标准办」比「这次特殊处理」更让人服气","别人难过时，会先想能帮上什么忙，再考虑要不要陪着待一会儿"]},"positivePole":{"pole":"F","label":"偏情","description":"做取舍时，你先看这件事会落到谁身上、对关系有什么影响、大家的感受如何。不是不看道理，而是倾向于先照顾到人的处境，再把标准往里收。意见不合时，你更在意对方为什么这么在意。给建议时，你会先想怎么说对方才听得进去。","dailySigns":["决定前先想这件事对具体的人意味着什么","被人反驳时先想对方为什么这么在意","给建议时会先斟酌说法，考虑对方接不接得住","觉得「这次情况特殊」值得为它开个口子","别人情绪不好时，很难当作没看见"]},"balanced":{"summary":"这一维你两边差不多，说明你既看标准，也在意人的处境。","reading":"常见的表现是：有些场合先讲规则，有些场合先照顾人；同一天里也可能不一样。这不是「没原则」或「太软」，而是你会按事情的性质选不同的入口——先理清事实再谈感受，或者先安顿好人的状态再谈标准，都可能有效。"},"tiedNotice":"这一维两边一样多，所以不给出这一位的字母。你可以想一下最近一次为难的取舍，当时先考虑的是什么。"},{"dimension":"JP","name":"生活节奏","question":"你更习惯哪种推进方式","negativePole":{"pole":"J","label":"偏定","description":"你更舒服的节奏是先定下来再推进：大致顺序、时间点、要交付什么，心里有数才踏实。事情能收尾就先收尾，改来改去会让你有点烦。临时变更你能接受，但希望一次说清、别分成几次。空闲时间也习惯先有个安排，哪怕只是大概。","dailySigns":["喜欢先定好顺序和时间，再开始动手","事情做到差不多能交，就先交出去，细节以后再说","临时改计划可以接受，但希望一次说清楚","待办没划掉会一直记着，不太放得下","出门、过节这类事习惯提前安排"]},"positivePole":{"pole":"P","label":"偏活","description":"你更舒服的节奏是先开始、边做边看：留一点空间，到那时再决定，选项多一点反而自在。事情不必急着收口，还有余地就能接着改。临时变更对你影响不大，甚至觉得更有意思。空闲时间不排满，你也不觉得是浪费。","dailySigns":["喜欢先开始，做了再调整，不太想提前全定死","事情还想再改改，不急着交出去","计划被临时改掉，通常不太影响状态","同时开着几件事，也不觉得乱","空闲时间没安排，反而觉得自在"]},"balanced":{"summary":"这一维你两边差不多，说明你既能按计划推进，也能接受边走边看。","reading":"常见的表现是：工作里喜欢有个框架，生活里愿意随机一点；或者反过来，看事情重不重要。这不是「没节奏」，而是你在两种推进方式之间切换的成本都不高。"},"tiedNotice":"这一维两边一样多，所以不给出这一位的字母。你可以想一下最近一周是怎么安排时间的，哪种更接近实际。"}],"questions":[{"id":"EI-01","stage":"base","dimension":"EI","scenario":"活动之后的精力","textLeft":"留点时间自己安静待着","textRight":"再找个人聊聊刚发生的事","leftPole":"I","rightPole":"E","help":"想想和熟人待过一下午之后的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"精力恢复","order":1,"reviewStatus":"draft_review_pending"},{"id":"SN-01","stage":"base","dimension":"SN","scenario":"开始了解新东西","textLeft":"一个能照着做的具体例子","textRight":"它整体怎么运作、各部分怎么连","leftPole":"S","rightPole":"N","help":"回想你最近一次接触陌生领域。如果你两种都做过，选你更常自然发生的那个。","facet":"学新东西的入口","order":2,"reviewStatus":"draft_review_pending"},{"id":"TF-01","stage":"base","dimension":"TF","scenario":"两个方案影响不同人","textLeft":"谁会受到什么影响，哪些需要被照顾","textRight":"用同一套标准比较，看前后是否一致","leftPole":"F","rightPole":"T","help":"想两个都能办成事、但影响不同人的安排。如果你两种都做过，选你更常自然发生的那个。","facet":"做取舍的优先项","order":3,"reviewStatus":"draft_review_pending"},{"id":"JP-01","stage":"base","dimension":"JP","scenario":"自己安排的一天","textLeft":"先把大致顺序和时间定下来","textRight":"先留出空间，到那时再决定","leftPole":"J","rightPole":"P","help":"想一天时间完全由你安排的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"安排周末/任务的方式","order":4,"reviewStatus":"draft_review_pending"},{"id":"EI-02","stage":"base","dimension":"EI","scenario":"想法还没理清时","textLeft":"先说出口，一边说一边理顺","textRight":"自己先想一遍，再拿出来说","leftPole":"E","rightPole":"I","help":"想一个还没想清楚、身边正好有人愿意听的想法。如果你两种都做过，选你更常自然发生的那个。","facet":"思考方式","order":5,"reviewStatus":"draft_review_pending"},{"id":"SN-02","stage":"base","dimension":"SN","scenario":"说明一件刚发生的事","textLeft":"按顺序把经过和原话说清楚","textRight":"先说它说明什么、和什么有关","leftPole":"S","rightPole":"N","help":"想一件刚发生、需要讲给别人听的事。如果你两种都做过，选你更常自然发生的那个。","facet":"描述一件事的方式","order":6,"reviewStatus":"draft_review_pending"},{"id":"TF-02","stage":"base","dimension":"TF","scenario":"朋友来找你商量","textLeft":"先弄清他真正在意什么、为难在哪","textRight":"帮他看清哪个选择更站得住","leftPole":"F","rightPole":"T","help":"想朋友带着选择困难来找你说话的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"看人做事","order":7,"reviewStatus":"draft_review_pending"},{"id":"JP-02","stage":"base","dimension":"JP","scenario":"没有期限的任务","textLeft":"同时留着几套做法，看情况再说","textRight":"先定下一套做法，往下推进","leftPole":"P","rightPole":"J","help":"想一件不急、又有几种做法都行的事。如果你两种都做过，选你更常自然发生的那个。","facet":"决定与保留选项","order":8,"reviewStatus":"draft_review_pending"},{"id":"EI-03","stage":"base","dimension":"EI","scenario":"到了不太熟的场合","textLeft":"先走动，和几个人聊上几句","textRight":"先待在旁边看一会儿，等有人来搭话","leftPole":"E","rightPole":"I","help":"想一场你只认识少数人的聚会。如果你两种都做过，选你更常自然发生的那个。","facet":"社交场合的选择","order":9,"reviewStatus":"draft_review_pending"},{"id":"SN-03","stage":"base","dimension":"SN","scenario":"读一份介绍材料","textLeft":"它讲到的实际情况和具体做法","textRight":"它背后的思路和整体方向","leftPole":"S","rightPole":"N","help":"想一份你随手翻开的介绍材料。如果你两种都做过，选你更常自然发生的那个。","facet":"对细节与整体的注意力","order":10,"reviewStatus":"draft_review_pending"},{"id":"TF-03","stage":"base","dimension":"TF","scenario":"规定遇上特殊情况","textLeft":"先看这个人现在具体难在哪","textRight":"先问这条规定为什么这样定","leftPole":"F","rightPole":"T","help":"想一次有人请求通融、理由听着还行的情况。如果你两种都做过，选你更常自然发生的那个。","facet":"面对规则与例外","order":11,"reviewStatus":"draft_review_pending"},{"id":"JP-03","stage":"base","dimension":"JP","scenario":"原定安排被改动","textLeft":"不重新排，顺着当时的情况走","textRight":"马上重新排一遍，把后面的时间重新定下来","leftPole":"P","rightPole":"J","help":"想一次原来定好的安排被临时改掉的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"行程变化的适应","order":12,"reviewStatus":"draft_review_pending"},{"id":"EI-04","stage":"base","dimension":"EI","scenario":"话头被人接过去","textLeft":"先听他说完，再接着讲自己想讲的","textRight":"顺势聊下去，想到哪说到哪","leftPole":"I","rightPole":"E","help":"想聊天时被人打断、话题被带走的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"被打断后的反应","order":13,"reviewStatus":"draft_review_pending"},{"id":"SN-04","stage":"base","dimension":"SN","scenario":"学一样新技能","textLeft":"先跟着做几遍，把动作学会","textRight":"先弄懂它为什么管用","leftPole":"S","rightPole":"N","help":"想一件你最近学着上手的事。如果你两种都做过，选你更常自然发生的那个。","facet":"学新东西的入口","order":14,"reviewStatus":"draft_review_pending"},{"id":"TF-04","stage":"base","dimension":"TF","scenario":"看法被当面反驳","textLeft":"对方为什么这么在意这件事","textRight":"对方的理由在哪里不成立","leftPole":"F","rightPole":"T","help":"想一次别人当面不同意你的判断。如果你两种都做过，选你更常自然发生的那个。","facet":"被反驳时的关注点","order":15,"reviewStatus":"draft_review_pending"},{"id":"JP-04","stage":"base","dimension":"JP","scenario":"事情快做完的时候","textLeft":"再多留一点时间，接着改下去","textRight":"先告一段落，剩下的地方以后再改","leftPole":"P","rightPole":"J","help":"想一件快做完、自己还觉得有地方能改的事。如果你两种都做过，选你更常自然发生的那个。","facet":"事情收尾的节奏","order":16,"reviewStatus":"draft_review_pending"},{"id":"EI-05","stage":"base","dimension":"EI","scenario":"忙完一天之后","textLeft":"和熟悉的人待着更让我缓过来","textRight":"自己待一会儿才真正缓过来","leftPole":"E","rightPole":"I","help":"想一个事情排得比较满的日子结束时。如果你两种都做过，选你更常自然发生的那个。","facet":"精力恢复","order":17,"reviewStatus":"draft_review_pending"},{"id":"SN-05","stage":"base","dimension":"SN","scenario":"新点子刚被提出","textLeft":"先说它还能延伸出哪些做法","textRight":"先说它能用在哪些具体场景","leftPole":"N","rightPole":"S","help":"想一次有人提出一个新做法的场面。如果你两种都做过，选你更常自然发生的那个。","facet":"对新点子的第一反应","order":18,"reviewStatus":"draft_review_pending"},{"id":"TF-05","stage":"base","dimension":"TF","scenario":"一群人商量事情","textLeft":"先把标准说清楚，再按标准定","textRight":"先看大家各自的想法和感受","leftPole":"T","rightPole":"F","help":"想一次几个人一起定一件事的讨论。如果你两种都做过，选你更常自然发生的那个。","facet":"做取舍的优先项","order":19,"reviewStatus":"draft_review_pending"},{"id":"JP-05","stage":"base","dimension":"JP","scenario":"面对还没到期的决定","textLeft":"早点定下，心里就不用再挂着","textRight":"多留几天，说不定有更合适的","leftPole":"J","rightPole":"P","help":"想一个最后期限还早、必须二选一的事。如果你两种都做过，选你更常自然发生的那个。","facet":"决定与保留选项","order":20,"reviewStatus":"draft_review_pending"},{"id":"EI-06","stage":"base","dimension":"EI","scenario":"复杂问题摆在面前","textLeft":"找人一起讨论，边聊边理","textRight":"自己安静琢磨，想通再说","leftPole":"E","rightPole":"I","help":"想一件需要动脑子、又有人可商量的事。如果你两种都做过，选你更常自然发生的那个。","facet":"思考方式","order":21,"reviewStatus":"draft_review_pending"},{"id":"SN-06","stage":"base","dimension":"SN","scenario":"接手一件陌生的事","textLeft":"先知道大方向，细节自己摸","textRight":"先有一份说清步骤的说明","leftPole":"N","rightPole":"S","help":"想一件你刚上手、还不熟的事情。如果你两种都做过，选你更常自然发生的那个。","facet":"对细节与整体的注意力","order":22,"reviewStatus":"draft_review_pending"},{"id":"TF-06","stage":"base","dimension":"TF","scenario":"两边都有理由的争执","textLeft":"分清楚哪边的道理更站得住","textRight":"先照顾双方在意的和关系本身","leftPole":"T","rightPole":"F","help":"想一场两边都说得通、又吵得有点僵的争执。如果你两种都做过，选你更常自然发生的那个。","facet":"冲突处理","order":23,"reviewStatus":"draft_review_pending"},{"id":"JP-06","stage":"base","dimension":"JP","scenario":"手上攒着几件事","textLeft":"排个先后，做完一件再开下一件","textRight":"几件交替着做，看当时的状态","leftPole":"J","rightPole":"P","help":"想手上同时有几件待办、都能自己安排的时候。如果你两种都做过，选你更常自然发生的那个。","facet":"安排周末/任务的方式","order":24,"reviewStatus":"draft_review_pending"},{"id":"EI-07","stage":"base","dimension":"EI","scenario":"休息时想要的动静","textLeft":"有些热闹和说话声在周围","textRight":"安静一点，最好没人来打扰","leftPole":"E","rightPole":"I","help":"想一个空出来的下午，环境由你挑。如果你两种都做过，选你更常自然发生的那个。","facet":"社交场合的选择","order":25,"reviewStatus":"draft_review_pending"},{"id":"SN-07","stage":"base","dimension":"SN","scenario":"回想去过的一个地方","textLeft":"那个地方给我的整体感觉","textRight":"当时看到听到的画面和细节","leftPole":"N","rightPole":"S","help":"想一个你最近去过、还算熟悉的地方。如果你两种都做过，选你更常自然发生的那个。","facet":"描述一件事的方式","order":26,"reviewStatus":"draft_review_pending"},{"id":"TF-07","stage":"base","dimension":"TF","scenario":"安排集体活动","textLeft":"先问大家想要什么，再凑出做法","textRight":"先把要求列出来，再挑合适的做法","leftPole":"F","rightPole":"T","help":"想一次由你来张罗几个人一起做的事。如果你两种都做过，选你更常自然发生的那个。","facet":"做取舍的优先项","order":27,"reviewStatus":"draft_review_pending"},{"id":"JP-07","stage":"base","dimension":"JP","scenario":"一天里空出半天","textLeft":"随手看看当时想做什么","textRight":"前一天就想好要做哪几件事","leftPole":"P","rightPole":"J","help":"想突然多出半天、没有任何约定的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"安排周末/任务的方式","order":28,"reviewStatus":"draft_review_pending"},{"id":"EI-08","stage":"base","dimension":"EI","scenario":"坐进一群正在聊的人","textLeft":"听一会儿，有把握了再开口","textRight":"先接上话，聊着聊着就有了","leftPole":"I","rightPole":"E","help":"想一次你加入几个人已经在聊的场面。如果你两种都做过，选你更常自然发生的那个。","facet":"社交场合的选择","order":29,"reviewStatus":"draft_review_pending"},{"id":"SN-08","stage":"base","dimension":"SN","scenario":"讨论一件很具体的事","textLeft":"把已经掌握的情况摆清楚","textRight":"顺着可以想到的关联往外推","leftPole":"S","rightPole":"N","help":"想一次需要把现状说明白的讨论。如果你两种都做过，选你更常自然发生的那个。","facet":"对新点子的第一反应","order":30,"reviewStatus":"draft_review_pending"},{"id":"TF-08","stage":"base","dimension":"TF","scenario":"发现说法和事实对不上","textLeft":"先把说法改到和事实一致","textRight":"先想怎么讲对方才接得住","leftPole":"T","rightPole":"F","help":"想一次你发现别人的说法不太准确。如果你两种都做过，选你更常自然发生的那个。","facet":"被反驳时的关注点","order":31,"reviewStatus":"draft_review_pending"},{"id":"JP-08","stage":"base","dimension":"JP","scenario":"别人临时来约","textLeft":"先看这一刻想不想去","textRight":"先想今天原定的安排要不要动","leftPole":"P","rightPole":"J","help":"想一次当天才收到邀请、时间就在今晚。如果你两种都做过，选你更常自然发生的那个。","facet":"行程变化的适应","order":32,"reviewStatus":"draft_review_pending"},{"id":"EI-09","stage":"base","dimension":"EI","scenario":"连着几天和人打交道","textLeft":"中间插一段独处就恢复过来","textRight":"有人一起反而越待越有劲","leftPole":"I","rightPole":"E","help":"想一段社交比较密集的日子。如果你两种都做过，选你更常自然发生的那个。","facet":"精力恢复","order":33,"reviewStatus":"draft_review_pending"},{"id":"SN-09","stage":"base","dimension":"SN","scenario":"一件小事出了岔子","textLeft":"先想它和前后哪些环节有关","textRight":"先看这一步具体是哪里错了","leftPole":"N","rightPole":"S","help":"想一次事情没按预期走、需要查原因。如果你两种都做过，选你更常自然发生的那个。","facet":"对细节与整体的注意力","order":34,"reviewStatus":"draft_review_pending"},{"id":"TF-09","stage":"base","dimension":"TF","scenario":"评价两个都做得不错的结果","textLeft":"各自做得怎么样，合乎原来的要求吗","textRight":"各自在这件事上投入了多少心思","leftPole":"T","rightPole":"F","help":"想一次你要在两个都不错的结果里说点什么。如果你两种都做过，选你更常自然发生的那个。","facet":"看人做事","order":35,"reviewStatus":"draft_review_pending"},{"id":"JP-09","stage":"base","dimension":"JP","scenario":"计划中途冒出别的事","textLeft":"先把手头这件事按原样做完","textRight":"先转向那件事，回头再接着说","leftPole":"J","rightPole":"P","help":"想一次计划被打断、又不算急事的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"事情收尾的节奏","order":36,"reviewStatus":"draft_review_pending"},{"id":"EI-10","stage":"base","dimension":"EI","scenario":"准备把自己的看法讲出来","textLeft":"先在对话里试一下，说到哪算哪","textRight":"先在心里过一遍，再完整说出来","leftPole":"E","rightPole":"I","help":"想一次你要在一个场合讲自己的看法。如果你两种都做过，选你更常自然发生的那个。","facet":"思考方式","order":37,"reviewStatus":"draft_review_pending"},{"id":"SN-10","stage":"base","dimension":"SN","scenario":"听人介绍一个没做过的事","textLeft":"它本身会怎么一步步发生","textRight":"它和我知道的哪些事对得上","leftPole":"S","rightPole":"N","help":"想一次你听别人讲一件你还没做过的事。如果你两种都做过，选你更常自然发生的那个。","facet":"学新东西的入口","order":38,"reviewStatus":"draft_review_pending"},{"id":"TF-10","stage":"base","dimension":"TF","scenario":"有人带着难处来找你","textLeft":"他当时遇到的情况是怎样的","textRight":"他心里的感受和在意的东西","leftPole":"T","rightPole":"F","help":"想一次有人跟你讲一件让他为难的事。如果你两种都做过，选你更常自然发生的那个。","facet":"给建议的方式","order":39,"reviewStatus":"draft_review_pending"},{"id":"JP-10","stage":"base","dimension":"JP","scenario":"一件暂时做完的事","textLeft":"先不做最终决定，放一放再看看","textRight":"尽快收个尾，把它定下来","leftPole":"P","rightPole":"J","help":"想一件你已经做得差不多、还没最终定下的事。如果你两种都做过，选你更常自然发生的那个。","facet":"事情收尾的节奏","order":40,"reviewStatus":"draft_review_pending"},{"id":"EI-11","stage":"base","dimension":"EI","scenario":"分享一件自己的好事","textLeft":"先自己高兴一阵，再挑人讲","textRight":"马上找几个人讲一遍","leftPole":"I","rightPole":"E","help":"想一次刚得到好消息的那一刻。如果你两种都做过，选你更常自然发生的那个。","facet":"社交场合的选择","order":41,"reviewStatus":"draft_review_pending"},{"id":"SN-11","stage":"base","dimension":"SN","scenario":"看待手边正在做的事","textLeft":"它最后会通向哪里","textRight":"现在这一步可以怎么做扎实","leftPole":"N","rightPole":"S","help":"想一件你正做着、还要一阵子才完成的事。如果你两种都做过，选你更常自然发生的那个。","facet":"对新点子的第一反应","order":42,"reviewStatus":"draft_review_pending"},{"id":"TF-11","stage":"base","dimension":"TF","scenario":"两个人都想把事做好","textLeft":"谁的做法更经得起推敲","textRight":"谁在这件事上更被为难","leftPole":"T","rightPole":"F","help":"想一次两个人都投入、却各有一套做法的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"冲突处理","order":43,"reviewStatus":"draft_review_pending"},{"id":"JP-11","stage":"base","dimension":"JP","scenario":"有几个选项摆在眼前","textLeft":"先挑一个最合适的用起来","textRight":"先不挑，等看得更清楚一点","leftPole":"J","rightPole":"P","help":"想一次你面前有几个都还行的选项。如果你两种都做过，选你更常自然发生的那个。","facet":"决定与保留选项","order":44,"reviewStatus":"draft_review_pending"},{"id":"EI-12","stage":"base","dimension":"EI","scenario":"事情没做成之后","textLeft":"自己待一会儿，慢慢消化掉","textRight":"找人说说，说着说着就没那么闷","leftPole":"I","rightPole":"E","help":"想一次结果不如意、心里有点堵的时候。如果你两种都做过，选你更常自然发生的那个。","facet":"被打断后的反应","order":45,"reviewStatus":"draft_review_pending"},{"id":"SN-12","stage":"base","dimension":"SN","scenario":"学一样东西学过一阵","textLeft":"顺着兴趣往深处探，练出新路","textRight":"把基础反复练熟，先稳下来","leftPole":"N","rightPole":"S","help":"想一件你已经断断续续学了一阵的事。如果你两种都做过，选你更常自然发生的那个。","facet":"学新东西的入口","order":46,"reviewStatus":"draft_review_pending"},{"id":"TF-12","stage":"base","dimension":"TF","scenario":"几个人一起评一个做法","textLeft":"先让在场的人把话说完再接","textRight":"先把做法本身说通，再看情绪","leftPole":"F","rightPole":"T","help":"想一次几个人一起评一件事、气氛偏紧。如果你两种都做过，选你更常自然发生的那个。","facet":"冲突处理","order":47,"reviewStatus":"draft_review_pending"},{"id":"JP-12","stage":"base","dimension":"JP","scenario":"一个安排做到一半","textLeft":"按原样走完，中途不折腾","textRight":"中途想到更好的就换成新的","leftPole":"J","rightPole":"P","help":"想一次事情做到一半、冒出新想法的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"行程变化的适应","order":48,"reviewStatus":"draft_review_pending"},{"id":"EI-C1","stage":"clarification","dimension":"EI","scenario":"和几个人同桌吃饭","textLeft":"顺着话题一直聊下去","textRight":"主要听，偶尔接一两句","leftPole":"E","rightPole":"I","help":"想饭桌上几个人随口聊着的场面。如果你两种都做过，选你更常自然发生的那个。","facet":"社交场合的选择","order":49,"reviewStatus":"draft_review_pending"},{"id":"EI-C2","stage":"clarification","dimension":"EI","scenario":"排队时旁边有人搭话","textLeft":"接上几句就好，等轮到自己","textRight":"顺势聊起来，队伍慢了也不在意","leftPole":"I","rightPole":"E","help":"想排队等着、旁边陌生人随口说话的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"社交场合的选择","order":50,"reviewStatus":"draft_review_pending"},{"id":"EI-C3","stage":"clarification","dimension":"EI","scenario":"接起一个电话","textLeft":"先想一下要说什么再接","textRight":"直接接起来，边说边想","leftPole":"I","rightPole":"E","help":"想电话响起、不是必须马上接的那种情形。如果你两种都做过，选你更常自然发生的那个。","facet":"思考方式","order":51,"reviewStatus":"draft_review_pending"},{"id":"EI-C4","stage":"clarification","dimension":"EI","scenario":"事情堆在一起的时候","textLeft":"先找人聊两句再开始","textRight":"先自己理清顺序再动手","leftPole":"E","rightPole":"I","help":"想手头同时压着几件事、有点乱的时候。如果你两种都做过，选你更常自然发生的那个。","facet":"思考方式","order":52,"reviewStatus":"draft_review_pending"},{"id":"SN-C1","stage":"clarification","dimension":"SN","scenario":"去一个没去过的地方","textLeft":"先记住路上看到的标志和路口","textRight":"先弄清它在城里的大致方位","leftPole":"S","rightPole":"N","help":"想一次你要自己找到没去过的地点。如果你两种都做过，选你更常自然发生的那个。","facet":"对细节与整体的注意力","order":53,"reviewStatus":"draft_review_pending"},{"id":"SN-C2","stage":"clarification","dimension":"SN","scenario":"买一件没买过的东西","textLeft":"先看用过的人怎么说、参数如何","textRight":"先想清楚自己到底需不需要","leftPole":"S","rightPole":"N","help":"想一次你要买一件不太熟的东西。如果你两种都做过，选你更常自然发生的那个。","facet":"对细节与整体的注意力","order":54,"reviewStatus":"draft_review_pending"},{"id":"SN-C3","stage":"clarification","dimension":"SN","scenario":"朋友问周末过得怎么样","textLeft":"说这两天挺松快、状态不错","textRight":"把去了哪、做了什么讲一遍","leftPole":"N","rightPole":"S","help":"想别人随口问你刚过去的周末。如果你两种都做过，选你更常自然发生的那个。","facet":"描述一件事的方式","order":55,"reviewStatus":"draft_review_pending"},{"id":"SN-C4","stage":"clarification","dimension":"SN","scenario":"别人给你讲一件麻烦事","textLeft":"先听出这事的关键卡在哪儿","textRight":"先问到具体是哪一步出了问题","leftPole":"N","rightPole":"S","help":"想有人跟你讲一件还没解决的麻烦。如果你两种都做过，选你更常自然发生的那个。","facet":"学新东西的入口","order":56,"reviewStatus":"draft_review_pending"},{"id":"TF-C1","stage":"clarification","dimension":"TF","scenario":"朋友临时向你借一笔钱","textLeft":"先想这件事合不合理、还得上吗","textRight":"先想他为什么会开这个口","leftPole":"T","rightPole":"F","help":"想朋友临时开口找你帮忙的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"做取舍的优先项","order":57,"reviewStatus":"draft_review_pending"},{"id":"TF-C2","stage":"clarification","dimension":"TF","scenario":"看到一条新出的规定","textLeft":"它会不会让一些人变得很难做","textRight":"它能不能解决原来那个问题","leftPole":"F","rightPole":"T","help":"想一次你看到一条刚定下来的新要求。如果你两种都做过，选你更常自然发生的那个。","facet":"面对规则与例外","order":58,"reviewStatus":"draft_review_pending"},{"id":"TF-C3","stage":"clarification","dimension":"TF","scenario":"张罗一次多人聚会","textLeft":"先问一圈谁方便，再定下来","textRight":"先把时间地点定死，好安排","leftPole":"F","rightPole":"T","help":"想一次由你出面约几个人聚一聚。如果你两种都做过，选你更常自然发生的那个。","facet":"做取舍的优先项","order":59,"reviewStatus":"draft_review_pending"},{"id":"TF-C4","stage":"clarification","dimension":"TF","scenario":"话没错但说得不好听","textLeft":"先把准确的说法讲清楚","textRight":"先看现在怎么把话说开","leftPole":"T","rightPole":"F","help":"想一次别人指出你的问题、话不太好听。如果你两种都做过，选你更常自然发生的那个。","facet":"被反驳时的关注点","order":60,"reviewStatus":"draft_review_pending"},{"id":"JP-C1","stage":"clarification","dimension":"JP","scenario":"出门采购的时候","textLeft":"到了看有什么合适的再买","textRight":"出门前先列好要买什么","leftPole":"P","rightPole":"J","help":"想一次普通的出门采购，清单可有可无。如果你两种都做过，选你更常自然发生的那个。","facet":"安排周末/任务的方式","order":61,"reviewStatus":"draft_review_pending"},{"id":"JP-C2","stage":"clarification","dimension":"JP","scenario":"一趟不太远的出行","textLeft":"先看清车怎么走、几点到","textRight":"大概知道方向，到了再说","leftPole":"J","rightPole":"P","help":"想一次不远的出行、怎么走有几条路。如果你两种都做过，选你更常自然发生的那个。","facet":"行程变化的适应","order":62,"reviewStatus":"draft_review_pending"},{"id":"JP-C3","stage":"clarification","dimension":"JP","scenario":"几件小事排在今天","textLeft":"一件接一件按顺序做完","textRight":"先做哪个看当时顺不顺手","leftPole":"J","rightPole":"P","help":"想今天有几件小事、先后由你定。如果你两种都做过，选你更常自然发生的那个。","facet":"安排周末/任务的方式","order":63,"reviewStatus":"draft_review_pending"},{"id":"JP-C4","stage":"clarification","dimension":"JP","scenario":"事情只差一点收尾","textLeft":"先放着，等哪天想接着做再说","textRight":"顺手把它做完，不留个尾巴","leftPole":"P","rightPole":"J","help":"想一件只差最后一点、不急着交的事。如果你两种都做过，选你更常自然发生的那个。","facet":"事情收尾的节奏","order":64,"reviewStatus":"draft_review_pending"}],"sha256":"a5208fcd387c34d2c4907a0cc6eff3790782f47cf144a82de2fd71c3c423f103"}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = [[Cookie@3a0f5141 name = 'XSRF-TOKEN', value = 'e84c2333-b97d-45f7-90fb-7d46b806837b', comment = [null], domain = [null], maxAge = -1, path = '/', secure = false, version = 0, httpOnly = false]]
+
+MockHttpServletRequest:
+      HTTP Method = GET
+      Request URI = /api/v3/catalog/current/package
+       Parameters = {}
+          Headers = []
+             Body = null
+    Session Attrs = {typeme.session.lastSeenWrittenAt=1790064851881, SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=TypemeUserPrincipal[username=submit_a34_689200_3, authorities=[ROLE_USER]], Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[ROLE_USER]]]}
+
+Handler:
+             Type = com.typeme.jung.api.JungController
+           Method = com.typeme.jung.api.JungController#currentPackage(HttpServletRequest)
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 200
+    Error message = null
+          Headers = [X-Request-Id:"33dd4b1f-b20f-4876-b41c-8c4b9ee532a3", Set-Cookie:"XSRF-TOKEN=068a33c3-5582-4b11-b57c-c1cfec23b308; Path=/", ETag:""a5208fcd387c34d2c4907a0cc6eff3790782f47cf144a82de2fd71c3c423f103"", Cache-Control:"no-cache", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", X-Frame-Options:"DENY", Referrer-Policy:"same-origin"]
+     Content type = application/json
+             Body = {"schemaVersion":3,"packageId":"typeme-jung48-zh-v4","instrument":{"id":"typeme-jung48","revision":"v4","scoringVersion":"typeme-jung48-score-v4","reportContentVersion":"typeme-type-report-zh-v1","format":"bipolar","hasTypeCode":true,"baseItemsPerDimension":12,"clarificationItemsPerDimension":4,"maxClarificationItems":16},"title":"十六型人格参考测评","contentStatus":"draft_review_pending","scoringPolicy":{"version":"typeme-jung48-score-v4","minBaseRatingsPerDimension":9,"boundaryNumerator":2,"boundaryDenominator":5,"ratingMin":1,"ratingMax":5,"ratingNeutral":3},"dimensions":[{"dimension":"EI","name":"精力方向","question":"你的精力更多从哪里来","negativePole":{"pole":"I","label":"偏内","description":"你的精力更容易在安静、人少的场合回补。想法通常先在脑子里过一遍，再决定要不要说出口。和熟人待一下午也会开心，但散场之后往往需要一段独处时间才觉得缓过来。人数多、节奏快的场合你能应付，只是持续久了会明显想找个角落。","dailySigns":["在人多的场合待久了，会想找个安静的地方待一会儿","有想法时习惯先自己理一遍，再决定跟谁说","电话和消息不一定马上回，但不是不在意","更喜欢一对一的深聊，而不是同时应付很多人","一个人吃饭、走路、通勤，不太觉得难熬"]},"positivePole":{"pole":"E","label":"偏外","description":"你的精力更容易在有人互动、有事情发生的场合回补。想法常常边说边成形，说着说着才想清楚自己要表达什么。一个人待久了会觉得闷，想找人说说话或者出门走走。热闹过后不太需要缓，反而可能更有精神。","dailySigns":["一个人待久了会觉得闷，想找人聊两句","讨论时容易边说边想出结论，而不是想好了才开口","参加完聚会回家，通常不觉得被耗空","更喜欢和一群人一起做事，而不是独自推进","遇到事情倾向于先找人说说，而不是先自己消化"]},"balanced":{"summary":"这一维你两边差不多，说明你的精力补充方式会随场合、心情和阶段变化。","reading":"常见的表现是：有时候很想找人说话，有时候只想安静待着；工作日和周末可能完全不一样。这不代表你「没定性」，而是这一维对你来说本来就比较灵活——你可以按当下需要选更省力的那一边。"},"tiedNotice":"这一维两边一样多，所以不给出这一位的字母。你可以想一下最近一个月里，哪种情况出现得更多。"},{"dimension":"SN","name":"信息取向","question":"你更信哪一类信息","negativePole":{"pole":"S","label":"偏实","description":"你更容易被具体、能验证的信息说服：做过的例子、实际的数字、具体的做法。听人介绍新东西时，先想知道它到底怎么运作、第一步做什么。对「听起来很好」但说不清细节的说法，你会自然留个心。已经跑通的做法你更愿意沿用，改之前希望先看到证据。","dailySigns":["听人介绍新东西，先问具体怎么做、有没有例子","更信自己亲眼看到或亲手做过的事","描述一件事时容易讲清时间、地点、经过","对「大概」「差不多」这类说法会想追问到底是多少","用过好用的方法，通常不愿意随便换"]},"positivePole":{"pole":"N","label":"偏想","description":"你更容易被整体走向、背后的思路和可能性吸引。听人介绍新东西时，先想知道它整体是怎么回事、各部分怎么连起来。具体细节可以后面再补，先抓住方向更重要。你也善于从一个领域想到另一个领域，把看似无关的事情连起来。","dailySigns":["听新东西时先想知道整体思路，细节可以后补","经常从一个话题跳到另一个相关的话题","对「以后可能会怎样」比「现在具体如何」更有兴趣","描述一件事时容易先讲道理和含义，再讲经过","喜欢琢磨事情背后的原因和走向"]},"balanced":{"summary":"这一维你两边差不多，说明你既看具体做法，也在意整体方向。","reading":"常见的表现是：听新东西时既想要例子，也想知道整体思路；有时先动手，有时先想清楚。这不是「夹在中间」，而是你有两套都还算顺手的处理方式，可以按任务性质切换。"},"tiedNotice":"这一维两边一样多，所以不给出这一位的字母。你可以回想最近学新东西时，更常从哪一头入手。"},{"dimension":"TF","name":"决策依据","question":"做取舍时你先看什么","negativePole":{"pole":"T","label":"偏理","description":"做取舍时，你先看标准是否一致、理由站不站得住、结果能不能解释清楚。不是不在意别人的感受，而是倾向于先把事情本身理清，再考虑怎么安置各方的感受。意见不合时，你更愿意对着依据讨论，而不是先安抚情绪。被人指出逻辑漏洞，你通常不会觉得被冒犯。","dailySigns":["决定前先看依据和标准，再看各方感受","被人反驳时先想对方说得对不对，而不是先想关系","给建议时倾向于直接说哪里不行、怎么改","觉得「按同一套标准办」比「这次特殊处理」更让人服气","别人难过时，会先想能帮上什么忙，再考虑要不要陪着待一会儿"]},"positivePole":{"pole":"F","label":"偏情","description":"做取舍时，你先看这件事会落到谁身上、对关系有什么影响、大家的感受如何。不是不看道理，而是倾向于先照顾到人的处境，再把标准往里收。意见不合时，你更在意对方为什么这么在意。给建议时，你会先想怎么说对方才听得进去。","dailySigns":["决定前先想这件事对具体的人意味着什么","被人反驳时先想对方为什么这么在意","给建议时会先斟酌说法，考虑对方接不接得住","觉得「这次情况特殊」值得为它开个口子","别人情绪不好时，很难当作没看见"]},"balanced":{"summary":"这一维你两边差不多，说明你既看标准，也在意人的处境。","reading":"常见的表现是：有些场合先讲规则，有些场合先照顾人；同一天里也可能不一样。这不是「没原则」或「太软」，而是你会按事情的性质选不同的入口——先理清事实再谈感受，或者先安顿好人的状态再谈标准，都可能有效。"},"tiedNotice":"这一维两边一样多，所以不给出这一位的字母。你可以想一下最近一次为难的取舍，当时先考虑的是什么。"},{"dimension":"JP","name":"生活节奏","question":"你更习惯哪种推进方式","negativePole":{"pole":"J","label":"偏定","description":"你更舒服的节奏是先定下来再推进：大致顺序、时间点、要交付什么，心里有数才踏实。事情能收尾就先收尾，改来改去会让你有点烦。临时变更你能接受，但希望一次说清、别分成几次。空闲时间也习惯先有个安排，哪怕只是大概。","dailySigns":["喜欢先定好顺序和时间，再开始动手","事情做到差不多能交，就先交出去，细节以后再说","临时改计划可以接受，但希望一次说清楚","待办没划掉会一直记着，不太放得下","出门、过节这类事习惯提前安排"]},"positivePole":{"pole":"P","label":"偏活","description":"你更舒服的节奏是先开始、边做边看：留一点空间，到那时再决定，选项多一点反而自在。事情不必急着收口，还有余地就能接着改。临时变更对你影响不大，甚至觉得更有意思。空闲时间不排满，你也不觉得是浪费。","dailySigns":["喜欢先开始，做了再调整，不太想提前全定死","事情还想再改改，不急着交出去","计划被临时改掉，通常不太影响状态","同时开着几件事，也不觉得乱","空闲时间没安排，反而觉得自在"]},"balanced":{"summary":"这一维你两边差不多，说明你既能按计划推进，也能接受边走边看。","reading":"常见的表现是：工作里喜欢有个框架，生活里愿意随机一点；或者反过来，看事情重不重要。这不是「没节奏」，而是你在两种推进方式之间切换的成本都不高。"},"tiedNotice":"这一维两边一样多，所以不给出这一位的字母。你可以想一下最近一周是怎么安排时间的，哪种更接近实际。"}],"questions":[{"id":"EI-01","stage":"base","dimension":"EI","scenario":"活动之后的精力","textLeft":"留点时间自己安静待着","textRight":"再找个人聊聊刚发生的事","leftPole":"I","rightPole":"E","help":"想想和熟人待过一下午之后的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"精力恢复","order":1,"reviewStatus":"draft_review_pending"},{"id":"SN-01","stage":"base","dimension":"SN","scenario":"开始了解新东西","textLeft":"一个能照着做的具体例子","textRight":"它整体怎么运作、各部分怎么连","leftPole":"S","rightPole":"N","help":"回想你最近一次接触陌生领域。如果你两种都做过，选你更常自然发生的那个。","facet":"学新东西的入口","order":2,"reviewStatus":"draft_review_pending"},{"id":"TF-01","stage":"base","dimension":"TF","scenario":"两个方案影响不同人","textLeft":"谁会受到什么影响，哪些需要被照顾","textRight":"用同一套标准比较，看前后是否一致","leftPole":"F","rightPole":"T","help":"想两个都能办成事、但影响不同人的安排。如果你两种都做过，选你更常自然发生的那个。","facet":"做取舍的优先项","order":3,"reviewStatus":"draft_review_pending"},{"id":"JP-01","stage":"base","dimension":"JP","scenario":"自己安排的一天","textLeft":"先把大致顺序和时间定下来","textRight":"先留出空间，到那时再决定","leftPole":"J","rightPole":"P","help":"想一天时间完全由你安排的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"安排周末/任务的方式","order":4,"reviewStatus":"draft_review_pending"},{"id":"EI-02","stage":"base","dimension":"EI","scenario":"想法还没理清时","textLeft":"先说出口，一边说一边理顺","textRight":"自己先想一遍，再拿出来说","leftPole":"E","rightPole":"I","help":"想一个还没想清楚、身边正好有人愿意听的想法。如果你两种都做过，选你更常自然发生的那个。","facet":"思考方式","order":5,"reviewStatus":"draft_review_pending"},{"id":"SN-02","stage":"base","dimension":"SN","scenario":"说明一件刚发生的事","textLeft":"按顺序把经过和原话说清楚","textRight":"先说它说明什么、和什么有关","leftPole":"S","rightPole":"N","help":"想一件刚发生、需要讲给别人听的事。如果你两种都做过，选你更常自然发生的那个。","facet":"描述一件事的方式","order":6,"reviewStatus":"draft_review_pending"},{"id":"TF-02","stage":"base","dimension":"TF","scenario":"朋友来找你商量","textLeft":"先弄清他真正在意什么、为难在哪","textRight":"帮他看清哪个选择更站得住","leftPole":"F","rightPole":"T","help":"想朋友带着选择困难来找你说话的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"看人做事","order":7,"reviewStatus":"draft_review_pending"},{"id":"JP-02","stage":"base","dimension":"JP","scenario":"没有期限的任务","textLeft":"同时留着几套做法，看情况再说","textRight":"先定下一套做法，往下推进","leftPole":"P","rightPole":"J","help":"想一件不急、又有几种做法都行的事。如果你两种都做过，选你更常自然发生的那个。","facet":"决定与保留选项","order":8,"reviewStatus":"draft_review_pending"},{"id":"EI-03","stage":"base","dimension":"EI","scenario":"到了不太熟的场合","textLeft":"先走动，和几个人聊上几句","textRight":"先待在旁边看一会儿，等有人来搭话","leftPole":"E","rightPole":"I","help":"想一场你只认识少数人的聚会。如果你两种都做过，选你更常自然发生的那个。","facet":"社交场合的选择","order":9,"reviewStatus":"draft_review_pending"},{"id":"SN-03","stage":"base","dimension":"SN","scenario":"读一份介绍材料","textLeft":"它讲到的实际情况和具体做法","textRight":"它背后的思路和整体方向","leftPole":"S","rightPole":"N","help":"想一份你随手翻开的介绍材料。如果你两种都做过，选你更常自然发生的那个。","facet":"对细节与整体的注意力","order":10,"reviewStatus":"draft_review_pending"},{"id":"TF-03","stage":"base","dimension":"TF","scenario":"规定遇上特殊情况","textLeft":"先看这个人现在具体难在哪","textRight":"先问这条规定为什么这样定","leftPole":"F","rightPole":"T","help":"想一次有人请求通融、理由听着还行的情况。如果你两种都做过，选你更常自然发生的那个。","facet":"面对规则与例外","order":11,"reviewStatus":"draft_review_pending"},{"id":"JP-03","stage":"base","dimension":"JP","scenario":"原定安排被改动","textLeft":"不重新排，顺着当时的情况走","textRight":"马上重新排一遍，把后面的时间重新定下来","leftPole":"P","rightPole":"J","help":"想一次原来定好的安排被临时改掉的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"行程变化的适应","order":12,"reviewStatus":"draft_review_pending"},{"id":"EI-04","stage":"base","dimension":"EI","scenario":"话头被人接过去","textLeft":"先听他说完，再接着讲自己想讲的","textRight":"顺势聊下去，想到哪说到哪","leftPole":"I","rightPole":"E","help":"想聊天时被人打断、话题被带走的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"被打断后的反应","order":13,"reviewStatus":"draft_review_pending"},{"id":"SN-04","stage":"base","dimension":"SN","scenario":"学一样新技能","textLeft":"先跟着做几遍，把动作学会","textRight":"先弄懂它为什么管用","leftPole":"S","rightPole":"N","help":"想一件你最近学着上手的事。如果你两种都做过，选你更常自然发生的那个。","facet":"学新东西的入口","order":14,"reviewStatus":"draft_review_pending"},{"id":"TF-04","stage":"base","dimension":"TF","scenario":"看法被当面反驳","textLeft":"对方为什么这么在意这件事","textRight":"对方的理由在哪里不成立","leftPole":"F","rightPole":"T","help":"想一次别人当面不同意你的判断。如果你两种都做过，选你更常自然发生的那个。","facet":"被反驳时的关注点","order":15,"reviewStatus":"draft_review_pending"},{"id":"JP-04","stage":"base","dimension":"JP","scenario":"事情快做完的时候","textLeft":"再多留一点时间，接着改下去","textRight":"先告一段落，剩下的地方以后再改","leftPole":"P","rightPole":"J","help":"想一件快做完、自己还觉得有地方能改的事。如果你两种都做过，选你更常自然发生的那个。","facet":"事情收尾的节奏","order":16,"reviewStatus":"draft_review_pending"},{"id":"EI-05","stage":"base","dimension":"EI","scenario":"忙完一天之后","textLeft":"和熟悉的人待着更让我缓过来","textRight":"自己待一会儿才真正缓过来","leftPole":"E","rightPole":"I","help":"想一个事情排得比较满的日子结束时。如果你两种都做过，选你更常自然发生的那个。","facet":"精力恢复","order":17,"reviewStatus":"draft_review_pending"},{"id":"SN-05","stage":"base","dimension":"SN","scenario":"新点子刚被提出","textLeft":"先说它还能延伸出哪些做法","textRight":"先说它能用在哪些具体场景","leftPole":"N","rightPole":"S","help":"想一次有人提出一个新做法的场面。如果你两种都做过，选你更常自然发生的那个。","facet":"对新点子的第一反应","order":18,"reviewStatus":"draft_review_pending"},{"id":"TF-05","stage":"base","dimension":"TF","scenario":"一群人商量事情","textLeft":"先把标准说清楚，再按标准定","textRight":"先看大家各自的想法和感受","leftPole":"T","rightPole":"F","help":"想一次几个人一起定一件事的讨论。如果你两种都做过，选你更常自然发生的那个。","facet":"做取舍的优先项","order":19,"reviewStatus":"draft_review_pending"},{"id":"JP-05","stage":"base","dimension":"JP","scenario":"面对还没到期的决定","textLeft":"早点定下，心里就不用再挂着","textRight":"多留几天，说不定有更合适的","leftPole":"J","rightPole":"P","help":"想一个最后期限还早、必须二选一的事。如果你两种都做过，选你更常自然发生的那个。","facet":"决定与保留选项","order":20,"reviewStatus":"draft_review_pending"},{"id":"EI-06","stage":"base","dimension":"EI","scenario":"复杂问题摆在面前","textLeft":"找人一起讨论，边聊边理","textRight":"自己安静琢磨，想通再说","leftPole":"E","rightPole":"I","help":"想一件需要动脑子、又有人可商量的事。如果你两种都做过，选你更常自然发生的那个。","facet":"思考方式","order":21,"reviewStatus":"draft_review_pending"},{"id":"SN-06","stage":"base","dimension":"SN","scenario":"接手一件陌生的事","textLeft":"先知道大方向，细节自己摸","textRight":"先有一份说清步骤的说明","leftPole":"N","rightPole":"S","help":"想一件你刚上手、还不熟的事情。如果你两种都做过，选你更常自然发生的那个。","facet":"对细节与整体的注意力","order":22,"reviewStatus":"draft_review_pending"},{"id":"TF-06","stage":"base","dimension":"TF","scenario":"两边都有理由的争执","textLeft":"分清楚哪边的道理更站得住","textRight":"先照顾双方在意的和关系本身","leftPole":"T","rightPole":"F","help":"想一场两边都说得通、又吵得有点僵的争执。如果你两种都做过，选你更常自然发生的那个。","facet":"冲突处理","order":23,"reviewStatus":"draft_review_pending"},{"id":"JP-06","stage":"base","dimension":"JP","scenario":"手上攒着几件事","textLeft":"排个先后，做完一件再开下一件","textRight":"几件交替着做，看当时的状态","leftPole":"J","rightPole":"P","help":"想手上同时有几件待办、都能自己安排的时候。如果你两种都做过，选你更常自然发生的那个。","facet":"安排周末/任务的方式","order":24,"reviewStatus":"draft_review_pending"},{"id":"EI-07","stage":"base","dimension":"EI","scenario":"休息时想要的动静","textLeft":"有些热闹和说话声在周围","textRight":"安静一点，最好没人来打扰","leftPole":"E","rightPole":"I","help":"想一个空出来的下午，环境由你挑。如果你两种都做过，选你更常自然发生的那个。","facet":"社交场合的选择","order":25,"reviewStatus":"draft_review_pending"},{"id":"SN-07","stage":"base","dimension":"SN","scenario":"回想去过的一个地方","textLeft":"那个地方给我的整体感觉","textRight":"当时看到听到的画面和细节","leftPole":"N","rightPole":"S","help":"想一个你最近去过、还算熟悉的地方。如果你两种都做过，选你更常自然发生的那个。","facet":"描述一件事的方式","order":26,"reviewStatus":"draft_review_pending"},{"id":"TF-07","stage":"base","dimension":"TF","scenario":"安排集体活动","textLeft":"先问大家想要什么，再凑出做法","textRight":"先把要求列出来，再挑合适的做法","leftPole":"F","rightPole":"T","help":"想一次由你来张罗几个人一起做的事。如果你两种都做过，选你更常自然发生的那个。","facet":"做取舍的优先项","order":27,"reviewStatus":"draft_review_pending"},{"id":"JP-07","stage":"base","dimension":"JP","scenario":"一天里空出半天","textLeft":"随手看看当时想做什么","textRight":"前一天就想好要做哪几件事","leftPole":"P","rightPole":"J","help":"想突然多出半天、没有任何约定的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"安排周末/任务的方式","order":28,"reviewStatus":"draft_review_pending"},{"id":"EI-08","stage":"base","dimension":"EI","scenario":"坐进一群正在聊的人","textLeft":"听一会儿，有把握了再开口","textRight":"先接上话，聊着聊着就有了","leftPole":"I","rightPole":"E","help":"想一次你加入几个人已经在聊的场面。如果你两种都做过，选你更常自然发生的那个。","facet":"社交场合的选择","order":29,"reviewStatus":"draft_review_pending"},{"id":"SN-08","stage":"base","dimension":"SN","scenario":"讨论一件很具体的事","textLeft":"把已经掌握的情况摆清楚","textRight":"顺着可以想到的关联往外推","leftPole":"S","rightPole":"N","help":"想一次需要把现状说明白的讨论。如果你两种都做过，选你更常自然发生的那个。","facet":"对新点子的第一反应","order":30,"reviewStatus":"draft_review_pending"},{"id":"TF-08","stage":"base","dimension":"TF","scenario":"发现说法和事实对不上","textLeft":"先把说法改到和事实一致","textRight":"先想怎么讲对方才接得住","leftPole":"T","rightPole":"F","help":"想一次你发现别人的说法不太准确。如果你两种都做过，选你更常自然发生的那个。","facet":"被反驳时的关注点","order":31,"reviewStatus":"draft_review_pending"},{"id":"JP-08","stage":"base","dimension":"JP","scenario":"别人临时来约","textLeft":"先看这一刻想不想去","textRight":"先想今天原定的安排要不要动","leftPole":"P","rightPole":"J","help":"想一次当天才收到邀请、时间就在今晚。如果你两种都做过，选你更常自然发生的那个。","facet":"行程变化的适应","order":32,"reviewStatus":"draft_review_pending"},{"id":"EI-09","stage":"base","dimension":"EI","scenario":"连着几天和人打交道","textLeft":"中间插一段独处就恢复过来","textRight":"有人一起反而越待越有劲","leftPole":"I","rightPole":"E","help":"想一段社交比较密集的日子。如果你两种都做过，选你更常自然发生的那个。","facet":"精力恢复","order":33,"reviewStatus":"draft_review_pending"},{"id":"SN-09","stage":"base","dimension":"SN","scenario":"一件小事出了岔子","textLeft":"先想它和前后哪些环节有关","textRight":"先看这一步具体是哪里错了","leftPole":"N","rightPole":"S","help":"想一次事情没按预期走、需要查原因。如果你两种都做过，选你更常自然发生的那个。","facet":"对细节与整体的注意力","order":34,"reviewStatus":"draft_review_pending"},{"id":"TF-09","stage":"base","dimension":"TF","scenario":"评价两个都做得不错的结果","textLeft":"各自做得怎么样，合乎原来的要求吗","textRight":"各自在这件事上投入了多少心思","leftPole":"T","rightPole":"F","help":"想一次你要在两个都不错的结果里说点什么。如果你两种都做过，选你更常自然发生的那个。","facet":"看人做事","order":35,"reviewStatus":"draft_review_pending"},{"id":"JP-09","stage":"base","dimension":"JP","scenario":"计划中途冒出别的事","textLeft":"先把手头这件事按原样做完","textRight":"先转向那件事，回头再接着说","leftPole":"J","rightPole":"P","help":"想一次计划被打断、又不算急事的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"事情收尾的节奏","order":36,"reviewStatus":"draft_review_pending"},{"id":"EI-10","stage":"base","dimension":"EI","scenario":"准备把自己的看法讲出来","textLeft":"先在对话里试一下，说到哪算哪","textRight":"先在心里过一遍，再完整说出来","leftPole":"E","rightPole":"I","help":"想一次你要在一个场合讲自己的看法。如果你两种都做过，选你更常自然发生的那个。","facet":"思考方式","order":37,"reviewStatus":"draft_review_pending"},{"id":"SN-10","stage":"base","dimension":"SN","scenario":"听人介绍一个没做过的事","textLeft":"它本身会怎么一步步发生","textRight":"它和我知道的哪些事对得上","leftPole":"S","rightPole":"N","help":"想一次你听别人讲一件你还没做过的事。如果你两种都做过，选你更常自然发生的那个。","facet":"学新东西的入口","order":38,"reviewStatus":"draft_review_pending"},{"id":"TF-10","stage":"base","dimension":"TF","scenario":"有人带着难处来找你","textLeft":"他当时遇到的情况是怎样的","textRight":"他心里的感受和在意的东西","leftPole":"T","rightPole":"F","help":"想一次有人跟你讲一件让他为难的事。如果你两种都做过，选你更常自然发生的那个。","facet":"给建议的方式","order":39,"reviewStatus":"draft_review_pending"},{"id":"JP-10","stage":"base","dimension":"JP","scenario":"一件暂时做完的事","textLeft":"先不做最终决定，放一放再看看","textRight":"尽快收个尾，把它定下来","leftPole":"P","rightPole":"J","help":"想一件你已经做得差不多、还没最终定下的事。如果你两种都做过，选你更常自然发生的那个。","facet":"事情收尾的节奏","order":40,"reviewStatus":"draft_review_pending"},{"id":"EI-11","stage":"base","dimension":"EI","scenario":"分享一件自己的好事","textLeft":"先自己高兴一阵，再挑人讲","textRight":"马上找几个人讲一遍","leftPole":"I","rightPole":"E","help":"想一次刚得到好消息的那一刻。如果你两种都做过，选你更常自然发生的那个。","facet":"社交场合的选择","order":41,"reviewStatus":"draft_review_pending"},{"id":"SN-11","stage":"base","dimension":"SN","scenario":"看待手边正在做的事","textLeft":"它最后会通向哪里","textRight":"现在这一步可以怎么做扎实","leftPole":"N","rightPole":"S","help":"想一件你正做着、还要一阵子才完成的事。如果你两种都做过，选你更常自然发生的那个。","facet":"对新点子的第一反应","order":42,"reviewStatus":"draft_review_pending"},{"id":"TF-11","stage":"base","dimension":"TF","scenario":"两个人都想把事做好","textLeft":"谁的做法更经得起推敲","textRight":"谁在这件事上更被为难","leftPole":"T","rightPole":"F","help":"想一次两个人都投入、却各有一套做法的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"冲突处理","order":43,"reviewStatus":"draft_review_pending"},{"id":"JP-11","stage":"base","dimension":"JP","scenario":"有几个选项摆在眼前","textLeft":"先挑一个最合适的用起来","textRight":"先不挑，等看得更清楚一点","leftPole":"J","rightPole":"P","help":"想一次你面前有几个都还行的选项。如果你两种都做过，选你更常自然发生的那个。","facet":"决定与保留选项","order":44,"reviewStatus":"draft_review_pending"},{"id":"EI-12","stage":"base","dimension":"EI","scenario":"事情没做成之后","textLeft":"自己待一会儿，慢慢消化掉","textRight":"找人说说，说着说着就没那么闷","leftPole":"I","rightPole":"E","help":"想一次结果不如意、心里有点堵的时候。如果你两种都做过，选你更常自然发生的那个。","facet":"被打断后的反应","order":45,"reviewStatus":"draft_review_pending"},{"id":"SN-12","stage":"base","dimension":"SN","scenario":"学一样东西学过一阵","textLeft":"顺着兴趣往深处探，练出新路","textRight":"把基础反复练熟，先稳下来","leftPole":"N","rightPole":"S","help":"想一件你已经断断续续学了一阵的事。如果你两种都做过，选你更常自然发生的那个。","facet":"学新东西的入口","order":46,"reviewStatus":"draft_review_pending"},{"id":"TF-12","stage":"base","dimension":"TF","scenario":"几个人一起评一个做法","textLeft":"先让在场的人把话说完再接","textRight":"先把做法本身说通，再看情绪","leftPole":"F","rightPole":"T","help":"想一次几个人一起评一件事、气氛偏紧。如果你两种都做过，选你更常自然发生的那个。","facet":"冲突处理","order":47,"reviewStatus":"draft_review_pending"},{"id":"JP-12","stage":"base","dimension":"JP","scenario":"一个安排做到一半","textLeft":"按原样走完，中途不折腾","textRight":"中途想到更好的就换成新的","leftPole":"J","rightPole":"P","help":"想一次事情做到一半、冒出新想法的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"行程变化的适应","order":48,"reviewStatus":"draft_review_pending"},{"id":"EI-C1","stage":"clarification","dimension":"EI","scenario":"和几个人同桌吃饭","textLeft":"顺着话题一直聊下去","textRight":"主要听，偶尔接一两句","leftPole":"E","rightPole":"I","help":"想饭桌上几个人随口聊着的场面。如果你两种都做过，选你更常自然发生的那个。","facet":"社交场合的选择","order":49,"reviewStatus":"draft_review_pending"},{"id":"EI-C2","stage":"clarification","dimension":"EI","scenario":"排队时旁边有人搭话","textLeft":"接上几句就好，等轮到自己","textRight":"顺势聊起来，队伍慢了也不在意","leftPole":"I","rightPole":"E","help":"想排队等着、旁边陌生人随口说话的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"社交场合的选择","order":50,"reviewStatus":"draft_review_pending"},{"id":"EI-C3","stage":"clarification","dimension":"EI","scenario":"接起一个电话","textLeft":"先想一下要说什么再接","textRight":"直接接起来，边说边想","leftPole":"I","rightPole":"E","help":"想电话响起、不是必须马上接的那种情形。如果你两种都做过，选你更常自然发生的那个。","facet":"思考方式","order":51,"reviewStatus":"draft_review_pending"},{"id":"EI-C4","stage":"clarification","dimension":"EI","scenario":"事情堆在一起的时候","textLeft":"先找人聊两句再开始","textRight":"先自己理清顺序再动手","leftPole":"E","rightPole":"I","help":"想手头同时压着几件事、有点乱的时候。如果你两种都做过，选你更常自然发生的那个。","facet":"思考方式","order":52,"reviewStatus":"draft_review_pending"},{"id":"SN-C1","stage":"clarification","dimension":"SN","scenario":"去一个没去过的地方","textLeft":"先记住路上看到的标志和路口","textRight":"先弄清它在城里的大致方位","leftPole":"S","rightPole":"N","help":"想一次你要自己找到没去过的地点。如果你两种都做过，选你更常自然发生的那个。","facet":"对细节与整体的注意力","order":53,"reviewStatus":"draft_review_pending"},{"id":"SN-C2","stage":"clarification","dimension":"SN","scenario":"买一件没买过的东西","textLeft":"先看用过的人怎么说、参数如何","textRight":"先想清楚自己到底需不需要","leftPole":"S","rightPole":"N","help":"想一次你要买一件不太熟的东西。如果你两种都做过，选你更常自然发生的那个。","facet":"对细节与整体的注意力","order":54,"reviewStatus":"draft_review_pending"},{"id":"SN-C3","stage":"clarification","dimension":"SN","scenario":"朋友问周末过得怎么样","textLeft":"说这两天挺松快、状态不错","textRight":"把去了哪、做了什么讲一遍","leftPole":"N","rightPole":"S","help":"想别人随口问你刚过去的周末。如果你两种都做过，选你更常自然发生的那个。","facet":"描述一件事的方式","order":55,"reviewStatus":"draft_review_pending"},{"id":"SN-C4","stage":"clarification","dimension":"SN","scenario":"别人给你讲一件麻烦事","textLeft":"先听出这事的关键卡在哪儿","textRight":"先问到具体是哪一步出了问题","leftPole":"N","rightPole":"S","help":"想有人跟你讲一件还没解决的麻烦。如果你两种都做过，选你更常自然发生的那个。","facet":"学新东西的入口","order":56,"reviewStatus":"draft_review_pending"},{"id":"TF-C1","stage":"clarification","dimension":"TF","scenario":"朋友临时向你借一笔钱","textLeft":"先想这件事合不合理、还得上吗","textRight":"先想他为什么会开这个口","leftPole":"T","rightPole":"F","help":"想朋友临时开口找你帮忙的情形。如果你两种都做过，选你更常自然发生的那个。","facet":"做取舍的优先项","order":57,"reviewStatus":"draft_review_pending"},{"id":"TF-C2","stage":"clarification","dimension":"TF","scenario":"看到一条新出的规定","textLeft":"它会不会让一些人变得很难做","textRight":"它能不能解决原来那个问题","leftPole":"F","rightPole":"T","help":"想一次你看到一条刚定下来的新要求。如果你两种都做过，选你更常自然发生的那个。","facet":"面对规则与例外","order":58,"reviewStatus":"draft_review_pending"},{"id":"TF-C3","stage":"clarification","dimension":"TF","scenario":"张罗一次多人聚会","textLeft":"先问一圈谁方便，再定下来","textRight":"先把时间地点定死，好安排","leftPole":"F","rightPole":"T","help":"想一次由你出面约几个人聚一聚。如果你两种都做过，选你更常自然发生的那个。","facet":"做取舍的优先项","order":59,"reviewStatus":"draft_review_pending"},{"id":"TF-C4","stage":"clarification","dimension":"TF","scenario":"话没错但说得不好听","textLeft":"先把准确的说法讲清楚","textRight":"先看现在怎么把话说开","leftPole":"T","rightPole":"F","help":"想一次别人指出你的问题、话不太好听。如果你两种都做过，选你更常自然发生的那个。","facet":"被反驳时的关注点","order":60,"reviewStatus":"draft_review_pending"},{"id":"JP-C1","stage":"clarification","dimension":"JP","scenario":"出门采购的时候","textLeft":"到了看有什么合适的再买","textRight":"出门前先列好要买什么","leftPole":"P","rightPole":"J","help":"想一次普通的出门采购，清单可有可无。如果你两种都做过，选你更常自然发生的那个。","facet":"安排周末/任务的方式","order":61,"reviewStatus":"draft_review_pending"},{"id":"JP-C2","stage":"clarification","dimension":"JP","scenario":"一趟不太远的出行","textLeft":"先看清车怎么走、几点到","textRight":"大概知道方向，到了再说","leftPole":"J","rightPole":"P","help":"想一次不远的出行、怎么走有几条路。如果你两种都做过，选你更常自然发生的那个。","facet":"行程变化的适应","order":62,"reviewStatus":"draft_review_pending"},{"id":"JP-C3","stage":"clarification","dimension":"JP","scenario":"几件小事排在今天","textLeft":"一件接一件按顺序做完","textRight":"先做哪个看当时顺不顺手","leftPole":"J","rightPole":"P","help":"想今天有几件小事、先后由你定。如果你两种都做过，选你更常自然发生的那个。","facet":"安排周末/任务的方式","order":63,"reviewStatus":"draft_review_pending"},{"id":"JP-C4","stage":"clarification","dimension":"JP","scenario":"事情只差一点收尾","textLeft":"先放着，等哪天想接着做再说","textRight":"顺手把它做完，不留个尾巴","leftPole":"P","rightPole":"J","help":"想一件只差最后一点、不急着交的事。如果你两种都做过，选你更常自然发生的那个。","facet":"事情收尾的节奏","order":64,"reviewStatus":"draft_review_pending"}],"sha256":"a5208fcd387c34d2c4907a0cc6eff3790782f47cf144a82de2fd71c3c423f103"}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = [[Cookie@3b446d7 name = 'XSRF-TOKEN', value = '068a33c3-5582-4b11-b57c-c1cfec23b308', comment = [null], domain = [null], maxAge = -1, path = '/', secure = false, version = 0, httpOnly = false]]
+
+MockHttpServletRequest:
+      HTTP Method = PATCH
+      Request URI = /api/v3/attempts/94c734e5-2e9d-4fe8-8941-880cb5b02fc1/answers
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", X-XSRF-TOKEN:"04ce84ab-964a-45d8-a3a6-136f019c07e6", Content-Length:"2236", Cookie:"XSRF-TOKEN=04ce84ab-964a-45d8-a3a6-136f019c07e6"]
+             Body = {"expectedRevision":0,"responses":[{"questionId":"EI-01","kind":"RATING","rating":4},{"questionId":"EI-02","kind":"RATING","rating":4},{"questionId":"EI-03","kind":"RATING","rating":4},{"questionId":"EI-04","kind":"RATING","rating":4},{"questionId":"EI-05","kind":"RATING","rating":4},{"questionId":"EI-06","kind":"RATING","rating":4},{"questionId":"EI-07","kind":"RATING","rating":4},{"questionId":"EI-08","kind":"RATING","rating":4},{"questionId":"SN-01","kind":"RATING","rating":4},{"questionId":"SN-02","kind":"RATING","rating":4},{"questionId":"SN-03","kind":"RATING","rating":4},{"questionId":"SN-04","kind":"RATING","rating":4},{"questionId":"SN-05","kind":"RATING","rating":4},{"questionId":"SN-06","kind":"RATING","rating":4},{"questionId":"SN-07","kind":"RATING","rating":4},{"questionId":"SN-08","kind":"RATING","rating":4},{"questionId":"SN-09","kind":"RATING","rating":4},{"questionId":"SN-10","kind":"RATING","rating":4},{"questionId":"SN-11","kind":"RATING","rating":4},{"questionId":"SN-12","kind":"RATING","rating":4},{"questionId":"TF-01","kind":"RATING","rating":4},{"questionId":"TF-02","kind":"RATING","rating":4},{"questionId":"TF-03","kind":"RATING","rating":4},{"questionId":"TF-04","kind":"RATING","rating":4},{"questionId":"TF-05","kind":"RATING","rating":4},{"questionId":"TF-06","kind":"RATING","rating":4},{"questionId":"TF-07","kind":"RATING","rating":4},{"questionId":"TF-08","kind":"RATING","rating":4},{"questionId":"TF-09","kind":"RATING","rating":4},{"questionId":"TF-10","kind":"RATING","rating":4},{"questionId":"TF-11","kind":"RATING","rating":4},{"questionId":"TF-12","kind":"RATING","rating":4},{"questionId":"JP-01","kind":"RATING","rating":4},{"questionId":"JP-02","kind":"RATING","rating":4},{"questionId":"JP-03","kind":"RATING","rating":4},{"questionId":"JP-04","kind":"RATING","rating":4},{"questionId":"JP-05","kind":"RATING","rating":4},{"questionId":"JP-06","kind":"RATING","rating":4},{"questionId":"JP-07","kind":"RATING","rating":4},{"questionId":"JP-08","kind":"RATING","rating":4},{"questionId":"JP-09","kind":"RATING","rating":4},{"questionId":"JP-10","kind":"RATING","rating":4},{"questionId":"JP-11","kind":"RATING","rating":4},{"questionId":"JP-12","kind":"RATING","rating":4}]}
+    Session Attrs = {typeme.session.lastSeenWrittenAt=1790064851881, SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=TypemeUserPrincipal[username=submit_a34_689200_3, authorities=[ROLE_USER]], Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[ROLE_USER]]]}
+
+Handler:
+             Type = com.typeme.jung.api.JungController
+           Method = com.typeme.jung.api.JungController#patchAnswers(String, PatchAnswersRequest)
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 200
+    Error message = null
+          Headers = [X-Request-Id:"5522435a-50ca-48f3-8e10-3a268df96cfb", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", Cache-Control:"no-cache, no-store, max-age=0, must-revalidate", Pragma:"no-cache", Expires:"0", X-Frame-Options:"DENY", Referrer-Policy:"same-origin"]
+     Content type = application/json
+             Body = {"revision":1,"status":"BASE_IN_PROGRESS","clarificationDimensions":[],"clarificationReset":false,"currentQuestionId":"EI-01"}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /api/v3/attempts/94c734e5-2e9d-4fe8-8941-880cb5b02fc1/submit
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", X-XSRF-TOKEN:"04ce84ab-964a-45d8-a3a6-136f019c07e6", Content-Length:"50", Cookie:"XSRF-TOKEN=04ce84ab-964a-45d8-a3a6-136f019c07e6"]
+             Body = {"expectedRevision":1,"clarificationSkipped":true}
+    Session Attrs = {typeme.session.lastSeenWrittenAt=1790064851881, SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=TypemeUserPrincipal[username=submit_a34_689200_3, authorities=[ROLE_USER]], Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[ROLE_USER]]]}
+
+Handler:
+             Type = com.typeme.jung.api.JungController
+           Method = com.typeme.jung.api.JungController#submit(String, SubmitRequest)
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 200
+    Error message = null
+          Headers = [X-Request-Id:"e070b831-e73e-4904-8a6e-9b5fd5eb0ced", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", Cache-Control:"no-cache, no-store, max-age=0, must-revalidate", Pragma:"no-cache", Expires:"0", X-Frame-Options:"DENY", Referrer-Policy:"same-origin"]
+     Content type = application/json
+             Body = {"reportId":null,"attemptId":"94c734e5-2e9d-4fe8-8941-880cb5b02fc1","status":"NEEDS_REVIEW","computedTypeCode":null,"candidateCodes":[],"coverage":[{"dimension":"EI","baseRatingCount":8,"baseUnknownCount":0,"baseUnprocessedCount":4,"needsClarification":false,"coverageOk":false},{"dimension":"SN","baseRatingCount":12,"baseUnknownCount":0,"baseUnprocessedCount":0,"needsClarification":true,"coverageOk":true},{"dimension":"TF","baseRatingCount":12,"baseUnknownCount":0,"baseUnprocessedCount":0,"needsClarification":true,"coverageOk":true},{"dimension":"JP","baseRatingCount":12,"baseUnknownCount":0,"baseUnprocessedCount":0,"needsClarification":true,"coverageOk":true}],"coverageOk":false}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+[ERROR] Tests run: 3, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 11.81 s <<< FAILURE! -- in com.typeme.jung.api.SubmitReportIT
+[ERROR] com.typeme.jung.api.SubmitReportIT.skipChoiceIsNotPersistedWhenTheSubmitProducesNoReport -- Time elapsed: 0.175 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+[覆盖不足的提交没有产生报告，草稿必须保持「还没决定跳过」的样子] 
+Expecting value to be false but was true
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at com.typeme.jung.api.SubmitReportIT.skipChoiceIsNotPersistedWhenTheSubmitProducesNoReport(SubmitReportIT.java:124)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   SubmitReportIT.skipChoiceIsNotPersistedWhenTheSubmitProducesNoReport:124 [覆盖不足的提交没有产生报告，草稿必须保持「还没决定跳过」的样子] 
+Expecting value to be false but was true
+[INFO] 
+[ERROR] Tests run: 3, Failures: 1, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  25.395 s
+[INFO] Finished at: 2026-09-22T16:14:12+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) on project typeme-backend: There are test failures.
+[ERROR] 
+[ERROR] Please refer to D:\develop\develop\code\TypeMe\backend\target\surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

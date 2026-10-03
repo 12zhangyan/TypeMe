@@ -1,0 +1,26 @@
+
+ RUN  v2.1.9 D:/develop/develop/code/TypeMe/frontend
+
+stderr | src/stores/aiAnalysisV3.spec.ts > AI 分析 store：归属与轮询清理 > 列表读失败时如实留痕，并且不把"读不到"当成"没有分析"以外的东西
+[typeme] 未预期的前端错误： boom Error: boom
+    at D:\develop\develop\code\TypeMe\frontend\src\stores\aiAnalysisV3.spec.ts:128:47
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:146:14
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1271:3)
+
+ ✓ src/stores/aiAnalysisV3.spec.ts (8 tests) 33ms
+ ✓ src/api/v3Ai.spec.ts (18 tests) 16ms
+ ✓ src/components/aiAnalysisPanel.spec.ts (9 tests) 380ms
+ ✓ src/views/reportV3View.spec.ts (29 tests) 1209ms
+
+ Test Files  4 passed (4)
+      Tests  64 passed (64)
+   Start at  13:44:32
+   Duration  8.43s (transform 1.49s, setup 0ms, collect 3.12s, tests 1.64s, environment 8.99s, prepare 1.59s)
+

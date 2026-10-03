@@ -1,0 +1,603 @@
+{
+  "scope": "synthetic reports + mocked API, no live database or AI",
+  "checks": [
+    {
+      "label": "320/home: two instruments",
+      "passed": true
+    },
+    {
+      "label": "320/home: optional long tutorial",
+      "passed": true
+    },
+    {
+      "label": "320/home: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: compact mobile contents",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: keyboard opens contents",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: readable AI",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: four plain readings",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: uncertainty status preserved",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: theory initially collapsed",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: keyboard opens theory",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung-tied: compact mobile contents",
+      "passed": true
+    },
+    {
+      "label": "320/jung-tied: keyboard opens contents",
+      "passed": true
+    },
+    {
+      "label": "320/jung-tied: readable AI",
+      "passed": true
+    },
+    {
+      "label": "320/jung-tied: four plain readings",
+      "passed": true
+    },
+    {
+      "label": "320/jung-tied: plain reading preserves tied directions",
+      "passed": true
+    },
+    {
+      "label": "320/jung-tied: uncertainty status preserved",
+      "passed": true
+    },
+    {
+      "label": "320/jung-tied: no forced type",
+      "passed": true
+    },
+    {
+      "label": "320/jung-tied: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: compact mobile contents",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: keyboard opens contents",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: readable AI",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: four plain readings",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: uncertainty status preserved",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: theory initially collapsed",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: keyboard opens theory",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v1: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: readable AI",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: generic link dispatch",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: five dimensions",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: five plain readings",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: score details initially collapsed",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: score details keyboard accessible",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: historical range warning",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive-old: readable AI",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive-old: generic link dispatch",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive-old: five dimensions",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive-old: five plain readings",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive-old: score details initially collapsed",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive-old: score details keyboard accessible",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive-old: historical range warning",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive-old: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/off: fixed report intact",
+      "passed": true
+    },
+    {
+      "label": "320/off: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/failed: fixed report intact",
+      "passed": true
+    },
+    {
+      "label": "320/failed: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320: new consent range",
+      "passed": true
+    },
+    {
+      "label": "320: no generation without consent",
+      "passed": true
+    },
+    {
+      "label": "320/empty: fixed report intact",
+      "passed": true
+    },
+    {
+      "label": "320/empty: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/home: two instruments",
+      "passed": true
+    },
+    {
+      "label": "390/home: optional long tutorial",
+      "passed": true
+    },
+    {
+      "label": "390/home: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: compact mobile contents",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: keyboard opens contents",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: readable AI",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: four plain readings",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: uncertainty status preserved",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: theory initially collapsed",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: keyboard opens theory",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung-tied: compact mobile contents",
+      "passed": true
+    },
+    {
+      "label": "390/jung-tied: keyboard opens contents",
+      "passed": true
+    },
+    {
+      "label": "390/jung-tied: readable AI",
+      "passed": true
+    },
+    {
+      "label": "390/jung-tied: four plain readings",
+      "passed": true
+    },
+    {
+      "label": "390/jung-tied: plain reading preserves tied directions",
+      "passed": true
+    },
+    {
+      "label": "390/jung-tied: uncertainty status preserved",
+      "passed": true
+    },
+    {
+      "label": "390/jung-tied: no forced type",
+      "passed": true
+    },
+    {
+      "label": "390/jung-tied: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: compact mobile contents",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: keyboard opens contents",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: readable AI",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: four plain readings",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: uncertainty status preserved",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: theory initially collapsed",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: keyboard opens theory",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v1: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: readable AI",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: generic link dispatch",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: five dimensions",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: five plain readings",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: score details initially collapsed",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: score details keyboard accessible",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: historical range warning",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive-old: readable AI",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive-old: generic link dispatch",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive-old: five dimensions",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive-old: five plain readings",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive-old: score details initially collapsed",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive-old: score details keyboard accessible",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive-old: historical range warning",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive-old: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/off: fixed report intact",
+      "passed": true
+    },
+    {
+      "label": "390/off: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/failed: fixed report intact",
+      "passed": true
+    },
+    {
+      "label": "390/failed: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390: new consent range",
+      "passed": true
+    },
+    {
+      "label": "390: no generation without consent",
+      "passed": true
+    },
+    {
+      "label": "390/empty: fixed report intact",
+      "passed": true
+    },
+    {
+      "label": "390/empty: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/home: two instruments",
+      "passed": true
+    },
+    {
+      "label": "1440/home: optional long tutorial",
+      "passed": true
+    },
+    {
+      "label": "1440/home: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: readable AI",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: four plain readings",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: uncertainty status preserved",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: theory initially collapsed",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: keyboard opens theory",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-tied: readable AI",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-tied: four plain readings",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-tied: plain reading preserves tied directions",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-tied: uncertainty status preserved",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-tied: no forced type",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-tied: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v1: readable AI",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v1: four plain readings",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v1: uncertainty status preserved",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v1: theory initially collapsed",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v1: keyboard opens theory",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v1: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: readable AI",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: generic link dispatch",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: five dimensions",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: five plain readings",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: score details initially collapsed",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: score details keyboard accessible",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: historical range warning",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive-old: readable AI",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive-old: generic link dispatch",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive-old: five dimensions",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive-old: five plain readings",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive-old: score details initially collapsed",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive-old: score details keyboard accessible",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive-old: historical range warning",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive-old: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/off: fixed report intact",
+      "passed": true
+    },
+    {
+      "label": "1440/off: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/failed: fixed report intact",
+      "passed": true
+    },
+    {
+      "label": "1440/failed: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: new consent range",
+      "passed": true
+    },
+    {
+      "label": "1440: no generation without consent",
+      "passed": true
+    },
+    {
+      "label": "1440/empty: fixed report intact",
+      "passed": true
+    },
+    {
+      "label": "1440/empty: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "no uncaught browser errors: []",
+      "passed": true
+    },
+    {
+      "label": "all APIs intercepted and accounted for: []",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "unexpectedApis": []
+}

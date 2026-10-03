@@ -1,0 +1,13 @@
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.37 s -- in com.typeme.account.InvitationAdminIT
+[ERROR] Tests run: 6, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 1.827 s <<< FAILURE! -- in com.typeme.account.RateLimitIT
+[ERROR] com.typeme.account.RateLimitIT.anonymousCatalogReadsAreRateLimited -- Time elapsed: 0.030 s <<< ERROR!
+	at com.typeme.account.RateLimitIT.anonymousCatalogReadsAreRateLimited(RateLimitIT.java:163)
+[ERROR] Tests run: 9, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 1.421 s <<< FAILURE! -- in com.typeme.account.SecurityBoundaryIT
+[ERROR] com.typeme.account.SecurityBoundaryIT.anonymousCanReadCatalog -- Time elapsed: 0.033 s <<< FAILURE!
+	at com.typeme.account.SecurityBoundaryIT.anonymousCanReadCatalog(SecurityBoundaryIT.java:77)
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.141 s -- in com.typeme.jung.api.SubmitReportIT
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.428 s -- in com.typeme.platform.BigFivePlatformIT
+[ERROR]   SecurityBoundaryIT.anonymousCanReadCatalog:77 
+[ERROR]   RateLimitIT.anonymousCatalogReadsAreRateLimited:163 ? Servlet Request processing failed: com.typeme.common.ApiException: 访问过于频繁，请稍后再试。
+[ERROR] Tests run: 35, Failures: 1, Errors: 1, Skipped: 0
+[INFO] BUILD FAILURE

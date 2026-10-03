@@ -1,0 +1,19 @@
+{
+  "backend/src/main/resources/content/typeme-jung48-zh-v1.json": {
+    "byteIdenticalToHEAD": true,
+    "sha256": "7d722f68e760956341312a6a997fca2260f5fe58ac2c36bb902317d666e6c594"
+  },
+  "backend/src/main/resources/content/typeme-jung48-zh-v2.json": {
+    "byteIdenticalToHEAD": true,
+    "sha256": "4ee967cfe539d42c6d1ed821863bc1867037afa269967b92904daa60527c0f93"
+  },
+  "backend/src/main/resources/content/typeme-type-report-zh-v1.json": {
+    "byteIdenticalToHEAD": true,
+    "sha256": "497983d3b0398027ee4707487229c25d6a0400dded8997978a119ac90fd8c8ae"
+  },
+  "backend/src/main/resources/content/typeme-type-report-zh-v2.json": {
+    "byteIdenticalToHEAD": true,
+    "sha256": "349ae637cb125795b395ecbca099cdf076948e58333a9f0fff11c91c6e00a492"
+  },
+  "snapshotSourcesChangedDuringVerification": []
+}

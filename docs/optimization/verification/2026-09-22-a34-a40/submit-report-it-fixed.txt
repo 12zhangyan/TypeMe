@@ -1,0 +1,124 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.typeme:typeme-backend >----------------------
+[INFO] Building typeme-backend 1.0.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ typeme-backend ---
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] Copying 30 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:copy-resources (copy-frontend-dist) @ typeme-backend ---
+[INFO] Copying 26 resources from ..\frontend\dist to target\classes\static
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ typeme-backend ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 177 source files with javac [debug parameters release 21] to target\classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ typeme-backend ---
+[INFO] Copying 7 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ typeme-backend ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 71 source files with javac [debug parameters release 21] to target\test-classes
+[INFO] /D:/develop/develop/code/TypeMe/backend/src/test/java/com/typeme/jung/service/JungReportSchemaTest.java: D:\develop\develop\code\TypeMe\backend\src\test\java\com\typeme\jung\service\JungReportSchemaTest.java使用或覆盖了已过时的 API。
+[INFO] /D:/develop/develop/code/TypeMe/backend/src/test/java/com/typeme/jung/service/JungReportSchemaTest.java: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.2.5:test (default-test) @ typeme-backend ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.typeme.jung.api.SubmitReportIT
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-09-22T16:14:36.615+08:00  INFO 71928 --- [typeme] [           main] com.typeme.jung.api.SubmitReportIT       : Starting SubmitReportIT using Java 21.0.12.1 with PID 71928 (started by 22518 in D:\develop\develop\code\TypeMe\backend)
+2026-09-22T16:14:36.617+08:00  INFO 71928 --- [typeme] [           main] com.typeme.jung.api.SubmitReportIT       : No active profile set, falling back to 1 default profile: "default"
+2026-09-22T16:14:39.354+08:00  INFO 71928 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-22T16:14:39.668+08:00  INFO 71928 --- [typeme] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:typeme_submitreportit_55d138ffd561 user=SA
+2026-09-22T16:14:39.673+08:00  INFO 71928 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-22T16:14:39.761+08:00  INFO 71928 --- [typeme] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:typeme_submitreportit_55d138ffd561 (H2 2.2)
+2026-09-22T16:14:39.778+08:00  WARN 71928 --- [typeme] [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.2.224 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.220.
+2026-09-22T16:14:39.832+08:00  INFO 71928 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-09-22T16:14:39.836+08:00  INFO 71928 --- [typeme] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 10 migrations (execution time 00:00.035s)
+2026-09-22T16:14:39.844+08:00  INFO 71928 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-09-22T16:14:39.892+08:00  INFO 71928 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-09-22T16:14:39.907+08:00  INFO 71928 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - account and session"
+2026-09-22T16:14:39.939+08:00  INFO 71928 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - assessment content and attempt"
+2026-09-22T16:14:39.959+08:00  INFO 71928 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - report and self reflection"
+2026-09-22T16:14:39.976+08:00  INFO 71928 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - ai analysis"
+2026-09-22T16:14:39.993+08:00  INFO 71928 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - idempotency and deletion"
+2026-09-22T16:14:40.006+08:00  INFO 71928 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - admin and ai settings"
+2026-09-22T16:14:40.015+08:00  INFO 71928 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - ai job user note"
+2026-09-22T16:14:40.036+08:00  INFO 71928 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - widen credential hash"
+2026-09-22T16:14:40.046+08:00  INFO 71928 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "9 - invitations and user ai limit"
+2026-09-22T16:14:40.066+08:00  INFO 71928 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "10 - illustration asset"
+2026-09-22T16:14:40.082+08:00  INFO 71928 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 10 migrations to schema "public", now at version v10 (execution time 00:00.088s)
+2026-09-22T16:14:40.582+08:00  INFO 71928 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 内容包指纹：939232e360a2…（typeme-jung48-zh-v1，与文件声明一致）
+2026-09-22T16:14:40.597+08:00  INFO 71928 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 内容包指纹：9e61f1459725…（typeme-jung48-zh-v2，与文件声明一致）
+2026-09-22T16:14:40.616+08:00  INFO 71928 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 内容包指纹：44fbb3d374f1…（typeme-jung48-zh-v3，与文件声明一致）
+2026-09-22T16:14:40.625+08:00  INFO 71928 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 内容包指纹：a5208fcd387c…（typeme-jung48-zh-v4，与文件声明一致）
+2026-09-22T16:14:40.674+08:00  INFO 71928 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测内容包已加载：{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-22T16:14:40.675+08:00  WARN 71928 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，没有信度/效度证据，不得对外宣传为已验证。（packageId=typeme-jung48-zh-v1）
+2026-09-22T16:14:40.675+08:00  INFO 71928 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测内容包已加载：{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-22T16:14:40.675+08:00  WARN 71928 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，没有信度/效度证据，不得对外宣传为已验证。（packageId=typeme-jung48-zh-v2）
+2026-09-22T16:14:40.675+08:00  INFO 71928 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测内容包已加载：{packageId=typeme-jung48-zh-v3, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v3, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=44fbb3d374f13772eb5ac1ffb69586a2a240e8977237f2c6c74a8ec17d770dd6, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-22T16:14:40.675+08:00  WARN 71928 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，没有信度/效度证据，不得对外宣传为已验证。（packageId=typeme-jung48-zh-v3）
+2026-09-22T16:14:40.675+08:00  INFO 71928 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测内容包已加载：{packageId=typeme-jung48-zh-v4, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v4, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=a5208fcd387c34d2c4907a0cc6eff3790782f47cf144a82de2fd71c3c423f103, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-22T16:14:40.676+08:00  WARN 71928 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，没有信度/效度证据，不得对外宣传为已验证。（packageId=typeme-jung48-zh-v4）
+2026-09-22T16:14:40.743+08:00  INFO 71928 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : 大五内容包指纹：47a09253ce7a…（typeme-bigfive50-zh-v1，与文件声明一致）
+2026-09-22T16:14:40.743+08:00  INFO 71928 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : 大五内容包已加载：{packageId=typeme-bigfive50-zh-v1, instrumentId=ipip50, scoringVersion=ipip-bfm50-1.0, reportContentVersion=typeme-bigfive-report-zh-v1, contentStatus=draft_review_pending, sha256=47a09253ce7a9ed914f731aa9917ab14f2a3291fb0411fe470fa10a061beda59, itemCount=50, itemsPerDimension={E=10, A=10, C=10, ES=10, O=10}}
+2026-09-22T16:14:40.744+08:00  WARN 71928 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : 大五题目与解释的审校状态是「draft_review_pending」：中文题面未做真人试读与试测，没有信度/效度证据，也不代表已与常模比对。（packageId=typeme-bigfive50-zh-v1）
+2026-09-22T16:14:40.755+08:00  INFO 71928 --- [typeme] [           main] c.t.platform.catalog.AssessmentCatalog   : 量表目录登记：slug=jung48 名称=十六型人格参考测评 默认版本=typeme-jung48-zh-v4 主测题数=48 补充题上限=16
+2026-09-22T16:14:40.755+08:00  INFO 71928 --- [typeme] [           main] c.t.platform.catalog.AssessmentCatalog   : 量表目录登记：slug=bigfive50 名称=大五人格倾向测评 默认版本=typeme-bigfive50-zh-v1 主测题数=50 补充题上限=0
+2026-09-22T16:14:42.051+08:00  INFO 71928 --- [typeme] [           main] com.typeme.service.ContentService        : 内容包加载并校验通过: packageId=ipip50-zh1 questions=50 status=draft
+2026-09-22T16:14:42.067+08:00  INFO 71928 --- [typeme] [           main] com.typeme.service.ContentService        : 内容包加载并校验通过: packageId=oejts32-zh1-report2 questions=32 status=draft
+2026-09-22T16:14:42.078+08:00  INFO 71928 --- [typeme] [           main] com.typeme.service.ContentService        : 内容包加载并校验通过: packageId=oejts32-zh2-preview-r1 questions=32 status=draft
+2026-09-22T16:14:42.082+08:00  INFO 71928 --- [typeme] [           main] com.typeme.service.ContentService        : 题库加载并校验通过: version=quick questions=32 sha256=83c112bdfb43fa62e942402adf963c90cc0d18e6b3a21aaf7033161b6f5cf754
+2026-09-22T16:14:42.083+08:00  INFO 71928 --- [typeme] [           main] com.typeme.service.ContentService        : 方法说明页加载并校验通过: sections=5 license=CC BY-NC-SA 4.0
+2026-09-22T16:14:42.083+08:00  INFO 71928 --- [typeme] [           main] com.typeme.service.ContentService        : 类型文案加载并校验通过: types=16
+2026-09-22T16:14:42.419+08:00  INFO 71928 --- [typeme] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name typemeUserDetailsService
+2026-09-22T16:14:42.721+08:00  INFO 71928 --- [typeme] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-09-22T16:14:43.414+08:00  INFO 71928 --- [typeme] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-09-22T16:14:44.388+08:00  INFO 71928 --- [typeme] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-22T16:14:44.388+08:00  INFO 71928 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-22T16:14:44.391+08:00  INFO 71928 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-09-22T16:14:44.530+08:00  INFO 71928 --- [typeme] [           main] com.typeme.jung.api.SubmitReportIT       : Started SubmitReportIT in 8.347 seconds (process running for 9.47)
+2026-09-22T16:14:44.669+08:00  INFO 71928 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-jung48-zh-v1 sha256=939232e360a2… 审校状态=draft_review_pending 内容字节数=28168
+2026-09-22T16:14:44.673+08:00  INFO 71928 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-jung48-zh-v2 sha256=9e61f1459725… 审校状态=draft_review_pending 内容字节数=28179
+2026-09-22T16:14:44.676+08:00  INFO 71928 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-jung48-zh-v3 sha256=44fbb3d374f1… 审校状态=draft_review_pending 内容字节数=28179
+2026-09-22T16:14:44.680+08:00  INFO 71928 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-jung48-zh-v4 sha256=a5208fcd387c… 审校状态=draft_review_pending 内容字节数=28178
+2026-09-22T16:14:44.683+08:00  INFO 71928 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-bigfive50-zh-v1 sha256=47a09253ce7a… 审校状态=draft_review_pending 内容字节数=22615
+2026-09-22T16:14:44.687+08:00  INFO 71928 --- [typeme] [           main] c.t.ai.config.AiRuntimeSettingsProvider  : AI 设置已加载：enabled=false, model=deepseek-flash, apiKeySource=none, mockMode=true, baseUrl=https://api.deepseek.com
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (D:\develop\maven\mavenpom\net\bytebuddy\byte-buddy-agent\1.14.19\byte-buddy-agent-1.14.19.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+2026-09-22T16:14:47.931+08:00  INFO 71928 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-22T16:14:47.975+08:00  INFO 71928 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-22T16:14:48.272+08:00  INFO 71928 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-22T16:14:48.283+08:00  INFO 71928 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-22T16:14:48.345+08:00  INFO 71928 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-22T16:14:48.356+08:00  INFO 71928 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.77 s -- in com.typeme.jung.api.SubmitReportIT
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  26.735 s
+[INFO] Finished at: 2026-09-22T16:14:48+08:00
+[INFO] ------------------------------------------------------------------------

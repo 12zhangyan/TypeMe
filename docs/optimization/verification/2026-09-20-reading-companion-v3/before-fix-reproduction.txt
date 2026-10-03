@@ -1,0 +1,39 @@
+修复前复现：十六型当前默认包（typeme-jung48-zh-v3）拿不到题目阅读说明
+========================================================================
+
+问题
+----
+`frontend/src/content/readingCompanion.json` 只有 v1(64) / v2(64) / 大五(50)，
+而新草稿由 `JungPackageLoader.CURRENT_PACKAGE_ID = "typeme-jung48-zh-v3"` 绑定，
+`questionExample()` 严格按 packageId 查表 → 主流程 48 主测题 + 16 补充题全部返回 null，
+`AssessView.vue` 的 `v-if="readingExample"` 整块「想一个这样的场景」不渲染。
+
+复现方式（与 after 同一份脚本、同一批 mock，只换 dist）
+--------------------------------------------------------
+1. 前端单测：`cd frontend; npm.cmd test -- src/domain/readingCompanion.spec.ts`
+   新增用例遍历内容目录里**所有**已发布的十六型内容包（不再写死 v1/v2）：
+
+       AssertionError: typeme-jung48-zh-v3/EI-01: expected null to be truthy
+
+2. 浏览器：静态服务指向**修复前**的 `frontend/dist`（构建于 2026-09-20 10:50:31，
+   源码状态 = d009c48，即本次修复前），执行
+
+       python scripts/browser-verify-visual.py
+
+   （脚本已先改成跟随 `JungPackageLoader.CURRENT_PACKAGE_ID`，并把分流 mock 修正为
+   409 INSTRUMENT_MISMATCH —— 否则 404 在 2026-09-20 之后意味着"没有找到这份测评"，
+   脚本根本进不了十六型答题页。因此这里的红点是阅读说明本身，不是别的改动。）
+
+       File "scripts/browser-verify-visual.py", line 41, in check
+         assert value, name
+       AssertionError: 320/jung(typeme-jung48-zh-v3) visible scene explanation
+
+   失败在首个宽度（320）即中止：`[data-question-example]` 计数为 0，
+   页面上没有渲染任何阅读说明。
+
+修复后（同一脚本、同一批 mock，dist 重建于 2026-09-20 11:03:24）
+----------------------------------------------------------------
+- 前端单测：该 spec 8/8 通过；全量 44 文件 / 979 项通过。
+- 浏览器：141 项全部通过，覆盖 320 / 390 / 1440 × 当前默认包 v3、历史包 v2，
+  逐项断言 `[data-question-example]` 存在、且文案与该题记录一致
+  （见同目录 `visual-flow-results.json`）。

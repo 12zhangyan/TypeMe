@@ -1,0 +1,15 @@
+TimeoutError: Locator.wait_for: Timeout 15000ms exceeded.
+Call log:
+  - waiting for locator("[data-question-card]") to be visible
+
+
+=== 当时页面可见文案 ===
+跳到主要内容
+TypeMe
+暂时离开
+
+这份测评不是大五倾向测评，请从对应的入口继续。
+
+报障编号：878a22ab-79dd-4b55-87f2-53a08605261e
+
+回到测评列表

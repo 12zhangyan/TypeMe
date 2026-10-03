@@ -1,0 +1,21 @@
+{
+  "verdict": "PASS",
+  "passed": 64,
+  "failed": [],
+  "skipped": [],
+  "notes": [],
+  "screenshots": [
+    "390-instruments-anonymous.png",
+    "390-method-bigfive.png",
+    "390-assess.png",
+    "390-bigfive-last-question.png",
+    "390-bigfive-report.png",
+    "390-reports-list.png",
+    "390-assess-with-draft.png",
+    "320-instruments.png",
+    "1440-instruments.png",
+    "1440-bigfive-report.png"
+  ],
+  "username": "plat_863d7d85",
+  "base": "http://127.0.0.1:8080"
+}

@@ -1,0 +1,583 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mD:/develop/develop/code/TypeMe/frontend[39m
+
+[90mstderr[2m | src/api/v3.spec.ts[2m > [22m[2m请求形状[2m > [22m[2m改密码是 POST /api/v3/me/password（不是 PATCH /me）
+[22m[39m[typeme] 取 CSRF token 失败（Unexpected end of JSON input），且读不到 XSRF-TOKEN cookie；写操作可能会被服务端以 CSRF_INVALID 拒绝。
+
+[90mstderr[2m | src/api/v3.spec.ts[2m > [22m[2m请求形状[2m > [22m[2m恢复密码是 POST /api/v3/auth/recover，且登录前就带这三个字段
+[22m[39m[typeme] 取 CSRF token 失败（Unexpected end of JSON input），且读不到 XSRF-TOKEN cookie；写操作可能会被服务端以 CSRF_INVALID 拒绝。
+
+[90mstderr[2m | src/api/v3.spec.ts[2m > [22m[2m错误映射：没登录 / 已登录但没权限，必须分开[2m > [22m[2m既不是 V3ApiError 也不是已知错误体时，走网络错误的兜底说明并保留 code
+[22m[39m[typeme] 未预期的前端错误： boom Error: boom
+    at [90mD:\develop\develop\code\TypeMe\frontend\[39msrc\api\v3.spec.ts:365:35
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:146:14
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:533:11
+    at runWithTimeout [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:39:7[90m)[39m
+    at runTest [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1056:17[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runFiles [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1262:5[90m)[39m
+    at startTests [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1271:3[90m)[39m
+
+ [32m✓[39m src/api/v3.spec.ts [2m([22m[2m28 tests[22m[2m)[22m[90m 239[2mms[22m[39m
+ [32m✓[39m src/api/platformV3.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 39[2mms[22m[39m
+ [32m✓[39m src/api/v3Ai.spec.ts [2m([22m[2m20 tests[22m[2m)[22m[90m 53[2mms[22m[39m
+[90mstderr[2m | src/views/adminView.spec.ts[2m > [22m[2m管理后台 · AI 设置[2m > [22m[2m网络失败：说"没问到"，不能冒充成没有权限
+[22m[39m[typeme] 未预期的前端错误： boom Error: boom
+    at [90mD:\develop\develop\code\TypeMe\frontend\[39msrc\views\adminView.spec.ts:112:44
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:146:14
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:533:11
+    at runWithTimeout [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:39:7[90m)[39m
+    at runTest [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1056:17[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runFiles [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1262:5[90m)[39m
+    at startTests [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1271:3[90m)[39m
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+ [32m✓[39m src/components/illustrationFrame.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[90m 199[2mms[22m[39m
+[90mstderr[2m | src/views/compareView.spec.ts[2m > [22m[2m复测比较页[2m > [22m[2m提示与操作组的垂直间距与账号页同一节奏（A40）
+[22m[39m[typeme] 未预期的前端错误： boom Error: boom
+    at [90mD:\develop\develop\code\TypeMe\frontend\[39msrc\views\compareView.spec.ts:220:38
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:146:14
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:533:11
+    at runWithTimeout [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:39:7[90m)[39m
+    at runTest [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1056:17[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runFiles [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1262:5[90m)[39m
+    at startTests [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1271:3[90m)[39m
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+[90mstderr[2m | src/views/compareView.spec.ts[2m > [22m[2m复测比较页[2m > [22m[2m比较失败：显示错误与重试机会，不显示半张表
+[22m[39m[typeme] 未预期的前端错误： boom Error: boom
+    at [90mD:\develop\develop\code\TypeMe\frontend\[39msrc\views\compareView.spec.ts:241:38
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:146:14
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:533:11
+    at runWithTimeout [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:39:7[90m)[39m
+    at runTest [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1056:17[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runFiles [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1262:5[90m)[39m
+    at startTests [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1271:3[90m)[39m
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+[90mstderr[2m | src/views/adminView.spec.ts[2m > [22m[2m管理后台 · AI 设置[2m > [22m[2mbaseUrl 不预填：留空时不进补丁（避免把主机名当完整地址写进去）
+[22m[39m[typeme] 未预期的前端错误： Cannot read properties of undefined (reading 'enabled') TypeError: Cannot read properties of undefined (reading 'enabled')
+    at fillForm [90m(D:\develop\develop\code\TypeMe\frontend\[39msrc\views\AdminView.vue:117:23[90m)[39m
+    at save [90m(D:\develop\develop\code\TypeMe\frontend\[39msrc\views\AdminView.vue:266:5[90m)[39m
+
+ [32m✓[39m src/views/compareView.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 400[2mms[22m[39m
+[90mstderr[2m | src/views/assessChooserView.spec.ts[2m > [22m[2m/assess 选择页[2m > [22m[2m列出来源目录里的两项，并说明各自会得到什么
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+[90mstderr[2m | src/views/assessChooserView.spec.ts[2m > [22m[2m/assess 选择页[2m > [22m[2m带 ?instrument=<slug> 过来时自动开始那一项，不需要再点一次
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+[90mstderr[2m | src/views/assessChooserView.spec.ts[2m > [22m[2m/assess 选择页[2m > [22m[2m目录还没回来时不会拿着 slug 去建草稿
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+[90mstderr[2m | src/views/adminView.spec.ts[2m > [22m[2m管理后台 · AI 设置[2m > [22m[2m保存失败：显示错误与报障编号，且不假装成功
+[22m[39m[typeme] 未预期的前端错误： boom Error: boom
+    at [90mD:\develop\develop\code\TypeMe\frontend\[39msrc\views\adminView.spec.ts:299:45
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:146:14
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:533:11
+    at runWithTimeout [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:39:7[90m)[39m
+    at runTest [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1056:17[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runFiles [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1262:5[90m)[39m
+    at startTests [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1271:3[90m)[39m
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+[90mstderr[2m | src/views/assessChooserView.spec.ts[2m > [22m[2m/assess 选择页[2m > [22m[2mURL 里带的量表不存在时明确说出来，而不是毫无反应
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+ [32m✓[39m src/views/adminView.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 601[2mms[22m[39m
+[90mstderr[2m | src/views/assessChooserView.spec.ts[2m > [22m[2m/assess 选择页[2m > [22m[2m已有没答完的草稿时，卡片按钮继续那一份，不新建
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+[90mstderr[2m | src/views/assessChooserView.spec.ts[2m > [22m[2m/assess 选择页[2m > [22m[2m已有没答完的草稿时，卡片按钮继续那一份，不新建
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+[90mstderr[2m | src/views/assessChooserView.spec.ts[2m > [22m[2m/assess 选择页[2m > [22m[2m带 slug 过来时若已有没答完的草稿，继续那一份而不是新建
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+[90mstderr[2m | src/views/assessChooserView.spec.ts[2m > [22m[2m/assess 选择页[2m > [22m[2m已经提交过的记录不算草稿入口
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+[Vue Router warn]: No match found for location with path "/instruments/jung48"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50"
+
+ [32m✓[39m src/views/assessChooserView.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 296[2mms[22m[39m
+ [32m✓[39m src/components/aiAnalysisPanel.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 609[2mms[22m[39m
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：手动下一题[2m > [22m[2m选一档之后仍停在同一题（没有任何自动跳题）
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：手动下一题[2m > [22m[2m手动点「下一题」才前进，并记住当前位置
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：手动下一题[2m > [22m[2m未作答时点「下一题」给可见提示且不前进
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：手动下一题[2m > [22m[2m每一题都能看到键盘与五档说明，且五档文案与契约一致
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：unknown 与「未作答」是两件事[2m > [22m[2m未作答时显示"还没有作答"
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：unknown 与「未作答」是两件事[2m > [22m[2m标「这题我说不好」之后显示已作答案，并且不会被当成未作答
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：unknown 与「未作答」是两件事[2m > [22m[2m标了 unknown 之后点「下一题」可以前进（unknown 算处理过）
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：unknown 与「未作答」是两件事[2m > [22m[2munknownown 可以被数字答案替换
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+ [32m✓[39m src/views/attemptRouterView.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 308[2mms[22m[39m
+ [32m✓[39m src/views/bigFiveAssessView.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 733[2mms[22m[39m
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：409 冲突走"重新拉取"，不静默覆盖[2m > [22m[2m409 之后显示冲突提示，并且**不再发出任何写入**
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：409 冲突走"重新拉取"，不静默覆盖[2m > [22m[2m点「载入最新进度」重新拉取，并以服务端 revision 继续
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：409 冲突走"重新拉取"，不静默覆盖[2m > [22m[2m冲突横幅要说清丢的是哪一题、自己选了什么（否则用户没法核对）
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：409 冲突走"重新拉取"，不静默覆盖[2m > [22m[2m「这题我说不好」被丢弃时也如实列出，不显示成空白档位
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：覆盖不足时说明还差哪几维[2m > [22m[2m提交返回 NEEDS_REVIEW 时列出未达标的维度与人话原因
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：覆盖不足时说明还差哪几维[2m > [22m[2m点「回到题目继续调整」真的能回到题卡（不是一条死路）
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+ [32m✓[39m src/domain/answers.spec.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 436[2mms[22m[39m
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：补充题阶段必须留有出口[2m > [22m[2m点了「开始补充题」之后，仍能回到主测改答
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+ [32m✓[39m src/views/instrumentMethodView.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 620[2mms[22m[39m
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：补充题阶段必须留有出口[2m > [22m[2m补充阶段也能跳过并直接交卷
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：会话在作答过程中失效[2m > [22m[2m载入时 401：给出「去登录」而不是一个必然失败的「重试」
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：会话在作答过程中失效[2m > [22m[2m保存时 401：给的是「登录后接着答」，而不是「重试保存」
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：会话在作答过程中失效[2m > [22m[2m测评在服务端已不存在（404）：给「重新开始一次」而不是只有一个重试
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：会话在作答过程中失效[2m > [22m[2m测评已下线（409 PACKAGE_UNAVAILABLE）：如实说明原因，并给出重新开始的路
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：保存失败不能被下一次成功掩盖[2m > [22m[2m第一条保存失败后再答一条：不许中途显示「已保存」，恢复时要把它补发上去
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：保存失败不能被下一次成功掩盖[2m > [22m[2m「重试保存」能把未写上去的作答补上，补上之后状态回到「已保存」
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：保存失败不能被下一次成功掩盖[2m > [22m[2m保存失败提示里说清有几题没写上去
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：本地预览只是"粗略倾向"[2m > [22m[2m预览区明确写出它不是结论
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：本地预览只是"粗略倾向"[2m > [22m[2m保存状态有三态文案，初始是"还没有需要保存的内容"
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：键盘[2m > [22m[2m数字键 1–5 直接作答，且同样不自动跳题
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/stores/quiz.spec.ts[2m > [22m[2mSTATE-02 存储不可用[2m > [22m[2msetItem 抛错时仍可作答，且 status 如实标为 unavailable
+[22m[39m[typeme] 写入本地记录失败（不影响本次作答） DOMException {}
+
+[90mstderr[2m | src/stores/quiz.spec.ts[2m > [22m[2mSTATE-04 内容包变化[2m > [22m[2m没有同 ID 内置副本时 selectPackage 失败并给出可读原因
+[22m[39m[typeme] GET /assessment-packages/nope-not-registered 不可用（Failed to parse URL from /api/v2/assessment-packages/nope-not-registered），且没有同 ID 的内置副本
+
+[90mstderr[2m | src/stores/quiz.spec.ts[2m > [22m[2mSTATE-04 内容包变化[2m > [22m[2m空会话下可以切换到另一个内置包
+[22m[39m[typeme] GET /assessment-packages/oejts32-zh2-preview-r1 请求失败（Failed to parse URL from /api/v2/assessment-packages/oejts32-zh2-preview-r1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/stores/quiz.spec.ts[2m > [22m[2m内容版本偏好：选过哪一版，刷新后还是哪一版[2m > [22m[2m切换内容版本会写下偏好键；不指定包 ID 的 load() 读回这一版
+[22m[39m[typeme] GET /assessment-packages/oejts32-zh1-report2 请求失败（Failed to parse URL from /api/v2/assessment-packages/oejts32-zh1-report2），已降级到同 ID 内置副本
+[typeme] GET /assessment-packages/oejts32-zh1-report2 请求失败（Failed to parse URL from /api/v2/assessment-packages/oejts32-zh1-report2），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/stores/quiz.spec.ts[2m > [22m[2m内容版本偏好：选过哪一版，刷新后还是哪一版[2m > [22m[2m没有偏好时回到站点默认包，偏好不会被前一次测试或旧版本带偏
+[22m[39m[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/stores/quiz.spec.ts[2m > [22m[2m内容版本偏好：选过哪一版，刷新后还是哪一版[2m > [22m[2m认不出来的偏好（旧版本残留 / 被人手改）被忽略，仍然装默认包
+[22m[39m[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/stores/quiz.spec.ts[2m > [22m[2m内容版本偏好：选过哪一版，刷新后还是哪一版[2m > [22m[2m显式传入包 ID 时优先于偏好（调用方明确指定就不该被本地偏好覆盖）
+[22m[39m[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/stores/quiz.spec.ts[2m > [22m[2m内容版本偏好：选过哪一版，刷新后还是哪一版[2m > [22m[2m清除本地记录会连偏好一起清掉，之后回到默认量表
+[22m[39m[typeme] GET /assessment-packages/oejts32-zh1-report2 请求失败（Failed to parse URL from /api/v2/assessment-packages/oejts32-zh1-report2），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/stores/quiz.spec.ts[2m > [22m[2m内容版本偏好：选过哪一版，刷新后还是哪一版[2m > [22m[2m偏好键不含任何作答内容，且与 v3 会话键互不影响
+[22m[39m[typeme] GET /assessment-packages/oejts32-zh1-report2 请求失败（Failed to parse URL from /api/v2/assessment-packages/oejts32-zh1-report2），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/stores/quiz.spec.ts[2m > [22m[2m新默认包：IPIP-50 大五（无类型码）[2m > [22m[2m不指定包 ID 时装载站点默认包 ipip50-zh1；题数 50、维度顺序 E/A/C/ES/O
+[22m[39m[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/stores/quiz.spec.ts[2m > [22m[2m新默认包：IPIP-50 大五（无类型码）[2m > [22m[2m默认包的作答格式是 agreement（单句贴切度），不再是 OEJTS 的双极选择
+[22m[39m[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/stores/quiz.spec.ts[2m > [22m[2m内容包接口路径：线上形态（显式 null）必须被真正采用[2m > [22m[2m接口返回另一个包的 ID 时仍然降级，不会把 B 的题面贴到 A 上
+[22m[39m[typeme] GET /assessment-packages/ipip50-zh1 请求失败（内容包 ID 不一致：请求 ipip50-zh1，返回 oejts32-zh1-report2），已降级到同 ID 内置副本
+
+ [32m✓[39m src/stores/quiz.spec.ts [2m([22m[2m54 tests[22m[2m)[22m[33m 1350[2mms[22m[39m
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：键盘[2m > [22m[2m数字键 1–5 直接作答，且同样不自动跳题
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：键盘[2m > [22m[2m方向键切换题目
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：断点续答[2m > [22m[2m进入时恢复服务端记下的位置与已答
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：断点续答[2m > [22m[2m服务端的指针停在已答过的题上时，刷新落到第一道未作答，而不是回退到那道题
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：断点续答[2m > [22m[2m主测全部答完时，才回到服务端记下的那一题（用于回看）
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/accountAdminEntry.spec.ts[2m > [22m[2m账号页 · 管理后台入口[2m > [22m[2m服务端回 200 → 显示入口，链接指向成员页，且不夹在删除/注销中间
+[22m[39m[Vue Router warn]: No match found for location with path "/about"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：快速操作不会制造假冲突[2m > [22m[2m在途期间的第二次点击不会另发一个 PATCH，也不会被说成"另一台设备改过"
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/accountAdminEntry.spec.ts[2m > [22m[2m账号页 · 管理后台入口[2m > [22m[2m服务端回 403 → 不显示入口，且账号页其它内容照常显示
+[22m[39m[Vue Router warn]: No match found for location with path "/about"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：快速操作不会制造假冲突[2m > [22m[2m自己的写入已落地却回了 409：按"已保存"收敛，不弹「另一台设备」横幅
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/accountAdminEntry.spec.ts[2m > [22m[2m账号页 · 管理后台入口[2m > [22m[2m探测失败（网络/5xx）→ 不显示入口，但**不缓存**这个结论：重试能拿到入口
+[22m[39m[Vue Router warn]: No match found for location with path "/about"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：快速操作不会制造假冲突[2m > [22m[2m服务端存的东西与本机不一致时，仍然按真冲突处理（不能把真冲突说成已保存）
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：交卷响应丢失也要能到报告[2m > [22m[2m交卷响应丢失后发现其实已提交：直接带到那份报告
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+[90mstderr[2m | src/views/landingResume.spec.ts[2m > [22m[2m首页：继续上次没答完的测评（A51）[2m > [22m[2m未登录时不请求草稿列表，也不显示续答入口
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+
+[90mstderr[2m | src/views/accountAdminEntry.spec.ts[2m > [22m[2m账号页 · 管理后台入口[2m > [22m[2m401 之后重新登录：入口能重新拿到（会话失效不能被缓存成"不是管理员"）
+[22m[39m[Vue Router warn]: No match found for location with path "/about"
+
+[90mstderr[2m | src/views/assessView.spec.ts[2m > [22m[2m答题页：交卷响应丢失也要能到报告[2m > [22m[2m带着一份已交卷的测评刷新答题页：自动打开那份报告，而不是停在一堆答完的题上
+[22m[39m[Vue Router warn]: No match found for location with path "/reports"
+
+ [32m✓[39m src/views/assessView.spec.ts [2m([22m[2m35 tests[22m[2m)[22m[33m 3233[2mms[22m[39m
+   [33m[2m✓[22m[39m 答题页：键盘[2m > [22m方向键切换题目 [33m445[2mms[22m[39m
+[90mstderr[2m | src/views/accountAdminEntry.spec.ts[2m > [22m[2m账号页 · 管理后台入口[2m > [22m[2m换账号（先管理员后普通用户）：上一个账号的探测结论必须作废
+[22m[39m[Vue Router warn]: No match found for location with path "/about"
+
+[90mstderr[2m | src/views/accountAdminEntry.spec.ts[2m > [22m[2m账号页 · 管理后台入口[2m > [22m[2m同一账号保存资料（applyProfile 同一 userId）不会清掉管理入口
+[22m[39m[Vue Router warn]: No match found for location with path "/about"
+
+[90mstderr[2m | src/views/landingResume.spec.ts[2m > [22m[2m首页：继续上次没答完的测评（A51）[2m > [22m[2m有一份没答完的草稿时，主入口变成「继续」并指向那一份
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+
+[90mstderr[2m | src/views/shellNav.spec.ts[2m > [22m[2m顶栏导航（App.vue）[2m > [22m[2m指向「开始测评」的入口只出现一次
+[22m[39m[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/views/shellNav.spec.ts[2m > [22m[2m顶栏导航（App.vue）[2m > [22m[2m停在关于页时，导航项写的仍然是它自己的目标名
+[22m[39m[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+ [32m✓[39m src/views/accountAdminEntry.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 1055[2mms[22m[39m
+   [33m[2m✓[22m[39m 账号页 · 管理后台入口[2m > [22m服务端回 200 → 显示入口，链接指向成员页，且不夹在删除/注销中间 [33m474[2mms[22m[39m
+[90mstderr[2m | src/views/landingResume.spec.ts[2m > [22m[2m首页：继续上次没答完的测评（A51）[2m > [22m[2m续答说明只写服务端真的给了的东西：已答题数按主测题算，时间来自列表
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+
+[90mstderr[2m | src/views/landingResume.spec.ts[2m > [22m[2m首页：继续上次没答完的测评（A51）[2m > [22m[2m还有别的草稿时说清"另外还有几份"，不假装只有一份
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+
+[90mstderr[2m | src/views/shellNav.spec.ts[2m > [22m[2m顶栏导航（App.vue）[2m > [22m[2m停在关于页时，导航项写的仍然是它自己的目标名
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+
+[90mstderr[2m | src/views/landingResume.spec.ts[2m > [22m[2m首页：继续上次没答完的测评（A51）[2m > [22m[2m草稿列表读不到时退回普通入口，且不显示任何进度
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+
+[90mstderr[2m | src/views/shellNav.spec.ts[2m > [22m[2m顶栏导航（App.vue）[2m > [22m[2m未登录时不渲染重复的账号入口
+[22m[39m[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/views/shellNav.spec.ts[2m > [22m[2m顶栏导航（App.vue）[2m > [22m[2m未登录时顶栏没有「管理」
+[22m[39m[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/views/instrumentCopy.spec.ts[2m > [22m[2m公共壳的量表文案（App.vue）[2m > [22m[2m副标题与页脚署名跟着当前内容包走（四维 / 大五，各自不许串台）
+[22m[39m[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+
+[90mstderr[2m | src/views/shellNav.spec.ts[2m > [22m[2m顶栏导航（App.vue）[2m > [22m[2m管理员登录后顶栏有恰好一个「管理」，指向成员页
+[22m[39m[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/views/shellNav.spec.ts[2m > [22m[2m顶栏导航（App.vue）[2m > [22m[2m同一账号更新资料后顶栏「管理」仍在，且不再打探测
+[22m[39m[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/views/landingResume.spec.ts[2m > [22m[2m首页：继续上次没答完的测评（A51）[2m > [22m[2m详情读不到时仍然能续答，但不编造"已答几题"
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+
+[90mstderr[2m | src/views/shellNav.spec.ts[2m > [22m[2m顶栏导航（App.vue）[2m > [22m[2m已登录时换成另一个账号：顶栏按新账号重新探测
+[22m[39m[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/views/shellNav.spec.ts[2m > [22m[2m顶栏导航（App.vue）[2m > [22m[2m管理员探测未完成就换成普通账号：过期的 200 不会让顶栏出现「管理」
+[22m[39m[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+ [32m✓[39m src/views/shellNav.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1474[2mms[22m[39m
+   [33m[2m✓[22m[39m 顶栏导航（App.vue）[2m > [22m指向「开始测评」的入口只出现一次 [33m371[2mms[22m[39m
+   [33m[2m✓[22m[39m 顶栏导航（App.vue）[2m > [22m停在关于页时，导航项写的仍然是它自己的目标名 [33m677[2mms[22m[39m
+[90mstderr[2m | src/views/landingResume.spec.ts[2m > [22m[2m首页：继续上次没答完的测评（A51）[2m > [22m[2m没有草稿时不显示续答入口（不能靠"读到空列表"就编一个入口）
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+
+[90mstderr[2m | src/views/instrumentCopy.spec.ts[2m > [22m[2m首页的量表文案与抽象图形（LandingView.vue）[2m > [22m[2m维度说明与首屏图形永远是首页主推的新测四维，不跟随本机装载的旧内容包
+[22m[39m[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+[90mstderr[2m | src/views/landingResume.spec.ts[2m > [22m[2m首页：继续上次没答完的测评（A51）[2m > [22m[2m退出登录后草稿入口必须消失（共用设备上不能留下别人的进度）
+[22m[39m[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+
+[90mstderr[2m | src/views/instrumentCopy.spec.ts[2m > [22m[2m首页的量表文案与抽象图形（LandingView.vue）[2m > [22m[2m维度说明与首屏图形永远是首页主推的新测四维，不跟随本机装载的旧内容包
+[22m[39m[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+ [32m✓[39m src/views/landingResume.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 2385[2mms[22m[39m
+   [33m[2m✓[22m[39m 首页：继续上次没答完的测评（A51）[2m > [22m未登录时不请求草稿列表，也不显示续答入口 [33m797[2mms[22m[39m
+   [33m[2m✓[22m[39m 首页：继续上次没答完的测评（A51）[2m > [22m有一份没答完的草稿时，主入口变成「继续」并指向那一份 [33m332[2mms[22m[39m
+[90mstderr[2m | src/views/instrumentCopy.spec.ts[2m > [22m[2m首页的量表文案与抽象图形（LandingView.vue）[2m > [22m[2m两个包都不出现「最准 / 权威 / 官方测评结果」这类红线词
+[22m[39m[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+[90mstderr[2m | src/views/instrumentCopy.spec.ts[2m > [22m[2m首页的量表文案与抽象图形（LandingView.vue）[2m > [22m[2m两个包都不出现「最准 / 权威 / 官方测评结果」这类红线词
+[22m[39m[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+[90mstderr[2m | src/views/instrumentCopy.spec.ts[2m > [22m[2m首页的量表文案与抽象图形（LandingView.vue）[2m > [22m[2m教学例子、价值三项与 FAQ 只讲首页主推新测的双极作答格式
+[22m[39m[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+ [32m✓[39m src/stores/assessmentV3.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 136[2mms[22m[39m
+[90mstderr[2m | src/views/instrumentCopy.spec.ts[2m > [22m[2m首页的量表文案与抽象图形（LandingView.vue）[2m > [22m[2m教学例子、价值三项与 FAQ 只讲首页主推新测的双极作答格式
+[22m[39m[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+ [32m✓[39m src/views/instrumentCopy.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 2140[2mms[22m[39m
+   [33m[2m✓[22m[39m 公共壳的量表文案（App.vue）[2m > [22m副标题与页脚署名跟着当前内容包走（四维 / 大五，各自不许串台） [33m944[2mms[22m[39m
+   [33m[2m✓[22m[39m 首页的量表文案与抽象图形（LandingView.vue）[2m > [22m维度说明与首屏图形永远是首页主推的新测四维，不跟随本机装载的旧内容包 [33m558[2mms[22m[39m
+ [32m✓[39m src/api/v3Export.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m src/stores/illustrationAssetsV3.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 51[2mms[22m[39m
+ [32m✓[39m src/api/v3RecoveryCodes.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 36[2mms[22m[39m
+[90mstderr[2m | src/views/accountExport.spec.ts[2m > [22m[2m账号页 · 导出完整性提示[2m > [22m[2m导出完整时：说「都在里面」，且不显示不完整警告，注销区也没有警告
+[22m[39mNot implemented: navigation to another Document
+
+ [32m✓[39m src/views/reportV3View.spec.ts [2m([22m[2m33 tests[22m[2m)[22m[33m 3170[2mms[22m[39m
+   [33m[2m✓[22m[39m 报告页：REFERENCE[2m > [22m渲染四字母 + 类型名 + 八段解读 [33m559[2mms[22m[39m
+[90mstderr[2m | src/views/accountExport.spec.ts[2m > [22m[2m账号页 · 导出完整性提示[2m > [22m[2m有段落没导出成功时：**不说**「都在里面」，明确说不是完整备份，并点名缺了什么
+[22m[39mNot implemented: navigation to another Document
+
+[90mstderr[2m | src/views/accountExport.spec.ts[2m > [22m[2m账号页 · 导出完整性提示[2m > [22m[2m导出不完整时，注销区也给出「先别注销」的最后一道提示
+[22m[39mNot implemented: navigation to another Document
+
+[90mstderr[2m | src/views/accountExport.spec.ts[2m > [22m[2m账号页 · 导出完整性提示[2m > [22m[2m认不出的段名原样显示，不能因为翻译不了就把警告吞掉
+[22m[39mNot implemented: navigation to another Document
+
+ [32m✓[39m src/views/accountExport.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 268[2mms[22m[39m
+[90mstderr[2m | src/views/views.spec.ts[2m > [22m[2m首页（产品方案 §3.1）[2m > [22m[2m首屏出现新主文案、说明与题数耗时
+[22m[39m[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+[90mstderr[2m | src/views/views.spec.ts[2m > [22m[2m首页（产品方案 §3.1）[2m > [22m[2m不计分的教学例子四条齐全，且不再承诺"测出真实类型"
+[22m[39m[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+[90mstderr[2m | src/views/views.spec.ts[2m > [22m[2m首页（产品方案 §3.1）[2m > [22m[2m结果示例卡明确标「示例」，并用 INFP 的原创描述名（不冒充用户已有结果）
+[22m[39m[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+[90mstderr[2m | src/views/views.spec.ts[2m > [22m[2m首页（产品方案 §3.1）[2m > [22m[2m「你会得到什么」三项标题与 FAQ 前三项都在首屏
+[22m[39m[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+[90mstderr[2m | src/views/views.spec.ts[2m > [22m[2m首页（产品方案 §3.1）[2m > [22m[2m后端不可用时依然渲染（首页走新测自己的内置口径，不装载旧内容包）
+[22m[39m[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+ [32m✓[39m src/components/formErrorNotice.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 175[2mms[22m[39m
+ [32m✓[39m src/utils/shareImage.spec.ts [2m([22m[2m45 tests[22m[2m)[22m[90m 112[2mms[22m[39m
+ [32m✓[39m src/content/fallback.spec.ts [2m([22m[2m34 tests[22m[2m)[22m[90m 129[2mms[22m[39m
+前端内置副本已是最新，无需改动
+  题库 32 题 / 类型文案 16 型 / 方法页 5 节 / 内容包 3 个（ipip50-zh1, oejts32-zh1-report2, oejts32-zh2-preview-r1） / contentVersion 2026-09-01
+ [32m✓[39m src/composables/useAdminProbe.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32m✓[39m src/domain/assessment.spec.ts [2m([22m[2m41 tests[22m[2m)[22m[90m 60[2mms[22m[39m
+ [32m✓[39m src/components/personalityGallery.spec.ts [2m([22m[2m3 tests[22m[2m)[22m[90m 250[2mms[22m[39m
+✓ 前端内置副本与后端 YAML 一致
+ [32m✓[39m src/content/consistency.spec.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 503[2mms[22m[39m
+   [33m[2m✓[22m[39m IM-1 生成脚本自身的守卫[2m > [22m生成脚本存在，且 --check 时报告产物与后端 YAML 完全一致 [33m404[2mms[22m[39m
+ [32m✓[39m src/domain/jung/thresholds.spec.ts [2m([22m[2m17 tests[22m[2m)[22m[90m 32[2mms[22m[39m
+ [32m✓[39m src/design/contrast.spec.ts [2m([22m[2m45 tests[22m[2m)[22m[90m 11[2mms[22m[39m
+ [32m✓[39m src/domain/assessmentPackage.spec.ts [2m([22m[2m29 tests[22m[2m)[22m[90m 34[2mms[22m[39m
+[90mstderr[2m | src/views/views.spec.ts[2m > [22m[2m答题页（产品方案 §3.2 / §3.3）[2m > [22m[2m内容包装载失败时给出错误态与重试入口（不白屏）
+[22m[39m[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+ [32m✓[39m src/domain/reportV3.spec.ts [2m([22m[2m40 tests[22m[2m)[22m[90m 22[2mms[22m[39m
+[90mstderr[2m | src/views/registerView.spec.ts[2m > [22m[2m注册页：免责声明同意项[2m > [22m[2m没有邀请码不能提交，并明确管理员可查看的范围
+[22m[39m[Vue warn]: Failed to resolve component: FormErrorNotice
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <RegisterView ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+[90mstderr[2m | src/views/registerView.spec.ts[2m > [22m[2m注册页：免责声明同意项[2m > [22m[2m默认不勾选：不能提交，且不会静默替用户同意
+[22m[39m[Vue warn]: Failed to resolve component: FormErrorNotice
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <RegisterView ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+[90mstderr[2m | src/views/registerView.spec.ts[2m > [22m[2m注册页：免责声明同意项[2m > [22m[2m勾选后提交，请求体里带着 disclaimerAccepted: true
+[22m[39m[Vue warn]: Failed to resolve component: FormErrorNotice
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <RegisterView ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+ [32m✓[39m src/domain/jung/scoring.fixture.spec.ts [2m([22m[2m178 tests[22m[2m)[22m[90m 30[2mms[22m[39m
+ [32m✓[39m src/domain/scoring.spec.ts [2m([22m[2m30 tests[22m[2m)[22m[33m 641[2mms[22m[39m
+   [33m[2m✓[22m[39m 区间不变量（随机 1000 组作答）[2m > [22m每维得分恒在 [8, 40] 且为整数，intensity ∈ [0, 100] [33m614[2mms[22m[39m
+[90mstderr[2m | src/views/registerView.spec.ts[2m > [22m[2m注册页：免责声明同意项[2m > [22m[2mlabel 是整句可点的，并且那句里有两个指向关于页的入口
+[22m[39m[Vue warn]: Failed to resolve component: FormErrorNotice
+If this is a native custom element, make sure to exclude it from component resolution via compilerOptions.isCustomElement. 
+  at <RegisterView ref="VTU_COMPONENT" > 
+  at <VTUROOT>
+
+ [32m✓[39m src/views/registerView.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 299[2mms[22m[39m
+ [32m✓[39m src/domain/jung/dynamics.spec.ts [2m([22m[2m94 tests[22m[2m)[22m[90m 28[2mms[22m[39m
+ [32m✓[39m src/domain/jung/snapshotThresholdCopy.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+[90mstderr[2m | src/api/v3Assessment.spec.ts[2m > [22m[2m请求形状[2m > [22m[2m409 被识别成"版本冲突"并读出服务端的最新 revision
+[22m[39m[typeme] 取 CSRF token 失败（GET /api/v3/auth/csrf 返回 409），且读不到 XSRF-TOKEN cookie；写操作可能会被服务端以 CSRF_INVALID 拒绝。
+
+ [32m✓[39m src/api/v3Assessment.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 23[2mms[22m[39m
+ [32m✓[39m src/stores/bigFiveV3.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 85[2mms[22m[39m
+ [32m✓[39m src/design/remoteImageUrl.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+[90mstderr[2m | src/stores/aiAnalysisV3.spec.ts[2m > [22m[2mAI 分析 store：归属与轮询清理[2m > [22m[2m列表读失败时如实留痕，并且不把"读不到"当成"没有分析"以外的东西
+[22m[39m[typeme] 未预期的前端错误： boom Error: boom
+    at [90mD:\develop\develop\code\TypeMe\frontend\[39msrc\stores\aiAnalysisV3.spec.ts:142:47
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:146:14
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:533:11
+    at runWithTimeout [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:39:7[90m)[39m
+    at runTest [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1056:17[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runFiles [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1262:5[90m)[39m
+    at startTests [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1271:3[90m)[39m
+
+ [32m✓[39m src/domain/jung/legacyScoring.closeout.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 9[2mms[22m[39m
+[90mstderr[2m | src/components/platformIntro.spec.ts[2m > [22m[2m多量表首页入口[2m > [22m[2m失败时能重试，空目录不编造测评卡片
+[22m[39m[typeme] 未预期的前端错误： offline Error: offline
+    at [90mD:\develop\develop\code\TypeMe\frontend\[39msrc\components\platformIntro.spec.ts:37:44
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:146:14
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:533:11
+    at runWithTimeout [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:39:7[90m)[39m
+    at runTest [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1056:17[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runFiles [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1262:5[90m)[39m
+    at startTests [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1271:3[90m)[39m
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+ [32m✓[39m src/stores/aiAnalysisV3.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 33[2mms[22m[39m
+ [32m✓[39m src/components/platformIntro.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 196[2mms[22m[39m
+ [32m✓[39m src/domain/clarity.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 4[2mms[22m[39m
+ [32m✓[39m src/stores/reportLoadingV3.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m src/domain/readingCompanion.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 12[2mms[22m[39m
+[90mstderr[2m | src/views/views.spec.ts[2m > [22m[2m分享（产品方案 §5.1 第 7 条 / 开发方案 §7.4）[2m > [22m[2m下载后提示「已发起下载」，不说「已保存到相册」
+[22m[39mNot implemented: navigation to another Document
+
+ [32m✓[39m src/design/illustrationAssets.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+[90mstderr[2m | src/views/views.spec.ts[2m > [22m[2m分享（产品方案 §5.1 第 7 条 / 开发方案 §7.4）[2m > [22m[2mcanvas 不可用时给出可复制文字的失败反馈，报告仍在
+[22m[39m[typeme] 生成分享图失败 Error: 当前浏览器不支持 canvas 2d，无法生成分享图
+    at renderShareCard [90m(D:\develop\develop\code\TypeMe\frontend\[39msrc\utils\shareImage.ts:448:19[90m)[39m
+    at Module.shareCardBlob [90m(D:\develop\develop\code\TypeMe\frontend\[39msrc\utils\shareImage.ts:460:18[90m)[39m
+    at generateShare [90m(D:\develop\develop\code\TypeMe\frontend\[39msrc\views\ResultView.vue:163:24[90m)[39m
+    at callWithErrorHandling [90m(D:\develop\develop\code\TypeMe\frontend\[39mnode_modules\[4m@vue\runtime-core[24m\dist\runtime-core.cjs.js:200:19[90m)[39m
+    at Object.callWithAsyncErrorHandling [90m(D:\develop\develop\code\TypeMe\frontend\[39mnode_modules\[4m@vue\runtime-core[24m\dist\runtime-core.cjs.js:207:17[90m)[39m
+    at HTMLButtonElement.invoker [90m(D:\develop\develop\code\TypeMe\frontend\[39mnode_modules\[4m@vue\runtime-dom[24m\dist\runtime-dom.cjs.js:707:19[90m)[39m
+    at HTMLButtonElement.callTheUserObjectsOperation [90m(D:\develop\develop\code\TypeMe\frontend\[39mnode_modules\[4mjsdom[24m\lib\generated\idl\EventListener.js:26:30[90m)[39m
+    at innerInvokeEventListeners [90m(D:\develop\develop\code\TypeMe\frontend\[39mnode_modules\[4mjsdom[24m\lib\jsdom\living\events\EventTarget-impl.js:360:16[90m)[39m
+    at invokeEventListeners [90m(D:\develop\develop\code\TypeMe\frontend\[39mnode_modules\[4mjsdom[24m\lib\jsdom\living\events\EventTarget-impl.js:296:3[90m)[39m
+    at HTMLButtonElementImpl._dispatch [90m(D:\develop\develop\code\TypeMe\frontend\[39mnode_modules\[4mjsdom[24m\lib\jsdom\living\events\EventTarget-impl.js:243:9[90m)[39m
+
+[90mstderr[2m | src/views/views.spec.ts[2m > [22m[2m分享（产品方案 §5.1 第 7 条 / 开发方案 §7.4）[2m > [22m[2mBlob 为空也按失败处理，不给用户一张空图
+[22m[39m[typeme] canvas.toBlob 返回空产物，降级为 dataURL 转换
+[typeme] 生成分享图失败 Error: 分享图生成失败：图片数据为空
+    at Module.shareCardBlob [90m(D:\develop\develop\code\TypeMe\frontend\[39msrc\utils\shareImage.ts:481:34[90m)[39m
+    at generateShare [90m(D:\develop\develop\code\TypeMe\frontend\[39msrc\views\ResultView.vue:163:18[90m)[39m
+
+[90mstderr[2m | src/views/views.spec.ts[2m > [22m[2m关于页（产品方案 §3 / §8）[2m > [22m[2m包含四个必需部分
+[22m[39m[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/views/views.spec.ts[2m > [22m[2m关于页（产品方案 §3 / §8）[2m > [22m[2m使用统一的隐私表达，不写「不存储任何数据」
+[22m[39m[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+[90mstderr[2m | src/views/views.spec.ts[2m > [22m[2m关于页（产品方案 §3 / §8）[2m > [22m[2m更早保存的作答只用人话说明：不会自动套用，且不出现 v1/v2/派生会话等术语
+[22m[39m[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+ [32m✓[39m src/views/views.spec.ts [2m([22m[2m68 tests[22m[2m)[22m[33m 4911[2mms[22m[39m
+   [33m[2m✓[22m[39m 答题页（产品方案 §3.2 / §3.3）[2m > [22m手机/PC 都必须手动点「下一题」才前进（没有自动跳题） [33m457[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m51 passed[39m[22m[90m (51)[39m
+[2m      Tests [22m [1m[32m1103 passed[39m[22m[90m (1103)[39m
+[2m   Start at [22m 17:23:56
+[2m   Duration [22m 24.95s[2m (transform 36.66s, setup 0ms, collect 101.24s, tests 27.46s, environment 196.28s, prepare 22.67s)[22m
+

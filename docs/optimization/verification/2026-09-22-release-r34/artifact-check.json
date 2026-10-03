@@ -1,0 +1,73 @@
+{
+  "jar": {
+    "path": "backend\\target\\typeme-backend-1.0.0.jar",
+    "bytes": 35997665,
+    "sha256": "9475273a2a4136293f59f2f649c266e13e6f122a1654dfb374c01d570c6bea13"
+  },
+  "java": "21.0.12.1",
+  "checks": [
+    {
+      "label": "jar 存在：typeme-backend-1.0.0.jar",
+      "passed": true,
+      "detail": "35997665 字节"
+    },
+    {
+      "label": "jar 里有 static/index.html",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "jar 里的 index.html 与 frontend/dist 同一个文件",
+      "passed": true,
+      "detail": "jar d5ddb6003d56 vs dist d5ddb6003d56"
+    },
+    {
+      "label": "jar 里有一份 index-*.js 与一份 index-*.css",
+      "passed": true,
+      "detail": "index-BlPyPWyL.js, index-CRL1UZfK.css"
+    },
+    {
+      "label": "index-BlPyPWyL.js：jar 内与 dist 内内容一致",
+      "passed": true,
+      "detail": "e28dd9683090"
+    },
+    {
+      "label": "index-CRL1UZfK.css：jar 内与 dist 内内容一致",
+      "passed": true,
+      "detail": "9f8444e0bd90"
+    },
+    {
+      "label": "静态产物里没有写死的远程图片地址",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "javap 能从 jar 里抽出的 class 反汇编出 ReportService",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "找到 submit 方法",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "submit 里能找到「写 clarification_skipped = 1」这条 ldc",
+      "passed": true,
+      "detail": "字节码偏移 983"
+    },
+    {
+      "label": "submit 里能找到 JungScorer.checkCoverage 的调用",
+      "passed": true,
+      "detail": "字节码偏移 171"
+    },
+    {
+      "label": "落库这条 ldc 出现在覆盖检查之后（A34 修法的顺序）",
+      "passed": true,
+      "detail": "ldc@983 > checkCoverage@171"
+    }
+  ],
+  "failures": [],
+  "passed": 12,
+  "total": 12
+}

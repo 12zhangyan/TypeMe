@@ -1,0 +1,29 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mD:/develop/develop/code/TypeMe/frontend[39m
+
+[90mstderr[2m | src/api/v3.spec.ts[2m > [22m[2m请求形状[2m > [22m[2m改密码是 POST /api/v3/me/password（不是 PATCH /me）
+[22m[39m[typeme] 取 CSRF token 失败（Unexpected end of JSON input），且读不到 XSRF-TOKEN cookie；写操作可能会被服务端以 CSRF_INVALID 拒绝。
+
+[90mstderr[2m | src/api/v3.spec.ts[2m > [22m[2m请求形状[2m > [22m[2m恢复密码是 POST /api/v3/auth/recover，且登录前就带这三个字段
+[22m[39m[typeme] 取 CSRF token 失败（Unexpected end of JSON input），且读不到 XSRF-TOKEN cookie；写操作可能会被服务端以 CSRF_INVALID 拒绝。
+
+[90mstderr[2m | src/api/v3.spec.ts[2m > [22m[2m错误映射：没登录 / 已登录但没权限，必须分开[2m > [22m[2m既不是 V3ApiError 也不是已知错误体时，走网络错误的兜底说明并保留 code
+[22m[39m[typeme] 未预期的前端错误： boom Error: boom
+    at [90mD:\develop\develop\code\TypeMe\frontend\[39msrc\api\v3.spec.ts:365:35
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:146:14
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:533:11
+    at runWithTimeout [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:39:7[90m)[39m
+    at runTest [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1056:17[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:104:5)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runFiles [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1262:5[90m)[39m
+    at startTests [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1271:3[90m)[39m
+
+ [32m✓[39m src/api/v3.spec.ts [2m([22m[2m28 tests[22m[2m)[22m[90m 62[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m28 passed[39m[22m[90m (28)[39m
+[2m   Start at [22m 17:23:48
+[2m   Duration [22m 3.29s[2m (transform 125ms, setup 0ms, collect 149ms, tests 62ms, environment 1.73s, prepare 230ms)[22m
+

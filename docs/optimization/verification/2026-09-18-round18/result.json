@@ -1,0 +1,31 @@
+{
+  "verdict": "PASS",
+  "passed": 34,
+  "failed": [],
+  "skipped": [],
+  "notes": [
+    "本轮在答题页实际点击了 2 次「下一题」",
+    "注入的 401 被 App 层的会话失效桥接管，用户被送到登录页并带 redirect —— 页面内的「登录状态已经失效」这一支因此看不见（只有组件测试覆盖）",
+    "会话已失效，顶栏不再渲染「退出」按钮，因此没有点真实退出（该路径由账号页测试覆盖）",
+    "第 6 节已在会话有效时验过 `/assess` 直链会新开一份草稿；会话失效后该路由会被守卫拦到登录页"
+  ],
+  "injected": [
+    "第 4 节：`POST /api/v3/attempts` 被 `route.fetch()` 重复发送两次",
+    "第 8 节：`GET /api/v3/admin/ai-settings` 被路由注入成 401 UNAUTHENTICATED"
+  ],
+  "screenshots": [
+    "390x844-home-no-draft.png",
+    "390x844-home-with-draft.png",
+    "390x844-assess-resumed.png",
+    "390x844-home-two-drafts.png",
+    "390x844-assess-direct.png",
+    "320x568-home-header.png",
+    "390x844-home-header.png",
+    "1440x900-home-header.png",
+    "390x844-admin-denied.png",
+    "390x844-admin-needs-login.png",
+    "390x844-home-after-session-loss.png"
+  ],
+  "username": "r18_31c794c2",
+  "base": "http://127.0.0.1:5175"
+}

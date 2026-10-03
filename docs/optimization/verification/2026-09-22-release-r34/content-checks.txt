@@ -1,0 +1,6 @@
+[gen-fallback-content] exit=0 :: ✓ 前端内置副本与后端 YAML 一致
+[rewrite-types-content] exit=0 :: ✓ types.yml 与内容数据源一致
+[check-type-duplication] exit=0 :: ✓ 无跨类型模板复用
+[convert-jung-content] exit=0 :: 内容包与 YAML 一致。
+[gen-jung-fixtures] exit=0 :: 夹具一致（3 份，sha256=96943e4bbc1e）
+[gen-platform-content] exit=0 :: ✓ .\backend\src\main\resources\content\bigfive50-zh-v1.json 与源一致

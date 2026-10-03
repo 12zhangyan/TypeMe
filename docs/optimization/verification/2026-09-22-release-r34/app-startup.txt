@@ -1,0 +1,80 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-09-22T17:09:58.830+08:00  INFO 33112 --- [typeme] [           main] com.typeme.TypeMeApplication             : Starting TypeMeApplication v1.0.0 using Java 21.0.12.1 with PID 33112 (D:\develop\develop\code\TypeMe\backend\target\typeme-backend-1.0.0.jar started by 22518 in D:\develop\develop\code\TypeMe)
+2026-09-22T17:09:58.833+08:00  INFO 33112 --- [typeme] [           main] com.typeme.TypeMeApplication             : No active profile set, falling back to 1 default profile: "default"
+2026-09-22T17:10:02.315+08:00  INFO 33112 --- [typeme] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8099 (http)
+2026-09-22T17:10:02.365+08:00  INFO 33112 --- [typeme] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-09-22T17:10:02.366+08:00  INFO 33112 --- [typeme] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.31]
+2026-09-22T17:10:02.474+08:00  INFO 33112 --- [typeme] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-09-22T17:10:02.491+08:00  INFO 33112 --- [typeme] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 3576 ms
+2026-09-22T17:10:03.429+08:00  INFO 33112 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-22T17:10:03.690+08:00  INFO 33112 --- [typeme] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@467ef400
+2026-09-22T17:10:03.694+08:00  INFO 33112 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-22T17:10:03.786+08:00  INFO 33112 --- [typeme] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:mysql://127.0.0.1:3306/typeme_r31_e2e (MySQL 8.4)
+2026-09-22T17:10:03.828+08:00  WARN 33112 --- [typeme] [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: MySQL 8.4 is newer than this version of Flyway and support has not been tested. The latest supported version of MySQL is 8.1.
+2026-09-22T17:10:03.903+08:00  INFO 33112 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table `typeme_r31_e2e`.`flyway_schema_history` does not exist yet
+2026-09-22T17:10:03.911+08:00  INFO 33112 --- [typeme] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 10 migrations (execution time 00:00.062s)
+2026-09-22T17:10:03.935+08:00  INFO 33112 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table `typeme_r31_e2e`.`flyway_schema_history` ...
+2026-09-22T17:10:04.030+08:00  INFO 33112 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema `typeme_r31_e2e`: << Empty Schema >>
+2026-09-22T17:10:04.059+08:00  INFO 33112 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `typeme_r31_e2e` to version "1 - account and session"
+2026-09-22T17:10:04.207+08:00  INFO 33112 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `typeme_r31_e2e` to version "2 - assessment content and attempt"
+2026-09-22T17:10:04.333+08:00  INFO 33112 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `typeme_r31_e2e` to version "3 - report and self reflection"
+2026-09-22T17:10:04.430+08:00  INFO 33112 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `typeme_r31_e2e` to version "4 - ai analysis"
+2026-09-22T17:10:04.554+08:00  INFO 33112 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `typeme_r31_e2e` to version "5 - idempotency and deletion"
+2026-09-22T17:10:04.695+08:00  INFO 33112 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `typeme_r31_e2e` to version "6 - admin and ai settings"
+2026-09-22T17:10:04.735+08:00  INFO 33112 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `typeme_r31_e2e` to version "7 - ai job user note"
+2026-09-22T17:10:04.771+08:00  INFO 33112 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `typeme_r31_e2e` to version "8 - widen credential hash"
+2026-09-22T17:10:04.815+08:00  INFO 33112 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `typeme_r31_e2e` to version "9 - invitations and user ai limit"
+2026-09-22T17:10:04.994+08:00  INFO 33112 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema `typeme_r31_e2e` to version "10 - illustration asset"
+2026-09-22T17:10:05.036+08:00  INFO 33112 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 10 migrations to schema `typeme_r31_e2e`, now at version v10 (execution time 00:00.730s)
+2026-09-22T17:10:05.457+08:00  INFO 33112 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 内容包指纹：939232e360a2…（typeme-jung48-zh-v1，与文件声明一致）
+2026-09-22T17:10:05.469+08:00  INFO 33112 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 内容包指纹：9e61f1459725…（typeme-jung48-zh-v2，与文件声明一致）
+2026-09-22T17:10:05.477+08:00  INFO 33112 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 内容包指纹：44fbb3d374f1…（typeme-jung48-zh-v3，与文件声明一致）
+2026-09-22T17:10:05.484+08:00  INFO 33112 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 内容包指纹：a5208fcd387c…（typeme-jung48-zh-v4，与文件声明一致）
+2026-09-22T17:10:05.512+08:00  INFO 33112 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测内容包已加载：{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-22T17:10:05.514+08:00  WARN 33112 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，没有信度/效度证据，不得对外宣传为已验证。（packageId=typeme-jung48-zh-v1）
+2026-09-22T17:10:05.514+08:00  INFO 33112 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测内容包已加载：{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-22T17:10:05.515+08:00  WARN 33112 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，没有信度/效度证据，不得对外宣传为已验证。（packageId=typeme-jung48-zh-v2）
+2026-09-22T17:10:05.515+08:00  INFO 33112 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测内容包已加载：{packageId=typeme-jung48-zh-v3, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v3, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=44fbb3d374f13772eb5ac1ffb69586a2a240e8977237f2c6c74a8ec17d770dd6, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-22T17:10:05.516+08:00  WARN 33112 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，没有信度/效度证据，不得对外宣传为已验证。（packageId=typeme-jung48-zh-v3）
+2026-09-22T17:10:05.516+08:00  INFO 33112 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测内容包已加载：{packageId=typeme-jung48-zh-v4, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v4, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=a5208fcd387c34d2c4907a0cc6eff3790782f47cf144a82de2fd71c3c423f103, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-22T17:10:05.516+08:00  WARN 33112 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : 新测题目与 16 型报告的审校状态是「内测待审校」：未做真人试读与试测，没有信度/效度证据，不得对外宣传为已验证。（packageId=typeme-jung48-zh-v4）
+2026-09-22T17:10:05.551+08:00  INFO 33112 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : 大五内容包指纹：47a09253ce7a…（typeme-bigfive50-zh-v1，与文件声明一致）
+2026-09-22T17:10:05.551+08:00  INFO 33112 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : 大五内容包已加载：{packageId=typeme-bigfive50-zh-v1, instrumentId=ipip50, scoringVersion=ipip-bfm50-1.0, reportContentVersion=typeme-bigfive-report-zh-v1, contentStatus=draft_review_pending, sha256=47a09253ce7a9ed914f731aa9917ab14f2a3291fb0411fe470fa10a061beda59, itemCount=50, itemsPerDimension={E=10, A=10, C=10, ES=10, O=10}}
+2026-09-22T17:10:05.552+08:00  WARN 33112 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : 大五题目与解释的审校状态是「draft_review_pending」：中文题面未做真人试读与试测，没有信度/效度证据，也不代表已与常模比对。（packageId=typeme-bigfive50-zh-v1）
+2026-09-22T17:10:05.556+08:00  INFO 33112 --- [typeme] [           main] c.t.platform.catalog.AssessmentCatalog   : 量表目录登记：slug=jung48 名称=十六型人格参考测评 默认版本=typeme-jung48-zh-v4 主测题数=48 补充题上限=16
+2026-09-22T17:10:05.556+08:00  INFO 33112 --- [typeme] [           main] c.t.platform.catalog.AssessmentCatalog   : 量表目录登记：slug=bigfive50 名称=大五人格倾向测评 默认版本=typeme-bigfive50-zh-v1 主测题数=50 补充题上限=0
+2026-09-22T17:10:06.291+08:00  INFO 33112 --- [typeme] [           main] com.typeme.service.ContentService        : 内容包加载并校验通过: packageId=ipip50-zh1 questions=50 status=draft
+2026-09-22T17:10:06.304+08:00  INFO 33112 --- [typeme] [           main] com.typeme.service.ContentService        : 内容包加载并校验通过: packageId=oejts32-zh1-report2 questions=32 status=draft
+2026-09-22T17:10:06.317+08:00  INFO 33112 --- [typeme] [           main] com.typeme.service.ContentService        : 内容包加载并校验通过: packageId=oejts32-zh2-preview-r1 questions=32 status=draft
+2026-09-22T17:10:06.320+08:00  INFO 33112 --- [typeme] [           main] com.typeme.service.ContentService        : 题库加载并校验通过: version=quick questions=32 sha256=83c112bdfb43fa62e942402adf963c90cc0d18e6b3a21aaf7033161b6f5cf754
+2026-09-22T17:10:06.321+08:00  INFO 33112 --- [typeme] [           main] com.typeme.service.ContentService        : 方法说明页加载并校验通过: sections=5 license=CC BY-NC-SA 4.0
+2026-09-22T17:10:06.321+08:00  INFO 33112 --- [typeme] [           main] com.typeme.service.ContentService        : 类型文案加载并校验通过: types=16
+2026-09-22T17:10:06.478+08:00  INFO 33112 --- [typeme] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name typemeUserDetailsService
+2026-09-22T17:10:06.564+08:00  INFO 33112 --- [typeme] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-09-22T17:10:07.109+08:00  INFO 33112 --- [typeme] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-09-22T17:10:07.961+08:00  INFO 33112 --- [typeme] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8099 (http) with context path '/'
+2026-09-22T17:10:07.981+08:00  INFO 33112 --- [typeme] [           main] com.typeme.TypeMeApplication             : Started TypeMeApplication in 9.81 seconds (process running for 10.652)
+2026-09-22T17:10:08.125+08:00  INFO 33112 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-jung48-zh-v1 sha256=939232e360a2… 审校状态=draft_review_pending 内容字节数=28168
+2026-09-22T17:10:08.137+08:00  INFO 33112 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-jung48-zh-v2 sha256=9e61f1459725… 审校状态=draft_review_pending 内容字节数=28179
+2026-09-22T17:10:08.148+08:00  INFO 33112 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-jung48-zh-v3 sha256=44fbb3d374f1… 审校状态=draft_review_pending 内容字节数=28179
+2026-09-22T17:10:08.158+08:00  INFO 33112 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-jung48-zh-v4 sha256=a5208fcd387c… 审校状态=draft_review_pending 内容字节数=28178
+2026-09-22T17:10:08.168+08:00  INFO 33112 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : 内容包已落库：packageId=typeme-bigfive50-zh-v1 sha256=47a09253ce7a… 审校状态=draft_review_pending 内容字节数=22615
+2026-09-22T17:10:08.175+08:00  WARN 33112 --- [typeme] [           main] c.t.a.service.AdminBootstrapService      : typeme.security.settings-secret 未配置：后台可查看 AI 设置，但无法保存 apiKey（将返回 503）
+2026-09-22T17:10:08.177+08:00  INFO 33112 --- [typeme] [           main] c.t.ai.config.AiRuntimeSettingsProvider  : AI 设置已加载：enabled=false, model=deepseek-flash, apiKeySource=none, mockMode=false, baseUrl=https://api.deepseek.com
+2026-09-22T17:16:14.330+08:00  INFO 33112 --- [typeme] [0.1-8099-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-22T17:16:14.331+08:00  INFO 33112 --- [typeme] [0.1-8099-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-22T17:16:14.333+08:00  INFO 33112 --- [typeme] [0.1-8099-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-09-22T17:16:14.656+08:00  INFO 33112 --- [typeme] [0.1-8099-exec-4] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-22T17:16:15.222+08:00  INFO 33112 --- [typeme] [0.1-8099-exec-4] c.typeme.account.service.AccountService  : account registered
+2026-09-22T17:16:26.035+08:00  INFO 33112 --- [typeme] [.1-8099-exec-10] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-22T17:16:26.491+08:00  INFO 33112 --- [typeme] [.1-8099-exec-10] c.typeme.account.service.AccountService  : account registered
+2026-09-22T17:16:26.552+08:00  WARN 33112 --- [typeme] [0.1-8099-exec-1] c.typeme.common.GlobalExceptionHandler   : api-error code=FORBIDDEN status=403 requestId=43bd35f2-1f9d-42b5-b53e-4d856cffacf6

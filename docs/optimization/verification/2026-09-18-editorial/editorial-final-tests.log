@@ -1,0 +1,121 @@
+
+ RUN  v2.1.9 D:/develop/develop/code/TypeMe/frontend
+
+ ✓ src/design/contrast.spec.ts (45 tests) 9ms
+stderr | src/views/assessView.spec.ts > 答题页：手动下一题 > 选一档之后仍停在同一题（没有任何自动跳题）
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：手动下一题 > 手动点「下一题」才前进，并记住当前位置
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：手动下一题 > 未作答时点「下一题」给可见提示且不前进
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：手动下一题 > 每一题都能看到键盘与五档说明，且五档文案与契约一致
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：unknown 与「未作答」是两件事 > 未作答时显示"还没有作答"
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：unknown 与「未作答」是两件事 > 标「这题我说不好」之后显示已作答案，并且不会被当成未作答
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：unknown 与「未作答」是两件事 > 标了 unknown 之后点「下一题」可以前进（unknown 算处理过）
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：unknown 与「未作答」是两件事 > unknownown 可以被数字答案替换
+[Vue Router warn]: No match found for location with path "/reports"
+
+ ✓ src/views/bigFiveAssessView.spec.ts (8 tests) 522ms
+stderr | src/views/assessView.spec.ts > 答题页：409 冲突走"重新拉取"，不静默覆盖 > 409 之后显示冲突提示，并且**不再发出任何写入**
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：409 冲突走"重新拉取"，不静默覆盖 > 点「载入最新进度」重新拉取，并以服务端 revision 继续
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：409 冲突走"重新拉取"，不静默覆盖 > 冲突横幅要说清丢的是哪一题、自己选了什么（否则用户没法核对）
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：409 冲突走"重新拉取"，不静默覆盖 > 「这题我说不好」被丢弃时也如实列出，不显示成空白档位
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：覆盖不足时说明还差哪几维 > 提交返回 NEEDS_REVIEW 时列出未达标的维度与人话原因
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：覆盖不足时说明还差哪几维 > 点「回到题目继续调整」真的能回到题卡（不是一条死路）
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：补充题阶段必须留有出口 > 点了「开始补充题」之后，仍能回到主测改答
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：补充题阶段必须留有出口 > 补充阶段也能跳过并直接交卷
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：会话在作答过程中失效 > 载入时 401：给出「去登录」而不是一个必然失败的「重试」
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：会话在作答过程中失效 > 保存时 401：给的是「登录后接着答」，而不是「重试保存」
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：会话在作答过程中失效 > 测评在服务端已不存在（404）：给「重新开始一次」而不是只有一个重试
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：会话在作答过程中失效 > 内容包已下线（409 PACKAGE_UNAVAILABLE）：如实说明原因，并给出重新开始的路
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：保存失败不能被下一次成功掩盖 > 第一条保存失败后再答一条：不许中途显示「已保存」，恢复时要把它补发上去
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：保存失败不能被下一次成功掩盖 > 「重试保存」能把未写上去的作答补上，补上之后状态回到「已保存」
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：保存失败不能被下一次成功掩盖 > 保存失败提示里说清有几题没写上去
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：本地预览只是"粗略倾向" > 预览区明确写出它不是结论
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：本地预览只是"粗略倾向" > 保存状态有三态文案，初始是"还没有需要保存的内容"
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：键盘 > 数字键 1–5 直接作答，且同样不自动跳题
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：键盘 > 数字键 1–5 直接作答，且同样不自动跳题
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：键盘 > 方向键切换题目
+[Vue Router warn]: No match found for location with path "/reports"
+
+ ✓ src/views/reportV3View.spec.ts (29 tests) 1213ms
+stderr | src/views/assessView.spec.ts > 答题页：断点续答 > 进入时恢复服务端记下的位置与已答
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：断点续答 > 服务端的指针停在已答过的题上时，刷新落到第一道未作答，而不是回退到那道题
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：断点续答 > 主测全部答完时，才回到服务端记下的那一题（用于回看）
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：快速操作不会制造假冲突 > 在途期间的第二次点击不会另发一个 PATCH，也不会被说成"另一台设备改过"
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：快速操作不会制造假冲突 > 自己的写入已落地却回了 409：按"已保存"收敛，不弹「另一台设备」横幅
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：快速操作不会制造假冲突 > 服务端存的东西与本机不一致时，仍然按真冲突处理（不能把真冲突说成已保存）
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：交卷响应丢失也要能到报告 > 交卷响应丢失后发现其实已提交：直接带到那份报告
+[Vue Router warn]: No match found for location with path "/reports"
+
+stderr | src/views/assessView.spec.ts > 答题页：交卷响应丢失也要能到报告 > 带着一份已交卷的测评刷新答题页：自动打开那份报告，而不是停在一堆答完的题上
+[Vue Router warn]: No match found for location with path "/reports"
+
+ ✓ src/views/assessView.spec.ts (35 tests) 1433ms
+
+ Test Files  4 passed (4)
+      Tests  117 passed (117)
+   Start at  14:44:06
+   Duration  8.51s (transform 2.83s, setup 0ms, collect 5.34s, tests 3.18s, environment 10.26s, prepare 1.67s)
+

@@ -358,12 +358,21 @@ worker 分事务删除报告/答案/attempt/AI/恢复码/幂等记录/配额 →
 | 方法 路径 | 请求 | 响应 |
 |---|---|---|
 | `GET /auth/csrf` | — | `200 {token, headerName:"X-XSRF-TOKEN", parameterName:"_csrf"}`；`no-store` |
-| `POST /auth/register` | `{username, password, nickname?}` | `201 {userId, username, nickname, recoveryCodes:[8 个字符串], recoveryCodePolicyVersion}`；`no-store` |
+| `POST /auth/register` | `{username, password, nickname?, disclaimerAccepted}` | `201 {userId, username, nickname, recoveryCodes:[8 个字符串], recoveryCodePolicyVersion}`；`no-store` |
 | `POST /auth/login` | `{username, password}` | `200 {userId, username, nickname}`；**轮换会话 ID** |
 | `POST /auth/logout` | — | `204`；撤销当前会话 |
 | `POST /auth/recover` | `{username, recoveryCode, newPassword}` | `204`；消费恢复码 + 改密 + 撤销该用户全部会话 + 作废其余恢复码 |
 
 - 注册成功后**立即建立会话**（用户不用再登录一次），同时返回恢复码。
+- `disclaimerAccepted`（**2026-09-17 新增**）：注册页「我已阅读并理解」勾选框的状态。
+  这是**对现有请求体的一处收紧** —— 缺省或 `false` 会返回
+  `400 VALIDATION_FAILED`，错误体带字段名 `disclaimerAccepted`（前端翻成「免责声明同意」）。
+  为什么放在注册这一步：账号一建立，作答内容就开始存到服务器上，这件事必须先被告知并同意；
+  报告页的「这不是心理诊断」解决的是另一件事，两者不互相替代。
+  需要灰度放量（让旧客户端先跑）时可配 `typeme.auth.disclaimer-required=false` 关掉校验；
+  关闭时服务端只是不拦，前端仍显示勾选项，**不会**假装用户同意过。
+  `disclaimerAccepted` 为 `true` 时记一条 `log.info`（只有事件名，不带用户名、IP 等任何标识），
+  便于日后回答"当时的同意有没有留下痕迹"。
 - 恢复码格式：**16 个字符，显示为 4 段，每段 4 位**，即 `XXXX-XXXX-XXXX-XXXX`
   （大写 base32 字母表，去掉易混字符 `0O1IL`）。一段 4 位而不是 8 位是为了让人抄写时
   每 4 位一断、报读时不容易串行。熵约 16 × log2(32) ≈ 80 位，配合服务端限流足够抗在线枚举。
@@ -434,7 +443,7 @@ worker 分事务删除报告/答案/attempt/AI/恢复码/幂等记录/配额 →
 | `GET /reports/{id}` | — | `200 report_json` + `attemptId`、`selfReflection`；历史报告**读快照不重算** |
 | `PUT /reports/{id}/self-reflection` | `{selfSelectedTypeCode?, note?}` | `200 {selfSelectedTypeCode, note, updatedAt}`；不改 `report_json` |
 | `DELETE /reports/{id}` | — | `204`；删报告 + 其 attempt + 答案 + AI 任务 + 同意记录 + 自我理解 |
-| `GET /reports/compare?ids=a,b` | — | `200 {reports:[...], differences:[{dimension, fromPole, toPole, fromMFinal, toMFinal}], samePackage:boolean}`；不同 `packageId` 只并列不计算成长 |
+| `GET /reports/compare?ids=a,b` | — | `200 {reports:[...], differences:[{dimension, fromPole, toPole, fromMFinal, toMFinal, changed}], samePackage:boolean, notes:[...]}`；不同 `packageId` 只并列不计算成长 |
 
 #### AI
 

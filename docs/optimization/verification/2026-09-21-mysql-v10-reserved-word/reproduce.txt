@@ -1,0 +1,33 @@
+# 摘录：修复前跑三类真实 MySQL IT（MySQL 8.4.0，root@127.0.0.1:3306）
+# 命令：mvn test -Dtest=AccountSqlDialectMySqlIT,AiSqlDialectMySqlIT,ConcurrencyMySqlIT
+
+[ERROR] Tests run: 4, Failures: 0, Errors: 4, Skipped: 0, Time elapsed: 5.034 s <<< FAILURE! -- in com.typeme.account.AccountSqlDialectMySqlIT
+[ERROR] com.typeme.account.AccountSqlDialectMySqlIT.rateLimitCountingIsCorrectOnRealMySql -- Time elapsed: 2.004 s <<< ERROR!
+Migration V10__illustration_asset.sql failed
+Error Code : 1064
+Message    : You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'release    VARCHAR(32)  NOT NULL,
+	at com.typeme.account.AccountSqlDialectMySqlIT.withTempDatabase(AccountSqlDialectMySqlIT.java:110)
+	at com.typeme.account.AccountSqlDialectMySqlIT.rateLimitCountingIsCorrectOnRealMySql(AccountSqlDialectMySqlIT.java:189)
+Caused by: org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException: Migration V10__illustration_asset.sql failed
+Error Code : 1064
+Message    : You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'release    VARCHAR(32)  NOT NULL,
+[ERROR] com.typeme.account.AccountSqlDialectMySqlIT.reportUniquenessHoldsOnRealMySql -- Time elapsed: 1.086 s <<< ERROR!
+Migration V10__illustration_asset.sql failed
+Error Code : 1064
+Message    : You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'release    VARCHAR(32)  NOT NULL,
+	at com.typeme.account.AccountSqlDialectMySqlIT.withTempDatabase(AccountSqlDialectMySqlIT.java:110)
+	at com.typeme.account.AccountSqlDialectMySqlIT.reportUniquenessHoldsOnRealMySql(AccountSqlDialectMySqlIT.java:307)
+Caused by: org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException: Migration V10__illustration_asset.sql failed
+Error Code : 1064
+Message    : You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'release    VARCHAR(32)  NOT NULL,
+[ERROR] com.typeme.account.AccountSqlDialectMySqlIT.enumCheckConstraintsAreCaseSensitiveOnRealMySql -- Time elapsed: 0.985 s <<< ERROR!
+Migration V10__illustration_asset.sql failed
+Error Code : 1064
+Message    : You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'release    VARCHAR(32)  NOT NULL,
+	at com.typeme.account.AccountSqlDialectMySqlIT.withTempDatabase(AccountSqlDialectMySqlIT.java:110)
+	at com.typeme.account.AccountSqlDialectMySqlIT.enumCheckConstraintsAreCaseSensitiveOnRealMySql(AccountSqlDialectMySqlIT.java:236)
+Caused by: org.flywaydb.core.internal.sqlscript.FlywaySqlScriptException: Migration V10__illustration_asset.sql failed
+Error Code : 1064
+Message    : You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'release    VARCHAR(32)  NOT NULL,
+[ERROR] com.typeme.account.AccountSqlDialectMySqlIT.recoveryCodeConsumeIsAtomicOnRealMySql -- Time elapsed: 0.920 s <<< ERROR!
+Migration V10__illustration_asset.sql failed

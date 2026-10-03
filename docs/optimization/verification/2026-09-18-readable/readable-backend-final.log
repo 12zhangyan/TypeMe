@@ -1,0 +1,402 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.typeme:typeme-backend >----------------------
+[INFO] Building typeme-backend 1.0.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ typeme-backend ---
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] Copying 25 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:copy-resources (copy-frontend-dist) @ typeme-backend ---
+[INFO] Copying 3 resources from ..\frontend\dist to target\classes\static
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ typeme-backend ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 174 source files with javac [debug parameters release 21] to target\classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ typeme-backend ---
+[INFO] Copying 6 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ typeme-backend ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 58 source files with javac [debug parameters release 21] to target\test-classes
+[INFO] /D:/develop/develop/code/TypeMe/backend/src/test/java/com/typeme/jung/service/JungReportSchemaTest.java: D:\develop\develop\code\TypeMe\backend\src\test\java\com\typeme\jung\service\JungReportSchemaTest.javaʹ�û򸲸����ѹ�ʱ�� API��
+[INFO] /D:/develop/develop/code/TypeMe/backend/src/test/java/com/typeme/jung/service/JungReportSchemaTest.java: �й���ϸ��Ϣ, ��ʹ�� -Xlint:deprecation ���±��롣
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.2.5:test (default-test) @ typeme-backend ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.typeme.account.AdminApiIT
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-09-18T14:01:45.332+08:00  INFO 39504 --- [typeme] [           main] com.typeme.account.AdminApiIT            : Starting AdminApiIT using Java 21.0.12.1 with PID 39504 (started by 22518 in D:\develop\develop\code\TypeMe\backend)
+2026-09-18T14:01:45.335+08:00  INFO 39504 --- [typeme] [           main] com.typeme.account.AdminApiIT            : No active profile set, falling back to 1 default profile: "default"
+2026-09-18T14:01:48.470+08:00  INFO 39504 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-18T14:01:48.794+08:00  INFO 39504 --- [typeme] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:typeme_adminapiit_610ae441c6cc user=SA
+2026-09-18T14:01:48.798+08:00  INFO 39504 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-18T14:01:48.894+08:00  INFO 39504 --- [typeme] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:typeme_adminapiit_610ae441c6cc (H2 2.2)
+2026-09-18T14:01:48.907+08:00  WARN 39504 --- [typeme] [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.2.224 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.220.
+2026-09-18T14:01:48.966+08:00  INFO 39504 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-09-18T14:01:48.971+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.042s)
+2026-09-18T14:01:48.982+08:00  INFO 39504 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-09-18T14:01:49.037+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-09-18T14:01:49.055+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - account and session"
+2026-09-18T14:01:49.095+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - assessment content and attempt"
+2026-09-18T14:01:49.119+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - report and self reflection"
+2026-09-18T14:01:49.140+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - ai analysis"
+2026-09-18T14:01:49.155+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - idempotency and deletion"
+2026-09-18T14:01:49.167+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - admin and ai settings"
+2026-09-18T14:01:49.178+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - ai job user note"
+2026-09-18T14:01:49.195+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - widen credential hash"
+2026-09-18T14:01:49.210+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 8 migrations to schema "public", now at version v8 (execution time 00:00.086s)
+2026-09-18T14:01:50.782+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : ���ݰ����ز�У��ͨ��: packageId=ipip50-zh1 questions=50 status=draft
+2026-09-18T14:01:50.793+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : ���ݰ����ز�У��ͨ��: packageId=oejts32-zh1-report2 questions=32 status=draft
+2026-09-18T14:01:50.806+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : ���ݰ����ز�У��ͨ��: packageId=oejts32-zh2-preview-r1 questions=32 status=draft
+2026-09-18T14:01:50.809+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : �����ز�У��ͨ��: version=quick questions=32 sha256=83c112bdfb43fa62e942402adf963c90cc0d18e6b3a21aaf7033161b6f5cf754
+2026-09-18T14:01:50.809+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : ����˵��ҳ���ز�У��ͨ��: sections=5 license=CC BY-NC-SA 4.0
+2026-09-18T14:01:50.810+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : �����İ����ز�У��ͨ��: types=16
+2026-09-18T14:01:50.902+08:00  INFO 39504 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : �������ݰ�ָ�ƣ�47a09253ce7a����typeme-bigfive50-zh-v1�����ļ�����һ�£�
+2026-09-18T14:01:50.903+08:00  INFO 39504 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : �������ݰ��Ѽ��أ�{packageId=typeme-bigfive50-zh-v1, instrumentId=ipip50, scoringVersion=ipip-bfm50-1.0, reportContentVersion=typeme-bigfive-report-zh-v1, contentStatus=draft_review_pending, sha256=47a09253ce7a9ed914f731aa9917ab14f2a3291fb0411fe470fa10a061beda59, itemCount=50, itemsPerDimension={E=10, A=10, C=10, ES=10, O=10}}
+2026-09-18T14:01:50.904+08:00  WARN 39504 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : ������Ŀ����͵���У״̬�ǡ�draft_review_pending������������δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ�Ҳ���������볣ģ�ȶԡ���packageId=typeme-bigfive50-zh-v1��
+2026-09-18T14:01:50.959+08:00  INFO 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T14:01:50.966+08:00  INFO 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T14:01:50.996+08:00  INFO 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T14:01:50.996+08:00  WARN 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T14:01:50.996+08:00  INFO 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T14:01:50.997+08:00  WARN 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T14:01:51.049+08:00  INFO 39504 --- [typeme] [           main] c.t.platform.catalog.AssessmentCatalog   : ����Ŀ¼�Ǽǣ�slug=jung48 ����=ʮ�����˸�ο����� Ĭ�ϰ汾=typeme-jung48-zh-v1 ��������=48 ����������=16
+2026-09-18T14:01:51.050+08:00  INFO 39504 --- [typeme] [           main] c.t.platform.catalog.AssessmentCatalog   : ����Ŀ¼�Ǽǣ�slug=bigfive50 ����=�����˸�������� Ĭ�ϰ汾=typeme-bigfive50-zh-v1 ��������=50 ����������=0
+2026-09-18T14:01:51.216+08:00  INFO 39504 --- [typeme] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name typemeUserDetailsService
+2026-09-18T14:01:51.458+08:00  INFO 39504 --- [typeme] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-09-18T14:01:52.099+08:00  INFO 39504 --- [typeme] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-09-18T14:01:52.946+08:00  INFO 39504 --- [typeme] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:52.947+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:52.948+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T14:01:53.025+08:00  INFO 39504 --- [typeme] [           main] com.typeme.account.AdminApiIT            : Started AdminApiIT in 8.21 seconds (process running for 9.75)
+2026-09-18T14:01:53.132+08:00  INFO 39504 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : ���ݰ�����⣺packageId=typeme-jung48-zh-v1 sha256=939232e360a2�� ��У״̬=draft_review_pending �����ֽ���=28168
+2026-09-18T14:01:53.134+08:00  INFO 39504 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : ���ݰ�����⣺packageId=typeme-jung48-zh-v2 sha256=9e61f1459725�� ��У״̬=draft_review_pending �����ֽ���=28179
+2026-09-18T14:01:53.137+08:00  INFO 39504 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : ���ݰ�����⣺packageId=typeme-bigfive50-zh-v1 sha256=47a09253ce7a�� ��У״̬=draft_review_pending �����ֽ���=22615
+2026-09-18T14:01:53.139+08:00  INFO 39504 --- [typeme] [           main] c.t.ai.config.AiRuntimeSettingsProvider  : AI �����Ѽ��أ�enabled=false, model=deepseek-flash, apiKeySource=none, mockMode=false, baseUrl=https://api.deepseek.com
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (D:\develop\maven\mavenpom\net\bytebuddy\byte-buddy-agent\1.14.19\byte-buddy-agent-1.14.19.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+2026-09-18T14:01:56.139+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-18T14:01:56.174+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-18T14:01:56.215+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-18T14:01:56.224+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-18T14:01:56.335+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : login succeeded
+2026-09-18T14:01:56.384+08:00  WARN 39504 --- [typeme] [           main] c.typeme.common.GlobalExceptionHandler   : api-error code=VALIDATION_FAILED status=400 requestId=4343c7f7-373c-4405-93b5-af0e0b303ba2
+2026-09-18T14:01:56.396+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : all sessions revoked rows=1 live=1
+2026-09-18T14:01:56.441+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-18T14:01:56.449+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-18T14:01:56.462+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-18T14:01:56.466+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-18T14:01:56.482+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-18T14:01:56.487+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-18T14:01:56.499+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : login succeeded
+2026-09-18T14:01:56.513+08:00  WARN 39504 --- [typeme] [           main] c.typeme.common.GlobalExceptionHandler   : api-error code=VALIDATION_FAILED status=400 requestId=9a4b243b-15b1-4434-93eb-adc65638d664
+2026-09-18T14:01:56.528+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-18T14:01:56.532+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-18T14:01:56.539+08:00  WARN 39504 --- [typeme] [           main] c.typeme.common.GlobalExceptionHandler   : api-error code=FORBIDDEN status=403 requestId=ae599bc5-46bd-471a-863e-0329f0646738
+2026-09-18T14:01:56.546+08:00  WARN 39504 --- [typeme] [           main] c.typeme.common.GlobalExceptionHandler   : api-error code=FORBIDDEN status=403 requestId=b379d623-a8c8-4fc1-99eb-4c41ecd472de
+2026-09-18T14:01:56.568+08:00  WARN 39504 --- [typeme] [           main] c.typeme.common.GlobalExceptionHandler   : api-error code=FORBIDDEN status=403 requestId=da59e2ee-f394-495f-afaa-ed5bc3838778
+2026-09-18T14:01:56.580+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-18T14:01:56.586+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-18T14:01:56.594+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-18T14:01:56.599+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-18T14:01:56.609+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : login succeeded
+2026-09-18T14:01:56.635+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-18T14:01:56.640+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-18T14:01:56.649+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-18T14:01:56.653+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-18T14:01:56.664+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : login succeeded
+2026-09-18T14:01:56.687+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-18T14:01:56.691+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-18T14:01:56.706+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : login succeeded
+2026-09-18T14:01:56.726+08:00  INFO 39504 --- [typeme] [           main] c.t.account.service.AiSettingsService    : ai api key updated by admin fingerprint=4db82c31
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.57 s -- in com.typeme.account.AdminApiIT
+[INFO] Running com.typeme.account.AiSettingsSecretMissingIT
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-09-18T14:01:56.824+08:00  INFO 39504 --- [typeme] [           main] c.t.account.AiSettingsSecretMissingIT    : Starting AiSettingsSecretMissingIT using Java 21.0.12.1 with PID 39504 (started by 22518 in D:\develop\develop\code\TypeMe\backend)
+2026-09-18T14:01:56.825+08:00  INFO 39504 --- [typeme] [           main] c.t.account.AiSettingsSecretMissingIT    : No active profile set, falling back to 1 default profile: "default"
+2026-09-18T14:01:57.624+08:00  INFO 39504 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-09-18T14:01:57.627+08:00  INFO 39504 --- [typeme] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection conn10: url=jdbc:h2:mem:typeme_aisettingssecretmissingit_610ae441c6cc user=SA
+2026-09-18T14:01:57.628+08:00  INFO 39504 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-09-18T14:01:57.630+08:00  INFO 39504 --- [typeme] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:typeme_aisettingssecretmissingit_610ae441c6cc (H2 2.2)
+2026-09-18T14:01:57.631+08:00  WARN 39504 --- [typeme] [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.2.224 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.220.
+2026-09-18T14:01:57.640+08:00  INFO 39504 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-09-18T14:01:57.641+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.009s)
+2026-09-18T14:01:57.643+08:00  INFO 39504 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-09-18T14:01:57.648+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-09-18T14:01:57.656+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - account and session"
+2026-09-18T14:01:57.669+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - assessment content and attempt"
+2026-09-18T14:01:57.680+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - report and self reflection"
+2026-09-18T14:01:57.690+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - ai analysis"
+2026-09-18T14:01:57.703+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - idempotency and deletion"
+2026-09-18T14:01:57.712+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - admin and ai settings"
+2026-09-18T14:01:57.716+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - ai job user note"
+2026-09-18T14:01:57.723+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - widen credential hash"
+2026-09-18T14:01:57.726+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 8 migrations to schema "public", now at version v8 (execution time 00:00.035s)
+2026-09-18T14:01:57.865+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : ���ݰ����ز�У��ͨ��: packageId=ipip50-zh1 questions=50 status=draft
+2026-09-18T14:01:57.872+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : ���ݰ����ز�У��ͨ��: packageId=oejts32-zh1-report2 questions=32 status=draft
+2026-09-18T14:01:57.878+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : ���ݰ����ز�У��ͨ��: packageId=oejts32-zh2-preview-r1 questions=32 status=draft
+2026-09-18T14:01:57.879+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : �����ز�У��ͨ��: version=quick questions=32 sha256=83c112bdfb43fa62e942402adf963c90cc0d18e6b3a21aaf7033161b6f5cf754
+2026-09-18T14:01:57.879+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : ����˵��ҳ���ز�У��ͨ��: sections=5 license=CC BY-NC-SA 4.0
+2026-09-18T14:01:57.879+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : �����İ����ز�У��ͨ��: types=16
+2026-09-18T14:01:57.892+08:00  INFO 39504 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : �������ݰ�ָ�ƣ�47a09253ce7a����typeme-bigfive50-zh-v1�����ļ�����һ�£�
+2026-09-18T14:01:57.892+08:00  INFO 39504 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : �������ݰ��Ѽ��أ�{packageId=typeme-bigfive50-zh-v1, instrumentId=ipip50, scoringVersion=ipip-bfm50-1.0, reportContentVersion=typeme-bigfive-report-zh-v1, contentStatus=draft_review_pending, sha256=47a09253ce7a9ed914f731aa9917ab14f2a3291fb0411fe470fa10a061beda59, itemCount=50, itemsPerDimension={E=10, A=10, C=10, ES=10, O=10}}
+2026-09-18T14:01:57.892+08:00  WARN 39504 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : ������Ŀ����͵���У״̬�ǡ�draft_review_pending������������δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ�Ҳ���������볣ģ�ȶԡ���packageId=typeme-bigfive50-zh-v1��
+2026-09-18T14:01:57.903+08:00  INFO 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T14:01:57.906+08:00  INFO 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T14:01:57.918+08:00  INFO 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T14:01:57.918+08:00  WARN 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T14:01:57.918+08:00  INFO 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T14:01:57.918+08:00  WARN 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T14:01:57.923+08:00  INFO 39504 --- [typeme] [           main] c.t.platform.catalog.AssessmentCatalog   : ����Ŀ¼�Ǽǣ�slug=jung48 ����=ʮ�����˸�ο����� Ĭ�ϰ汾=typeme-jung48-zh-v1 ��������=48 ����������=16
+2026-09-18T14:01:57.923+08:00  INFO 39504 --- [typeme] [           main] c.t.platform.catalog.AssessmentCatalog   : ����Ŀ¼�Ǽǣ�slug=bigfive50 ����=�����˸�������� Ĭ�ϰ汾=typeme-bigfive50-zh-v1 ��������=50 ����������=0
+2026-09-18T14:01:57.965+08:00  INFO 39504 --- [typeme] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name typemeUserDetailsService
+2026-09-18T14:01:57.984+08:00  INFO 39504 --- [typeme] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-09-18T14:01:58.067+08:00  INFO 39504 --- [typeme] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-09-18T14:01:58.171+08:00  INFO 39504 --- [typeme] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:58.171+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:58.171+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:58.183+08:00  INFO 39504 --- [typeme] [           main] c.t.account.AiSettingsSecretMissingIT    : Started AiSettingsSecretMissingIT in 1.422 seconds (process running for 14.908)
+2026-09-18T14:01:58.186+08:00  INFO 39504 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : ���ݰ�����⣺packageId=typeme-jung48-zh-v1 sha256=939232e360a2�� ��У״̬=draft_review_pending �����ֽ���=28168
+2026-09-18T14:01:58.187+08:00  INFO 39504 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : ���ݰ�����⣺packageId=typeme-jung48-zh-v2 sha256=9e61f1459725�� ��У״̬=draft_review_pending �����ֽ���=28179
+2026-09-18T14:01:58.188+08:00  INFO 39504 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : ���ݰ�����⣺packageId=typeme-bigfive50-zh-v1 sha256=47a09253ce7a�� ��У״̬=draft_review_pending �����ֽ���=22615
+2026-09-18T14:01:58.189+08:00  WARN 39504 --- [typeme] [           main] c.t.a.service.AdminBootstrapService      : typeme.security.settings-secret δ���ã���̨�ɲ鿴 AI ���ã����޷����� apiKey�������� 503��
+2026-09-18T14:01:58.189+08:00  INFO 39504 --- [typeme] [           main] c.t.ai.config.AiRuntimeSettingsProvider  : AI �����Ѽ��أ�enabled=false, model=deepseek-flash, apiKeySource=none, mockMode=false, baseUrl=https://api.deepseek.com
+2026-09-18T14:01:58.211+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : registration disclaimer accepted
+2026-09-18T14:01:58.215+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : account registered
+2026-09-18T14:01:58.233+08:00  INFO 39504 --- [typeme] [           main] c.typeme.account.service.AccountService  : login succeeded
+2026-09-18T14:01:58.258+08:00  WARN 39504 --- [typeme] [           main] c.typeme.common.GlobalExceptionHandler   : api-error code=NOT_CONFIGURED status=503 requestId=3d6a0c51-9339-4e4d-9847-e2002777a727
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.524 s -- in com.typeme.account.AiSettingsSecretMissingIT
+[INFO] Running com.typeme.ai.AnalysisFlowTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-09-18T14:01:58.337+08:00  INFO 39504 --- [typeme] [           main] com.typeme.ai.AnalysisFlowTest           : Starting AnalysisFlowTest using Java 21.0.12.1 with PID 39504 (started by 22518 in D:\develop\develop\code\TypeMe\backend)
+2026-09-18T14:01:58.337+08:00  INFO 39504 --- [typeme] [           main] com.typeme.ai.AnalysisFlowTest           : The following 1 profile is active: "ai-test"
+2026-09-18T14:01:58.724+08:00  INFO 39504 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-09-18T14:01:58.726+08:00  INFO 39504 --- [typeme] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection conn20: url=jdbc:h2:mem:typeme_ai_test_610ae441c6cc user=SA
+2026-09-18T14:01:58.727+08:00  INFO 39504 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-09-18T14:01:58.728+08:00  INFO 39504 --- [typeme] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:typeme_ai_test_610ae441c6cc (H2 2.2)
+2026-09-18T14:01:58.730+08:00  WARN 39504 --- [typeme] [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.2.224 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.220.
+2026-09-18T14:01:58.738+08:00  INFO 39504 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-09-18T14:01:58.739+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.009s)
+2026-09-18T14:01:58.740+08:00  INFO 39504 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-09-18T14:01:58.744+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-09-18T14:01:58.748+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - account and session"
+2026-09-18T14:01:58.758+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - assessment content and attempt"
+2026-09-18T14:01:58.765+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - report and self reflection"
+2026-09-18T14:01:58.773+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - ai analysis"
+2026-09-18T14:01:58.783+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - idempotency and deletion"
+2026-09-18T14:01:58.792+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - admin and ai settings"
+2026-09-18T14:01:58.797+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - ai job user note"
+2026-09-18T14:01:58.808+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - widen credential hash"
+2026-09-18T14:01:58.812+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 8 migrations to schema "public", now at version v8 (execution time 00:00.031s)
+2026-09-18T14:01:58.877+08:00  INFO 39504 --- [typeme] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-09-18T14:01:58.996+08:00  INFO 39504 --- [typeme] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-09-18T14:01:59.009+08:00  INFO 39504 --- [typeme] [           main] com.typeme.ai.AnalysisFlowTest           : Started AnalysisFlowTest in 0.725 seconds (process running for 15.735)
+2026-09-18T14:01:59.015+08:00  INFO 39504 --- [typeme] [           main] c.t.ai.config.AiRuntimeSettingsProvider  : AI �����Ѽ��أ�enabled=true, model=deepseek-flash, apiKeySource=env, mockMode=true, baseUrl=https://api.deepseek.com
+2026-09-18T14:01:59.100+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.100+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.101+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T14:01:59.271+08:00  INFO 39504 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� 810a3095-09e3-4046-9c9d-76f920cfae31 ��ɣ�model=deepseek-flash, tokens=2300, elapsedMs=0
+2026-09-18T14:01:59.290+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.290+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.290+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.324+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.324+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.324+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.356+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.356+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.357+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T14:01:59.371+08:00  INFO 39504 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� df126640-67e2-441b-9944-81fb383faadf ���� 429��3 ����Զ�����һ�Ρ�
+2026-09-18T14:01:59.395+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.395+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.395+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.414+08:00  INFO 39504 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� 2e1d6575-6443-4f20-bd7a-6cd5d17d504b ��ɣ�model=deepseek-flash, tokens=2300, elapsedMs=0
+2026-09-18T14:01:59.432+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.432+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.432+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.449+08:00  WARN 39504 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : lease �ָ��������Ŷ� 0 ������δ����������� UNKNOWN 1 �����ѷ��������δ֪����
+2026-09-18T14:01:59.475+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.476+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.476+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.513+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.513+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.514+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.526+08:00  INFO 39504 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� ff527dd3-84cc-4e62-8744-a6c0332d1c2f �����������sent=false�����˺���ע��/ͣ�ã��������
+2026-09-18T14:01:59.542+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.543+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.543+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.580+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.581+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.581+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.616+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.616+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.617+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.652+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.652+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.652+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.681+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.681+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.682+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T14:01:59.722+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.722+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.722+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.779+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.780+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.780+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.807+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.807+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.807+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.843+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.843+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.843+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.883+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.883+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.883+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.918+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.918+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.918+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.931+08:00  WARN 39504 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : lease �ָ��������Ŷ� 1 ������δ����������� UNKNOWN 0 �����ѷ��������δ֪����
+2026-09-18T14:01:59.937+08:00  INFO 39504 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� 91d0a30a-d2e9-437a-9060-a21e3a060cba ��ɣ�model=deepseek-flash, tokens=2300, elapsedMs=0
+2026-09-18T14:01:59.951+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.951+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.952+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:01:59.986+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:01:59.986+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:01:59.986+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:02:00.030+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:02:00.030+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:02:00.030+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:02:00.087+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:02:00.087+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:02:00.088+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T14:02:00.108+08:00  INFO 39504 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� 792816e7-3a7e-4c68-935a-5090d7d50bf1 ��ɣ�model=deepseek-flash, tokens=2300, elapsedMs=0
+2026-09-18T14:02:00.140+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:02:00.140+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:02:00.140+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:02:00.174+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:02:00.174+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:02:00.174+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:02:00.206+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:02:00.207+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:02:00.207+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:02:00.244+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:02:00.244+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:02:00.245+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-18T14:02:00.298+08:00  INFO 39504 --- [typeme] [           main] com.typeme.ai.worker.AnalysisWorker      : AI ���� d3a1ddab-891c-4a59-ad2a-524aa5f814ea ��ɣ�model=deepseek-flash, tokens=2300, elapsedMs=0
+2026-09-18T14:02:00.316+08:00  INFO 39504 --- [typeme] [           main] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:02:00.317+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:02:00.317+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+[INFO] Tests run: 28, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.058 s -- in com.typeme.ai.AnalysisFlowTest
+[INFO] Running com.typeme.ai.config.AdminAiKeyReachesAiModuleIT
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.5)
+
+2026-09-18T14:02:00.388+08:00  INFO 39504 --- [typeme] [           main] c.t.a.c.AdminAiKeyReachesAiModuleIT      : Starting AdminAiKeyReachesAiModuleIT using Java 21.0.12.1 with PID 39504 (started by 22518 in D:\develop\develop\code\TypeMe\backend)
+2026-09-18T14:02:00.388+08:00  INFO 39504 --- [typeme] [           main] c.t.a.c.AdminAiKeyReachesAiModuleIT      : No active profile set, falling back to 1 default profile: "default"
+2026-09-18T14:02:01.000+08:00  INFO 39504 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Starting...
+2026-09-18T14:02:01.003+08:00  INFO 39504 --- [typeme] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-4 - Added connection conn30: url=jdbc:h2:mem:typeme_adminaikeyreachesaimoduleit_610ae441c6cc user=SA
+2026-09-18T14:02:01.003+08:00  INFO 39504 --- [typeme] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Start completed.
+2026-09-18T14:02:01.006+08:00  INFO 39504 --- [typeme] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:mem:typeme_adminaikeyreachesaimoduleit_610ae441c6cc (H2 2.2)
+2026-09-18T14:02:01.008+08:00  WARN 39504 --- [typeme] [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: H2 2.2.224 is newer than this version of Flyway and support has not been tested. The latest supported version of H2 is 2.2.220.
+2026-09-18T14:02:01.019+08:00  INFO 39504 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "public"."flyway_schema_history" does not exist yet
+2026-09-18T14:02:01.019+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 8 migrations (execution time 00:00.009s)
+2026-09-18T14:02:01.020+08:00  INFO 39504 --- [typeme] [           main] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "public"."flyway_schema_history" ...
+2026-09-18T14:02:01.031+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": << Empty Schema >>
+2026-09-18T14:02:01.037+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "1 - account and session"
+2026-09-18T14:02:01.044+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "2 - assessment content and attempt"
+2026-09-18T14:02:01.054+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "3 - report and self reflection"
+2026-09-18T14:02:01.063+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "4 - ai analysis"
+2026-09-18T14:02:01.078+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "5 - idempotency and deletion"
+2026-09-18T14:02:01.091+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "6 - admin and ai settings"
+2026-09-18T14:02:01.095+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "7 - ai job user note"
+2026-09-18T14:02:01.103+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Migrating schema "public" to version "8 - widen credential hash"
+2026-09-18T14:02:01.106+08:00  INFO 39504 --- [typeme] [           main] o.f.core.internal.command.DbMigrate      : Successfully applied 8 migrations to schema "public", now at version v8 (execution time 00:00.034s)
+2026-09-18T14:02:01.217+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : ���ݰ����ز�У��ͨ��: packageId=ipip50-zh1 questions=50 status=draft
+2026-09-18T14:02:01.223+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : ���ݰ����ز�У��ͨ��: packageId=oejts32-zh1-report2 questions=32 status=draft
+2026-09-18T14:02:01.228+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : ���ݰ����ز�У��ͨ��: packageId=oejts32-zh2-preview-r1 questions=32 status=draft
+2026-09-18T14:02:01.228+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : �����ز�У��ͨ��: version=quick questions=32 sha256=83c112bdfb43fa62e942402adf963c90cc0d18e6b3a21aaf7033161b6f5cf754
+2026-09-18T14:02:01.228+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : ����˵��ҳ���ز�У��ͨ��: sections=5 license=CC BY-NC-SA 4.0
+2026-09-18T14:02:01.228+08:00  INFO 39504 --- [typeme] [           main] com.typeme.service.ContentService        : �����İ����ز�У��ͨ��: types=16
+2026-09-18T14:02:01.234+08:00  INFO 39504 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : �������ݰ�ָ�ƣ�47a09253ce7a����typeme-bigfive50-zh-v1�����ļ�����һ�£�
+2026-09-18T14:02:01.234+08:00  INFO 39504 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : �������ݰ��Ѽ��أ�{packageId=typeme-bigfive50-zh-v1, instrumentId=ipip50, scoringVersion=ipip-bfm50-1.0, reportContentVersion=typeme-bigfive-report-zh-v1, contentStatus=draft_review_pending, sha256=47a09253ce7a9ed914f731aa9917ab14f2a3291fb0411fe470fa10a061beda59, itemCount=50, itemsPerDimension={E=10, A=10, C=10, ES=10, O=10}}
+2026-09-18T14:02:01.235+08:00  WARN 39504 --- [typeme] [           main] c.t.ipip.content.BigFivePackageLoader    : ������Ŀ����͵���У״̬�ǡ�draft_review_pending������������δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ�Ҳ���������볣ģ�ȶԡ���packageId=typeme-bigfive50-zh-v1��
+2026-09-18T14:02:01.241+08:00  INFO 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�939232e360a2����typeme-jung48-zh-v1�����ļ�����һ�£�
+2026-09-18T14:02:01.244+08:00  INFO 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : ���ݰ�ָ�ƣ�9e61f1459725����typeme-jung48-zh-v2�����ļ�����һ�£�
+2026-09-18T14:02:01.253+08:00  INFO 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v1, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v1, reportContentVersion=typeme-type-report-zh-v1, contentStatus=draft_review_pending, sha256=939232e360a21413ab354be05724132fcb2d6a0f0b490f0e5b86f9a9b41494b0, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T14:02:01.254+08:00  WARN 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v1��
+2026-09-18T14:02:01.254+08:00  INFO 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²����ݰ��Ѽ��أ�{packageId=typeme-jung48-zh-v2, instrumentId=typeme-jung48, scoringVersion=typeme-jung48-score-v2, reportContentVersion=typeme-type-report-zh-v2, contentStatus=draft_review_pending, sha256=9e61f14597252d3d03a8aeb025ee8ff10fbef2167e273c67a02358185dc6f939, baseItems=48, itemsPerDimension={EI=16, SN=16, TF=16, JP=16}}
+2026-09-18T14:02:01.254+08:00  WARN 39504 --- [typeme] [           main] c.typeme.jung.content.JungPackageLoader  : �²���Ŀ�� 16 �ͱ������У״̬�ǡ��ڲ����У����δ�������Զ����Բ⣬û���Ŷ�/Ч��֤�ݣ����ö�������Ϊ����֤����packageId=typeme-jung48-zh-v2��
+2026-09-18T14:02:01.256+08:00  INFO 39504 --- [typeme] [           main] c.t.platform.catalog.AssessmentCatalog   : ����Ŀ¼�Ǽǣ�slug=jung48 ����=ʮ�����˸�ο����� Ĭ�ϰ汾=typeme-jung48-zh-v1 ��������=48 ����������=16
+2026-09-18T14:02:01.256+08:00  INFO 39504 --- [typeme] [           main] c.t.platform.catalog.AssessmentCatalog   : ����Ŀ¼�Ǽǣ�slug=bigfive50 ����=�����˸�������� Ĭ�ϰ汾=typeme-bigfive50-zh-v1 ��������=50 ����������=0
+2026-09-18T14:02:01.280+08:00  INFO 39504 --- [typeme] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name typemeUserDetailsService
+2026-09-18T14:02:01.297+08:00  INFO 39504 --- [typeme] [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2026-09-18T14:02:01.351+08:00  INFO 39504 --- [typeme] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-09-18T14:02:01.446+08:00  INFO 39504 --- [typeme] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-09-18T14:02:01.446+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-18T14:02:01.446+08:00  INFO 39504 --- [typeme] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-18T14:02:01.456+08:00  INFO 39504 --- [typeme] [           main] c.t.a.c.AdminAiKeyReachesAiModuleIT      : Started AdminAiKeyReachesAiModuleIT in 1.106 seconds (process running for 18.182)
+2026-09-18T14:02:01.457+08:00  INFO 39504 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : ���ݰ�����⣺packageId=typeme-jung48-zh-v1 sha256=939232e360a2�� ��У״̬=draft_review_pending �����ֽ���=28168
+2026-09-18T14:02:01.459+08:00  INFO 39504 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : ���ݰ�����⣺packageId=typeme-jung48-zh-v2 sha256=9e61f1459725�� ��У״̬=draft_review_pending �����ֽ���=28179
+2026-09-18T14:02:01.460+08:00  INFO 39504 --- [typeme] [           main] c.t.jung.content.JungPackageRegistrar    : ���ݰ�����⣺packageId=typeme-bigfive50-zh-v1 sha256=47a09253ce7a�� ��У״̬=draft_review_pending �����ֽ���=22615
+2026-09-18T14:02:01.461+08:00  INFO 39504 --- [typeme] [           main] c.t.ai.config.AiRuntimeSettingsProvider  : AI �����Ѽ��أ�enabled=false, model=deepseek-flash, apiKeySource=none, mockMode=false, baseUrl=https://api.deepseek.com
+2026-09-18T14:02:01.479+08:00  INFO 39504 --- [typeme] [           main] c.t.account.service.AiSettingsService    : ai api key cleared by admin
+2026-09-18T14:02:01.486+08:00  INFO 39504 --- [typeme] [           main] c.t.account.service.AiSettingsService    : ai api key updated by admin fingerprint=f4543fdd
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.154 s -- in com.typeme.ai.config.AdminAiKeyReachesAiModuleIT
+[INFO] Running com.typeme.ai.input.ReadableAnalysisTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in com.typeme.ai.input.ReadableAnalysisTest
+[INFO] Running com.typeme.ai.worker.PromptFileContractTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.010 s -- in com.typeme.ai.worker.PromptFileContractTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 47, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  34.758 s
+[INFO] Finished at: 2026-09-18T14:02:01+08:00
+[INFO] ------------------------------------------------------------------------

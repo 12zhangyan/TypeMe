@@ -1,0 +1,21 @@
+{
+  "verdict": "PASS",
+  "passed": 21,
+  "failed": [],
+  "skipped": [],
+  "notes": [
+    "后端设置行：main] c.t.ai.config.AiRuntimeSettingsProvider  : AI 设置已加载：enabled=true, model=deepseek-flash, apiKeySource=env, mockMode=false, baseUrl=https://api.deepseek.com",
+    "本次作答选了第 4 档，实际点击「下一题」47 次",
+    "这份报告的四个维度里至少有一维打平，按契约不给四字母类型码（本轮不据此断言）",
+    "报告页：#/reports/0234b674-21d3-36eb-9f7a-d5dda04a9d37",
+    "任务详情：status=FAILED errorCode=UPSTREAM_401 mock=False"
+  ],
+  "screenshots": [
+    "390x844-report-before-ai.png",
+    "390x844-ai-consent.png",
+    "390x844-ai-failed.png",
+    "390x844-ai-retry.png"
+  ],
+  "username": "r19ai_fb25e982",
+  "base": "http://127.0.0.1:5176"
+}

@@ -1,0 +1,254 @@
+[
+  {
+    "source": "assessment-bigfive.png",
+    "source_sha256": "c4779442970abaae9248009505e0377f13593a4dfe6497ca677df67f320bfcd3",
+    "source_bytes": 2597501,
+    "asset": "assessment-bigfive.webp",
+    "size": [
+      1440,
+      720
+    ],
+    "bytes": 188506,
+    "alpha": false
+  },
+  {
+    "source": "assessment-jung.png",
+    "source_sha256": "4f1338bfefb333ce6d95d6fb11ae05764aa37d0af882a40acd46ee1dce698243",
+    "source_bytes": 2793498,
+    "asset": "assessment-jung.webp",
+    "size": [
+      1440,
+      720
+    ],
+    "bytes": 250596,
+    "alpha": false
+  },
+  {
+    "source": "ENFJ.png",
+    "source_sha256": "2dc49740e0af22e6c42dbf5c9981d8e0002f0ef80a9b0104b0be9a4c2716ac15",
+    "source_bytes": 1324940,
+    "asset": "type-enfj.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 115146,
+    "alpha": true
+  },
+  {
+    "source": "ENFP.png",
+    "source_sha256": "be4fc3407a363990b1dd5b75c224c425953a8b9731a6dcb975292836efee7bc1",
+    "source_bytes": 1054169,
+    "asset": "type-enfp.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 82260,
+    "alpha": true
+  },
+  {
+    "source": "ENTJ.png",
+    "source_sha256": "ce7ca748609d51273c66f224c0174d5a02282ec79f91f164d82b80eda7368d3d",
+    "source_bytes": 1493547,
+    "asset": "type-entj.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 127244,
+    "alpha": true
+  },
+  {
+    "source": "ENTP.png",
+    "source_sha256": "c5c72b9f5a717ba89bd423a207e9b2317e2c67d2a88587220c6d93a4a3b88930",
+    "source_bytes": 1539694,
+    "asset": "type-entp.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 101030,
+    "alpha": true
+  },
+  {
+    "source": "ESFJ.png",
+    "source_sha256": "548b1e2e94d6b9b7c4ef2c48fbe3e65ab5f3d95cfb2113ecd5c3110ac9268a89",
+    "source_bytes": 1193831,
+    "asset": "type-esfj.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 102930,
+    "alpha": true
+  },
+  {
+    "source": "ESFP.png",
+    "source_sha256": "7456475e6b4910df06acf57f7590f677cda867c2a3fa845b98d0e355de8d4a51",
+    "source_bytes": 1023217,
+    "asset": "type-esfp.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 77802,
+    "alpha": true
+  },
+  {
+    "source": "ESTJ.png",
+    "source_sha256": "12be72579fcce409ff6387c714e9b152a3cdf28ec87080f5f3d1dca75b73ba96",
+    "source_bytes": 1575596,
+    "asset": "type-estj.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 118468,
+    "alpha": true
+  },
+  {
+    "source": "ESTP.png",
+    "source_sha256": "2bbfb9bcc793506fb4d33e8b53e517dc9f142963a7251238742d13f7042451e3",
+    "source_bytes": 1188784,
+    "asset": "type-estp.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 97648,
+    "alpha": true
+  },
+  {
+    "source": "home-hero.png",
+    "source_sha256": "8eabf1091ffb0016b6b9b0d0ae47a0f18d9976b14710befee44a4ae9a1736b86",
+    "source_bytes": 2672497,
+    "asset": "home-hero.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "bytes": 236960,
+    "alpha": false
+  },
+  {
+    "source": "INFJ.png",
+    "source_sha256": "ee5212e2124c902f68c10f0eed9ec6e2cc63a6f3b61f90c63181b65c947a9575",
+    "source_bytes": 1155446,
+    "asset": "type-infj.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 78532,
+    "alpha": true
+  },
+  {
+    "source": "INFP.png",
+    "source_sha256": "940a1c13584e7b290c2eb4545c705ffaa3e377b572e7d2070c1796ccfcb81c58",
+    "source_bytes": 1468420,
+    "asset": "type-infp.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 96774,
+    "alpha": true
+  },
+  {
+    "source": "INTJ.png",
+    "source_sha256": "ad8a9b9b33a1f28c2213cb494cc5869e54767d3f582c3cac7c0e5d80eef9ff87",
+    "source_bytes": 1229526,
+    "asset": "type-intj.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 91190,
+    "alpha": true
+  },
+  {
+    "source": "INTP.png",
+    "source_sha256": "7e43c978daee39ec03a8c4b1c8291a8b4ea541cc3607ec863d3663531bef5258",
+    "source_bytes": 1406942,
+    "asset": "type-intp.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 100022,
+    "alpha": true
+  },
+  {
+    "source": "ISFJ.png",
+    "source_sha256": "2fbd22ada4af4546d198419dc0e5f898d0b52033de04c5ece83423d91a391cf1",
+    "source_bytes": 1836507,
+    "asset": "type-isfj.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 132444,
+    "alpha": true
+  },
+  {
+    "source": "ISFP.png",
+    "source_sha256": "1998834f75b3fe6b722157ec5b0ec32f595e0f82f222d184d5e08b36f9b2986d",
+    "source_bytes": 941800,
+    "asset": "type-isfp.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 68574,
+    "alpha": true
+  },
+  {
+    "source": "ISTJ.png",
+    "source_sha256": "b486a644432d161a941397ce959c5dc25535e09d500409e02bc5d2a793002324",
+    "source_bytes": 1724332,
+    "asset": "type-istj.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 120152,
+    "alpha": true
+  },
+  {
+    "source": "ISTP.png",
+    "source_sha256": "0d17193cfb329cbf35115c6f1a01efaa97c454ff5b2106f0be15bedebe1f82ca",
+    "source_bytes": 1485388,
+    "asset": "type-istp.webp",
+    "size": [
+      640,
+      800
+    ],
+    "bytes": 99104,
+    "alpha": true
+  },
+  {
+    "source": "reflection.png",
+    "source_sha256": "ed9a4390aaa4f96a1b1c142f70b489d2dd1023cf2d401ece42f6f0c4f29e2780",
+    "source_bytes": 2458539,
+    "asset": "reflection.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "bytes": 188174,
+    "alpha": false
+  },
+  {
+    "source": "welcome.png",
+    "source_sha256": "e13dfe16f284c899f8fb919b6ca373e65b78ae82f22986881b872a1f6486161e",
+    "source_bytes": 2294083,
+    "asset": "welcome.webp",
+    "size": [
+      960,
+      1200
+    ],
+    "bytes": 148728,
+    "alpha": false
+  }
+]

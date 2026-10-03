@@ -1,0 +1,12 @@
+
+ RUN  v2.1.9 C:/Users/22518/AppData/Local/Temp/typeme-score-v3-closeout-3ljw4bm_/frontend
+
+ ✓ src/domain/jung/legacyScoring.closeout.spec.ts (14 tests) 14ms
+ ✓ src/domain/jung/thresholds.spec.ts (13 tests) 31ms
+ ✓ src/domain/jung/scoring.fixture.spec.ts (150 tests) 31ms
+
+ Test Files  3 passed (3)
+      Tests  177 passed (177)
+   Start at  09:30:20
+   Duration  2.86s (transform 335ms, setup 0ms, collect 518ms, tests 75ms, environment 1ms, prepare 797ms)
+

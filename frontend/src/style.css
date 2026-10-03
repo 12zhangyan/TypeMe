@@ -43,6 +43,12 @@
     }
   }
 
+  @media (min-width: 768px) {
+    :root {
+      --header-h: 64px;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;

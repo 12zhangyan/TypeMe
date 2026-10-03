@@ -1,0 +1,207 @@
+{
+  "scope": "Vite source, synthetic reports, mocked APIs; no database or external AI",
+  "checks": [
+    {
+      "label": "320/jung-v2: v3 historical result remains readable",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: v4 generation enabled",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: unchanged dimension-only consent",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: no legacy answer scope",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: consent required",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: consent enables generation",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: main action keyboard reachable",
+      "passed": true
+    },
+    {
+      "label": "320/jung-v2: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: v3 historical result remains readable",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: v4 generation enabled",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: unchanged dimension-only consent",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: no legacy answer scope",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: consent required",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: consent enables generation",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: main action keyboard reachable",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: v3 historical result remains readable",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: v4 generation enabled",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: unchanged dimension-only consent",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: no legacy answer scope",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: consent required",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: consent enables generation",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: main action keyboard reachable",
+      "passed": true
+    },
+    {
+      "label": "390/jung-v2: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: v3 historical result remains readable",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: v4 generation enabled",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: unchanged dimension-only consent",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: no legacy answer scope",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: consent required",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: consent enables generation",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: main action keyboard reachable",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: v3 historical result remains readable",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: v4 generation enabled",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: unchanged dimension-only consent",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: no legacy answer scope",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: consent required",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: consent enables generation",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: main action keyboard reachable",
+      "passed": true
+    },
+    {
+      "label": "1440/jung-v2: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: v3 historical result remains readable",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: v4 generation enabled",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: unchanged dimension-only consent",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: no legacy answer scope",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: consent required",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: consent enables generation",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: main action keyboard reachable",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "no uncaught browser errors",
+      "passed": true
+    },
+    {
+      "label": "all APIs mocked and accounted for: []",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "unexpectedApis": []
+}

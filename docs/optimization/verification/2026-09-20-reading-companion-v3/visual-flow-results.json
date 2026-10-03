@@ -1,0 +1,569 @@
+{
+  "scope": "static production build + mocked APIs; no database or real AI",
+  "checks": [
+    {
+      "label": "320/home CTA preserves hash route",
+      "passed": true
+    },
+    {
+      "label": "320/home CTA transfers keyboard focus",
+      "passed": true
+    },
+    {
+      "label": "320/directory/0 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/directory/1 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "instruments no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/login preserves selected instrument",
+      "passed": true
+    },
+    {
+      "label": "login no overflow",
+      "passed": true
+    },
+    {
+      "label": "register no overflow",
+      "passed": true
+    },
+    {
+      "label": "recover no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive visible reading example",
+      "passed": true
+    },
+    {
+      "label": "320/quiz/0 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/quiz/1 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/quiz/2 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/quiz/3 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/quiz/4 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/quiz/5 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/quiz/6 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/quiz optional index collapsed",
+      "passed": true
+    },
+    {
+      "label": "answer no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/quiz selected state",
+      "passed": true
+    },
+    {
+      "label": "320/quiz truthful unsaved state",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive reading example follows next item",
+      "passed": true
+    },
+    {
+      "label": "320/quiz simulated save has chosen rating",
+      "passed": true
+    },
+    {
+      "label": "320/quiz back retains answer",
+      "passed": true
+    },
+    {
+      "label": "answer-save-failed no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/quiz save failure visible",
+      "passed": true
+    },
+    {
+      "label": "reports-empty no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v3) visible scene explanation",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v3) scene text matches the item",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v3) quiz/0 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v3) quiz/1 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v3) quiz/2 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v3) quiz/3 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v3) quiz/4 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "answer-jung no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v2) visible scene explanation",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v2) scene text matches the item",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v2) quiz/0 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v2) quiz/1 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v2) quiz/2 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v2) quiz/3 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "320/jung(typeme-jung48-zh-v2) quiz/4 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "answer-jung-v2 no overflow",
+      "passed": true
+    },
+    {
+      "label": "home-load-failed no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/home recovers after retry",
+      "passed": true
+    },
+    {
+      "label": "390/home CTA preserves hash route",
+      "passed": true
+    },
+    {
+      "label": "390/home CTA transfers keyboard focus",
+      "passed": true
+    },
+    {
+      "label": "390/directory/0 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/directory/1 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "instruments no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/login preserves selected instrument",
+      "passed": true
+    },
+    {
+      "label": "login no overflow",
+      "passed": true
+    },
+    {
+      "label": "register no overflow",
+      "passed": true
+    },
+    {
+      "label": "recover no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive visible reading example",
+      "passed": true
+    },
+    {
+      "label": "390/quiz/0 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/quiz/1 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/quiz/2 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/quiz/3 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/quiz/4 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/quiz/5 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/quiz/6 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/quiz optional index collapsed",
+      "passed": true
+    },
+    {
+      "label": "answer no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/quiz selected state",
+      "passed": true
+    },
+    {
+      "label": "390/quiz truthful unsaved state",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive reading example follows next item",
+      "passed": true
+    },
+    {
+      "label": "390/quiz simulated save has chosen rating",
+      "passed": true
+    },
+    {
+      "label": "390/quiz back retains answer",
+      "passed": true
+    },
+    {
+      "label": "answer-save-failed no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/quiz save failure visible",
+      "passed": true
+    },
+    {
+      "label": "reports-empty no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v3) visible scene explanation",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v3) scene text matches the item",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v3) quiz/0 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v3) quiz/1 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v3) quiz/2 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v3) quiz/3 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v3) quiz/4 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "answer-jung no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v2) visible scene explanation",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v2) scene text matches the item",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v2) quiz/0 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v2) quiz/1 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v2) quiz/2 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v2) quiz/3 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "390/jung(typeme-jung48-zh-v2) quiz/4 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "answer-jung-v2 no overflow",
+      "passed": true
+    },
+    {
+      "label": "home-load-failed no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/home recovers after retry",
+      "passed": true
+    },
+    {
+      "label": "1440/home CTA preserves hash route",
+      "passed": true
+    },
+    {
+      "label": "1440/home CTA transfers keyboard focus",
+      "passed": true
+    },
+    {
+      "label": "1440/directory/0 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/directory/1 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "instruments no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/login preserves selected instrument",
+      "passed": true
+    },
+    {
+      "label": "login no overflow",
+      "passed": true
+    },
+    {
+      "label": "register/desktop split composition",
+      "passed": true
+    },
+    {
+      "label": "register/desktop form alongside heading",
+      "passed": true
+    },
+    {
+      "label": "register no overflow",
+      "passed": true
+    },
+    {
+      "label": "recover/desktop split composition",
+      "passed": true
+    },
+    {
+      "label": "recover/desktop form alongside heading",
+      "passed": true
+    },
+    {
+      "label": "recover no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive visible reading example",
+      "passed": true
+    },
+    {
+      "label": "1440/quiz/0 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/quiz/1 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/quiz/2 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/quiz/3 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/quiz/4 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/quiz/5 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/quiz/6 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/quiz optional index collapsed",
+      "passed": true
+    },
+    {
+      "label": "answer no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/quiz selected state",
+      "passed": true
+    },
+    {
+      "label": "1440/quiz truthful unsaved state",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive reading example follows next item",
+      "passed": true
+    },
+    {
+      "label": "1440/quiz simulated save has chosen rating",
+      "passed": true
+    },
+    {
+      "label": "1440/quiz back retains answer",
+      "passed": true
+    },
+    {
+      "label": "answer-save-failed no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/quiz save failure visible",
+      "passed": true
+    },
+    {
+      "label": "reports-empty no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v3) visible scene explanation",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v3) scene text matches the item",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v3) quiz/0 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v3) quiz/1 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v3) quiz/2 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v3) quiz/3 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v3) quiz/4 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "answer-jung no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v2) visible scene explanation",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v2) scene text matches the item",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v2) quiz/0 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v2) quiz/1 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v2) quiz/2 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v2) quiz/3 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "1440/jung(typeme-jung48-zh-v2) quiz/4 target >= 44px",
+      "passed": true
+    },
+    {
+      "label": "answer-jung-v2 no overflow",
+      "passed": true
+    },
+    {
+      "label": "home-load-failed no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/home recovers after retry",
+      "passed": true
+    },
+    {
+      "label": "no uncaught errors: []",
+      "passed": true
+    },
+    {
+      "label": "all API calls mocked: []",
+      "passed": true
+    }
+  ]
+}

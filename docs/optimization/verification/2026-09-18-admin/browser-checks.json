@@ -1,0 +1,266 @@
+{
+  "checks": [
+    {
+      "label": "members/320: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320: one-time invite shown",
+      "passed": true
+    },
+    {
+      "label": "320: invite never persisted",
+      "passed": true
+    },
+    {
+      "label": "320: revoke updates state",
+      "passed": true
+    },
+    {
+      "label": "320: progress shown",
+      "passed": true
+    },
+    {
+      "label": "320: zero quota preserves usage",
+      "passed": true
+    },
+    {
+      "label": "320/jung: snapshot parsed",
+      "passed": true
+    },
+    {
+      "label": "report-jung/320: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/bigfive: snapshot parsed",
+      "passed": true
+    },
+    {
+      "label": "report-bigfive/320: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320/tied: snapshot parsed",
+      "passed": true
+    },
+    {
+      "label": "320: tied remains uncertain",
+      "passed": true
+    },
+    {
+      "label": "report-tied/320: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320: member pagination works",
+      "passed": true
+    },
+    {
+      "label": "320: session expiry clears sensitive UI",
+      "passed": true
+    },
+    {
+      "label": "320: forbidden hides admin data",
+      "passed": true
+    },
+    {
+      "label": "forbidden/320: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320: failed load can retry",
+      "passed": true
+    },
+    {
+      "label": "320: registration disclosure",
+      "passed": true
+    },
+    {
+      "label": "320: invite field keyboard focus",
+      "passed": true
+    },
+    {
+      "label": "register/320: no overflow",
+      "passed": true
+    },
+    {
+      "label": "members/390: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390: one-time invite shown",
+      "passed": true
+    },
+    {
+      "label": "390: invite never persisted",
+      "passed": true
+    },
+    {
+      "label": "390: revoke updates state",
+      "passed": true
+    },
+    {
+      "label": "390: progress shown",
+      "passed": true
+    },
+    {
+      "label": "390: zero quota preserves usage",
+      "passed": true
+    },
+    {
+      "label": "390/jung: snapshot parsed",
+      "passed": true
+    },
+    {
+      "label": "report-jung/390: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/bigfive: snapshot parsed",
+      "passed": true
+    },
+    {
+      "label": "report-bigfive/390: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390/tied: snapshot parsed",
+      "passed": true
+    },
+    {
+      "label": "390: tied remains uncertain",
+      "passed": true
+    },
+    {
+      "label": "report-tied/390: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390: member pagination works",
+      "passed": true
+    },
+    {
+      "label": "390: session expiry clears sensitive UI",
+      "passed": true
+    },
+    {
+      "label": "390: forbidden hides admin data",
+      "passed": true
+    },
+    {
+      "label": "forbidden/390: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390: failed load can retry",
+      "passed": true
+    },
+    {
+      "label": "390: registration disclosure",
+      "passed": true
+    },
+    {
+      "label": "390: invite field keyboard focus",
+      "passed": true
+    },
+    {
+      "label": "register/390: no overflow",
+      "passed": true
+    },
+    {
+      "label": "members/1440: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: one-time invite shown",
+      "passed": true
+    },
+    {
+      "label": "1440: invite never persisted",
+      "passed": true
+    },
+    {
+      "label": "1440: revoke updates state",
+      "passed": true
+    },
+    {
+      "label": "1440: progress shown",
+      "passed": true
+    },
+    {
+      "label": "1440: zero quota preserves usage",
+      "passed": true
+    },
+    {
+      "label": "1440/jung: snapshot parsed",
+      "passed": true
+    },
+    {
+      "label": "report-jung/1440: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/bigfive: snapshot parsed",
+      "passed": true
+    },
+    {
+      "label": "report-bigfive/1440: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/tied: snapshot parsed",
+      "passed": true
+    },
+    {
+      "label": "1440: tied remains uncertain",
+      "passed": true
+    },
+    {
+      "label": "report-tied/1440: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: member pagination works",
+      "passed": true
+    },
+    {
+      "label": "1440: session expiry clears sensitive UI",
+      "passed": true
+    },
+    {
+      "label": "1440: forbidden hides admin data",
+      "passed": true
+    },
+    {
+      "label": "forbidden/1440: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: failed load can retry",
+      "passed": true
+    },
+    {
+      "label": "1440: registration disclosure",
+      "passed": true
+    },
+    {
+      "label": "1440: invite field keyboard focus",
+      "passed": true
+    },
+    {
+      "label": "register/1440: no overflow",
+      "passed": true
+    },
+    {
+      "label": "No browser JS errors",
+      "passed": true
+    },
+    {
+      "label": "No unexpected API requests",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "unexpected": []
+}

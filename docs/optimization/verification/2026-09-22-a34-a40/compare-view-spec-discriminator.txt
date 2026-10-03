@@ -1,0 +1,56 @@
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mD:/develop/develop/code/TypeMe/frontend[39m
+
+[90mstderr[2m | src/views/compareView.spec.ts[2m > [22m[2m复测比较页[2m > [22m[2m提示与操作组的垂直间距与账号页同一节奏（A40）
+[22m[39m[typeme] 未预期的前端错误： boom Error: boom
+    at [90mD:\develop\develop\code\TypeMe\frontend\[39msrc\views\compareView.spec.ts:220:38
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:146:14
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:533:11
+    at runWithTimeout [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:39:7[90m)[39m
+    at runTest [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1056:17[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runFiles [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1262:5[90m)[39m
+    at startTests [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1271:3[90m)[39m
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+[90mstderr[2m | src/views/compareView.spec.ts[2m > [22m[2m复测比较页[2m > [22m[2m比较失败：显示错误与重试机会，不显示半张表
+[22m[39m[typeme] 未预期的前端错误： boom Error: boom
+    at [90mD:\develop\develop\code\TypeMe\frontend\[39msrc\views\compareView.spec.ts:241:38
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:146:14
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:533:11
+    at runWithTimeout [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:39:7[90m)[39m
+    at runTest [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1056:17[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runSuite [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1205:15[90m)[39m
+    at runFiles [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1262:5[90m)[39m
+    at startTests [90m(file:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4m@vitest/runner[24m/dist/index.js:1271:3[90m)[39m
+    at [90mfile:///D:/develop/develop/code/TypeMe/frontend/[39mnode_modules/[4mvitest[24m/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+ [31m❯[39m src/views/compareView.spec.ts [2m([22m[2m10 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[90m 154[2mms[22m[39m
+[31m   [31m×[31m 复测比较页[2m > [22m提示与操作组的垂直间距与账号页同一节奏（A40）[90m 14[2mms[22m[31m[39m
+[31m     → expected 'mt-4 flex flex-wrap items-center gap-2' to contain 'mt-3'[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 1 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/views/compareView.spec.ts[2m > [22m复测比较页[2m > [22m提示与操作组的垂直间距与账号页同一节奏（A40）
+[31m[1mAssertionError[22m: expected 'mt-4 flex flex-wrap items-center gap-2' to contain 'mt-3'[39m
+
+Expected: [32m"mt-[7m3[27m"[39m
+Received: [31m"mt-[7m4 flex flex-wrap items-center gap-2[27m"[39m
+
+[36m [2m❯[22m src/views/compareView.spec.ts:[2m225:32[22m[39m
+    [90m223| [39m
+    [90m224| [39m    [35mconst[39m runGroup [33m=[39m wrapper[33m.[39m[34mfind[39m([32m'[data-compare-run]'[39m)[33m.[39melement[33m.[39mparent…
+    [90m225| [39m    [34mexpect[39m(runGroup[33m.[39mclassName)[33m.[39m[34mtoContain[39m([32m'mt-3'[39m)
+    [90m   | [39m                               [31m^[39m
+    [90m226| [39m    [34mexpect[39m(runGroup[33m.[39mclassName)[33m.[39mnot[33m.[39m[34mtoContain[39m([32m'mt-4'[39m)
+    [90m227| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m9 passed[39m[22m[90m (10)[39m
+[2m   Start at [22m 16:15:17
+[2m   Duration [22m 3.20s[2m (transform 205ms, setup 0ms, collect 349ms, tests 154ms, environment 1.57s, prepare 182ms)[22m
+

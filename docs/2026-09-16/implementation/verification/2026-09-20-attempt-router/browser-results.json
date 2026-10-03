@@ -1,0 +1,268 @@
+{
+  "scope": "隔离构建 + 全量模拟接口；替身由 PlatformAttemptDispatchIT 从 H2 实跑导出，不是手写通用草稿。无数据库、无后端进程、无真实 AI。",
+  "base": "http://127.0.0.1:5179",
+  "widths": [
+    320,
+    390,
+    1440
+  ],
+  "scenarios": {
+    "jung-draft-1": "平台端点 409 INSTRUMENT_MISMATCH → 十六型答题页",
+    "bigfive-draft-1": "平台端点 200 instrumentKind=big_five → 大五答题页",
+    "no-such-attempt": "404 → 没有找到这份测评",
+    "expired-session-draft": "401 → 会话失效提示",
+    "package-gone-draft": "409 PACKAGE_UNAVAILABLE → 版本不可用提示"
+  },
+  "checks": [
+    {
+      "label": "320/十六型草稿: 不再显示「不是大五倾向测评」这类致命错误",
+      "passed": true
+    },
+    {
+      "label": "320/十六型草稿: 整页文案里没有那句误导提示",
+      "passed": true
+    },
+    {
+      "label": "320/十六型草稿: 没有渲染成大五答题页",
+      "passed": true
+    },
+    {
+      "label": "320/十六型草稿: 答题页有实际内容",
+      "passed": true
+    },
+    {
+      "label": "320/十六型草稿: 无横向溢出（scroll 320 <= 320 + 1）",
+      "passed": true
+    },
+    {
+      "label": "320/大五草稿: 没有渲染成十六型答题页",
+      "passed": true
+    },
+    {
+      "label": "320/大五草稿: 没有错误提示",
+      "passed": true
+    },
+    {
+      "label": "320/大五草稿: 无横向溢出（scroll 320 <= 320 + 1）",
+      "passed": true
+    },
+    {
+      "label": "320/不存在的 id: 不渲染十六型答题页",
+      "passed": true
+    },
+    {
+      "label": "320/不存在的 id: 不渲染大五答题页",
+      "passed": true
+    },
+    {
+      "label": "320/不存在的 id: 无横向溢出（scroll 320 <= 320 + 1）",
+      "passed": true
+    },
+    {
+      "label": "320/会话失效: 不渲染十六型答题页",
+      "passed": true
+    },
+    {
+      "label": "320/会话失效: 不渲染大五答题页",
+      "passed": true
+    },
+    {
+      "label": "320/会话失效: 没有那句误导提示",
+      "passed": true
+    },
+    {
+      "label": "320/会话失效: 无横向溢出（scroll 320 <= 320 + 1）",
+      "passed": true
+    },
+    {
+      "label": "320/版本不可用: 不被当成\"这是十六型草稿\"",
+      "passed": true
+    },
+    {
+      "label": "320/版本不可用: 不渲染答题页",
+      "passed": true
+    },
+    {
+      "label": "320/版本不可用: 无横向溢出（scroll 320 <= 320 + 1）",
+      "passed": true
+    },
+    {
+      "label": "320/换 id: 切到大五草稿后不再残留十六型答题页",
+      "passed": true
+    },
+    {
+      "label": "320/换 id: 无横向溢出（scroll 320 <= 320 + 1）",
+      "passed": true
+    },
+    {
+      "label": "390/十六型草稿: 不再显示「不是大五倾向测评」这类致命错误",
+      "passed": true
+    },
+    {
+      "label": "390/十六型草稿: 整页文案里没有那句误导提示",
+      "passed": true
+    },
+    {
+      "label": "390/十六型草稿: 没有渲染成大五答题页",
+      "passed": true
+    },
+    {
+      "label": "390/十六型草稿: 答题页有实际内容",
+      "passed": true
+    },
+    {
+      "label": "390/十六型草稿: 无横向溢出（scroll 390 <= 390 + 1）",
+      "passed": true
+    },
+    {
+      "label": "390/大五草稿: 没有渲染成十六型答题页",
+      "passed": true
+    },
+    {
+      "label": "390/大五草稿: 没有错误提示",
+      "passed": true
+    },
+    {
+      "label": "390/大五草稿: 无横向溢出（scroll 390 <= 390 + 1）",
+      "passed": true
+    },
+    {
+      "label": "390/不存在的 id: 不渲染十六型答题页",
+      "passed": true
+    },
+    {
+      "label": "390/不存在的 id: 不渲染大五答题页",
+      "passed": true
+    },
+    {
+      "label": "390/不存在的 id: 无横向溢出（scroll 390 <= 390 + 1）",
+      "passed": true
+    },
+    {
+      "label": "390/会话失效: 不渲染十六型答题页",
+      "passed": true
+    },
+    {
+      "label": "390/会话失效: 不渲染大五答题页",
+      "passed": true
+    },
+    {
+      "label": "390/会话失效: 没有那句误导提示",
+      "passed": true
+    },
+    {
+      "label": "390/会话失效: 无横向溢出（scroll 390 <= 390 + 1）",
+      "passed": true
+    },
+    {
+      "label": "390/版本不可用: 不被当成\"这是十六型草稿\"",
+      "passed": true
+    },
+    {
+      "label": "390/版本不可用: 不渲染答题页",
+      "passed": true
+    },
+    {
+      "label": "390/版本不可用: 无横向溢出（scroll 390 <= 390 + 1）",
+      "passed": true
+    },
+    {
+      "label": "390/换 id: 切到大五草稿后不再残留十六型答题页",
+      "passed": true
+    },
+    {
+      "label": "390/换 id: 无横向溢出（scroll 390 <= 390 + 1）",
+      "passed": true
+    },
+    {
+      "label": "1440/十六型草稿: 不再显示「不是大五倾向测评」这类致命错误",
+      "passed": true
+    },
+    {
+      "label": "1440/十六型草稿: 整页文案里没有那句误导提示",
+      "passed": true
+    },
+    {
+      "label": "1440/十六型草稿: 没有渲染成大五答题页",
+      "passed": true
+    },
+    {
+      "label": "1440/十六型草稿: 答题页有实际内容",
+      "passed": true
+    },
+    {
+      "label": "1440/十六型草稿: 无横向溢出（scroll 1440 <= 1440 + 1）",
+      "passed": true
+    },
+    {
+      "label": "1440/大五草稿: 没有渲染成十六型答题页",
+      "passed": true
+    },
+    {
+      "label": "1440/大五草稿: 没有错误提示",
+      "passed": true
+    },
+    {
+      "label": "1440/大五草稿: 无横向溢出（scroll 1440 <= 1440 + 1）",
+      "passed": true
+    },
+    {
+      "label": "1440/不存在的 id: 不渲染十六型答题页",
+      "passed": true
+    },
+    {
+      "label": "1440/不存在的 id: 不渲染大五答题页",
+      "passed": true
+    },
+    {
+      "label": "1440/不存在的 id: 无横向溢出（scroll 1440 <= 1440 + 1）",
+      "passed": true
+    },
+    {
+      "label": "1440/会话失效: 不渲染十六型答题页",
+      "passed": true
+    },
+    {
+      "label": "1440/会话失效: 不渲染大五答题页",
+      "passed": true
+    },
+    {
+      "label": "1440/会话失效: 没有那句误导提示",
+      "passed": true
+    },
+    {
+      "label": "1440/会话失效: 无横向溢出（scroll 1440 <= 1440 + 1）",
+      "passed": true
+    },
+    {
+      "label": "1440/版本不可用: 不被当成\"这是十六型草稿\"",
+      "passed": true
+    },
+    {
+      "label": "1440/版本不可用: 不渲染答题页",
+      "passed": true
+    },
+    {
+      "label": "1440/版本不可用: 无横向溢出（scroll 1440 <= 1440 + 1）",
+      "passed": true
+    },
+    {
+      "label": "1440/换 id: 切到大五草稿后不再残留十六型答题页",
+      "passed": true
+    },
+    {
+      "label": "1440/换 id: 无横向溢出（scroll 1440 <= 1440 + 1）",
+      "passed": true
+    },
+    {
+      "label": "没有未捕获的前端异常: []",
+      "passed": true
+    },
+    {
+      "label": "所有 /api/** 都被显式处理: []",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "unexpectedApis": []
+}

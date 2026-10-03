@@ -1,0 +1,955 @@
+{
+  "label": "local",
+  "mode": "local",
+  "site": "http://127.0.0.1:5196",
+  "imageBase": "http://127.0.0.1:5199",
+  "scope": "isolated build + mock image domain + mocked API; no database, no AI, no cloud resources",
+  "passed": 134,
+  "failed": 0,
+  "failures": [],
+  "notes": [
+    "320/配置切换：图片域名请求 0 条，站点图片请求 20 条",
+    "390/配置切换：图片域名请求 0 条，站点图片请求 20 条",
+    "1440/配置切换：图片域名请求 0 条，站点图片请求 20 条",
+    "320/冷缓存：主图响应一直挂到占位截图拍完才释放（挂起 [1147, 1054] ms，两张占位截图耗时 103 ms）；主图区域细节 stddev 4.16（64 色） → 60.53（3499 色）",
+    "390/冷缓存：主图响应一直挂到占位截图拍完才释放（挂起 [1209, 1120] ms，两张占位截图耗时 152 ms）；主图区域细节 stddev 3.39（46 色） → 60.36（3457 色）",
+    "1440/冷缓存：主图响应一直挂到占位截图拍完才释放（挂起 [1204, 1111] ms，两张占位截图耗时 155 ms）；主图区域细节 stddev 2.59（5 色） → 61.59（3453 色）",
+    "390/双重失败：本地模式下只有一次尝试，见「本地失败直接兜底」"
+  ],
+  "checks": [
+    {
+      "label": "320/切换：未配置域名时仍用本地资源",
+      "passed": true,
+      "detail": "http://127.0.0.1:5196/assets/home-hero-D6cgdiEp.webp"
+    },
+    {
+      "label": "320/切换：未配置域名时不访问图片域名",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "320/切换：图片由站点服务器提供",
+      "passed": true,
+      "detail": "20 条"
+    },
+    {
+      "label": "320/切换：正常加载全程都在主地址上（没有无谓的回退）",
+      "passed": true,
+      "detail": "['primary']"
+    },
+    {
+      "label": "320/切换：不预加载全部人物，只有主图高优先级",
+      "passed": true,
+      "detail": "preload=0 high=1 lazy=20"
+    },
+    {
+      "label": "320/切换：屏外图片仍是懒加载",
+      "passed": true,
+      "detail": "lazy=20"
+    },
+    {
+      "label": "320/切换：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/切换：未配置域名时仍用本地资源",
+      "passed": true,
+      "detail": "http://127.0.0.1:5196/assets/home-hero-D6cgdiEp.webp"
+    },
+    {
+      "label": "390/切换：未配置域名时不访问图片域名",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/切换：图片由站点服务器提供",
+      "passed": true,
+      "detail": "20 条"
+    },
+    {
+      "label": "390/切换：正常加载全程都在主地址上（没有无谓的回退）",
+      "passed": true,
+      "detail": "['primary']"
+    },
+    {
+      "label": "390/切换：不预加载全部人物，只有主图高优先级",
+      "passed": true,
+      "detail": "preload=0 high=1 lazy=20"
+    },
+    {
+      "label": "390/切换：屏外图片仍是懒加载",
+      "passed": true,
+      "detail": "lazy=20"
+    },
+    {
+      "label": "390/切换：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/切换：未配置域名时仍用本地资源",
+      "passed": true,
+      "detail": "http://127.0.0.1:5196/assets/home-hero-D6cgdiEp.webp"
+    },
+    {
+      "label": "1440/切换：未配置域名时不访问图片域名",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/切换：图片由站点服务器提供",
+      "passed": true,
+      "detail": "20 条"
+    },
+    {
+      "label": "1440/切换：正常加载全程都在主地址上（没有无谓的回退）",
+      "passed": true,
+      "detail": "['primary']"
+    },
+    {
+      "label": "1440/切换：不预加载全部人物，只有主图高优先级",
+      "passed": true,
+      "detail": "preload=0 high=1 lazy=20"
+    },
+    {
+      "label": "1440/切换：屏外图片仍是懒加载",
+      "passed": true,
+      "detail": "lazy=20"
+    },
+    {
+      "label": "1440/切换：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "320/冷缓存：主图未到时处于明确的加载态",
+      "passed": true,
+      "detail": "state=loading"
+    },
+    {
+      "label": "320/冷缓存：加载中不显示半成品图片",
+      "passed": true,
+      "detail": "opacity=0"
+    },
+    {
+      "label": "320/冷缓存：首屏主图 eager + 高优先级",
+      "passed": true,
+      "detail": "loading=eager priority=high"
+    },
+    {
+      "label": "320/冷缓存：图片加载期间正文与按钮可用",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：没有整页 loading 遮罩",
+      "passed": true,
+      "detail": "overlays=0"
+    },
+    {
+      "label": "320/冷缓存：正文不等待图片",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：慢网不是回退，仍在主地址上",
+      "passed": true,
+      "detail": "primary"
+    },
+    {
+      "label": "320/冷缓存：主图完成加载与解码后进入 ready",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：占位截图期间图片响应一直没返回（占位证据不是拍晚了的假象）",
+      "passed": true,
+      "detail": "挂起记录=[('home-hero-D6cgdiEp.webp', 1147, True), ('type-infp-DWAc8UWa.webp', 1054, True)]"
+    },
+    {
+      "label": "320/冷缓存：占位阶段图片区细节明显更少（不是半张图）",
+      "passed": true,
+      "detail": "占位 stddev=4.16 → 显示后 stddev=60.53"
+    },
+    {
+      "label": "320/冷缓存：图片出现后同区域真的换了画面（像素级证据）",
+      "passed": true,
+      "detail": "变化像素占比=0.901，平均差=109.77"
+    },
+    {
+      "label": "320/冷缓存：记录到主图状态变化",
+      "passed": true,
+      "detail": "changes=15"
+    },
+    {
+      "label": "320/冷缓存：已交付图片全程走位图，从不先用兜底 SVG 顶替",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：加载期间不渲染兜底 SVG 内容",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "320/冷缓存：主图以透明度过渡自然出现",
+      "passed": true,
+      "detail": "中间帧=9 帧"
+    },
+    {
+      "label": "320/冷缓存：淡入只改透明度且时长在 180–240ms",
+      "passed": true,
+      "detail": "transition=['opacity 0.2s']"
+    },
+    {
+      "label": "320/冷缓存：图片出现不引起布局位移",
+      "passed": true,
+      "detail": "CLS=0.00208"
+    },
+    {
+      "label": "320/冷缓存：没有任何位移来自图片容器",
+      "passed": true,
+      "detail": "来源=[]；全部来源=['A btn-ghost btn-sm×1']"
+    },
+    {
+      "label": "320/冷缓存：.atelier-cover-art 尺寸稳定",
+      "passed": true,
+      "detail": "272–272px（变化 0px）"
+    },
+    {
+      "label": "320/冷缓存：.assessment-card-art 尺寸稳定",
+      "passed": true,
+      "detail": "230–230px（变化 0px）"
+    },
+    {
+      "label": "320/冷缓存：.portrait-spotlight-art 尺寸稳定",
+      "passed": true,
+      "detail": "286–286px（变化 0px）"
+    },
+    {
+      "label": "320/冷缓存：.atelier-reflection-art 尺寸稳定",
+      "passed": true,
+      "detail": "255–255px（变化 0px）"
+    },
+    {
+      "label": "320/冷缓存：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/冷缓存：主图未到时处于明确的加载态",
+      "passed": true,
+      "detail": "state=loading"
+    },
+    {
+      "label": "390/冷缓存：加载中不显示半成品图片",
+      "passed": true,
+      "detail": "opacity=0"
+    },
+    {
+      "label": "390/冷缓存：首屏主图 eager + 高优先级",
+      "passed": true,
+      "detail": "loading=eager priority=high"
+    },
+    {
+      "label": "390/冷缓存：图片加载期间正文与按钮可用",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：没有整页 loading 遮罩",
+      "passed": true,
+      "detail": "overlays=0"
+    },
+    {
+      "label": "390/冷缓存：正文不等待图片",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：慢网不是回退，仍在主地址上",
+      "passed": true,
+      "detail": "primary"
+    },
+    {
+      "label": "390/冷缓存：主图完成加载与解码后进入 ready",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：占位截图期间图片响应一直没返回（占位证据不是拍晚了的假象）",
+      "passed": true,
+      "detail": "挂起记录=[('home-hero-D6cgdiEp.webp', 1209, True), ('type-infp-DWAc8UWa.webp', 1120, True)]"
+    },
+    {
+      "label": "390/冷缓存：占位阶段图片区细节明显更少（不是半张图）",
+      "passed": true,
+      "detail": "占位 stddev=3.39 → 显示后 stddev=60.36"
+    },
+    {
+      "label": "390/冷缓存：图片出现后同区域真的换了画面（像素级证据）",
+      "passed": true,
+      "detail": "变化像素占比=0.901，平均差=110.06"
+    },
+    {
+      "label": "390/冷缓存：记录到主图状态变化",
+      "passed": true,
+      "detail": "changes=15"
+    },
+    {
+      "label": "390/冷缓存：已交付图片全程走位图，从不先用兜底 SVG 顶替",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：加载期间不渲染兜底 SVG 内容",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/冷缓存：主图以透明度过渡自然出现",
+      "passed": true,
+      "detail": "中间帧=9 帧"
+    },
+    {
+      "label": "390/冷缓存：淡入只改透明度且时长在 180–240ms",
+      "passed": true,
+      "detail": "transition=['opacity 0.2s']"
+    },
+    {
+      "label": "390/冷缓存：图片出现不引起布局位移",
+      "passed": true,
+      "detail": "CLS=0.00169"
+    },
+    {
+      "label": "390/冷缓存：没有任何位移来自图片容器",
+      "passed": true,
+      "detail": "来源=[]；全部来源=['A btn-ghost btn-sm×1']"
+    },
+    {
+      "label": "390/冷缓存：.atelier-cover-art 尺寸稳定",
+      "passed": true,
+      "detail": "330–330px（变化 0px）"
+    },
+    {
+      "label": "390/冷缓存：.assessment-card-art 尺寸稳定",
+      "passed": true,
+      "detail": "230–230px（变化 0px）"
+    },
+    {
+      "label": "390/冷缓存：.portrait-spotlight-art 尺寸稳定",
+      "passed": true,
+      "detail": "286–286px（变化 0px）"
+    },
+    {
+      "label": "390/冷缓存：.atelier-reflection-art 尺寸稳定",
+      "passed": true,
+      "detail": "255–255px（变化 0px）"
+    },
+    {
+      "label": "390/冷缓存：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/冷缓存：主图未到时处于明确的加载态",
+      "passed": true,
+      "detail": "state=loading"
+    },
+    {
+      "label": "1440/冷缓存：加载中不显示半成品图片",
+      "passed": true,
+      "detail": "opacity=0"
+    },
+    {
+      "label": "1440/冷缓存：首屏主图 eager + 高优先级",
+      "passed": true,
+      "detail": "loading=eager priority=high"
+    },
+    {
+      "label": "1440/冷缓存：图片加载期间正文与按钮可用",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：没有整页 loading 遮罩",
+      "passed": true,
+      "detail": "overlays=0"
+    },
+    {
+      "label": "1440/冷缓存：正文不等待图片",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：慢网不是回退，仍在主地址上",
+      "passed": true,
+      "detail": "primary"
+    },
+    {
+      "label": "1440/冷缓存：主图完成加载与解码后进入 ready",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：占位截图期间图片响应一直没返回（占位证据不是拍晚了的假象）",
+      "passed": true,
+      "detail": "挂起记录=[('home-hero-D6cgdiEp.webp', 1204, True), ('type-infp-DWAc8UWa.webp', 1111, True)]"
+    },
+    {
+      "label": "1440/冷缓存：占位阶段图片区细节明显更少（不是半张图）",
+      "passed": true,
+      "detail": "占位 stddev=2.59 → 显示后 stddev=61.59"
+    },
+    {
+      "label": "1440/冷缓存：图片出现后同区域真的换了画面（像素级证据）",
+      "passed": true,
+      "detail": "变化像素占比=0.901，平均差=109.75"
+    },
+    {
+      "label": "1440/冷缓存：记录到主图状态变化",
+      "passed": true,
+      "detail": "changes=15"
+    },
+    {
+      "label": "1440/冷缓存：已交付图片全程走位图，从不先用兜底 SVG 顶替",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：加载期间不渲染兜底 SVG 内容",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/冷缓存：主图以透明度过渡自然出现",
+      "passed": true,
+      "detail": "中间帧=9 帧"
+    },
+    {
+      "label": "1440/冷缓存：淡入只改透明度且时长在 180–240ms",
+      "passed": true,
+      "detail": "transition=['opacity 0.2s']"
+    },
+    {
+      "label": "1440/冷缓存：图片出现不引起布局位移",
+      "passed": true,
+      "detail": "CLS=0.00234"
+    },
+    {
+      "label": "1440/冷缓存：没有任何位移来自图片容器",
+      "passed": true,
+      "detail": "来源=[]；全部来源=['NAV flex flex-wrap items-center justify-end gap-1 text-[13.5px] tablet:g×1']"
+    },
+    {
+      "label": "1440/冷缓存：.atelier-cover-art 尺寸稳定",
+      "passed": true,
+      "detail": "562–562px（变化 0px）"
+    },
+    {
+      "label": "1440/冷缓存：.assessment-card-art 尺寸稳定",
+      "passed": true,
+      "detail": "290–290px（变化 0px）"
+    },
+    {
+      "label": "1440/冷缓存：.portrait-spotlight-art 尺寸稳定",
+      "passed": true,
+      "detail": "355–355px（变化 0px）"
+    },
+    {
+      "label": "1440/冷缓存：.atelier-reflection-art 尺寸稳定",
+      "passed": true,
+      "detail": "410–410px（变化 0px）"
+    },
+    {
+      "label": "1440/冷缓存：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/本地失败：退出 loading 并显示兜底",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/本地失败：兜底 SVG 顶上且不再保留失效 img",
+      "passed": true,
+      "detail": "{\"state\": \"fallback\", \"source\": \"vector\", \"attempt\": \"primary\", \"hasImg\": false, \"hasVector\": true, \"h1Visible\": true}"
+    },
+    {
+      "label": "390/本地失败：只尝试一次，不无限重试",
+      "passed": true,
+      "detail": "请求=['/assets/home-hero-D6cgdiEp.webp']"
+    },
+    {
+      "label": "390/本地失败：本地为主时不进入回退档（直接兜底）",
+      "passed": true,
+      "detail": "primary"
+    },
+    {
+      "label": "390/本地失败：未配置域名时不访问图片域名",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/本地失败：正文不受配图失败影响",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/本地失败：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/缓存命中：首次访问完成加载",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/缓存命中：命中缓存时不为演出动画拖延显示",
+      "passed": true,
+      "detail": "占位窗口=0.0ms"
+    },
+    {
+      "label": "390/缓存命中：命中缓存时不长时间闪占位",
+      "passed": true,
+      "detail": "中间帧=0 帧"
+    },
+    {
+      "label": "390/缓存命中：回到首页没有重新下载主图",
+      "passed": true,
+      "detail": "站点请求 8 → 8"
+    },
+    {
+      "label": "390/缓存命中：无布局位移",
+      "passed": true,
+      "detail": "CLS=0.00169"
+    },
+    {
+      "label": "390/缓存命中：位移不来自图片容器",
+      "passed": true,
+      "detail": "来源=[]"
+    },
+    {
+      "label": "390/缓存命中：不使用兜底 SVG",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/缓存命中：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/缓存命中：首次访问完成加载",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/缓存命中：命中缓存时不为演出动画拖延显示",
+      "passed": true,
+      "detail": "占位窗口=0.0ms"
+    },
+    {
+      "label": "1440/缓存命中：命中缓存时不长时间闪占位",
+      "passed": true,
+      "detail": "中间帧=0 帧"
+    },
+    {
+      "label": "1440/缓存命中：回到首页没有重新下载主图",
+      "passed": true,
+      "detail": "站点请求 9 → 9"
+    },
+    {
+      "label": "1440/缓存命中：无布局位移",
+      "passed": true,
+      "detail": "CLS=0.00234"
+    },
+    {
+      "label": "1440/缓存命中：位移不来自图片容器",
+      "passed": true,
+      "detail": "来源=[]"
+    },
+    {
+      "label": "1440/缓存命中：不使用兜底 SVG",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/缓存命中：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "390/切换：默认人物先就绪",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "390/切换：插画跟随最后一次选择",
+      "passed": true,
+      "detail": "type-enfp"
+    },
+    {
+      "label": "390/切换：显示的是新选择的位图",
+      "passed": true,
+      "detail": "{'artwork': 'type-enfp', 'state': 'ready', 'attempt': 'primary', 'file': 'type-enfp-BXZftj5A.webp', 'opacity': 1, 'heading': '灵感漫游者', 'pressed': ['ENFP，灵感漫游者']}"
+    },
+    {
+      "label": "390/切换：切换过程不触发回退",
+      "passed": true,
+      "detail": "primary"
+    },
+    {
+      "label": "390/切换：选中态、标题与插画指的是同一个人物",
+      "passed": true,
+      "detail": "{\"artwork\": \"type-enfp\", \"state\": \"ready\", \"attempt\": \"primary\", \"file\": \"type-enfp-BXZftj5A.webp\", \"opacity\": 1, \"heading\": \"灵感漫游者\", \"pressed\": [\"ENFP，灵感漫游者\"]}"
+    },
+    {
+      "label": "390/切换：可见的插画永远属于当前选择",
+      "passed": true,
+      "detail": "不一致样本=0"
+    },
+    {
+      "label": "390/切换：晚到的旧图片不会覆盖新选择",
+      "passed": true,
+      "detail": "晚到可见样本=0"
+    },
+    {
+      "label": "390/切换：切换过程不引起图片容器位移",
+      "passed": true,
+      "detail": "来源=[]；CLS=0.00169"
+    },
+    {
+      "label": "390/切换：每个名字的请求次数有界",
+      "passed": true,
+      "detail": "{\"type-intj\": 1, \"type-esfp\": 2, \"type-intp\": 2, \"type-enfp\": 2}"
+    },
+    {
+      "label": "390/切换：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "1440/切换：默认人物先就绪",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "1440/切换：插画跟随最后一次选择",
+      "passed": true,
+      "detail": "type-enfp"
+    },
+    {
+      "label": "1440/切换：显示的是新选择的位图",
+      "passed": true,
+      "detail": "{'artwork': 'type-enfp', 'state': 'ready', 'attempt': 'primary', 'file': 'type-enfp-BXZftj5A.webp', 'opacity': 1, 'heading': '灵感漫游者', 'pressed': ['ENFP，灵感漫游者']}"
+    },
+    {
+      "label": "1440/切换：切换过程不触发回退",
+      "passed": true,
+      "detail": "primary"
+    },
+    {
+      "label": "1440/切换：选中态、标题与插画指的是同一个人物",
+      "passed": true,
+      "detail": "{\"artwork\": \"type-enfp\", \"state\": \"ready\", \"attempt\": \"primary\", \"file\": \"type-enfp-BXZftj5A.webp\", \"opacity\": 1, \"heading\": \"灵感漫游者\", \"pressed\": [\"ENFP，灵感漫游者\"]}"
+    },
+    {
+      "label": "1440/切换：可见的插画永远属于当前选择",
+      "passed": true,
+      "detail": "不一致样本=0"
+    },
+    {
+      "label": "1440/切换：晚到的旧图片不会覆盖新选择",
+      "passed": true,
+      "detail": "晚到可见样本=0"
+    },
+    {
+      "label": "1440/切换：切换过程不引起图片容器位移",
+      "passed": true,
+      "detail": "来源=[]；CLS=0.00234"
+    },
+    {
+      "label": "1440/切换：每个名字的请求次数有界",
+      "passed": true,
+      "detail": "{\"type-intj\": 1, \"type-esfp\": 2, \"type-intp\": 2, \"type-enfp\": 2}"
+    },
+    {
+      "label": "1440/切换：无未捕获 JS 错误",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "全部 API 均被模拟",
+      "passed": true,
+      "detail": "[]"
+    }
+  ],
+  "requests": {
+    "cdn": [],
+    "site": [
+      "/",
+      "/assets/index-BCJZdUvd.js",
+      "/assets/index-B3KFprYw.css",
+      "/assets/home-hero-D6cgdiEp.webp",
+      "/assets/type-infp-DWAc8UWa.webp",
+      "/assets/type-intj-CxwObSdk.webp",
+      "/assets/type-intp-ChmGdYgh.webp",
+      "/assets/type-entj-BUARddye.webp",
+      "/assets/type-enfj-DKtaU3n5.webp",
+      "/assets/type-enfp-BXZftj5A.webp",
+      "/assets/type-entp-B11k7avk.webp",
+      "/assets/type-infj-NRnNd75I.webp",
+      "/assets/type-isfj-BKUFVdRf.webp",
+      "/assets/type-istj-Dz86OCJJ.webp",
+      "/assets/type-estj-CoyiBDqO.webp",
+      "/assets/type-istp-BWy4oBkF.webp",
+      "/assets/type-esfj-CEY1x6Xr.webp",
+      "/assets/type-isfp-zcHMQZVA.webp",
+      "/assets/type-esfp-CL1vjemO.webp",
+      "/assets/type-estp-UpzRvBFu.webp",
+      "/assets/reflection-5DNzDZ6M.webp",
+      "/assets/assessment-jung-B6Tyu8Wl.webp",
+      "/assets/assessment-bigfive-DZ0Z8zRm.webp",
+      "/",
+      "/assets/index-BCJZdUvd.js",
+      "/assets/index-B3KFprYw.css",
+      "/assets/home-hero-D6cgdiEp.webp",
+      "/assets/type-infp-DWAc8UWa.webp",
+      "/assets/type-intj-CxwObSdk.webp",
+      "/assets/type-intp-ChmGdYgh.webp",
+      "/assets/type-entp-B11k7avk.webp",
+      "/assets/type-entj-BUARddye.webp",
+      "/assets/type-infj-NRnNd75I.webp",
+      "/assets/type-enfj-DKtaU3n5.webp",
+      "/assets/type-enfp-BXZftj5A.webp",
+      "/assets/type-istj-Dz86OCJJ.webp",
+      "/assets/type-isfj-BKUFVdRf.webp",
+      "/assets/type-estj-CoyiBDqO.webp",
+      "/assets/type-istp-BWy4oBkF.webp",
+      "/assets/type-esfj-CEY1x6Xr.webp",
+      "/assets/type-isfp-zcHMQZVA.webp",
+      "/assets/type-estp-UpzRvBFu.webp",
+      "/assets/type-esfp-CL1vjemO.webp",
+      "/assets/reflection-5DNzDZ6M.webp",
+      "/assets/assessment-jung-B6Tyu8Wl.webp",
+      "/assets/assessment-bigfive-DZ0Z8zRm.webp",
+      "/",
+      "/assets/index-BCJZdUvd.js",
+      "/assets/index-B3KFprYw.css",
+      "/assets/home-hero-D6cgdiEp.webp",
+      "/assets/type-infp-DWAc8UWa.webp",
+      "/assets/type-intj-CxwObSdk.webp",
+      "/assets/type-intp-ChmGdYgh.webp",
+      "/assets/type-entj-BUARddye.webp",
+      "/assets/type-entp-B11k7avk.webp",
+      "/assets/type-infj-NRnNd75I.webp",
+      "/assets/type-enfj-DKtaU3n5.webp",
+      "/assets/type-enfp-BXZftj5A.webp",
+      "/assets/type-istj-Dz86OCJJ.webp",
+      "/assets/type-isfj-BKUFVdRf.webp",
+      "/assets/type-estj-CoyiBDqO.webp",
+      "/assets/type-esfj-CEY1x6Xr.webp",
+      "/assets/type-istp-BWy4oBkF.webp",
+      "/assets/type-isfp-zcHMQZVA.webp",
+      "/assets/type-estp-UpzRvBFu.webp",
+      "/assets/type-esfp-CL1vjemO.webp",
+      "/assets/reflection-5DNzDZ6M.webp",
+      "/assets/assessment-jung-B6Tyu8Wl.webp",
+      "/assets/assessment-bigfive-DZ0Z8zRm.webp",
+      "/",
+      "/assets/index-BCJZdUvd.js",
+      "/assets/index-B3KFprYw.css",
+      "/assets/home-hero-D6cgdiEp.webp",
+      "/assets/type-infp-DWAc8UWa.webp",
+      "/assets/type-intj-CxwObSdk.webp",
+      "/assets/type-intp-ChmGdYgh.webp",
+      "/assets/type-entp-B11k7avk.webp",
+      "/assets/type-entj-BUARddye.webp",
+      "/assets/type-infj-NRnNd75I.webp",
+      "/assets/type-enfj-DKtaU3n5.webp",
+      "/assets/type-enfp-BXZftj5A.webp",
+      "/assets/type-istj-Dz86OCJJ.webp",
+      "/assets/type-isfj-BKUFVdRf.webp",
+      "/assets/type-estj-CoyiBDqO.webp",
+      "/assets/type-esfj-CEY1x6Xr.webp",
+      "/assets/type-istp-BWy4oBkF.webp",
+      "/assets/type-isfp-zcHMQZVA.webp",
+      "/assets/type-estp-UpzRvBFu.webp",
+      "/assets/reflection-5DNzDZ6M.webp",
+      "/assets/type-esfp-CL1vjemO.webp",
+      "/assets/assessment-jung-B6Tyu8Wl.webp",
+      "/assets/assessment-bigfive-DZ0Z8zRm.webp",
+      "/",
+      "/assets/index-BCJZdUvd.js",
+      "/assets/index-B3KFprYw.css",
+      "/assets/home-hero-D6cgdiEp.webp",
+      "/assets/type-infp-DWAc8UWa.webp",
+      "/assets/type-intp-ChmGdYgh.webp",
+      "/assets/type-intj-CxwObSdk.webp",
+      "/assets/type-entj-BUARddye.webp",
+      "/assets/type-entp-B11k7avk.webp",
+      "/assets/type-infj-NRnNd75I.webp",
+      "/assets/type-enfj-DKtaU3n5.webp",
+      "/assets/type-enfp-BXZftj5A.webp",
+      "/assets/type-istj-Dz86OCJJ.webp",
+      "/assets/type-isfj-BKUFVdRf.webp",
+      "/assets/type-estj-CoyiBDqO.webp",
+      "/assets/type-esfj-CEY1x6Xr.webp",
+      "/assets/type-istp-BWy4oBkF.webp",
+      "/assets/type-isfp-zcHMQZVA.webp",
+      "/assets/type-estp-UpzRvBFu.webp",
+      "/assets/type-esfp-CL1vjemO.webp",
+      "/assets/reflection-5DNzDZ6M.webp",
+      "/assets/assessment-bigfive-DZ0Z8zRm.webp",
+      "/assets/assessment-jung-B6Tyu8Wl.webp",
+      "/",
+      "/assets/index-BCJZdUvd.js",
+      "/assets/index-B3KFprYw.css",
+      "/assets/home-hero-D6cgdiEp.webp",
+      "/assets/type-infp-DWAc8UWa.webp",
+      "/assets/type-intj-CxwObSdk.webp",
+      "/assets/type-intp-ChmGdYgh.webp",
+      "/assets/type-entp-B11k7avk.webp",
+      "/assets/type-entj-BUARddye.webp",
+      "/assets/type-infj-NRnNd75I.webp",
+      "/assets/type-enfj-DKtaU3n5.webp",
+      "/assets/type-enfp-BXZftj5A.webp",
+      "/assets/type-istj-Dz86OCJJ.webp",
+      "/assets/type-isfj-BKUFVdRf.webp",
+      "/assets/type-estj-CoyiBDqO.webp",
+      "/assets/type-esfj-CEY1x6Xr.webp",
+      "/assets/type-istp-BWy4oBkF.webp",
+      "/assets/type-isfp-zcHMQZVA.webp",
+      "/assets/type-estp-UpzRvBFu.webp",
+      "/assets/reflection-5DNzDZ6M.webp",
+      "/assets/type-esfp-CL1vjemO.webp",
+      "/assets/assessment-jung-B6Tyu8Wl.webp",
+      "/assets/assessment-bigfive-DZ0Z8zRm.webp",
+      "/",
+      "/assets/index-BCJZdUvd.js",
+      "/assets/index-B3KFprYw.css",
+      "/assets/home-hero-D6cgdiEp.webp",
+      "/assets/type-infp-DWAc8UWa.webp",
+      "/assets/type-intj-CxwObSdk.webp",
+      "/assets/type-intp-ChmGdYgh.webp",
+      "/assets/type-entj-BUARddye.webp",
+      "/assets/type-enfj-DKtaU3n5.webp",
+      "/assets/type-enfp-BXZftj5A.webp",
+      "/assets/type-isfj-BKUFVdRf.webp",
+      "/assets/type-estj-CoyiBDqO.webp",
+      "/assets/type-istj-Dz86OCJJ.webp",
+      "/assets/type-entp-B11k7avk.webp",
+      "/assets/type-esfj-CEY1x6Xr.webp",
+      "/assets/type-infj-NRnNd75I.webp",
+      "/assets/type-istp-BWy4oBkF.webp",
+      "/assets/type-isfp-zcHMQZVA.webp",
+      "/assets/type-estp-UpzRvBFu.webp",
+      "/assets/type-esfp-CL1vjemO.webp",
+      "/assets/reflection-5DNzDZ6M.webp",
+      "/assets/assessment-jung-B6Tyu8Wl.webp",
+      "/assets/assessment-bigfive-DZ0Z8zRm.webp",
+      "/",
+      "/assets/index-BCJZdUvd.js",
+      "/assets/index-B3KFprYw.css",
+      "/assets/home-hero-D6cgdiEp.webp",
+      "/assets/type-infp-DWAc8UWa.webp",
+      "/assets/type-intj-CxwObSdk.webp",
+      "/assets/type-intp-ChmGdYgh.webp",
+      "/assets/type-entj-BUARddye.webp",
+      "/assets/type-entp-B11k7avk.webp",
+      "/assets/type-infj-NRnNd75I.webp",
+      "/assets/type-enfj-DKtaU3n5.webp",
+      "/assets/type-enfp-BXZftj5A.webp",
+      "/assets/type-istj-Dz86OCJJ.webp",
+      "/assets/type-isfj-BKUFVdRf.webp",
+      "/assets/type-estj-CoyiBDqO.webp",
+      "/assets/type-esfj-CEY1x6Xr.webp",
+      "/assets/type-istp-BWy4oBkF.webp",
+      "/assets/type-isfp-zcHMQZVA.webp",
+      "/assets/assessment-jung-B6Tyu8Wl.webp",
+      "/assets/type-estp-UpzRvBFu.webp",
+      "/assets/type-esfp-CL1vjemO.webp",
+      "/assets/reflection-5DNzDZ6M.webp",
+      "/assets/assessment-bigfive-DZ0Z8zRm.webp",
+      "/",
+      "/assets/index-BCJZdUvd.js",
+      "/assets/index-B3KFprYw.css",
+      "/assets/home-hero-D6cgdiEp.webp",
+      "/assets/type-infp-DWAc8UWa.webp",
+      "/assets/type-intj-CxwObSdk.webp",
+      "/assets/type-intp-ChmGdYgh.webp",
+      "/assets/type-enfj-DKtaU3n5.webp",
+      "/assets/type-enfp-BXZftj5A.webp",
+      "/assets/type-entj-BUARddye.webp",
+      "/assets/type-istj-Dz86OCJJ.webp",
+      "/assets/type-entp-B11k7avk.webp",
+      "/assets/type-isfj-BKUFVdRf.webp",
+      "/assets/type-infj-NRnNd75I.webp",
+      "/assets/type-estj-CoyiBDqO.webp",
+      "/assets/type-esfj-CEY1x6Xr.webp",
+      "/assets/type-isfp-zcHMQZVA.webp",
+      "/assets/type-istp-BWy4oBkF.webp",
+      "/assets/type-estp-UpzRvBFu.webp",
+      "/assets/type-esfp-CL1vjemO.webp",
+      "/assets/reflection-5DNzDZ6M.webp",
+      "/assets/assessment-jung-B6Tyu8Wl.webp",
+      "/assets/assessment-bigfive-DZ0Z8zRm.webp",
+      "/",
+      "/assets/index-BCJZdUvd.js",
+      "/assets/index-B3KFprYw.css",
+      "/assets/home-hero-D6cgdiEp.webp",
+      "/assets/type-infp-DWAc8UWa.webp",
+      "/assets/type-intj-CxwObSdk.webp",
+      "/assets/type-intp-ChmGdYgh.webp",
+      "/assets/type-entj-BUARddye.webp",
+      "/assets/type-entp-B11k7avk.webp",
+      "/assets/type-infj-NRnNd75I.webp",
+      "/assets/type-enfj-DKtaU3n5.webp",
+      "/assets/type-enfp-BXZftj5A.webp",
+      "/assets/type-istj-Dz86OCJJ.webp",
+      "/assets/type-isfj-BKUFVdRf.webp",
+      "/assets/type-estj-CoyiBDqO.webp",
+      "/assets/type-esfj-CEY1x6Xr.webp",
+      "/assets/type-istp-BWy4oBkF.webp",
+      "/assets/type-isfp-zcHMQZVA.webp",
+      "/assets/type-estp-UpzRvBFu.webp",
+      "/assets/type-esfp-CL1vjemO.webp",
+      "/assets/reflection-5DNzDZ6M.webp",
+      "/assets/assessment-jung-B6Tyu8Wl.webp",
+      "/assets/assessment-bigfive-DZ0Z8zRm.webp",
+      "/assets/type-esfp-CL1vjemO.webp",
+      "/assets/type-intp-ChmGdYgh.webp",
+      "/assets/type-enfp-BXZftj5A.webp",
+      "/",
+      "/assets/index-BCJZdUvd.js",
+      "/assets/index-B3KFprYw.css",
+      "/assets/home-hero-D6cgdiEp.webp",
+      "/assets/type-infp-DWAc8UWa.webp",
+      "/assets/type-intj-CxwObSdk.webp",
+      "/assets/type-intp-ChmGdYgh.webp",
+      "/assets/type-entj-BUARddye.webp",
+      "/assets/type-entp-B11k7avk.webp",
+      "/assets/type-infj-NRnNd75I.webp",
+      "/assets/type-enfj-DKtaU3n5.webp",
+      "/assets/type-enfp-BXZftj5A.webp",
+      "/assets/type-istj-Dz86OCJJ.webp",
+      "/assets/type-isfj-BKUFVdRf.webp",
+      "/assets/type-estj-CoyiBDqO.webp",
+      "/assets/type-esfj-CEY1x6Xr.webp",
+      "/assets/type-istp-BWy4oBkF.webp",
+      "/assets/type-isfp-zcHMQZVA.webp",
+      "/assets/type-estp-UpzRvBFu.webp",
+      "/assets/type-esfp-CL1vjemO.webp",
+      "/assets/reflection-5DNzDZ6M.webp",
+      "/assets/assessment-jung-B6Tyu8Wl.webp",
+      "/assets/assessment-bigfive-DZ0Z8zRm.webp",
+      "/assets/type-esfp-CL1vjemO.webp",
+      "/assets/type-intp-ChmGdYgh.webp",
+      "/assets/type-enfp-BXZftj5A.webp"
+    ]
+  }
+}

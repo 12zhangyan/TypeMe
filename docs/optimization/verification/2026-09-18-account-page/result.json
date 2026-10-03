@@ -1,0 +1,18 @@
+{
+  "verdict": "PASS",
+  "passed": 32,
+  "failed": [],
+  "skipped": [],
+  "notes": [
+    "修改密码按钮样式：{'cls': 'btn-secondary mt-3', 'bg': 'rgb(255, 255, 255)', 'color': 'rgb(91, 107, 127)'}",
+    "危险/次级背景色：{'danger': 'rgb(124, 42, 33)', 'secondary': 'rgb(255, 255, 255)'}"
+  ],
+  "screenshots": [
+    "390x844-account-password-error.png",
+    "390x844-account-delete-panel.png",
+    "320x720-account.png",
+    "1440x900-account.png"
+  ],
+  "username": "r19acct_c8642f0e",
+  "base": "http://127.0.0.1:5176"
+}
