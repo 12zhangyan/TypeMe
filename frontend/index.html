@@ -21,12 +21,34 @@
     />
     <meta name="referrer" content="no-referrer" />
     <title>TypeMe · 十六型人格参考测评</title>
+    <!-- 备案号写在首包里：不执行脚本的抓取和查看源代码也能看到，并在页脚居中。 -->
+    <style>
+      #site-icp {
+        margin: 0;
+        padding: 16px 12px 24px;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+      #site-icp a {
+        color: #244b36;
+      }
+    </style>
   </head>
   <body>
     <div id="app"></div>
     <noscript
       >这个测评需要 JavaScript 才能运行。作答会保存在你的账号里，供你在其它设备上继续，也可以随时导出或删除。</noscript
     >
+    <p id="site-icp">
+      <a
+        class="link-quiet"
+        href="https://beian.miit.gov.cn/"
+        target="_blank"
+        rel="noopener noreferrer"
+        >京ICP备2026066393号</a
+      >
+    </p>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
