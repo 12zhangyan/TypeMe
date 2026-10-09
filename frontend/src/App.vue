@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { instrumentHasTypeCode } from '@/domain/assessmentPackage'
@@ -80,6 +80,33 @@ const shellTagline = computed(() =>
 
 /** 答题页自己渲染完整的进度与操作区；这里不再重复导航，避免误触清空进度。 */
 const quizActive = computed(() => route.name === 'quiz' || route.name === 'assess' || route.name === 'assess-attempt')
+
+/**
+ * 备案号的唯一副本在 `index.html` 的 `#site-icp`。
+ * 首包 HTML 必须带上它；脚本起来后挪进页脚正中。答题页收起页脚时先移回 body，
+ * 避免节点跟着 `v-if` 一起被删掉。
+ */
+const icpHost = ref<HTMLElement | null>(null)
+
+function icpFilingNode(): HTMLElement | null {
+  return document.getElementById('site-icp')
+}
+
+function parkIcpFiling() {
+  const node = icpFilingNode()
+  if (!node) return
+  node.classList.add('is-parked')
+  document.body.appendChild(node)
+}
+
+function mountIcpFiling() {
+  const node = icpFilingNode()
+  const host = icpHost.value
+  if (!node || !host) return
+  node.classList.remove('is-parked')
+  host.appendChild(node)
+}
+
 /**
  * 顶栏「开始测评」入口的唯一一份。
  *
@@ -162,12 +189,24 @@ onMounted(() => {
   // 失败也不提示——连不上服务器时"没确认登录状态"由登录页负责解释。
   void auth.ensureLoaded()
   // 仅开发环境：`?seed=` 写入一份可复现的答卷，用于截图与人工验收（见 dev/seed.ts）
+  if (quizActive.value) parkIcpFiling()
+  else mountIcpFiling()
 })
 
 onBeforeUnmount(() => {
+  parkIcpFiling()
+  icpFilingNode()?.classList.remove('is-parked')
   legacyGeneration++
   unbindStorage?.()
   unbindStorage = null
+})
+
+watch(quizActive, (active) => {
+  if (active) parkIcpFiling()
+}, { flush: 'pre' })
+
+watch(quizActive, (active) => {
+  if (!active) void nextTick(() => mountIcpFiling())
 })
 
 /**
@@ -459,6 +498,7 @@ function navPill(active: boolean): string {
         <p v-else class="mt-5 fineprint" data-new-instrument-compute>
           结果仅供自我探索参考，不用于诊断或选拔。
         </p>
+        <div ref="icpHost" class="icp-filing-row text-center"></div>
       </div>
     </footer>
   </div>

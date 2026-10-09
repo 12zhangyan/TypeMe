@@ -1,4 +1,6 @@
 // @vitest-environment jsdom
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
@@ -65,13 +67,27 @@ function navLinksTo(wrapper: ReturnType<typeof mount>, path: string) {
     .filter((link) => (link.attributes('href') ?? '').split('?')[0] === path)
 }
 
-async function mountApp(path: string) {
+async function mountApp(path: string, options?: { attach?: boolean }) {
   const router = makeRouter()
   await router.push(path)
   await router.isReady()
-  const wrapper = mount(App as never, { global: { plugins: [router] } })
+  const wrapper = mount(App as never, {
+    attachTo: options?.attach ? document.body : undefined,
+    global: { plugins: [router] },
+  })
   await flushPromises()
   return { wrapper, router }
+}
+
+const INDEX_HTML = readFileSync(resolve(__dirname, '../../index.html'), 'utf8')
+
+/** 把首页首包里的备案号节点装进文档，模拟浏览器拿到 `index.html` 之后、脚本挂载之前。 */
+function installIcpFromIndexHtml(): HTMLElement {
+  document.getElementById('site-icp')?.remove()
+  const parsed = new DOMParser().parseFromString(INDEX_HTML, 'text/html')
+  const node = parsed.getElementById('site-icp')
+  if (!node) throw new Error('index.html 缺少 #site-icp')
+  return document.body.appendChild(document.importNode(node, true)) as HTMLElement
 }
 
 beforeEach(() => {
@@ -80,6 +96,7 @@ beforeEach(() => {
   fetchAdminAiSettings.mockReset()
   fetchAdminAiSettings.mockRejectedValue(new Error('not probed in this case'))
   localStorage.clear()
+  document.getElementById('site-icp')?.remove()
 })
 
 describe('顶栏导航（App.vue）', () => {
@@ -92,6 +109,32 @@ describe('顶栏导航（App.vue）', () => {
         assessLinks.map((link) => `「${link.text()}」`).join('、'),
     ).toBe(1)
     expect(assessLinks[0]!.text()).toBe('开始测评')
+  })
+
+  it('首页首包带有居中的 ICP 备案号，挂载后进入页脚正中且仍然只有一份', async () => {
+    expect(INDEX_HTML).toContain('text-align: center')
+    expect(INDEX_HTML).not.toContain('is-parked')
+    const source = installIcpFromIndexHtml()
+    const sourceLink = source.querySelector('a')
+    expect(sourceLink?.textContent).toBe('京ICP备2026066393号')
+    expect(sourceLink?.getAttribute('href')).toBe('https://beian.miit.gov.cn/')
+    expect(sourceLink?.getAttribute('target')).toBe('_blank')
+    expect(sourceLink?.getAttribute('rel')).toContain('noopener')
+
+    const { wrapper, router } = await mountApp('/', { attach: true })
+    const link = wrapper.get('footer .icp-filing-row.text-center a[href="https://beian.miit.gov.cn/"]')
+    expect(link.text()).toBe('京ICP备2026066393号')
+    expect(document.querySelectorAll('a[href="https://beian.miit.gov.cn/"]')).toHaveLength(1)
+    expect(link.element.closest('#site-icp')?.classList.contains('is-parked')).toBe(false)
+
+    await router.push('/quiz')
+    await flushPromises()
+    expect(wrapper.find('footer').exists()).toBe(false)
+    const parked = document.getElementById('site-icp')
+    expect(parked?.classList.contains('is-parked')).toBe(true)
+    expect(parked?.querySelector('a')?.textContent).toBe('京ICP备2026066393号')
+    expect(document.querySelectorAll('a[href="https://beian.miit.gov.cn/"]')).toHaveLength(1)
+    wrapper.unmount()
   })
 
   it('停在关于页时，导航项写的仍然是它自己的目标名', async () => {
