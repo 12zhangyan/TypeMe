@@ -5,6 +5,7 @@ import { useAiAnalysisStore } from '@/stores/aiAnalysisV3'
 import { useBigFiveStore } from '@/stores/bigFiveV3'
 import { useAssessmentStore } from '@/stores/assessmentV3'
 import { useInstrumentsStore } from '@/stores/instrumentsV3'
+import { useReportStore } from '@/stores/reportV3'
 import {
   changePassword as changePasswordRequest,
   describeError,
@@ -70,7 +71,7 @@ interface AuthState {
 let sessionCheck: Promise<void> | null = null
 
 /**
- * 清掉"按账号"的平台态：大五草稿与测评目录。
+ * 清掉"按账号"的平台态：报告、草稿与测评目录。
  *
  * 单独抽出来是因为 `applyProfile` / `applyAnonymous` 都要用，而且两条路径**有先后**：
  * 干净的做法是在"变成未登录"和"变成已登录"时都清一次，这样无论中间发生了什么
@@ -81,6 +82,7 @@ let sessionCheck: Promise<void> | null = null
  */
 let suspendedPendingOwner: string | null = null
 function resetPlatformStores(keepPending = false): void {
+  useReportStore().reset()
   const bigFive = useBigFiveStore()
   if (keepPending && (bigFive.hasUnsaved || bigFive.createKey)) bigFive.suspendForSession()
   else bigFive.reset()

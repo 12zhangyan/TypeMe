@@ -1,0 +1,15 @@
+{
+  "checks": [
+    {
+      "label": "no uncaught browser errors",
+      "passed": true
+    },
+    {
+      "label": "all APIs handled by synthetic fixtures",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "unexpectedApis": [],
+  "mode": "synthetic APIs; external network blocked"
+}

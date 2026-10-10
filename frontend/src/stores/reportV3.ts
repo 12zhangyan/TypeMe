@@ -24,6 +24,9 @@ import { buildReportView, type ReportViewModelV3 } from '@/domain/reportV3'
  *      （`report_json` 不可变，自选独立存）。
  */
 interface ReportState {
+  /** 换账号或退出时递增，阻止旧会话的写请求结果更新当前状态。 */
+  sessionRevision: number
+  listRevision: number
   list: ReportSummary[]
   listTotal: number
   listLoading: boolean
@@ -61,6 +64,8 @@ interface ReportState {
 
 export const useReportStore = defineStore('reportV3', {
   state: (): ReportState => ({
+    sessionRevision: 0,
+    listRevision: 0,
     list: [],
     listTotal: 0,
     listLoading: false,
@@ -123,48 +128,39 @@ export const useReportStore = defineStore('reportV3', {
 
   actions: {
     async loadList(): Promise<void> {
+      const revision = ++this.listRevision
       this.listLoading = true
       this.listError = null
       this.removeError = null
       try {
         const page = await fetchReports({ page: 0, size: 50 })
+        if (revision !== this.listRevision) return
         this.list = page.items
         this.listTotal = page.total
       } catch (error) {
-        this.listError = describeError(error)
+        if (revision === this.listRevision) this.listError = describeError(error)
       } finally {
-        this.listLoading = false
+        if (revision === this.listRevision) this.listLoading = false
       }
     },
 
     async loadReport(reportId: string): Promise<void> {
-      const revision = ++this.loadRevision
-      this.loading = true
-      this.loadError = null
-      this.current = null
-      this.loadedByAttempt = false
-      try {
-        const current = await fetchReportDetail(reportId)
-        if (revision !== this.loadRevision) return
-        this.current = current
-        this.reflectionNotice = null
-      } catch (error) {
-        if (revision !== this.loadRevision) return
-        this.loadError = describeError(error)
-      } finally {
-        if (revision === this.loadRevision) this.loading = false
-      }
+      await this.loadCurrent(reportId, false)
     },
 
     /** 交卷后直接按 attempt 取报告，省掉"查列表再匹配"的竞态。 */
     async loadReportByAttempt(attemptId: string): Promise<void> {
-      const revision = ++this.loadRevision
+      await this.loadCurrent(attemptId, true)
+    },
+
+    /** 两种入口共享清理与竞态保护，保留按 attempt 查询时独立的 404 语义。 */
+    async loadCurrent(id: string, byAttempt: boolean): Promise<void> {
+      this.clearCurrent()
+      const revision = this.loadRevision
       this.loading = true
-      this.loadError = null
-      this.current = null
-      this.loadedByAttempt = true
+      this.loadedByAttempt = byAttempt
       try {
-        const current = await fetchReportByAttempt(attemptId)
+        const current = await (byAttempt ? fetchReportByAttempt(id) : fetchReportDetail(id))
         if (revision === this.loadRevision) this.current = current
       } catch (error) {
         if (revision === this.loadRevision) this.loadError = describeError(error)
@@ -184,6 +180,8 @@ export const useReportStore = defineStore('reportV3', {
       selfSelectedTypeCode: string | null
       note: string | null
     }): Promise<void> {
+      if (this.savingReflection) return
+      const revision = this.loadRevision
       const reportId = this.current?.report['reportId']
       if (typeof reportId !== 'string' || reportId.length === 0) return
       this.savingReflection = true
@@ -193,14 +191,17 @@ export const useReportStore = defineStore('reportV3', {
           selfSelectedTypeCode: input.selfSelectedTypeCode,
           note: input.note === null || input.note.trim() === '' ? null : input.note.trim(),
         })
+        if (revision !== this.loadRevision || this.current?.report['reportId'] !== reportId) return
         if (this.current) {
           this.current = { ...this.current, selfReflection: saved }
         }
         this.reflectionNotice = '已保存。问卷结果不会因此改变，两件事分开显示。'
       } catch (error) {
-        this.reflectionNotice = `没有保存成功：${describeError(error).message}`
+        if (revision === this.loadRevision) {
+          this.reflectionNotice = `没有保存成功：${describeError(error).message}`
+        }
       } finally {
-        this.savingReflection = false
+        if (revision === this.loadRevision) this.savingReflection = false
       }
     },
 
@@ -215,19 +216,24 @@ export const useReportStore = defineStore('reportV3', {
      */
     async remove(reportId: string): Promise<boolean> {
       if (this.removingId !== null) return false
+      const revision = this.sessionRevision
       this.removingId = reportId
       this.removeError = null
       try {
         await deleteReport(reportId)
+        if (revision !== this.sessionRevision) return false
+        // 删除前发出的列表可能仍包含这份报告，不能在删除成功后重新显示它。
+        this.listRevision += 1
+        this.listLoading = false
         this.list = this.list.filter((item) => item.reportId !== reportId)
         if (this.listTotal > 0) this.listTotal -= 1
-        if (this.current && this.current.report['reportId'] === reportId) this.current = null
+        if (this.current?.report['reportId'] === reportId) this.clearCurrent()
         return true
       } catch (error) {
-        this.removeError = describeError(error)
+        if (revision === this.sessionRevision) this.removeError = describeError(error)
         return false
       } finally {
-        this.removingId = null
+        if (revision === this.sessionRevision) this.removingId = null
       }
     },
 
@@ -240,7 +246,22 @@ export const useReportStore = defineStore('reportV3', {
       this.loading = false
       this.current = null
       this.loadError = null
+      this.loadedByAttempt = false
+      this.savingReflection = false
       this.reflectionNotice = null
+    },
+
+    /** 清除账号数据，同时递增请求序号；不能用归零序号的 $reset 让旧请求重新生效。 */
+    reset(): void {
+      this.sessionRevision += 1
+      this.listRevision += 1
+      this.clearCurrent()
+      this.list = []
+      this.listTotal = 0
+      this.listLoading = false
+      this.listError = null
+      this.removeError = null
+      this.removingId = null
     },
   },
 })

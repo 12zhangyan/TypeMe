@@ -474,7 +474,7 @@ interface ReportApiOptions {
   attemptReport?: () => { status: number; body: unknown }
   list?: () => { status: number; body: unknown }
   reflection?: () => { status: number; body: unknown }
-  onReflectionPut?: (body: unknown) => void
+  onReflectionPut?: (body: unknown) => void | Promise<void>
   /** 删除报告的替身：返回一个 Response，或一个（可以一直挂着的）Promise。 */
   onDelete?: () => Response | Promise<Response> | { status: number; body: unknown }
 }
@@ -500,7 +500,7 @@ function installFetch(): void {
       return jsonResponse({ token: 'csrf', headerName: 'X-XSRF-TOKEN', parameterName: '_csrf' })
     }
     if (method === 'PUT' && url.includes('/self-reflection')) {
-      api.onReflectionPut?.(rawBody)
+      await api.onReflectionPut?.(rawBody)
       return jsonResponse(
         api.reflection
           ? api.reflection().body
@@ -842,6 +842,68 @@ describe('报告页：分享三件套与自我理解', () => {
     // 问卷结果仍然是服务端那份快照
     expect(wrapper.find('h1').text()).toContain('ENFP')
     expect(wrapper.find('[data-type-name]').text()).toContain('织梦者')
+  })
+})
+
+describe('报告页：切换与离开的保存状态', () => {
+  it('切换报告清除旧保存提示，晚到保存不能清除新报告的操作反馈', async () => {
+    let finish!: () => void
+    api.onReflectionPut = () => new Promise<void>(resolve => { finish = resolve })
+    const { wrapper, router } = await mountReport()
+    await wrapper.find('textarea').setValue('旧报告的理解')
+    await wrapper.find('[data-save-reflection]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-save-reflection]').attributes('disabled')).toBeDefined()
+
+    api.detail = () => ({ status: 200, body: { report: { ...REFERENCE, reportId: 'next-report' },
+      selfReflection: { selfSelectedTypeCode: 'INFP', note: '新报告原有理解', updatedAt: null } } })
+    await router.push('/reports/next-report')
+    await flushPromises()
+    expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('新报告原有理解')
+    expect(wrapper.find('[data-save-reflection]').attributes('disabled')).toBeUndefined()
+    expect(wrapper.find('[data-notice]').exists()).toBe(false)
+
+    vi.stubGlobal('navigator', {})
+    await wrapper.find('[data-copy-share]').trigger('click')
+    await flushPromises()
+    const copyNotice = wrapper.find('[data-notice]').text()
+    finish()
+    await flushPromises()
+    expect(wrapper.find('[data-notice]').text()).toBe(copyNotice)
+    expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('新报告原有理解')
+    wrapper.unmount()
+  })
+
+  it('已保存提示不带到另一份报告，离开页面清理报告状态', async () => {
+    const { wrapper, router } = await mountReport()
+    await wrapper.find('textarea').setValue('这份报告的理解')
+    await wrapper.find('[data-save-reflection]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-notice]').text()).toContain('已保存')
+    api.detail = () => ({ status: 200, body: { report: { ...REFERENCE, reportId: 'next-report' } } })
+    await router.push('/reports/next-report')
+    await flushPromises()
+    expect(wrapper.find('[data-notice]').exists()).toBe(false)
+    wrapper.unmount()
+    expect(useReportStore().current).toBeNull()
+    expect(useReportStore().savingReflection).toBe(false)
+  })
+
+  it('保存失败保留填写内容，重试成功也不改写固定报告', async () => {
+    api.reflection = () => ({ status: 503, body: { code: 'SERVICE_UNAVAILABLE', message: '稍后重试' } })
+    const { wrapper } = await mountReport()
+    await wrapper.find('textarea').setValue('仍然保留的理解')
+    await wrapper.find('[data-save-reflection]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-notice]').text()).toContain('没有保存成功')
+    expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('仍然保留的理解')
+    expect(wrapper.find('[data-save-reflection]').attributes('disabled')).toBeUndefined()
+    api.reflection = undefined
+    await wrapper.find('[data-save-reflection]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-notice]').text()).toContain('已保存')
+    expect(wrapper.find('h1').text()).toContain('ENFP')
+    wrapper.unmount()
   })
 })
 
