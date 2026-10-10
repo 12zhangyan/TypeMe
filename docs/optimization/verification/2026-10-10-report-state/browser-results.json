@@ -1,0 +1,159 @@
+{
+  "checks": [
+    {
+      "label": "320/old-success: switching releases save button and keeps target reflection",
+      "passed": true
+    },
+    {
+      "label": "320/old-success: stale save cannot overwrite current reflection or save status",
+      "passed": true
+    },
+    {
+      "label": "320/old-success: retry saves exactly once and fixed report is unchanged",
+      "passed": true
+    },
+    {
+      "label": "320/old-success: save control is reachable and not covered",
+      "passed": true
+    },
+    {
+      "label": "320/old-success: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/old-success: navigation clears previous success notice and exits detail",
+      "passed": true
+    },
+    {
+      "label": "320/old-failure: switching releases save button and keeps target reflection",
+      "passed": true
+    },
+    {
+      "label": "320/old-failure: stale save cannot overwrite current reflection or save status",
+      "passed": true
+    },
+    {
+      "label": "320/old-failure: retry saves exactly once and fixed report is unchanged",
+      "passed": true
+    },
+    {
+      "label": "320/old-failure: save control is reachable and not covered",
+      "passed": true
+    },
+    {
+      "label": "320/old-failure: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/old-failure: navigation clears previous success notice and exits detail",
+      "passed": true
+    },
+    {
+      "label": "390/old-success: switching releases save button and keeps target reflection",
+      "passed": true
+    },
+    {
+      "label": "390/old-success: stale save cannot overwrite current reflection or save status",
+      "passed": true
+    },
+    {
+      "label": "390/old-success: retry saves exactly once and fixed report is unchanged",
+      "passed": true
+    },
+    {
+      "label": "390/old-success: save control is reachable and not covered",
+      "passed": true
+    },
+    {
+      "label": "390/old-success: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/old-success: navigation clears previous success notice and exits detail",
+      "passed": true
+    },
+    {
+      "label": "390/old-failure: switching releases save button and keeps target reflection",
+      "passed": true
+    },
+    {
+      "label": "390/old-failure: stale save cannot overwrite current reflection or save status",
+      "passed": true
+    },
+    {
+      "label": "390/old-failure: retry saves exactly once and fixed report is unchanged",
+      "passed": true
+    },
+    {
+      "label": "390/old-failure: save control is reachable and not covered",
+      "passed": true
+    },
+    {
+      "label": "390/old-failure: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/old-failure: navigation clears previous success notice and exits detail",
+      "passed": true
+    },
+    {
+      "label": "1440/old-success: switching releases save button and keeps target reflection",
+      "passed": true
+    },
+    {
+      "label": "1440/old-success: stale save cannot overwrite current reflection or save status",
+      "passed": true
+    },
+    {
+      "label": "1440/old-success: retry saves exactly once and fixed report is unchanged",
+      "passed": true
+    },
+    {
+      "label": "1440/old-success: save control is reachable and not covered",
+      "passed": true
+    },
+    {
+      "label": "1440/old-success: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/old-success: navigation clears previous success notice and exits detail",
+      "passed": true
+    },
+    {
+      "label": "1440/old-failure: switching releases save button and keeps target reflection",
+      "passed": true
+    },
+    {
+      "label": "1440/old-failure: stale save cannot overwrite current reflection or save status",
+      "passed": true
+    },
+    {
+      "label": "1440/old-failure: retry saves exactly once and fixed report is unchanged",
+      "passed": true
+    },
+    {
+      "label": "1440/old-failure: save control is reachable and not covered",
+      "passed": true
+    },
+    {
+      "label": "1440/old-failure: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/old-failure: navigation clears previous success notice and exits detail",
+      "passed": true
+    },
+    {
+      "label": "all API requests matched synthetic handlers",
+      "passed": true
+    },
+    {
+      "label": "no uncaught browser errors",
+      "passed": true
+    }
+  ],
+  "pageErrors": [],
+  "unexpectedApiRequests": [],
+  "apiMode": "synthetic; external requests blocked; no backend/database/AI calls"
+}

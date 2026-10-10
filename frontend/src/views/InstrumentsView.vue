@@ -63,6 +63,7 @@ function start(slug: string): void {
       <h1 class="text-[26px] font-semibold leading-snug text-ink tablet:text-[30px]">
         选一项测评
       </h1>
+      <p>了解偏好，或看看五个方面的倾向。选择适合你的探索方式。</p>
     </header>
 
     <!-- 载入失败：说清楚失败原因 + 可重试。绝不退化成一份编出来的目录。 -->

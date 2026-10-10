@@ -1,0 +1,37 @@
+Task exception was never retrieved
+future: <Task finished name='Task-95' coro=<Response.finished.<locals>.on_finished() done, defined at C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_network.py:905> exception=Error('Target closed')>
+Traceback (most recent call last):
+  File "C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_network.py", line 907, in on_finished
+    raise Error("Target closed")
+playwright._impl._errors.Error: Target closed
+Task exception was never retrieved
+future: <Task finished name='Task-208' coro=<Response.finished.<locals>.on_finished() done, defined at C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_network.py:905> exception=Error('Target closed')>
+Traceback (most recent call last):
+  File "C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_network.py", line 907, in on_finished
+    raise Error("Target closed")
+playwright._impl._errors.Error: Target closed
+Task exception was never retrieved
+future: <Task finished name='Task-321' coro=<Response.finished.<locals>.on_finished() done, defined at C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_network.py:905> exception=Error('Target closed')>
+Traceback (most recent call last):
+  File "C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_network.py", line 907, in on_finished
+    raise Error("Target closed")
+playwright._impl._errors.Error: Target closed
+Task exception was never retrieved
+future: <Task finished name='Task-434' coro=<Response.finished.<locals>.on_finished() done, defined at C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_network.py:905> exception=Error('Target closed')>
+Traceback (most recent call last):
+  File "C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_network.py", line 907, in on_finished
+    raise Error("Target closed")
+playwright._impl._errors.Error: Target closed
+Task exception was never retrieved
+future: <Task finished name='Task-547' coro=<Response.finished.<locals>.on_finished() done, defined at C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_network.py:905> exception=Error('Target closed')>
+Traceback (most recent call last):
+  File "C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_network.py", line 907, in on_finished
+    raise Error("Target closed")
+playwright._impl._errors.Error: Target closed
+Task exception was never retrieved
+future: <Task finished name='Task-660' coro=<Response.finished.<locals>.on_finished() done, defined at C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_network.py:905> exception=Error('Target closed')>
+Traceback (most recent call last):
+  File "C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_network.py", line 907, in on_finished
+    raise Error("Target closed")
+playwright._impl._errors.Error: Target closed
+PASS: 38 checks; widths 320/390/1440; synthetic APIs only

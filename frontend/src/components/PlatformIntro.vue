@@ -36,6 +36,7 @@ function exploreAssessments(): void {
           <span v-else-if="checkingDrafts" class="discovery-pending" role="status">正在确认上次进度…</span>
           <RouterLink v-else to="/assess" class="link-quiet">查看我的测评</RouterLink>
         </div>
+        <p class="discovery-note">登录保存进度 · 可跨设备继续</p>
         <ul v-if="instruments.items.length" class="discovery-choices" aria-label="可选测评">
           <li v-for="card in instruments.items" :key="card.slug">
             <RouterLink :to="`/assess?instrument=${encodeURIComponent(card.slug)}`">
@@ -51,7 +52,8 @@ function exploreAssessments(): void {
     </header>
 
     <div id="available-assessments" class="catalog-heading" tabindex="-1">
-      <div><h2>选择测评</h2></div>
+      <div><p class="section-kicker">从这里开始</p><h2>选择测评</h2></div>
+      <p>两种视角，选你此刻更想了解的。</p>
     </div>
 
     <p v-if="instruments.loading" class="notice-info mt-5" role="status">正在载入可选测评…</p>

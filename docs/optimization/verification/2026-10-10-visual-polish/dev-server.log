@@ -1,0 +1,17 @@
+
+> typeme-frontend@1.0.0 dev
+> vite --host 127.0.0.1 --port 5201 --strictPort
+
+
+  VITE v5.4.21  ready in 812 ms
+
+  ➜  Local:   http://127.0.0.1:5201/
+  ➜  press h + enter to show help
+13:24:14 [vite] hmr update /src/design/atelier.css
+13:24:59 [vite] hmr update /src/style.css
+13:24:59 [vite] page reload tailwind.config.js
+13:24:59 [vite] hmr update /src/design/atelier.css
+13:25:00 [vite] hmr update /src/components/PlatformIntro.vue, /src/style.css
+13:25:00 [vite] hmr update /src/views/InstrumentsView.vue, /src/style.css
+13:25:00 [vite] hmr update /src/views/LoginView.vue, /src/style.css
+13:26:06 [vite] hmr update /src/design/atelier.css

@@ -1,0 +1,399 @@
+{
+  "checks": [
+    {
+      "label": "320/home: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/home: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "320/home: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "320/home: navigation touch target 登录",
+      "passed": true
+    },
+    {
+      "label": "320/home: navigation touch target 注册",
+      "passed": true
+    },
+    {
+      "label": "320/home: both assessment shortcuts visible in first viewport",
+      "passed": true
+    },
+    {
+      "label": "320/home: section heading not hidden behind sticky header",
+      "passed": true
+    },
+    {
+      "label": "320/home/gallery: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/home/gallery: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "320/home/gallery: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "320/home/gallery: navigation touch target 登录",
+      "passed": true
+    },
+    {
+      "label": "320/home/gallery: navigation touch target 注册",
+      "passed": true
+    },
+    {
+      "label": "320/catalog: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/catalog: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "320/catalog: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "320/catalog: navigation touch target 登录",
+      "passed": true
+    },
+    {
+      "label": "320/catalog: navigation touch target 注册",
+      "passed": true
+    },
+    {
+      "label": "320/catalog: start preserves selected instrument through login",
+      "passed": true
+    },
+    {
+      "label": "320/login: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/login: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "320/login: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "320/login: navigation touch target 登录",
+      "passed": true
+    },
+    {
+      "label": "320/login: navigation touch target 注册",
+      "passed": true
+    },
+    {
+      "label": "320/login: form remains keyboard accessible",
+      "passed": true
+    },
+    {
+      "label": "320/report: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/report: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "320/report: navigation touch target 历史报告",
+      "passed": true
+    },
+    {
+      "label": "320/report: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "320/report: navigation touch target 账号",
+      "passed": true
+    },
+    {
+      "label": "320/report: fixed report remains readable",
+      "passed": true
+    },
+    {
+      "label": "390/home: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/home: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "390/home: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "390/home: navigation touch target 登录",
+      "passed": true
+    },
+    {
+      "label": "390/home: navigation touch target 注册",
+      "passed": true
+    },
+    {
+      "label": "390/home: both assessment shortcuts visible in first viewport",
+      "passed": true
+    },
+    {
+      "label": "390/home: section heading not hidden behind sticky header",
+      "passed": true
+    },
+    {
+      "label": "390/home/gallery: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/home/gallery: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "390/home/gallery: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "390/home/gallery: navigation touch target 登录",
+      "passed": true
+    },
+    {
+      "label": "390/home/gallery: navigation touch target 注册",
+      "passed": true
+    },
+    {
+      "label": "390/catalog: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/catalog: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "390/catalog: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "390/catalog: navigation touch target 登录",
+      "passed": true
+    },
+    {
+      "label": "390/catalog: navigation touch target 注册",
+      "passed": true
+    },
+    {
+      "label": "390/catalog: start preserves selected instrument through login",
+      "passed": true
+    },
+    {
+      "label": "390/login: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/login: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "390/login: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "390/login: navigation touch target 登录",
+      "passed": true
+    },
+    {
+      "label": "390/login: navigation touch target 注册",
+      "passed": true
+    },
+    {
+      "label": "390/login: form remains keyboard accessible",
+      "passed": true
+    },
+    {
+      "label": "390/report: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/report: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "390/report: navigation touch target 历史报告",
+      "passed": true
+    },
+    {
+      "label": "390/report: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "390/report: navigation touch target 账号",
+      "passed": true
+    },
+    {
+      "label": "390/report: fixed report remains readable",
+      "passed": true
+    },
+    {
+      "label": "1440/home: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/home: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "1440/home: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "1440/home: navigation touch target 登录",
+      "passed": true
+    },
+    {
+      "label": "1440/home: navigation touch target 注册",
+      "passed": true
+    },
+    {
+      "label": "1440/home: both assessment shortcuts visible in first viewport",
+      "passed": true
+    },
+    {
+      "label": "1440/home: section heading not hidden behind sticky header",
+      "passed": true
+    },
+    {
+      "label": "1440/home/gallery: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/home/gallery: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "1440/home/gallery: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "1440/home/gallery: navigation touch target 登录",
+      "passed": true
+    },
+    {
+      "label": "1440/home/gallery: navigation touch target 注册",
+      "passed": true
+    },
+    {
+      "label": "1440/catalog: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/catalog: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "1440/catalog: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "1440/catalog: navigation touch target 登录",
+      "passed": true
+    },
+    {
+      "label": "1440/catalog: navigation touch target 注册",
+      "passed": true
+    },
+    {
+      "label": "1440/catalog: start preserves selected instrument through login",
+      "passed": true
+    },
+    {
+      "label": "1440/login: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/login: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "1440/login: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "1440/login: navigation touch target 登录",
+      "passed": true
+    },
+    {
+      "label": "1440/login: navigation touch target 注册",
+      "passed": true
+    },
+    {
+      "label": "1440/login: form remains keyboard accessible",
+      "passed": true
+    },
+    {
+      "label": "1440/report: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/report: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "1440/report: navigation touch target 历史报告",
+      "passed": true
+    },
+    {
+      "label": "1440/report: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "1440/report: navigation touch target 演示用户",
+      "passed": true
+    },
+    {
+      "label": "1440/report: fixed report remains readable",
+      "passed": true
+    },
+    {
+      "label": "catalog: failure is visible and retry restores cards",
+      "passed": true
+    },
+    {
+      "label": "390/home/200-percent-zoom: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/home/200-percent-zoom: navigation touch target 开始测评",
+      "passed": true
+    },
+    {
+      "label": "390/home/200-percent-zoom: navigation touch target 关于",
+      "passed": true
+    },
+    {
+      "label": "390/home/200-percent-zoom: navigation touch target 登录",
+      "passed": true
+    },
+    {
+      "label": "390/home/200-percent-zoom: navigation touch target 注册",
+      "passed": true
+    },
+    {
+      "label": "no uncaught browser errors",
+      "passed": true
+    },
+    {
+      "label": "all APIs handled by synthetic fixtures",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "unexpectedApis": [],
+  "mode": "synthetic APIs; external network blocked"
+}

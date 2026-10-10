@@ -1,0 +1,138 @@
+
+ RUN  v2.1.9 D:/develop/develop/code/TypeMe/frontend
+
+ ✓ src/design/contrast.spec.ts (45 tests) 10ms
+stderr | src/components/platformIntro.spec.ts > 多量表首页入口 > 失败时能重试，空目录不编造测评卡片
+[typeme] 未预期的前端错误： offline Error: offline
+    at D:\develop\develop\code\TypeMe\frontend\src\components\platformIntro.spec.ts:42:44
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:146:14
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:533:11
+    at runWithTimeout (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:39:7)
+    at runTest (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1056:17)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runSuite (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1205:15)
+    at runFiles (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1262:5)
+    at startTests (file:///D:/develop/develop/code/TypeMe/frontend/node_modules/@vitest/runner/dist/index.js:1271:3)
+    at file:///D:/develop/develop/code/TypeMe/frontend/node_modules/vitest/dist/chunks/runBaseTests.3qpJUEJM.js:126:11
+
+ ✓ src/components/platformIntro.spec.ts (2 tests) 118ms
+stderr | src/views/shellNav.spec.ts > 顶栏导航（App.vue） > 首页首包带有居中的 ICP 备案号，挂载后进入页脚正中且仍然只有一份
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+
+stderr | src/views/shellNav.spec.ts > 顶栏导航（App.vue） > 停在关于页时，导航项写的仍然是它自己的目标名
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+
+ ✓ src/views/shellNav.spec.ts (9 tests) 335ms
+stderr | src/views/instrumentCopy.spec.ts > 公共壳的量表文案（App.vue） > 副标题与页脚署名跟着当前内容包走（四维 / 大五，各自不许串台）
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+[typeme] GET /meta 请求失败（Failed to parse URL from /api/v1/meta），已降级到内置副本
+
+stderr | src/views/instrumentCopy.spec.ts > 首页的量表文案与抽象图形（LandingView.vue） > 维度说明与首屏图形永远是首页主推的新测四维，不跟随本机装载的旧内容包
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/views.spec.ts > 首页（产品方案 §3.1） > 首屏出现新主文案、说明与题数耗时
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/views.spec.ts > 首页（产品方案 §3.1） > 不计分的教学例子四条齐全，且不再承诺"测出真实类型"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/instrumentCopy.spec.ts > 首页的量表文案与抽象图形（LandingView.vue） > 维度说明与首屏图形永远是首页主推的新测四维，不跟随本机装载的旧内容包
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/views.spec.ts > 首页（产品方案 §3.1） > 结果示例卡明确标「示例」，并用 INFP 的原创描述名（不冒充用户已有结果）
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/instrumentCopy.spec.ts > 首页的量表文案与抽象图形（LandingView.vue） > 两个包都不出现「最准 / 权威 / 官方测评结果」这类红线词
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/views.spec.ts > 首页（产品方案 §3.1） > 「你会得到什么」三项标题与 FAQ 前三项都在首屏
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/instrumentCopy.spec.ts > 首页的量表文案与抽象图形（LandingView.vue） > 两个包都不出现「最准 / 权威 / 官方测评结果」这类红线词
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/views.spec.ts > 首页（产品方案 §3.1） > 后端不可用时依然渲染（首页走新测自己的内置口径，不装载旧内容包）
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/instrumentCopy.spec.ts > 首页的量表文案与抽象图形（LandingView.vue） > 教学例子、价值三项与 FAQ 只讲首页主推新测的双极作答格式
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+stderr | src/views/instrumentCopy.spec.ts > 首页的量表文案与抽象图形（LandingView.vue） > 教学例子、价值三项与 FAQ 只讲首页主推新测的双极作答格式
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/assess"
+[Vue Router warn]: No match found for location with path "/assess"
+
+ ✓ src/views/instrumentCopy.spec.ts (7 tests) 530ms
+ ✓ src/views/reportV3View.spec.ts (36 tests) 1101ms
+stderr | src/views/views.spec.ts > 答题页（产品方案 §3.2 / §3.3） > 内容包装载失败时给出错误态与重试入口（不白屏）
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/views/views.spec.ts > 分享（产品方案 §5.1 第 7 条 / 开发方案 §7.4） > 系统分享成功只说「已交给系统分享」
+Not implemented: navigation to another Document
+
+stderr | src/views/views.spec.ts > 分享（产品方案 §5.1 第 7 条 / 开发方案 §7.4） > canvas 不可用时给出可复制文字的失败反馈，报告仍在
+[typeme] 生成分享图失败 Error: 当前浏览器不支持 canvas 2d，无法生成分享图
+    at renderShareCard (D:\develop\develop\code\TypeMe\frontend\src\utils\shareImage.ts:448:19)
+    at Module.shareCardBlob (D:\develop\develop\code\TypeMe\frontend\src\utils\shareImage.ts:460:18)
+    at generateShare (D:\develop\develop\code\TypeMe\frontend\src\views\ResultView.vue:163:24)
+    at callWithErrorHandling (D:\develop\develop\code\TypeMe\frontend\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:200:19)
+    at Object.callWithAsyncErrorHandling (D:\develop\develop\code\TypeMe\frontend\node_modules\@vue\runtime-core\dist\runtime-core.cjs.js:207:17)
+    at HTMLButtonElement.invoker (D:\develop\develop\code\TypeMe\frontend\node_modules\@vue\runtime-dom\dist\runtime-dom.cjs.js:707:19)
+    at HTMLButtonElement.callTheUserObjectsOperation (D:\develop\develop\code\TypeMe\frontend\node_modules\jsdom\lib\generated\idl\EventListener.js:26:30)
+    at innerInvokeEventListeners (D:\develop\develop\code\TypeMe\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:360:16)
+    at invokeEventListeners (D:\develop\develop\code\TypeMe\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:296:3)
+    at HTMLButtonElementImpl._dispatch (D:\develop\develop\code\TypeMe\frontend\node_modules\jsdom\lib\jsdom\living\events\EventTarget-impl.js:243:9)
+
+stderr | src/views/views.spec.ts > 分享（产品方案 §5.1 第 7 条 / 开发方案 §7.4） > Blob 为空也按失败处理，不给用户一张空图
+[typeme] canvas.toBlob 返回空产物，降级为 dataURL 转换
+[typeme] 生成分享图失败 Error: 分享图生成失败：图片数据为空
+    at Module.shareCardBlob (D:\develop\develop\code\TypeMe\frontend\src\utils\shareImage.ts:481:34)
+    at generateShare (D:\develop\develop\code\TypeMe\frontend\src\views\ResultView.vue:163:18)
+
+stderr | src/views/views.spec.ts > 关于页（产品方案 §3 / §8） > 包含四个必需部分
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/views/views.spec.ts > 关于页（产品方案 §3 / §8） > 使用统一的隐私表达，不写「不存储任何数据」
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+stderr | src/views/views.spec.ts > 关于页（产品方案 §3 / §8） > 更早保存的作答只用人话说明：不会自动套用，且不出现 v1/v2/派生会话等术语
+[typeme] GET /assessment-packages/ipip50-zh1 请求失败（Failed to parse URL from /api/v2/assessment-packages/ipip50-zh1），已降级到同 ID 内置副本
+
+ ✓ src/views/views.spec.ts (68 tests) 2564ms
+   ✓ 答题页（产品方案 §3.2 / §3.3） > 手机/PC 都必须手动点「下一题」才前进（没有自动跳题） 443ms
+
+ Test Files  6 passed (6)
+      Tests  167 passed (167)
+   Start at  13:26:32
+   Duration  6.89s (transform 2.88s, setup 0ms, collect 8.20s, tests 4.66s, environment 7.01s, prepare 910ms)

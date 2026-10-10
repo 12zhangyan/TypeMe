@@ -1,0 +1,58 @@
+[
+  {
+    "name": "muted-on-page",
+    "foreground": "#607565",
+    "background": "#f7f8f2",
+    "ratio": 4.65,
+    "passed": true
+  },
+  {
+    "name": "muted-on-card",
+    "foreground": "#607565",
+    "background": "#fffefb",
+    "ratio": 4.92,
+    "passed": true
+  },
+  {
+    "name": "body-on-card",
+    "foreground": "#56695d",
+    "background": "#fffefb",
+    "ratio": 5.83,
+    "passed": true
+  },
+  {
+    "name": "green-chip",
+    "foreground": "#3f624c",
+    "background": "#eaf1e8",
+    "ratio": 5.96,
+    "passed": true
+  },
+  {
+    "name": "sand-chip",
+    "foreground": "#786043",
+    "background": "#f2ecdf",
+    "ratio": 5.02,
+    "passed": true
+  },
+  {
+    "name": "active-navigation",
+    "foreground": "#244f3d",
+    "background": "#eaf1e8",
+    "ratio": 8.07,
+    "passed": true
+  },
+  {
+    "name": "report-label",
+    "foreground": "#56695d",
+    "background": "#fffefb",
+    "ratio": 5.83,
+    "passed": true
+  },
+  {
+    "name": "report-body",
+    "foreground": "#3c5043",
+    "background": "#fffefb",
+    "ratio": 8.6,
+    "passed": true
+  }
+]

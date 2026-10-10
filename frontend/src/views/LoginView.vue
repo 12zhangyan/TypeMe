@@ -62,7 +62,7 @@ async function onSubmit() {
 </script>
 
 <template>
-  <PageContainer page="article" class="auth-page">
+  <PageContainer page="article" class="auth-page login-page">
     <header>
       <p class="section-kicker">账号</p>
       <h1 class="mt-2 font-display text-[26px] font-bold leading-tight text-ink tablet:text-[32px]">

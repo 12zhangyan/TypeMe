@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, useId, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
@@ -114,6 +114,8 @@ onMounted(() => {
   else void reports.loadList()
 })
 
+onBeforeUnmount(() => reports.clearCurrent())
+
 // 同一个组件同时承担 `/reports`（历史列表）与 `/reports/:reportId`（详情）：
 // 两者共享"倒序、状态标签、删除、进详情"的全部规则，拆成两个组件只会让规则分叉。
 watch(reportId, (value) => {
@@ -127,6 +129,7 @@ watch(reportId, (value) => {
 watch(
   () => view.value?.reportId,
   () => {
+    notice.value = null
     reflectionType.value = view.value?.selfReflection.selfSelectedTypeCode ?? ''
     reflectionNote.value = view.value?.selfReflection.note ?? ''
   },
@@ -302,11 +305,12 @@ async function saveReflection(): Promise<void> {
     notice.value = '自选类型必须是四个字母（例如 INFP）。'
     return
   }
+  const revision = reports.loadRevision
   await reports.saveReflection({
     selfSelectedTypeCode: selected || null,
     note: reflectionNote.value,
   })
-  notice.value = reports.reflectionNotice
+  if (revision === reports.loadRevision) notice.value = reports.reflectionNotice
 }
 
 async function removeReport(): Promise<void> {
