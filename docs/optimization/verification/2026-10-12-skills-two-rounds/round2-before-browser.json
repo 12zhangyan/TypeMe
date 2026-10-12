@@ -1,0 +1,6 @@
+{
+  "checks": [],
+  "pageErrors": [],
+  "unexpectedApis": [],
+  "scope": "built frontend, Chromium, synthetic network; no backend/database/AI execution"
+}

@@ -1,0 +1,94 @@
+{"checks": [], "pageErrors": [], "unexpectedApis": [], "scope": "built frontend, Chromium, synthetic network; no backend/database/AI execution"}
+Traceback (most recent call last):
+  File "D:\develop\develop\code\TypeMe\scripts\browser-verify-skills-two-rounds.py", line 209, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "C:\Python314\Lib\asyncio\runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Python314\Lib\asyncio\runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Python314\Lib\asyncio\base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "D:\develop\develop\code\TypeMe\scripts\browser-verify-skills-two-rounds.py", line 196, in main
+    await scenario(browser, width, mode)
+  File "D:\develop\develop\code\TypeMe\scripts\browser-verify-skills-two-rounds.py", line 151, in scenario
+    await expect(page.get_by_role('link', name='账号与数据（已登录：验收乙）')).to_be_visible()
+  File "C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\async_api\_generated.py", line 22882, in to_be_visible
+    await self._impl_obj.to_be_visible(
+        visible=visible, timeout=to_milliseconds(timeout)
+    )
+  File "C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_assertions.py", line 841, in to_be_visible
+    await self._expect_impl(
+    ...<5 lines>...
+    )
+  File "C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_assertions.py", line 126, in _expect_impl
+    _record_soft_or_raise(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        AssertionError(
+        ^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        self._is_soft,
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\22518\AppData\Roaming\Python\Python314\site-packages\playwright\_impl\_assertions.py", line 60, in _record_soft_or_raise
+    raise error
+AssertionError: Locator expected to be visible
+Actual value: None
+Error: element(s) not found 
+Call log:
+  - Expect "to_be_visible" with timeout 5000ms
+  - waiting for get_by_role("link", name="账号与数据（已登录：验收乙）")
+
+Aria snapshot:
+- link "跳到主要内容":
+  - /url: "#main"
+- banner:
+  - link "TypeMe 首页":
+    - /url: "#/"
+    - text: TypeMe
+  - navigation "站点导航":
+    - link "开始测评":
+      - /url: "#/instruments"
+    - link "关于":
+      - /url: "#/about"
+    - link "登录":
+      - /url: "#/login"
+    - link "注册":
+      - /url: "#/register"
+- main:
+  - paragraph: 账号
+  - heading "登录" [level=1]
+  - paragraph: 登录后可保存进度和报告。
+  - status: 登录状态已经失效，请重新登录。
+  - text: 用户名
+  - textbox "用户名"
+  - text: 密码
+  - textbox "密码"
+  - paragraph: 先填用户名。
+  - button "登录" [disabled]
+  - paragraph:
+    - text: 还没有账号？
+    - link "注册一个":
+      - /url: "#/register?redirect=/account"
+    - text: 。忘记了密码？
+    - link "用恢复码重置":
+      - /url: "#/recover?redirect=/account"
+    - text: 。
+- contentinfo:
+  - paragraph: TypeMe · 多种测评，帮助你理解自己
+  - paragraph: 十六型为项目原创参考测评；大五基于 IPIP 公有领域题目。来源与权限详见方法与隐私。
+  - navigation:
+    - link "首页":
+      - /url: "#/"
+    - link "方法与隐私":
+      - /url: "#/about"
+    - link "本地记录":
+      - /url: "#/about#records"
+  - paragraph: 结果仅供自我探索参考，不用于诊断或选拔。
+  - paragraph:
+    - link "京ICP备2026066393号":
+      - /url: https://beian.miit.gov.cn/

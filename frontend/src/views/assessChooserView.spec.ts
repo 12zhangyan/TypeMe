@@ -73,6 +73,8 @@ let drafts: Record<string, unknown>[] = []
 let catalogDelay: Promise<void> | null = null
 let draftsFail = false
 let createFailOnce = false
+let catalogFail = false
+let createDelay: Promise<void> | null = null
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -93,6 +95,7 @@ function installFetch(): void {
     }
     if (method === 'GET' && url.includes('/platform/instruments')) {
       if (catalogDelay) await catalogDelay
+      if (catalogFail) return jsonResponse({ code: 'SERVICE_UNAVAILABLE', message: '目录暂不可用' }, 503)
       return jsonResponse(CATALOG)
     }
     if (method === 'GET' && url.includes('/platform/attempts')) {
@@ -104,6 +107,7 @@ function installFetch(): void {
       return jsonResponse({ items: open.slice(page * 50, (page + 1) * 50), total: open.length, page, size: 50 })
     }
     if (method === 'POST' && url.includes('/platform/attempts')) {
+      if (createDelay) await createDelay
       if (createFailOnce) {
         createFailOnce = false
         throw new TypeError('响应丢失')
@@ -219,6 +223,8 @@ beforeEach(() => {
   catalogDelay = null
   draftsFail = false
   createFailOnce = false
+  catalogFail = false
+  createDelay = null
   installFetch()
 })
 
@@ -246,6 +252,53 @@ describe('/assess 选择页', () => {
     expect(calls.find((call) => call.method === 'POST')!.body?.['instrument']).toBe('bigfive50')
     expect(router.currentRoute.value.name).toBe('assess-attempt')
     expect(router.currentRoute.value.params.attemptId).toBe('attempt-new')
+  })
+
+  it('目录失败只显示可重试的加载错误，不把有效量表误报成不存在', async () => {
+    catalogFail = true
+    const { wrapper } = await mountChooser('?instrument=bigfive50')
+    expect(wrapper.find('[data-assess-catalog-error]').exists()).toBe(true)
+    expect(wrapper.find('[data-assess-start-error]').exists()).toBe(false)
+    expect(calls.filter((call) => call.method === 'POST')).toHaveLength(0)
+    wrapper.unmount()
+  })
+
+  it('目录重试成功后继续原来的开始操作，且只创建一次', async () => {
+    catalogFail = true
+    const { wrapper, router } = await mountChooser('?instrument=bigfive50')
+    catalogFail = false
+    await wrapper.get('[data-assess-catalog-error] button').trigger('click')
+    await settle()
+    expect(calls.filter((call) => call.method === 'POST')).toHaveLength(1)
+    expect(router.currentRoute.value.params.attemptId).toBe('attempt-new')
+    wrapper.unmount()
+  })
+
+  it('同一页面从无效量表切换到有效量表后按新参数开始', async () => {
+    const { wrapper, router } = await mountChooser('?instrument=missing')
+    await router.push('/assess?instrument=bigfive50')
+    await settle()
+    expect(calls.filter((call) => call.method === 'POST')).toHaveLength(1)
+    expect(router.currentRoute.value.params.attemptId).toBe('attempt-new')
+    wrapper.unmount()
+  })
+
+  it('创建期间离开页面后，迟到成功不会把用户拉回答题页', async () => {
+    let release!: () => void
+    createDelay = new Promise<void>((resolve) => { release = resolve })
+    const router = makeRouter()
+    await router.push('/assess?instrument=bigfive50')
+    await router.isReady()
+    const wrapper = mount({ template: '<RouterView />' }, { global: { plugins: [router] } })
+    await settle()
+    expect(calls.filter((call) => call.method === 'POST')).toHaveLength(1)
+    await router.push('/instruments')
+    release()
+    await settle()
+    expect(router.currentRoute.value.name).toBe('instruments')
+    expect(wrapper.text()).toBe('列表')
+    expect(calls.filter((call) => call.method === 'POST')).toHaveLength(1)
+    wrapper.unmount()
   })
 
   it('目录还没回来时不会拿着 slug 去建草稿', async () => {

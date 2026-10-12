@@ -48,6 +48,28 @@ export const CSRF_INVALID_CODE = 'CSRF_INVALID'
 /** 未登录 / 会话过期（契约 §7.1）。 */
 export const UNAUTHENTICATED_CODE = 'UNAUTHENTICATED'
 
+/** 请求属于已结束的本地会话，禁止据此更新当前账号或重放旧写入。 */
+export const SESSION_CHANGED_CODE = 'SESSION_CHANGED'
+let sessionRevision = 0
+const responseSessions = new WeakMap<Response, number>()
+
+export function invalidateSessionRequests(): void {
+  sessionRevision += 1
+  clearCsrfToken()
+}
+
+function assertSession(revision: number): void {
+  if (revision !== sessionRevision) {
+    throw new V3ApiError({ code: SESSION_CHANGED_CODE,
+      message: '登录状态已改变，请在当前账号下重新操作。', requestId: null, details: {} })
+  }
+}
+
+function assertResponseSession(response: Response): void {
+  const revision = responseSessions.get(response)
+  if (revision !== undefined) assertSession(revision)
+}
+
 export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
 
 export type QueryValue = string | number | boolean | null | undefined
@@ -400,7 +422,7 @@ async function readErrorPayload(response: Response, path: string): Promise<V3Err
   return { code, message, requestId, details: isRecord(body.details) ? body.details : {} }
 }
 
-async function send(method: HttpMethod, path: string, options: RequestOptions): Promise<Response> {
+async function send(method: HttpMethod, path: string, options: RequestOptions, revision: number): Promise<Response> {
   if (typeof fetch !== 'function') throw networkError('当前环境不支持网络请求。')
 
   const headers: Record<string, string> = { Accept: 'application/json' }
@@ -411,6 +433,7 @@ async function send(method: HttpMethod, path: string, options: RequestOptions): 
     const header = currentCsrfHeader()
     if (header) headers[header.name] = header.value
   }
+  assertSession(revision)
   if (options.idempotencyKey) headers['Idempotency-Key'] = options.idempotencyKey
 
   const external = options.signal
@@ -436,6 +459,7 @@ async function send(method: HttpMethod, path: string, options: RequestOptions): 
   try {
     return await fetch(url, controller ? { ...baseInit, signal: controller.signal } : baseInit)
   } catch (error) {
+    assertSession(revision)
     if (controller && external && external.aborted) throw networkError('请求已取消。', error)
     if (controller && !external && isSignalRejection(error)) {
       // 环境不接受 signal：去掉超时再试一次，别把"环境限制"当成"服务器不可用"。
@@ -506,16 +530,23 @@ function notifySessionExpired(payload: V3ErrorPayload, status: number): void {
  * 无限重试只会把用户的按钮点成死循环。
  */
 async function request(method: HttpMethod, path: string, options: RequestOptions = {}): Promise<Response> {
-  const response = await send(method, path, options)
+  const revision = sessionRevision
+  const response = await send(method, path, options, revision)
+  assertSession(revision)
+  responseSessions.set(response, revision)
   if (response.ok) return response
 
   const payload = await readErrorPayload(response, path)
+  assertSession(revision)
   if (payload.code === CSRF_INVALID_CODE && method !== 'GET' && options.withCsrf !== false) {
     clearCsrfToken()
     await ensureCsrfToken()
-    const retried = await send(method, path, options)
+    const retried = await send(method, path, options, revision)
+    assertSession(revision)
+    responseSessions.set(retried, revision)
     if (retried.ok) return retried
     const retriedPayload = await readErrorPayload(retried, path)
+    assertSession(revision)
     notifySessionExpired(retriedPayload, retried.status)
     throw new V3ApiError(retriedPayload, { status: retried.status })
   }
@@ -524,6 +555,7 @@ async function request(method: HttpMethod, path: string, options: RequestOptions
 }
 
 async function readJson<T>(response: Response, path: string): Promise<T> {
+  assertResponseSession(response)
   const contentType = response.headers.get('content-type') ?? ''
   if (!contentType.includes('json')) {
     throw new V3ApiError(
@@ -536,9 +568,11 @@ async function readJson<T>(response: Response, path: string): Promise<T> {
       { status: response.status },
     )
   }
+  let value: T
   try {
-    return (await response.json()) as T
+    value = (await response.json()) as T
   } catch (error) {
+    assertResponseSession(response)
     throw new V3ApiError(
       {
         code: UNEXPECTED_RESPONSE_CODE,
@@ -549,6 +583,8 @@ async function readJson<T>(response: Response, path: string): Promise<T> {
       { status: response.status, originalError: error },
     )
   }
+  assertResponseSession(response)
+  return value
 }
 
 /** 204 / 空响应统一吃掉：调用方拿到 `void`。 */
@@ -559,6 +595,7 @@ async function ignoreBody(response: Response): Promise<void> {
   } catch {
     /* 空响应读不到内容是正常的 */
   }
+  assertResponseSession(response)
 }
 
 /* ── 给同族模块的公开出口 ────────────────────────────────────────────────
@@ -815,6 +852,7 @@ export async function exportAccountData(): Promise<ExportResult> {
 
   // 读一次文本，既用于挑出降级段落，又用它重建 blob（避免读两遍响应体）。
   const text = await response.text()
+  assertResponseSession(response)
   return {
     blob: new Blob([text], { type: 'application/json' }),
     filename,

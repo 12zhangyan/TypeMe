@@ -12,6 +12,8 @@ import {
   exportAccountData,
   fetchMe,
   isV3ApiError,
+  invalidateSessionRequests,
+  SESSION_CHANGED_CODE,
   loginAccount,
   logoutAccount,
   onSessionExpired,
@@ -62,6 +64,7 @@ interface AuthState {
   lastError: ErrorDisplay | null
   /** 有请求在飞（按钮用它做 disabled，并给出原因） */
   busy: boolean
+  operationRevision: number
 }
 
 /**
@@ -97,6 +100,7 @@ export const useAuthStore = defineStore('auth', {
     sessionNotice: null,
     lastError: null,
     busy: false,
+    operationRevision: 0,
   }),
 
   getters: {
@@ -111,6 +115,7 @@ export const useAuthStore = defineStore('auth', {
     /** 记下一份有效资料（登录 / 注册 / 拉取 /me / 改昵称都走这里）。 */
     applyProfile(profile: AccountProfile) {
       const previousUserId = this.profile?.userId ?? null
+      if (previousUserId !== profile.userId) invalidateSessionRequests()
       this.profile = profile
       this.status = 'authenticated'
       this.sessionNotice = null
@@ -132,6 +137,7 @@ export const useAuthStore = defineStore('auth', {
 
     /** 变成未登录。`notice` 用来解释"为什么突然要重新登录"。 */
     applyAnonymous(notice: string | null = null) {
+      invalidateSessionRequests()
       suspendedPendingOwner = notice ? this.profile?.userId ?? suspendedPendingOwner : null
       this.profile = null
       this.status = 'anonymous'
@@ -150,6 +156,7 @@ export const useAuthStore = defineStore('auth', {
     /** 把失败整理好：存进 `lastError`，401 顺带把登录态清掉。 */
     captureError(error: unknown): ErrorDisplay {
       const display = describeError(error)
+      if (display.code === SESSION_CHANGED_CODE) return display
       this.lastError = display
       if (display.sessionExpired) this.applyAnonymous(display.message)
       return display
@@ -162,6 +169,7 @@ export const useAuthStore = defineStore('auth', {
     /** 让 App 壳 / 页面把"会话检查失败"显示出来，而不是假装没登录。 */
     markCheckUnavailable(error: unknown) {
       const display = describeError(error)
+      if (display.code === SESSION_CHANGED_CODE) return
       if (display.sessionExpired) {
         this.applyAnonymous(display.message)
         return
@@ -183,11 +191,12 @@ export const useAuthStore = defineStore('auth', {
         await sessionCheck
         return
       }
-      sessionCheck = this.checkSession()
+      const pending = this.checkSession()
+      sessionCheck = pending
       try {
-        await sessionCheck
+        await pending
       } finally {
-        sessionCheck = null
+        if (sessionCheck === pending) sessionCheck = null
       }
     },
 
@@ -212,6 +221,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async login(username: string, password: string): Promise<AccountProfile> {
+      const operation = ++this.operationRevision
       this.busy = true
       this.lastError = null
       try {
@@ -225,7 +235,7 @@ export const useAuthStore = defineStore('auth', {
         this.captureError(error)
         throw error
       } finally {
-        this.busy = false
+        if (operation === this.operationRevision) this.busy = false
       }
     },
 
@@ -243,6 +253,7 @@ export const useAuthStore = defineStore('auth', {
       disclaimerAccepted: boolean,
       invitationCode: string,
     ): Promise<RegisterResult> {
+      const operation = ++this.operationRevision
       this.busy = true
       this.lastError = null
       try {
@@ -254,7 +265,7 @@ export const useAuthStore = defineStore('auth', {
         this.captureError(error)
         throw error
       } finally {
-        this.busy = false
+        if (operation === this.operationRevision) this.busy = false
       }
     },
 
@@ -265,6 +276,7 @@ export const useAuthStore = defineStore('auth', {
      * 返回是否通知到了服务端，页面据此决定要不要提示。
      */
     async logout(): Promise<{ notifiedServer: boolean }> {
+      const operation = ++this.operationRevision
       this.busy = true
       let notifiedServer = true
       try {
@@ -277,10 +289,12 @@ export const useAuthStore = defineStore('auth', {
           console.warn('[typeme] 退出请求失败：', display.code, display.requestId)
         }
       } finally {
-        clearCsrfToken()
-        this.applyAnonymous()
-        this.lastError = null
-        this.busy = false
+        if (operation === this.operationRevision) {
+          clearCsrfToken()
+          this.applyAnonymous()
+          this.lastError = null
+          this.busy = false
+        }
       }
       return { notifiedServer }
     },
@@ -292,6 +306,7 @@ export const useAuthStore = defineStore('auth', {
      * 让"拿新密码重新登录一次"成为验证新密码真的可用的最短路径。
      */
     async recover(username: string, recoveryCode: string, newPassword: string): Promise<void> {
+      const operation = ++this.operationRevision
       this.busy = true
       this.lastError = null
       try {
@@ -302,11 +317,12 @@ export const useAuthStore = defineStore('auth', {
         this.captureError(error)
         throw error
       } finally {
-        this.busy = false
+        if (operation === this.operationRevision) this.busy = false
       }
     },
 
     async saveNickname(nickname: string): Promise<AccountProfile> {
+      const operation = ++this.operationRevision
       this.busy = true
       this.lastError = null
       try {
@@ -317,12 +333,13 @@ export const useAuthStore = defineStore('auth', {
         this.captureError(error)
         throw error
       } finally {
-        this.busy = false
+        if (operation === this.operationRevision) this.busy = false
       }
     },
 
     /** 改密：服务端会撤销**其他**会话，当前这个保留，所以本地登录态不动。 */
     async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+      const operation = ++this.operationRevision
       this.busy = true
       this.lastError = null
       try {
@@ -332,12 +349,13 @@ export const useAuthStore = defineStore('auth', {
         this.captureError(error)
         throw error
       } finally {
-        this.busy = false
+        if (operation === this.operationRevision) this.busy = false
       }
     },
 
     /** 重新生成恢复码：返回值**只出现这一次**，页面必须让用户抄下来。 */
     async issueRecoveryCodes(currentPassword: string): Promise<string[]> {
+      const operation = ++this.operationRevision
       this.busy = true
       this.lastError = null
       try {
@@ -346,12 +364,13 @@ export const useAuthStore = defineStore('auth', {
         this.captureError(error)
         throw error
       } finally {
-        this.busy = false
+        if (operation === this.operationRevision) this.busy = false
       }
     },
 
     /** 导出个人数据：只把文件交给页面，下载动作由页面做（才能给出可见反馈）。 */
     async exportData(): Promise<ExportResult> {
+      const operation = ++this.operationRevision
       this.busy = true
       this.lastError = null
       try {
@@ -360,12 +379,13 @@ export const useAuthStore = defineStore('auth', {
         this.captureError(error)
         throw error
       } finally {
-        this.busy = false
+        if (operation === this.operationRevision) this.busy = false
       }
     },
 
     /** 注销账号：受理后服务端立即禁止登录，本地也立刻变成未登录。 */
     async deleteAccount(password: string): Promise<DeletionResult> {
+      const operation = ++this.operationRevision
       this.busy = true
       this.lastError = null
       try {
@@ -377,12 +397,15 @@ export const useAuthStore = defineStore('auth', {
         this.captureError(error)
         throw error
       } finally {
-        this.busy = false
+        if (operation === this.operationRevision) this.busy = false
       }
     },
 
     /** 供测试与"换账号"场景用：回到"还没问过服务端"。 */
     reset() {
+      invalidateSessionRequests()
+      this.operationRevision += 1
+      sessionCheck = null
       this.status = 'unknown'
       this.profile = null
       this.sessionNotice = null

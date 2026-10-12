@@ -51,6 +51,7 @@ export interface CsrfHeader {
 
 let remembered: CsrfTokenInfo | null = null
 let inflight: Promise<CsrfTokenInfo | null> | null = null
+let cacheRevision = 0
 let warnedFallback = false
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -108,7 +109,9 @@ export function rememberCsrfToken(payload: unknown): CsrfTokenInfo | null {
 
 /** 忘掉内存里的 token。登录 / 退出 / 恢复密码之后必须调用：那时会话已换，旧 token 一定失效。 */
 export function clearCsrfToken(): void {
+  cacheRevision += 1
   remembered = null
+  inflight = null
 }
 
 /** 当前可直接用于请求头的 token；没有就返回 null（调用方应先 `ensureCsrfToken()`）。 */
@@ -137,14 +140,15 @@ export async function ensureCsrfToken(): Promise<CsrfTokenInfo | null> {
   }
   if (typeof fetch !== 'function') return null
   if (!inflight) {
-    inflight = fetchCsrfToken().finally(() => {
-      inflight = null
+    const revision = cacheRevision
+    inflight = fetchCsrfToken(revision).finally(() => {
+      if (revision === cacheRevision) inflight = null
     })
   }
   return inflight
 }
 
-async function fetchCsrfToken(): Promise<CsrfTokenInfo | null> {
+async function fetchCsrfToken(revision: number): Promise<CsrfTokenInfo | null> {
   const controller = typeof AbortController === 'function' ? new AbortController() : null
   const timer = controller ? setTimeout(() => controller.abort(), CSRF_TIMEOUT_MS) : null
   try {
@@ -157,8 +161,10 @@ async function fetchCsrfToken(): Promise<CsrfTokenInfo | null> {
       ...(controller ? { signal: controller.signal } : {}),
     })
     if (!response.ok) throw new Error(`GET ${CSRF_ENDPOINT} 返回 ${response.status}`)
-    return rememberCsrfToken(await response.json())
+    const payload: unknown = await response.json()
+    return revision === cacheRevision ? rememberCsrfToken(payload) : null
   } catch (error) {
+    if (revision !== cacheRevision) return null
     const reason = error instanceof Error ? error.message : String(error)
     const cookie = readCsrfCookie()
     if (cookie) {

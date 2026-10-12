@@ -1,0 +1,186 @@
+{
+  "passed": true,
+  "round": "all",
+  "baseline": false,
+  "checks": [
+    {
+      "label": "320/catalog-retry: failed catalog cannot create a draft",
+      "passed": true
+    },
+    {
+      "label": "320/catalog-retry: control is not obscured",
+      "passed": true
+    },
+    {
+      "label": "320/catalog-retry: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/catalog-retry: keyboard retry enters original assessment once",
+      "passed": true
+    },
+    {
+      "label": "320/leave-during-create: late response cannot reverse navigation",
+      "passed": true
+    },
+    {
+      "label": "320/leave-during-create: no duplicate create",
+      "passed": true
+    },
+    {
+      "label": "320/session-late-401: new session remains signed in",
+      "passed": true
+    },
+    {
+      "label": "320/session-late-401: old write is not replayed",
+      "passed": true
+    },
+    {
+      "label": "320/session-late-401: control is not obscured",
+      "passed": true
+    },
+    {
+      "label": "320/session-late-401: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320/session-late-csrf: new session remains signed in",
+      "passed": true
+    },
+    {
+      "label": "320/session-late-csrf: old write is not replayed",
+      "passed": true
+    },
+    {
+      "label": "320/session-late-csrf: control is not obscured",
+      "passed": true
+    },
+    {
+      "label": "320/session-late-csrf: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/catalog-retry: failed catalog cannot create a draft",
+      "passed": true
+    },
+    {
+      "label": "390/catalog-retry: control is not obscured",
+      "passed": true
+    },
+    {
+      "label": "390/catalog-retry: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/catalog-retry: keyboard retry enters original assessment once",
+      "passed": true
+    },
+    {
+      "label": "390/leave-during-create: late response cannot reverse navigation",
+      "passed": true
+    },
+    {
+      "label": "390/leave-during-create: no duplicate create",
+      "passed": true
+    },
+    {
+      "label": "390/session-late-401: new session remains signed in",
+      "passed": true
+    },
+    {
+      "label": "390/session-late-401: old write is not replayed",
+      "passed": true
+    },
+    {
+      "label": "390/session-late-401: control is not obscured",
+      "passed": true
+    },
+    {
+      "label": "390/session-late-401: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390/session-late-csrf: new session remains signed in",
+      "passed": true
+    },
+    {
+      "label": "390/session-late-csrf: old write is not replayed",
+      "passed": true
+    },
+    {
+      "label": "390/session-late-csrf: control is not obscured",
+      "passed": true
+    },
+    {
+      "label": "390/session-late-csrf: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/catalog-retry: failed catalog cannot create a draft",
+      "passed": true
+    },
+    {
+      "label": "1440/catalog-retry: control is not obscured",
+      "passed": true
+    },
+    {
+      "label": "1440/catalog-retry: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/catalog-retry: keyboard retry enters original assessment once",
+      "passed": true
+    },
+    {
+      "label": "1440/leave-during-create: late response cannot reverse navigation",
+      "passed": true
+    },
+    {
+      "label": "1440/leave-during-create: no duplicate create",
+      "passed": true
+    },
+    {
+      "label": "1440/session-late-401: new session remains signed in",
+      "passed": true
+    },
+    {
+      "label": "1440/session-late-401: old write is not replayed",
+      "passed": true
+    },
+    {
+      "label": "1440/session-late-401: control is not obscured",
+      "passed": true
+    },
+    {
+      "label": "1440/session-late-401: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440/session-late-csrf: new session remains signed in",
+      "passed": true
+    },
+    {
+      "label": "1440/session-late-csrf: old write is not replayed",
+      "passed": true
+    },
+    {
+      "label": "1440/session-late-csrf: control is not obscured",
+      "passed": true
+    },
+    {
+      "label": "1440/session-late-csrf: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "no page exceptions",
+      "passed": true
+    },
+    {
+      "label": "all API calls are declared synthetic fixtures",
+      "passed": true
+    }
+  ],
+  "pageErrors": [],
+  "unexpectedApis": [],
+  "scope": "built frontend, Chromium, synthetic network; no backend/database/AI execution"
+}
