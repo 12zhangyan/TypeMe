@@ -1,0 +1,26 @@
+
+ RUN  v2.1.9 D:/develop/develop/code/TypeMe/frontend
+
+ ❯ src/api/sessionIsolation.spec.ts (12 tests | 1 failed) 41ms
+   × 请求只属于发起时的会话 > 账号切换后立即重新载入目录，旧请求不结束新 loading 或留下错误 7ms
+     → expected "spy" to be called 2 times, but got 1 times
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/api/sessionIsolation.spec.ts > 请求只属于发起时的会话 > 账号切换后立即重新载入目录，旧请求不结束新 loading 或留下错误
+AssertionError: expected "spy" to be called 2 times, but got 1 times
+ ❯ src/api/sessionIsolation.spec.ts:154:21
+    152|     await first
+    153|     try {
+    154|       expect(fetch).toHaveBeenCalledTimes(2)
+       |                     ^
+    155|       expect(instruments.loading).toBe(true)
+    156|       expect(instruments.error).toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  11:02:45
+   Duration  2.16s (transform 189ms, setup 0ms, collect 354ms, tests 41ms, environment 875ms, prepare 93ms)
+

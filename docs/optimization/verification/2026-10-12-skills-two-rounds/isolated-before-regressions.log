@@ -1,0 +1,368 @@
+
+ RUN  v2.1.9 C:/Users/22518/AppData/Local/Temp/typeme-two-rounds-20261012-1791773191365/typeme-before/frontend
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 列出来源目录里的两项，并说明各自会得到什么
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 带 ?instrument=<slug> 过来时自动开始那一项，不需要再点一次
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+ ❯ src/api/sessionIsolation.spec.ts (12 tests | 11 failed) 46ms
+   × 请求只属于发起时的会话 > 旧请求的 401 不能退出后登录的新账号 14ms
+     → expected undefined to be 'account-b' // Object.is equality
+   × 请求只属于发起时的会话 > 错误正文迟到时也不能退出新账号 3ms
+     → expected undefined to be 'account-b' // Object.is equality
+   × 请求只属于发起时的会话 > 旧写请求的 CSRF 错误不能用新账号自动重发 9ms
+     → expected 2 to be 1 // Object.is equality
+   × 请求只属于发起时的会话 > 等待安全校验时更换账号，不再发送旧的业务写入 2ms
+     → expected 1 to be +0 // Object.is equality
+   × 请求只属于发起时的会话 > 迟到的个人资料不能把新账号覆盖成旧账号 2ms
+     → expected 'account-a' to be 'account-b' // Object.is equality
+   × 请求只属于发起时的会话 > 成功响应正文仍在读取时换号，不接受旧账号资料 2ms
+     → expected 'account-a' to be 'account-b' // Object.is equality
+   × 请求只属于发起时的会话 > 读取导出正文期间换号，不把旧账号文件交给新页面 2ms
+     → expected undefined to be 'SESSION_CHANGED' // Object.is equality
+   × 请求只属于发起时的会话 > 账号切换后立即重新载入目录，旧请求不结束新 loading 或留下错误 2ms
+     → expected "spy" to be called 2 times, but got 1 times
+   × 请求只属于发起时的会话 > 旧动作的 finally 不解除新登录请求的忙碌状态 3ms
+     → expected false to be true // Object.is equality
+   × 安全校验缓存失效 > 旧请求的清理回调不能移除仍在获取的新 token 请求 1ms
+     → expected "spy" to be called 2 times, but got 1 times
+   × 安全校验缓存失效 > 清理旧缓存后新请求独立取值，迟到旧结果不覆盖新缓存 1ms
+     → expected "spy" to be called 2 times, but got 1 times
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 目录重试成功后继续原来的开始操作，且只创建一次
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 同一页面从无效量表切换到有效量表后按新参数开始
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 同一页面从无效量表切换到有效量表后按新参数开始
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 创建期间离开页面后，迟到成功不会把用户拉回答题页
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 目录还没回来时不会拿着 slug 去建草稿
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > URL 里带的量表不存在时明确说出来，而不是毫无反应
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 已有没答完的草稿时，卡片按钮继续那一份，不新建
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 带 slug 过来时若已有没答完的草稿，继续那一份而不是新建
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 已经提交过的记录不算草稿入口
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 超过一页的开放草稿仍可见，服务端筛选先于分页
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 草稿查询失败时不把失败当成空列表，也不自动创建
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 创建请求响应丢失后重试保持同一键，重复点击不会并发创建
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 创建请求响应丢失后重试保持同一键，重复点击不会并发创建
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+ ❯ src/views/assessChooserView.spec.ts (14 tests | 4 failed) 215ms
+   × /assess 选择页 > 目录失败只显示可重试的加载错误，不把有效量表误报成不存在 14ms
+     → expected true to be false // Object.is equality
+   × /assess 选择页 > 目录重试成功后继续原来的开始操作，且只创建一次 13ms
+     → expected [] to have a length of 1 but got +0
+   × /assess 选择页 > 同一页面从无效量表切换到有效量表后按新参数开始 8ms
+     → expected [] to have a length of 1 but got +0
+   × /assess 选择页 > 创建期间离开页面后，迟到成功不会把用户拉回答题页 17ms
+     → expected 'assess-attempt' to be 'instruments' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 15 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/api/sessionIsolation.spec.ts > 请求只属于发起时的会话 > 旧请求的 401 不能退出后登录的新账号
+AssertionError: expected undefined to be 'account-b' // Object.is equality
+
+- Expected: 
+"account-b"
+
++ Received: 
+undefined
+
+ ❯ src/api/sessionIsolation.spec.ts:45:34
+     43|     old.resolve(json({ code: 'UNAUTHENTICATED', message: 'old session …
+     44|     await pending
+     45|     expect(auth.profile?.userId).toBe('account-b')
+       |                                  ^
+     46|     expect(auth.status).toBe('authenticated')
+     47|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯
+
+ FAIL  src/api/sessionIsolation.spec.ts > 请求只属于发起时的会话 > 错误正文迟到时也不能退出新账号
+AssertionError: expected undefined to be 'account-b' // Object.is equality
+
+- Expected: 
+"account-b"
+
++ Received: 
+undefined
+
+ ❯ src/api/sessionIsolation.spec.ts:65:44
+     63|     body.resolve({ code: 'UNAUTHENTICATED' })
+     64|     await pending
+     65|     expect(useAuthStore().profile?.userId).toBe('account-b')
+       |                                            ^
+     66|   })
+     67| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯
+
+ FAIL  src/api/sessionIsolation.spec.ts > 请求只属于发起时的会话 > 旧写请求的 CSRF 错误不能用新账号自动重发
+AssertionError: expected 2 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ src/api/sessionIsolation.spec.ts:83:20
+     81|     old.resolve(json({ code: 'CSRF_INVALID' }, 403))
+     82|     await pending
+     83|     expect(writes).toBe(1)
+       |                    ^
+     84|     expect(useAuthStore().profile?.userId).toBe('account-b')
+     85|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯
+
+ FAIL  src/api/sessionIsolation.spec.ts > 请求只属于发起时的会话 > 等待安全校验时更换账号，不再发送旧的业务写入
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ src/api/sessionIsolation.spec.ts:100:20
+     98|     token.resolve(json(csrf('synthetic-old')))
+     99|     await pending
+    100|     expect(writes).toBe(0)
+       |                    ^
+    101|   })
+    102| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯
+
+ FAIL  src/api/sessionIsolation.spec.ts > 请求只属于发起时的会话 > 迟到的个人资料不能把新账号覆盖成旧账号
+AssertionError: expected 'account-a' to be 'account-b' // Object.is equality
+
+Expected: "account-b"
+Received: "account-a"
+
+ ❯ src/api/sessionIsolation.spec.ts:111:34
+    109|     old.resolve(json(profile('account-a')))
+    110|     await pending
+    111|     expect(auth.profile?.userId).toBe('account-b')
+       |                                  ^
+    112|     expect(auth.lastError).toBeNull()
+    113|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/15]⎯
+
+ FAIL  src/api/sessionIsolation.spec.ts > 请求只属于发起时的会话 > 成功响应正文仍在读取时换号，不接受旧账号资料
+AssertionError: expected 'account-a' to be 'account-b' // Object.is equality
+
+Expected: "account-b"
+Received: "account-a"
+
+ ❯ src/api/sessionIsolation.spec.ts:125:44
+    123|     body.resolve(profile('account-a'))
+    124|     await pending
+    125|     expect(useAuthStore().profile?.userId).toBe('account-b')
+       |                                            ^
+    126|   })
+    127| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/15]⎯
+
+ FAIL  src/api/sessionIsolation.spec.ts > 请求只属于发起时的会话 > 读取导出正文期间换号，不把旧账号文件交给新页面
+AssertionError: expected undefined to be 'SESSION_CHANGED' // Object.is equality
+
+- Expected: 
+"SESSION_CHANGED"
+
++ Received: 
+undefined
+
+ ❯ src/api/sessionIsolation.spec.ts:139:25
+    137|     body.resolve(JSON.stringify({ userId: 'account-a', reports: [] }))
+    138|     const result = await pending
+    139|     expect(result.code).toBe('SESSION_CHANGED')
+       |                         ^
+    140|     expect(useAuthStore().lastError).toBeNull()
+    141|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/15]⎯
+
+ FAIL  src/api/sessionIsolation.spec.ts > 请求只属于发起时的会话 > 账号切换后立即重新载入目录，旧请求不结束新 loading 或留下错误
+AssertionError: expected "spy" to be called 2 times, but got 1 times
+ ❯ src/api/sessionIsolation.spec.ts:154:21
+    152|     await first
+    153|     try {
+    154|       expect(fetch).toHaveBeenCalledTimes(2)
+       |                     ^
+    155|       expect(instruments.loading).toBe(true)
+    156|       expect(instruments.error).toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/15]⎯
+
+ FAIL  src/api/sessionIsolation.spec.ts > 请求只属于发起时的会话 > 旧动作的 finally 不解除新登录请求的忙碌状态
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/api/sessionIsolation.spec.ts:182:29
+    180|     old.resolve(json(profile('account-a')))
+    181|     await saving
+    182|     try { expect(auth.busy).toBe(true) }
+       |                             ^
+    183|     finally { login.resolve(json(profile('account-b'))); await logging…
+    184|     expect(auth.profile?.userId).toBe('account-b')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/15]⎯
+
+ FAIL  src/api/sessionIsolation.spec.ts > 安全校验缓存失效 > 旧请求的清理回调不能移除仍在获取的新 token 请求
+AssertionError: expected "spy" to be called 2 times, but got 1 times
+ ❯ src/api/sessionIsolation.spec.ts:202:19
+    200|     fresh.resolve(json(csrf('synthetic-fresh')))
+    201|     await Promise.all([second, third])
+    202|     expect(fetch).toHaveBeenCalledTimes(2)
+       |                   ^
+    203|     expect(currentCsrfHeader()?.value).toBe('synthetic-fresh')
+    204|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/15]⎯
+
+ FAIL  src/api/sessionIsolation.spec.ts > 安全校验缓存失效 > 清理旧缓存后新请求独立取值，迟到旧结果不覆盖新缓存
+AssertionError: expected "spy" to be called 2 times, but got 1 times
+ ❯ src/api/sessionIsolation.spec.ts:216:19
+    214|     old.resolve(json(csrf('synthetic-old')))
+    215|     await Promise.all([first, second])
+    216|     expect(fetch).toHaveBeenCalledTimes(2)
+       |                   ^
+    217|     expect(currentCsrfHeader()?.value).toBe('synthetic-fresh')
+    218|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/15]⎯
+
+ FAIL  src/views/assessChooserView.spec.ts > /assess 选择页 > 目录失败只显示可重试的加载错误，不把有效量表误报成不存在
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/views/assessChooserView.spec.ts:261:64
+    259|     const { wrapper } = await mountChooser('?instrument=bigfive50')
+    260|     expect(wrapper.find('[data-assess-catalog-error]').exists()).toBe(…
+    261|     expect(wrapper.find('[data-assess-start-error]').exists()).toBe(fa…
+       |                                                                ^
+    262|     expect(calls.filter((call) => call.method === 'POST')).toHaveLengt…
+    263|     wrapper.unmount()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/15]⎯
+
+ FAIL  src/views/assessChooserView.spec.ts > /assess 选择页 > 目录重试成功后继续原来的开始操作，且只创建一次
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/views/assessChooserView.spec.ts:272:60
+    270|     await wrapper.get('[data-assess-catalog-error] button').trigger('c…
+    271|     await settle()
+    272|     expect(calls.filter((call) => call.method === 'POST')).toHaveLengt…
+       |                                                            ^
+    273|     expect(router.currentRoute.value.params.attemptId).toBe('attempt-n…
+    274|     wrapper.unmount()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/15]⎯
+
+ FAIL  src/views/assessChooserView.spec.ts > /assess 选择页 > 同一页面从无效量表切换到有效量表后按新参数开始
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/views/assessChooserView.spec.ts:281:60
+    279|     await router.push('/assess?instrument=bigfive50')
+    280|     await settle()
+    281|     expect(calls.filter((call) => call.method === 'POST')).toHaveLengt…
+       |                                                            ^
+    282|     expect(router.currentRoute.value.params.attemptId).toBe('attempt-n…
+    283|     wrapper.unmount()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/15]⎯
+
+ FAIL  src/views/assessChooserView.spec.ts > /assess 选择页 > 创建期间离开页面后，迟到成功不会把用户拉回答题页
+AssertionError: expected 'assess-attempt' to be 'instruments' // Object.is equality
+
+Expected: "instruments"
+Received: "assess-attempt"
+
+ ❯ src/views/assessChooserView.spec.ts:298:44
+    296|     release()
+    297|     await settle()
+    298|     expect(router.currentRoute.value.name).toBe('instruments')
+       |                                            ^
+    299|     expect(wrapper.text()).toBe('列表')
+    300|     expect(calls.filter((call) => call.method === 'POST')).toHaveLengt…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/15]⎯
+
+ Test Files  2 failed (2)
+      Tests  15 failed | 11 passed (26)
+   Start at  11:08:25
+   Duration  2.24s (transform 385ms, setup 0ms, collect 781ms, tests 261ms, environment 1.80s, prepare 187ms)
+

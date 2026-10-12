@@ -1,0 +1,86 @@
+
+ RUN  v2.1.9 D:/develop/develop/code/TypeMe/frontend
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 列出来源目录里的两项，并说明各自会得到什么
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 带 ?instrument=<slug> 过来时自动开始那一项，不需要再点一次
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 目录重试成功后继续原来的开始操作，且只创建一次
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 同一页面从无效量表切换到有效量表后按新参数开始
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 同一页面从无效量表切换到有效量表后按新参数开始
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 创建期间离开页面后，迟到成功不会把用户拉回答题页
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 目录还没回来时不会拿着 slug 去建草稿
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > URL 里带的量表不存在时明确说出来，而不是毫无反应
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 已有没答完的草稿时，卡片按钮继续那一份，不新建
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 已有没答完的草稿时，卡片按钮继续那一份，不新建
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 带 slug 过来时若已有没答完的草稿，继续那一份而不是新建
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 已经提交过的记录不算草稿入口
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 超过一页的开放草稿仍可见，服务端筛选先于分页
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 草稿查询失败时不把失败当成空列表，也不自动创建
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 创建请求响应丢失后重试保持同一键，重复点击不会并发创建
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+stderr | src/views/assessChooserView.spec.ts > /assess 选择页 > 创建请求响应丢失后重试保持同一键，重复点击不会并发创建
+[Vue Router warn]: No match found for location with path "/instruments/jung48/method"
+[Vue Router warn]: No match found for location with path "/instruments/bigfive50/method"
+
+ ✓ src/views/assessChooserView.spec.ts (14 tests) 302ms
+
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+   Start at  10:51:36
+   Duration  2.59s (transform 264ms, setup 0ms, collect 431ms, tests 302ms, environment 1.03s, prepare 95ms)
+

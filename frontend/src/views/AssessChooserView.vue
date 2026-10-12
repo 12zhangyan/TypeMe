@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
@@ -41,6 +41,8 @@ const bigFive = useBigFiveStore()
 const assessment = useAssessmentStore()
 const route = useRoute()
 const router = useRouter()
+let active = true
+onBeforeUnmount(() => { active = false })
 
 const starting = ref<string | null>(null)
 /**
@@ -112,7 +114,9 @@ async function loadDrafts(): Promise<void> {
 
 /** 开始（或继续）一项测评。 */
 async function start(slug: string): Promise<void> {
-  if (starting.value || draftsLoading.value || !draftsLoaded.value || draftsError.value) return
+  if (!active || starting.value || draftsLoading.value || !draftsLoaded.value || draftsError.value) return
+  const origin = route.fullPath
+  const stillHere = () => active && route.fullPath === origin
   // 已经有没答完的草稿时**继续那一份**，不要再建一份新的。
   //
   // 建新草稿的代价不是多一行数据：用户在旧草稿上答过的题会留在那里，
@@ -129,14 +133,14 @@ async function start(slug: string): Promise<void> {
   try {
     if (slug === BIG_FIVE_SLUG) {
       const attempt = await bigFive.start(slug)
-      await router.push({ name: 'assess-attempt', params: { attemptId: attempt.attemptId } })
+      if (stillHere()) await router.push({ name: 'assess-attempt', params: { attemptId: attempt.attemptId } })
       return
     }
     // 十六型：沿用既有 store（它自己负责 package 解析与幂等键）。
     const detail = await assessment.create(null)
-    await router.push({ name: 'assess-attempt', params: { attemptId: detail.attemptId } })
+    if (stillHere()) await router.push({ name: 'assess-attempt', params: { attemptId: detail.attemptId } })
   } catch (error) {
-    startError.value = describeError(error).message
+    if (stillHere()) startError.value = describeError(error).message
   } finally {
     starting.value = null
   }
@@ -149,15 +153,17 @@ async function start(slug: string): Promise<void> {
  * `start()` 的结果：目录没载入时卡片不存在（会被当成未知 slug），草稿没读到时会
  * 多建一份草稿。所以**等两者都落定**再自动开始，且只做一次。
  */
-const autoStartHandled = ref(false)
+const autoStartHandled = ref<string | null>(null)
 watch(
-  () => [route.query.instrument, instruments.attempted, draftsLoaded.value] as const,
+  () => [route.query.instrument, instruments.attempted, instruments.loading, instruments.error,
+    draftsLoaded.value, draftsError.value, starting.value] as const,
   () => {
-    if (autoStartHandled.value) return
+    if (!active || route.name !== 'assess') return
     const slug = typeof route.query.instrument === 'string' ? route.query.instrument : null
-    if (!slug) return
-    if (!instruments.attempted || !draftsLoaded.value || draftsError.value) return
-    autoStartHandled.value = true
+    if (!slug || autoStartHandled.value === slug || starting.value) return
+    if (!instruments.attempted || instruments.loading || instruments.error || !draftsLoaded.value || draftsError.value) return
+    autoStartHandled.value = slug
+    startError.value = null
     if (!instruments.bySlug(slug)) {
       // 未知 slug 不静默忽略：URL 里带了一个不存在的量表，用户需要知道为什么没反应。
       startError.value = `链接里的量表「${slug}」不在当前可用的测评里，请从下面的列表选一项。`

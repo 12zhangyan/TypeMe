@@ -1,0 +1,13 @@
+{
+  "command": "node node_modules/vitest/vitest.mjs run src/views/assessChooserView.spec.ts",
+  "exitCode": 1,
+  "total": 14,
+  "passed": 10,
+  "failed": 4,
+  "failures": [
+    "有效量表因目录失败被误判不存在",
+    "目录重试后没有 POST 创建请求",
+    "同页改量表参数没有 POST 创建请求",
+    "离开页面后旧创建响应把路由改回 assess-attempt"
+  ]
+}

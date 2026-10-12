@@ -30,6 +30,7 @@ export interface InstrumentListState {
   attempted: boolean
   error: string | null
   details: Record<string, InstrumentDetail>
+  generation: number
 }
 
 export const useInstrumentsStore = defineStore('instruments', {
@@ -39,6 +40,7 @@ export const useInstrumentsStore = defineStore('instruments', {
     attempted: false,
     error: null,
     details: {},
+    generation: 0,
   }),
 
   getters: {
@@ -58,32 +60,40 @@ export const useInstrumentsStore = defineStore('instruments', {
     async load(force = false): Promise<void> {
       if (this.loading) return
       if (this.attempted && !force) return
+      const generation = this.generation
       this.loading = true
       this.error = null
       try {
-        this.items = await fetchInstruments()
+        const items = await fetchInstruments()
+        if (generation === this.generation) this.items = items
       } catch (error) {
-        this.error = describeError(error).message
+        if (generation === this.generation) this.error = describeError(error).message
       } finally {
-        this.loading = false
-        this.attempted = true
+        if (generation === this.generation) {
+          this.loading = false
+          this.attempted = true
+        }
       }
     },
 
     async loadDetail(slug: string, force = false): Promise<InstrumentDetail | null> {
       if (!force && this.details[slug]) return this.details[slug]
+      const generation = this.generation
       try {
         const detail = await fetchInstrumentDetail(slug)
+        if (generation !== this.generation) return null
         this.details = { ...this.details, [slug]: detail }
         return detail
       } catch (error) {
-        this.error = describeError(error).message
+        if (generation === this.generation) this.error = describeError(error).message
         return null
       }
     },
 
-    /** 退出登录时清掉：目录是登录态数据，不该被下一个账号看到。 */
+    /** 会话切换时重新读取公开目录，旧请求不能阻塞或覆盖新请求。 */
     reset(): void {
+      this.generation += 1
+      this.loading = false
       this.items = []
       this.attempted = false
       this.error = null
