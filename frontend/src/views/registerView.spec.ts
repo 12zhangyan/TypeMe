@@ -49,11 +49,14 @@ function makeRouter(): Router {
   })
 }
 
-async function mountRegister() {
+async function mountRegister(attachToDocument = false) {
   const router = makeRouter()
   await router.push('/register')
   await router.isReady()
-  const wrapper = mount(RegisterView, { global: { plugins: [router] } })
+  const wrapper = mount(RegisterView, {
+    attachTo: attachToDocument ? document.body : undefined,
+    global: { plugins: [router] },
+  })
   await flushPromises()
   return { wrapper, router }
 }
@@ -121,6 +124,17 @@ describe('注册页：免责声明同意项', () => {
     const payload = registerAccount.mock.calls[0]![0] as Record<string, unknown>
     expect(payload['disclaimerAccepted']).toBe(true)
     expect(payload['username']).toBe('zhangsan')
+  })
+
+  it('表单还没填完时，点灰色的创建账号不会提交，而是把挡住的那一格聚焦', async () => {
+    const { wrapper } = await mountRegister(true)
+    const blocked = wrapper.get('[data-register-blocked]')
+    const input = wrapper.get("input[name='username']")
+    await blocked.trigger('click')
+    expect(registerAccount).not.toHaveBeenCalled()
+    expect(document.activeElement).toBe(input.element)
+    expect((wrapper.get("button[type='submit']").element as HTMLButtonElement).disabled).toBe(true)
+    wrapper.unmount()
   })
 
   it('label 是整句可点的，并且那句里有两个指向关于页的入口', async () => {
