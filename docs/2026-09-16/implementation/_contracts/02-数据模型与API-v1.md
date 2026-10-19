@@ -404,7 +404,7 @@ worker 分事务删除报告/答案/attempt/AI/恢复码/幂等记录/配额 →
 | `GET /attempts/{id}` | — | `200 {attemptId, packageId, status, revision, currentQuestionId, clarificationDimensions, clarificationSkipped, answers:[...], package: {...}}` |
 | `PATCH /attempts/{id}/answers` | `{expectedRevision, currentQuestionId?, responses:[{questionId, kind, rating?}]}` | `200 {revision, status, clarificationDimensions}`；revision 冲突 409 |
 | `POST /attempts/{id}/review` | `{}` | `200 {status, clarificationDimensions, coverage:[per-dim], needsReview:boolean}`；幂等 |
-| `POST /attempts/{id}/submit` | `{expectedRevision, clarificationSkipped?}` + 可选 `Idempotency-Key` | `201 {reportId, status, computedTypeCode, candidateCodes}`；覆盖不足 `200 + status=NEEDS_REVIEW` |
+| `POST /attempts/{id}/submit` | `{expectedRevision, clarificationSkipped?}` + 可选 `Idempotency-Key` | `201 {reportId, status, reportStatus, computedTypeCode, candidateCodes}`；覆盖不足 `200 + status=NEEDS_REVIEW`。**`status` 是测评状态（`SUBMITTED` / `NEEDS_REVIEW`），`reportStatus` 是报告状态（`REFERENCE` / `TENTATIVE` / `TIED`），没有报告时为 null**（2026-10-18 起拆分，见 A149） |
 | `DELETE /attempts/{id}` | — | `204`；只允许本人**未提交**草稿 |
 
 `PATCH` 语义：

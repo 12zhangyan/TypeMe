@@ -213,10 +213,22 @@ public final class JungDtos {
     public record SubmitRequest(Long expectedRevision, Boolean clarificationSkipped) {
     }
 
+    /**
+     * 交卷响应。
+     *
+     * <p>{@code status} 是**测评状态**（`SUBMITTED` / `NEEDS_REVIEW`），和其他 attempt
+     * 接口里的同名字段一致；{@code reportStatus} 才是报告状态（`REFERENCE` /
+     * `TENTATIVE` / `TIED`），没有生成报告时为 null。
+     *
+     * <p>2026-10-18 之前这两个概念都塞在 {@code status} 里：成功时放报告状态、
+     * 失败时放 `NEEDS_REVIEW`。前端因此把报告状态写进测评状态，交卷后的报告页跳转
+     * 被自己的离页守卫拦下（A149）。拆开之后，任何消费方都不必再猜。
+     */
     public record SubmitResponse(
             String reportId,
             String attemptId,
             String status,
+            String reportStatus,
             String computedTypeCode,
             List<String> candidateCodes,
             List<CoverageView> coverage,

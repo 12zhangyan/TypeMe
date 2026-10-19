@@ -217,7 +217,12 @@ class BigFivePlatformIT extends AccountIntegrationTestBase {
                         submitted.getResponse().getStatus(), submitted.getResponse().getContentAsString())
                 .isEqualTo(200);
         JsonNode submitBody = body(submitted);
-        assertThat(submitBody.path("status").asText()).isEqualTo("PROFILE");
+        assertThat(submitBody.path("status").asText())
+                .as("status 是测评状态，交卷成功后必须是 SUBMITTED")
+                .isEqualTo("SUBMITTED");
+        assertThat(submitBody.path("reportStatus").asText())
+                .as("大五报告状态单独放在 reportStatus")
+                .isEqualTo("PROFILE");
         assertThat(submitBody.path("reportId").asText()).isNotBlank();
 
         MvcResult reportResult = mockMvc.perform(
@@ -270,6 +275,9 @@ class BigFivePlatformIT extends AccountIntegrationTestBase {
                 .isEqualTo(200);
         JsonNode submitBody = body(submitted);
         assertThat(submitBody.path("status").asText()).isEqualTo("INCOMPLETE");
+        assertThat(submitBody.path("reportStatus").isNull() || submitBody.path("reportStatus").asText().isEmpty())
+                .as("没答完时没有报告，也就不能有报告状态")
+                .isTrue();
         assertThat(submitBody.path("reportId").isNull() || submitBody.path("reportId").asText().isEmpty())
                 .as("没答完绝不能出报告")
                 .isTrue();
@@ -322,8 +330,11 @@ class BigFivePlatformIT extends AccountIntegrationTestBase {
 
         JsonNode submitBody = body(submit(account, csrf, attempt.attemptId(), revision));
         assertThat(submitBody.path("status").asText())
-                .as("全部「说不好」时答卷是完整的（每道题都处理过），但报告没有结论")
-                .isIn("PROFILE", "NEEDS_REVIEW");
+                .as("全部「说不好」时答卷是完整的（每道题都处理过），测评状态仍是已交卷")
+                .isEqualTo("SUBMITTED");
+        assertThat(submitBody.path("reportStatus").asText())
+                .as("报告仍会生成，只是各方面可能都没有结论")
+                .isEqualTo("PROFILE");
 
         MvcResult reportResult = mockMvc.perform(
                 get("/api/v3/platform/attempts/{id}/report", attempt.attemptId())

@@ -259,6 +259,32 @@ describe('复测比较页', () => {
     expect(wrapper.find('[data-compare-row="EI"]').text()).not.toContain('方向不同')
   })
 
+  it('只有一侧给出方向时，不把这一维写成方向不同', async () => {
+    fetchReports.mockResolvedValue({
+      items: [summary(), summary({ reportId: 'r2' })],
+      page: 0,
+      size: 100,
+      total: 2,
+    })
+    compareReports.mockResolvedValue({
+      reports: [summary(), summary({ reportId: 'r2' })],
+      differences: [
+        // 即使服务端把 changed 说成 true，页面也不能把它写成「方向不同」：
+        // 一侧没有方向时，这一维根本没有可比较的两个方向。
+        { dimension: 'EI', fromPole: 'E', toPole: null, fromMFinal: 0.42, toMFinal: null, changed: true },
+      ],
+      samePackage: true,
+      notes: [],
+    })
+
+    const { wrapper } = await mountCompare({ a: 'r1', b: 'r2' })
+    await flushPromises()
+
+    const row = wrapper.find('[data-compare-row="EI"]').text()
+    expect(row).toContain('一侧没有给出方向')
+    expect(row).not.toContain('方向不同')
+  })
+
   it('强度缺失时显示「未记录」，不用 0.00 冒充', async () => {
     fetchReports.mockResolvedValue({
       items: [summary(), summary({ reportId: 'r2' })],

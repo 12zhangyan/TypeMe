@@ -841,11 +841,10 @@ export const useAssessmentStore = defineStore('assessmentV3', {
         clarificationSkipped: options.clarificationSkipped,
         ...(options.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : {}),
       })
-      // 服务端 SubmitResponse.status 是**报告状态**（REFERENCE / TIED / TENTATIVE…），
-      // 而本 store 的 `status` 在别处（applyDetail / runReview）一直是**测评状态**。
-      // 拿到报告编号就说明这次已经交卷，这里必须写回 SUBMITTED：答题页的离页守卫
-      // 用 `status === 'SUBMITTED'` 判断"可以走了"，否则交卷成功后的跳转会被自己拦下。
-      this.status = result.reportId ? 'SUBMITTED' : (result.status || this.status)
+      // 服务端的 `status` 现在是**测评状态**（SUBMITTED / NEEDS_REVIEW），报告状态在
+      // `reportStatus` 里。此前两者共用一个字段，交卷后的报告页跳转会被离页守卫拦下
+      // （A149）；这里保留 reportId 兜底，防止旧后端/字段缺失把状态留成进行中。
+      this.status = result.status || (result.reportId ? 'SUBMITTED' : this.status)
       if (result.coverage.length > 0) this.coverage = result.coverage
       this.insufficientDimensions = [...result.insufficientDimensions]
       this.clarificationSkipped = options.clarificationSkipped

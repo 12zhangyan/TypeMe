@@ -47,7 +47,10 @@ class SubmitReportIT extends AccountIntegrationTestBase {
         JsonNode first = body(submitted);
         assertThat(first.path("reportId").asText()).isNotBlank();
         assertThat(first.path("status").asText())
-                .as("答满且跳过补充题时不该是 NEEDS_REVIEW")
+                .as("status 是测评状态，交卷成功后必须是 SUBMITTED")
+                .isEqualTo("SUBMITTED");
+        assertThat(first.path("reportStatus").asText())
+                .as("报告状态单独放在 reportStatus；答满且跳过补充题时不该是 NEEDS_REVIEW")
                 .isNotIn("NEEDS_REVIEW", "");
 
         // 重复交卷：同一份 attempt 只能有一份报告，返回的还是它
@@ -75,6 +78,9 @@ class SubmitReportIT extends AccountIntegrationTestBase {
                 .isEqualTo(200);
         JsonNode body = body(submitted);
         assertThat(body.path("status").asText()).isEqualTo("NEEDS_REVIEW");
+        assertThat(body.path("reportStatus").isNull() || body.path("reportStatus").asText().isEmpty())
+                .as("没有报告时不能编一个报告状态出来")
+                .isTrue();
         assertThat(body.path("reportId").isNull() || body.path("reportId").asText().isEmpty())
                 .as("覆盖不足时绝不能建出报告")
                 .isTrue();

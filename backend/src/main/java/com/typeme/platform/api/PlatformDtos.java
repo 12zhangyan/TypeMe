@@ -187,11 +187,16 @@ public final class PlatformDtos {
      * <p>{@code incompleteQuestionIds} 非空表示"还差这些题"，此时**没有**报告，
      * 前端应回到答题页并把这些题标出来。它不是错误响应：用户没有做错任何事，
      * 只是还没答完。
+     *
+     * <p>{@code status} 是**测评状态**（`SUBMITTED` / `INCOMPLETE`），
+     * {@code reportStatus} 才是报告状态（大五为 `PROFILE`），没有报告时为 null。
+     * 拆分原因见 {@code JungDtos.SubmitResponse} 的同名说明（A149）。
      */
     public record SubmitResponse(
             String reportId,
             String attemptId,
             String status,
+            String reportStatus,
             String reportKind,
             List<String> incompleteQuestionIds,
             int unknownCount,

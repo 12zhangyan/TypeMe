@@ -85,6 +85,7 @@ public class BigFiveReportService {
             return new PlatformDtos.SubmitResponse(
                     reportId,
                     attemptId,
+                    "SUBMITTED",
                     (String) existing.get("status"),
                     ReportEnvelope.KIND_BIG_FIVE,
                     List.of(),
@@ -112,6 +113,7 @@ public class BigFiveReportService {
                     null,
                     attemptId,
                     "INCOMPLETE",
+                    null,
                     ReportEnvelope.KIND_BIG_FIVE,
                     List.copyOf(unprocessed),
                     countKind(answers, "UNKNOWN"),
@@ -143,6 +145,7 @@ public class BigFiveReportService {
             return new PlatformDtos.SubmitResponse(
                     reportId,
                     attemptId,
+                    "SUBMITTED",
                     (String) existing.get("status"),
                     ReportEnvelope.KIND_BIG_FIVE,
                     List.of(),
@@ -159,6 +162,7 @@ public class BigFiveReportService {
         return new PlatformDtos.SubmitResponse(
                 reportId,
                 attemptId,
+                "SUBMITTED",
                 BigFiveReportBuilder.STATUS_PROFILE,
                 ReportEnvelope.KIND_BIG_FIVE,
                 List.of(),

@@ -240,7 +240,7 @@ describe('大五草稿保存不丢改动', () => {
   it('提交等待在途保存完成并使用确认后的版本', async () => {
     const first = deferred<ReturnType<typeof saved>>()
     vi.mocked(patchPlatformAnswers).mockReturnValueOnce(first.promise)
-    vi.mocked(submitPlatformAttempt).mockResolvedValue({ reportId: 'report-1', status: 'PROFILE', incompleteQuestionIds: [] } as never)
+    vi.mocked(submitPlatformAttempt).mockResolvedValue({ reportId: 'report-1', status: 'SUBMITTED', reportStatus: 'PROFILE', incompleteQuestionIds: [] } as never)
     const store = useBigFiveStore()
     store.adopt(draft())
     store.setAnswer('Q1', 'RATING', 5)
