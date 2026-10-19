@@ -91,6 +91,7 @@ public class ReportService {
             return new JungDtos.SubmitResponse(
                     reportId,
                     attemptId,
+                    "SUBMITTED",
                     (String) existing.get("status"),
                     (String) existing.get("computed_type_code"),
                     candidateCodesFromJson((String) existing.get("report_json")),
@@ -130,7 +131,7 @@ public class ReportService {
         if (!coverage.coverageOk()) {
             // 覆盖不足：不生成报告，返回 200 + NEEDS_REVIEW，让前端引导回看具体缺哪几题
             return new JungDtos.SubmitResponse(
-                    null, attemptId, "NEEDS_REVIEW", null, List.of(),
+                    null, attemptId, "NEEDS_REVIEW", null, null, List.of(),
                     attempts.coverageViews(pkg, coverage), false);
         }
 
@@ -162,7 +163,7 @@ public class ReportService {
         JungScoringResult result = JungScorer.score(pkg, answerMap, skipped);
         if (result.status() == JungResultStatus.NEEDS_REVIEW) {
             return new JungDtos.SubmitResponse(
-                    null, attemptId, "NEEDS_REVIEW", null, List.of(),
+                    null, attemptId, "NEEDS_REVIEW", null, null, List.of(),
                     attempts.coverageViews(pkg, coverage), false);
         }
 
@@ -209,6 +210,7 @@ public class ReportService {
             return new JungDtos.SubmitResponse(
                     reportId,
                     attemptId,
+                    "SUBMITTED",
                     (String) existing.get("status"),
                     (String) existing.get("computed_type_code"),
                     candidateCodesFromJson((String) existing.get("report_json")),
@@ -236,6 +238,7 @@ public class ReportService {
         return new JungDtos.SubmitResponse(
                 reportId,
                 attemptId,
+                "SUBMITTED",
                 result.status().name(),
                 typeCode,
                 result.candidates().stream().map(candidate -> candidate.typeCode().value()).toList(),
@@ -468,7 +471,7 @@ public class ReportService {
                     toPole,
                     fromM,
                     toM,
-                    samePackage && !java.util.Objects.equals(fromPole, toPole)));
+                    directionChanged(samePackage, fromPole, toPole)));
         }
         if (!samePackage) {
             notes.add("两次测评用的题目或规则版本不同，只并列阅读，不计算变化幅度。");
@@ -477,6 +480,18 @@ public class ReportService {
         }
 
         return new JungDtos.CompareResponse(summaries, differences, samePackage, notes);
+    }
+
+    /**
+     * 这一维是否算「方向不同」。
+     *
+     * <p>只有**两侧都给出了方向**且不同才算。一侧没有方向（平分 / 信息不足）时不算变化：
+     * 前端在这一格写「一侧没有给出方向」，而不是把它当成方向翻转。
+     * 2026-10-18 审查发现旧写法用 {@code !Objects.equals(fromPole, toPole)}，
+     * 一侧为 null 时会被判成 changed=true，比较页因此显示「方向不同」（IM-1）。
+     */
+    static boolean directionChanged(boolean samePackage, String fromPole, String toPole) {
+        return samePackage && fromPole != null && toPole != null && !fromPole.equals(toPole);
     }
 
     /*

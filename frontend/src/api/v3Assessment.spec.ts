@@ -246,7 +246,30 @@ describe('后端没给 insufficientDimensions 时由覆盖行推导', () => {
 
     const result = await submitAttempt('attempt-1', { expectedRevision: 12 })
     expect(result.status).toBe('NEEDS_REVIEW')
+    expect(result.reportStatus).toBeNull()
     expect(result.insufficientDimensions).toEqual(['SN'])
     expect(result.reportId).toBeNull()
+  })
+
+  it('交卷成功的 status 是测评状态，报告状态在 reportStatus（两者不再混用）', async () => {
+    responder = () =>
+      json(
+        {
+          reportId: 'report-1',
+          attemptId: 'attempt-1',
+          status: 'SUBMITTED',
+          reportStatus: 'TENTATIVE',
+          computedTypeCode: null,
+          candidateCodes: [],
+          coverageOk: true,
+          coverage: [],
+        },
+        201,
+      )
+
+    const result = await submitAttempt('attempt-1', { expectedRevision: 12 })
+    expect(result.status).toBe('SUBMITTED')
+    expect(result.reportStatus).toBe('TENTATIVE')
+    expect(result.reportId).toBe('report-1')
   })
 })

@@ -135,7 +135,8 @@ function installFetch(): void {
             body: {
               reportId: 'report-bigfive-1',
               attemptId: ATTEMPT_ID,
-              status: 'PROFILE',
+              status: 'SUBMITTED',
+              reportStatus: 'PROFILE',
               reportKind: 'big_five_profile',
               incompleteQuestionIds: [],
               unknownCount: 0,

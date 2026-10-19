@@ -1,0 +1,94 @@
+{
+ "scope": "真实栈：真 jar + 真 MySQL（隔离库 typeme_r98_e2e）+ 真 Chromium，不 mock /api",
+ "base": "http://127.0.0.1:8096",
+ "database": "typeme_r98_e2e",
+ "checks": [
+  {
+   "label": "真实注册成功",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "A（EI 平分）：建测评 201",
+   "passed": true,
+   "detail": "201"
+  },
+  {
+   "label": "A（EI 平分）：写入 48 条作答",
+   "passed": true,
+   "detail": "200"
+  },
+  {
+   "label": "A（EI 平分）：交卷 201",
+   "passed": true,
+   "detail": "201"
+  },
+  {
+   "label": "交卷响应的 status 是测评状态 SUBMITTED",
+   "passed": true,
+   "detail": "SUBMITTED"
+  },
+  {
+   "label": "交卷响应把报告状态放在 reportStatus",
+   "passed": true,
+   "detail": "TIED"
+  },
+  {
+   "label": "B（四维都有方向）：建测评 201",
+   "passed": true,
+   "detail": "201"
+  },
+  {
+   "label": "B（四维都有方向）：写入 48 条作答",
+   "passed": true,
+   "detail": "200"
+  },
+  {
+   "label": "B（四维都有方向）：交卷 201",
+   "passed": true,
+   "detail": "201"
+  },
+  {
+   "label": "B 的报告状态是 REFERENCE",
+   "passed": true,
+   "detail": "REFERENCE"
+  },
+  {
+   "label": "比较接口 200",
+   "passed": true,
+   "detail": "200"
+  },
+  {
+   "label": "服务端不再把「一侧无方向」标成 changed",
+   "passed": true,
+   "detail": "{'dimension': 'EI', 'fromPole': None, 'toPole': 'E', 'fromMFinal': 0, 'toMFinal': 1, 'changed': False}"
+  },
+  {
+   "label": "两侧同向时 changed=false",
+   "passed": true,
+   "detail": "{'dimension': 'SN', 'fromPole': 'N', 'toPole': 'N', 'fromMFinal': 1, 'toMFinal': 1, 'changed': False}"
+  },
+  {
+   "label": "比较页 EI 行写「一侧没有给出方向」",
+   "passed": true,
+   "detail": "精力方向\t（这一维没有给出方向） （强度 0.00）\tE 外倾 （强度 1.00）\t一侧没有给出方向"
+  },
+  {
+   "label": "比较页 EI 行不写「方向不同」",
+   "passed": true,
+   "detail": "精力方向\t（这一维没有给出方向） （强度 0.00）\tE 外倾 （强度 1.00）\t一侧没有给出方向"
+  },
+  {
+   "label": "比较页 SN 行写「方向一致」",
+   "passed": true,
+   "detail": "信息取向\tN 直觉 （强度 1.00）\tN 直觉 （强度 1.00）\t方向一致"
+  },
+  {
+   "label": "全程没有未捕获的前端异常",
+   "passed": true,
+   "detail": ""
+  }
+ ],
+ "passed": 17,
+ "failed": 0
+}

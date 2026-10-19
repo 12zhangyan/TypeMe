@@ -183,6 +183,34 @@ jar 跑在 `127.0.0.1:8097` → Playwright **不拦截任何 `/api`**：真实�
 - 未跑 3 个真实 MySQL IT；未部署、未提交；未触碰 `typeme_dev` 或任何现有库；隔离库跑完即删。
 - 截图 5 张未人工目视（当前模型无图像输入）；只覆盖 Chromium、本机、单实例，不覆盖多实例 / Redis / 真实 AI 外发。
 
+## 第 98 轮：修复审查发现 —— 比较页一侧无方向、交卷状态拆分（2026-10-18）
+
+第 97 轮后的整体审查（只读）发现 1 个 Important 问题，并把一处残余风险收口。
+
+| ID | 问题 | 证据 | 处置 |
+|---|---|---|---|
+| A151 | 复测比较页在「某一维只有一份报告给出方向」时标成**方向不同** | 后端 `changed = samePackage && !Objects.equals(fromPole, toPole)`，一侧为 null 时也是 true；报告在平分时 `computedPole=null`（`JungReportBuilder`）；前端只有「都没有给出方向」分支、`row.changed` 排在前面。既有用例 `compareView.spec.ts:272` 用 `changed:false` 当夹具，服务端不产出这个组合，所以测试没拦住 | 后端抽出 `directionChanged()`：两侧都有方向且不同才算；前端新增「一侧没有给出方向」分支。新增后端单测 2 条、前端防御用例 1 条。判别力：改回旧写法 → 后端单测精确红 1 条 |
+| A152 | 交卷响应的 `status` 同时承载报告状态（REFERENCE/TIED）与测评状态（NEEDS_REVIEW），A149 由此触发，契约未写明 | `JungDtos.SubmitResponse` / `PlatformDtos.SubmitResponse` 的 `status`；前端 store 原先把报告状态写进测评状态 | 拆成 `status`（`SUBMITTED`/`NEEDS_REVIEW`/`INCOMPLETE`）+ 新增 `reportStatus`（`REFERENCE`/`TENTATIVE`/`TIED`/`PROFILE`，无报告为 null）；9 个构造点、前端类型/解析、契约与测试同步。判别力：把成功交卷的 status 改回报告状态 → `SubmitReportIT` 精确红 1 条 |
+
+### 验证
+
+| 命令 | 结果 |
+|---|---|
+| `frontend: npm.cmd run typecheck` | exit 0 |
+| `frontend: vitest run` | **60 文件 / 1246 条通过** |
+| `backend: mvn test`（排除 3 个真实 MySQL IT） | **427 run / 0 failed / 0 error / 1 skip**，BUILD SUCCESS |
+| 判别力（旧 `directionChanged`） | 2 条里 **1 failed**（`E` vs `null`），还原后 2/2 |
+| 判别力（旧 `status` 写法） | `SubmitReportIT#submitCreatesReportWith201AndIsIdempotent` **1 failed**（`expected: "SUBMITTED"`），还原后 4/4 |
+| `npm.cmd run build` + `mvn -o package -DskipTests` | 均成功 |
+| `python …/2026-10-18-round98/real_stack_compare.py`（真 jar + 真 MySQL 隔离库） | **17 / 17** |
+
+证据：`verification/2026-10-18-round98/`（`REPORT.md`、`real_stack_compare.py`、结果 JSON、截图）。
+
+### 边界
+
+- 未跑 3 个真实 MySQL IT；未部署；隔离库 `typeme_r98_e2e` 跑完即删；未触碰 `typeme_dev`。
+- 截图未人工目视（当前模型无图像输入）。
+
 ## 第21–26轮补记与当前复核（2026-09-18）
 
 本节为本次文档回写。轮次按交接指定顺序补记；下面的测试与浏览器数字全部**转述各轮 REPORT，未在本次重跑**，不能与旧轮数字相加，也不代表当前工作区验收。后续视觉轮次可能替代前轮设计。

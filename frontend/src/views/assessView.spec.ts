@@ -195,7 +195,8 @@ function installFetch(): void {
             body: {
               reportId: 'report-1',
               attemptId: ATTEMPT_ID,
-              status: 'REFERENCE',
+              status: 'SUBMITTED',
+              reportStatus: 'REFERENCE',
               computedTypeCode: 'ENFP',
               candidateCodes: [],
               coverage: [],

@@ -394,8 +394,9 @@ onBeforeUnmount(() => { listGeneration++; generation++ })
                   <td class="py-2.5">
                     <span v-if="!result.samePackage" class="chip chip-neutral">这次不标记变化</span>
                     <span v-else-if="!row.fromPole && !row.toPole" class="chip chip-neutral">都没有给出方向</span>
+                    <span v-else-if="!row.fromPole || !row.toPole" class="chip chip-neutral">一侧没有给出方向</span>
                     <span v-else-if="row.changed" class="chip chip-accent">方向不同</span>
-                    <span v-else-if="row.fromPole && row.toPole && row.fromPole === row.toPole" class="chip chip-neutral">方向一致</span>
+                    <span v-else-if="row.fromPole === row.toPole" class="chip chip-neutral">方向一致</span>
                     <span v-else class="chip chip-neutral">这次不标记变化</span>
                   </td>
                 </tr>

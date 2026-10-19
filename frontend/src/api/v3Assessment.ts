@@ -190,7 +190,10 @@ export interface ReviewResult {
 export interface SubmitResult {
   reportId: string | null
   attemptId: string
+  /** **测评状态**（`SUBMITTED` / `NEEDS_REVIEW` / `INCOMPLETE`），与其他 attempt 接口一致。 */
   status: string
+  /** **报告状态**（`REFERENCE` / `TENTATIVE` / `TIED` / `PROFILE`）；没有报告时为 null。 */
+  reportStatus: string | null
   computedTypeCode: string | null
   candidateCodes: string[]
   coverage: CoverageView[]
@@ -727,6 +730,7 @@ export async function submitAttempt(
     reportId: optionalText(raw.reportId),
     attemptId: optionalText(raw.attemptId) ?? attemptId,
     status: optionalText(raw.status) ?? '',
+    reportStatus: optionalText(raw.reportStatus),
     computedTypeCode: optionalText(raw.computedTypeCode),
     candidateCodes: stringList(raw.candidateCodes),
     coverage,
