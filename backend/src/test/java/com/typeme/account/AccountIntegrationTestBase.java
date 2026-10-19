@@ -128,6 +128,17 @@ public abstract class AccountIntegrationTestBase {
     /** 同一次测试运行内唯一，避免共享的 H2 库上用例之间互相撞用户名。 */
     private static final AtomicInteger SEQUENCE = new AtomicInteger();
 
+    /**
+     * 用户名上限，与 {@code AccountFieldRules.USERNAME_PATTERN}（4–32 位）一致。
+     *
+     * <p>这个数字必须在这里再写一遍：测试辅助方法拼接的后缀长度会随序列号和时间变化，
+     * 长前缀一旦被拼到 33 位以上，注册请求会得到 400 {@code VALIDATION_FAILED}，
+     * 而用例接下来那一句"建草稿"就变成莫名其妙的 401 —— 整套测试随之随机红。
+     * 2026-10-18 的完整后端套件里就出现过这一次（{@code bigfive_unknown_rating_111900_136}，34 位）。
+     * 规则由 {@code UniqueUsernameTest} 钉住，别只靠注释。
+     */
+    private static final int USERNAME_MAX = 32;
+
     @Autowired
     protected MockMvc mockMvc;
 
@@ -141,7 +152,26 @@ public abstract class AccountIntegrationTestBase {
     protected UserRepository userRepository;
 
     protected static String uniqueUsername(String prefix) {
-        return prefix + "_" + System.nanoTime() % 1_000_000 + "_" + SEQUENCE.incrementAndGet();
+        return uniqueUsername(prefix, SEQUENCE.incrementAndGet(), System.nanoTime());
+    }
+
+    /**
+     * 可注入序列号与时间种子的版本（供 {@code UniqueUsernameTest} 枚举边界）。
+     *
+     * <p>保证两件事：
+     * <ol>
+     *   <li><b>符合注册规则</b>：总长 4–32，字符只用 ASCII 字母、数字、下划线。
+     *       前缀过长时截断前缀，而不是把后缀一起挤出去 —— 后缀里的序列号是唯一性的来源；</li>
+     *   <li><b>同一次运行内唯一</b>：{@code sequence} 单调递增，截断前缀不会让两个用例撞名。</li>
+     * </ol>
+     * 时间种子取模后转 36 进制，是为了跨运行区分；用 {@code Math.abs} 是因为
+     * {@code System.nanoTime()} 的原点没有保证，直接取模可能得到负号，而负号过不了用户名正则。
+     */
+    static String uniqueUsername(String prefix, int sequence, long nanoTime) {
+        String suffix = "_" + sequence + "_" + Long.toString(Math.abs(nanoTime % 1_000_000L), 36);
+        int maxHead = Math.max(1, USERNAME_MAX - suffix.length());
+        String head = prefix.length() <= maxHead ? prefix : prefix.substring(0, maxHead);
+        return head + suffix;
     }
 
     protected static String uniqueIp() {

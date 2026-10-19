@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
+import { invalidateSessionRequests } from '@/api/v3'
 import InstrumentMethodView from './InstrumentMethodView.vue'
 
 /**
@@ -189,6 +190,19 @@ describe('结果长什么样：必须按量表说', () => {
     expect(text).not.toContain('没有类型码')
   })
 
+  it('大五：方面说明按符合程度作答，不教人选边', async () => {
+    const wrapper = await mountMethod('/instruments/bigfive50/method')
+    const intro = wrapper.get('#method-dimensions').element.parentElement?.textContent ?? ''
+    expect(intro).toContain('说不好')
+    expect(intro).not.toContain('更靠哪边')
+  })
+
+  it('十六型：方面说明仍按两端', async () => {
+    const wrapper = await mountMethod('/instruments/jung48/method')
+    const intro = wrapper.get('#method-dimensions').element.parentElement?.textContent ?? ''
+    expect(intro).toContain('两端各长什么样')
+  })
+
   it('维度数量按量表给（4 vs 5）', async () => {
     const big = await mountMethod('/instruments/bigfive50/method')
     expect(big.findAll('[data-method-dimensions] [data-dimension]')).toHaveLength(5)
@@ -264,5 +278,33 @@ describe('页面上的其它事实', () => {
     expect(text).not.toContain('typeme-bigfive50-score-v1')
     expect(text).not.toContain('当前默认')
     expect(wrapper.find('table').exists()).toBe(false)
+  })
+
+  it('会话确认打断进行中的读取后重读，不把页面停在失败上', async () => {
+    let release: (value: Response) => void = () => {}
+    const first = new Promise<Response>((resolve) => { release = resolve })
+    let detailCalls = 0
+    vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/auth/csrf')) {
+        return Promise.resolve(jsonResponse({ token: 'csrf', headerName: 'X-XSRF-TOKEN', parameterName: '_csrf' }))
+      }
+      detailCalls += 1
+      if (detailCalls === 1) return first
+      return Promise.resolve(jsonResponse(detail(JUNG_ITEM)))
+    }))
+    const router = makeRouter()
+    await router.push('/instruments/jung48/method')
+    await router.isReady()
+    const wrapper = mount(InstrumentMethodView, { global: { plugins: [router] } })
+    await flushPromises()
+    invalidateSessionRequests()
+    release(jsonResponse(detail(CATALOG_ITEM)))
+    await flushPromises()
+    await flushPromises()
+    expect(wrapper.text()).not.toContain('登录状态已改变')
+    expect(wrapper.findAll('[data-method-dimensions] [data-dimension]')).toHaveLength(4)
+    expect(detailCalls).toBeGreaterThanOrEqual(2)
+    wrapper.unmount()
   })
 })

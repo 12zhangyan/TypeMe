@@ -153,6 +153,48 @@ class SubmitReportIT extends AccountIntegrationTestBase {
         assertThat(body(submitted).path("reportId").asText()).isNotBlank();
     }
 
+    @Test
+    @DisplayName("补充题答了一部分再跳过：交卷成功，补充题答案不进入结果也不留在草稿里")
+    void skipAfterPartialClarificationStillSubmits() throws Exception {
+        RegisteredAccount account = register(uniqueUsername("submit_skip_partial"), "Submit-Skip!2026");
+        CsrfContext csrf = csrf(account.session());
+        CreatedAttempt attempt = createAttempt(account, csrf);
+        Map<String, List<String>> base = questionIdsByDimension(account, "base");
+        Map<String, List<String>> clarification = questionIdsByDimension(account, "clarification");
+
+        List<Map<String, Object>> responses = new ArrayList<>();
+        for (List<String> ids : base.values()) {
+            ids.forEach(questionId -> responses.add(rating(questionId)));
+        }
+        long revision = putAnswers(account, csrf, attempt.attemptId(), attempt.revision(), responses);
+
+        MvcResult review = mockMvc.perform(withCsrf(post("/api/v3/attempts/{id}/review", attempt.attemptId())
+                .session(account.session()), csrf)).andReturn();
+        assertThat(review.getResponse().getStatus()).isEqualTo(200);
+        List<String> scheduled = new ArrayList<>();
+        body(review).path("clarificationDimensions").forEach(node -> scheduled.add(node.asText()));
+        assertThat(scheduled).isNotEmpty();
+
+        String answeredClarification = clarification.get(scheduled.get(0)).get(0);
+        revision = putAnswers(account, csrf, attempt.attemptId(), revision, List.of(rating(answeredClarification)));
+
+        MvcResult submitted = submit(account, csrf, attempt.attemptId(), revision, true);
+        assertThat(submitted.getResponse().getStatus())
+                .as("答过一部分补充题再跳过必须能交卷，不能 400。响应体：%s",
+                        submitted.getResponse().getContentAsString())
+                .isEqualTo(201);
+        assertThat(body(submitted).path("reportId").asText()).isNotBlank();
+        assertThat(persistedClarificationSkipped(attempt.attemptId())).isTrue();
+        Integer clarificationLeft = invitationJdbc.queryForObject(
+                "SELECT COUNT(*) FROM assessment_answer WHERE attempt_id = ? AND question_id = ?",
+                Integer.class, attempt.attemptId(), answeredClarification);
+        assertThat(clarificationLeft).isZero();
+        Integer remaining = invitationJdbc.queryForObject(
+                "SELECT COUNT(*) FROM assessment_answer WHERE attempt_id = ?",
+                Integer.class, attempt.attemptId());
+        assertThat(remaining).isEqualTo(48);
+    }
+
     /* ── 小工具 ─────────────────────────────────────────────────────────── */
 
     private record CreatedAttempt(String attemptId, long revision) {

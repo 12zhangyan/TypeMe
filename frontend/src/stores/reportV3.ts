@@ -9,7 +9,7 @@ import {
   type ReportSummary,
   type SelfReflection,
 } from '@/api/v3Assessment'
-import { describeError, type ErrorDisplay } from '@/api/v3'
+import { describeError, isSessionChanged, type ErrorDisplay } from '@/api/v3'
 import { buildReportView, type ReportViewModelV3 } from '@/domain/reportV3'
 
 /**
@@ -163,7 +163,12 @@ export const useReportStore = defineStore('reportV3', {
         const current = await (byAttempt ? fetchReportByAttempt(id) : fetchReportDetail(id))
         if (revision === this.loadRevision) this.current = current
       } catch (error) {
-        if (revision === this.loadRevision) this.loadError = describeError(error)
+        if (revision !== this.loadRevision) return
+        if (isSessionChanged(error)) {
+          await this.loadCurrent(id, byAttempt)
+          return
+        }
+        this.loadError = describeError(error)
       } finally {
         if (revision === this.loadRevision) this.loading = false
       }

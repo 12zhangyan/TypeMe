@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
-import { describeError, type ErrorDisplay } from '@/api/v3'
+import { describeError, isSessionChanged, type ErrorDisplay } from '@/api/v3'
 import { fetchInstrumentDetail, type InstrumentDetail } from '@/api/platformV3'
 import { useAuthStore } from '@/stores/auth'
 
@@ -63,6 +63,11 @@ async function load(): Promise<void> {
     detail.value = result
   } catch (loadError) {
     if (token !== loadToken) return
+    // 公开页会在会话确认之前就发出请求。那次失败不是「方法说明读不出来」。
+    if (isSessionChanged(loadError)) {
+      void load()
+      return
+    }
     error.value = describeError(loadError)
   } finally {
     if (token === loadToken) loading.value = false
@@ -167,8 +172,13 @@ const loginTo = computed(() => ({ name: 'login', query: { redirect: route.fullPa
       <section class="mt-8" aria-labelledby="method-dimensions">
         <h2 id="method-dimensions" class="section-title">它看哪几个方面</h2>
         <p class="caption mt-1 max-w-prose">
-          每一项都写成"两端各长什么样"，是为了让你判断自己更靠哪边，
-          而不是先给你一个结论让你去对号入座。
+          <template v-if="hasTypeCode">
+            每一项都写成"两端各长什么样"，是为了让你判断自己更靠哪边，
+            而不是先给你一个结论让你去对号入座。
+          </template>
+          <template v-else>
+            题目是一句自我描述，按平时的符合程度选择。选「说不好」表示这题没有作答，和中间那一档不是一回事。下面的高低说明用来读结果。
+          </template>
         </p>
         <ol class="mt-3 grid gap-4" data-method-dimensions>
           <li

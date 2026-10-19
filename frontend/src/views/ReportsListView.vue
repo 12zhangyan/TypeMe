@@ -4,7 +4,7 @@ import { RouterLink } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
-import { describeError, type ErrorDisplay } from '@/api/v3'
+import { describeError, isSessionChanged, type ErrorDisplay } from '@/api/v3'
 import { deleteReport } from '@/api/v3Assessment'
 import { fetchMyReports, type MyReportRow } from '@/api/platformV3'
 import { formatLocalTime } from '@/domain/localTime'
@@ -36,6 +36,9 @@ const removeError = ref<ErrorDisplay | null>(null)
 const page = ref(0)
 const total = ref(0)
 const filter = ref<'all' | 'jung' | 'big_five'>('all')
+/** 最近一次成功载入时的筛选和页码。刷新失败时退回去，避免标题和列表不是同一份。 */
+const loadedFilter = ref<'all' | 'jung' | 'big_five'>('all')
+const loadedPage = ref(0)
 const pageSize = 20
 let loadSequence = 0
 
@@ -62,13 +65,23 @@ async function load(): Promise<void> {
     if (sequence !== loadSequence) return
     items.value = result.items
     total.value = result.total
+    loadedFilter.value = filter.value
+    loadedPage.value = page.value
     if (page.value >= Math.max(1, Math.ceil(result.total / pageSize))) {
       page.value = Math.max(0, Math.ceil(result.total / pageSize) - 1)
       void load()
     }
   } catch (loadError) {
     if (sequence !== loadSequence) return
+    if (isSessionChanged(loadError)) {
+      void load()
+      return
+    }
     error.value = describeError(loadError)
+    if (items.value.length > 0) {
+      filter.value = loadedFilter.value
+      page.value = loadedPage.value
+    }
   } finally {
     if (sequence === loadSequence) loading.value = false
   }
@@ -101,7 +114,7 @@ function statusLabel(item: MyReportRow): string {
     case 'TENTATIVE':
       return '倾向较轻'
     case 'TIED':
-      return '并列'
+      return '几个方向并列'
     case 'NEEDS_REVIEW':
       return '信息不足'
     default:
@@ -181,15 +194,15 @@ async function confirmDelete(): Promise<void> {
       <button type="button" class="btn-secondary btn-sm mt-3" @click="load">重试</button>
     </div>
 
-    <p v-else-if="loading" class="mt-6 text-[15px] text-ink-soft" data-reports-loading>正在载入记录…</p>
+    <p v-if="loading && items.length === 0" class="mt-6 text-[15px] text-ink-soft" data-reports-loading>正在载入记录…</p>
 
-    <div v-else-if="sorted.length === 0" class="notice-neutral mt-6 max-w-prose text-[14px] leading-relaxed" data-reports-empty>
+    <div v-else-if="!error && sorted.length === 0" class="notice-neutral mt-6 max-w-prose text-[14px] leading-relaxed" data-reports-empty>
       <template v-if="filter === 'all'">还没有完成的测评。做完一次之后，报告会出现在这里，换设备登录也能看到。</template>
       <template v-else>还没有{{ filterLabel(filter) }}的报告，可以切换筛选查看其他报告。</template>
       <RouterLink to="/instruments" class="link">去选一项测评</RouterLink>。
     </div>
 
-    <ul v-else class="mt-6 grid gap-3" data-report-rows>
+    <ul v-else-if="sorted.length > 0" class="mt-6 grid gap-3" data-report-rows>
       <li
         v-for="item in sorted"
         :key="item.reportId"

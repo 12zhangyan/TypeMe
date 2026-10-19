@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { describeError, newIdempotencyKey, V3ApiError, type ErrorDisplay } from '@/api/v3'
+import { describeError, isSessionChanged, newIdempotencyKey, V3ApiError, type ErrorDisplay } from '@/api/v3'
 import {
   aiFailureHint,
   createAnalysis,
@@ -221,6 +221,10 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
         this.status = status
       } catch (error) {
         if (token !== statusToken) return
+        if (isSessionChanged(error)) {
+          void this.loadStatus()
+          return
+        }
         this.status = null
         this.statusError = describeError(error)
       } finally {
@@ -262,6 +266,10 @@ export const useAiAnalysisStore = defineStore('aiAnalysisV3', {
         this.startPolling()
       } catch (error) {
         if (token !== loadToken || this.reportId !== reportId) return
+        if (isSessionChanged(error)) {
+          void this.loadJobs(reportId)
+          return
+        }
         this.jobsError = describeError(error)
       } finally {
         if (token === loadToken) this.jobsLoading = false

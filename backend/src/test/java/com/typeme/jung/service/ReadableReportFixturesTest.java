@@ -88,4 +88,50 @@ class ReadableReportFixturesTest {
         }
         save("bigfive", report);
     }
+
+    @Test void bigFiveSummaryDoesNotCallUnknownAnswersTheMiddleRating() {
+        var pkg = new BigFivePackageLoader(new DefaultResourceLoader()).current();
+        var answers = new LinkedHashMap<String, JungAnswer>();
+        var first = pkg.questions().get(0);
+        for (var item : pkg.questions()) {
+            if (item.id().equals(first.id())) {
+                answers.put(item.id(), JungAnswer.unknown(item.id()));
+            } else {
+                answers.put(item.id(), JungAnswer.rating(item.id(), item.direction() > 0 ? 4 : 2));
+            }
+        }
+        var result = BigFiveScorer.score(pkg, answers);
+        assertTrue(result.unknownCount() > 0);
+        var report = BigFiveReportBuilder.build(pkg, result, "bigfive", "synthetic-attempt", now);
+        String summary = String.valueOf(report.get("summary"));
+        assertTrue(summary.contains("说不好"), summary);
+        assertFalse(summary.contains("说不上符合或不符合"), summary);
+    }
+
+    @Test void bigFiveInsufficientDimensionNamesUnknownAnswers() {
+        var pkg = new BigFivePackageLoader(new DefaultResourceLoader()).current();
+        var answers = new LinkedHashMap<String, JungAnswer>();
+        var first = pkg.questions().get(0);
+        for (var item : pkg.questions()) {
+            if (item.id().equals(first.id())) {
+                answers.put(item.id(), JungAnswer.unknown(item.id()));
+            } else {
+                answers.put(item.id(), JungAnswer.rating(item.id(), item.direction() > 0 ? 4 : 2));
+            }
+        }
+        var report = BigFiveReportBuilder.build(pkg, BigFiveScorer.score(pkg, answers),
+                "bigfive", "synthetic-attempt", now);
+        @SuppressWarnings("unchecked")
+        var dimensions = (java.util.List<java.util.Map<String, Object>>) report.get("dimensions");
+        boolean found = false;
+        for (var row : dimensions) {
+            if (!Boolean.TRUE.equals(row.get("hasResult"))) {
+                String description = String.valueOf(row.get("description"));
+                assertTrue(description.contains("说不好"), description);
+                assertFalse(description.contains("说不上"), description);
+                found = true;
+            }
+        }
+        assertTrue(found, "至少有一个方面因为「说不好」而不给方向");
+    }
 }

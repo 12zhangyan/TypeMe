@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { isV3ApiError, SESSION_CHANGED_CODE } from '@/api/v3'
 import { fetchCatalog, type CatalogSummary } from '@/api/v3Assessment'
 import { DIMENSIONS, NEGATIVE_POLE, POSITIVE_POLE, type Dimension } from '@/domain/jung/types'
 
@@ -186,14 +187,19 @@ export const useInstrumentV3Store = defineStore('instrumentV3', {
     async load(): Promise<void> {
       if (this.attempted || this.loading) return
       this.loading = true
+      let sessionChanged = false
       try {
         this.catalog = await fetchCatalog()
-      } catch {
-        this.catalog = null
+      } catch (error) {
+        // 请求途中会话变了（首次 `/me` 确认、登录、退出）：旧响应已被丢弃，不是“接口失败”。
+        // 目录是公开数据，在新会话下重读，而不是记成已尝试并永久停在内置口径。
+        sessionChanged = isV3ApiError(error) && error.code === SESSION_CHANGED_CODE
+        if (!sessionChanged) this.catalog = null
       } finally {
-        this.attempted = true
+        this.attempted = !sessionChanged
         this.loading = false
       }
+      if (sessionChanged) await this.load()
     },
 
     /**

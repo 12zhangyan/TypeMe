@@ -40,6 +40,29 @@ const emit = defineEmits<{
 
 const isAgreement = computed(() => props.format === 'agreement')
 
+/** 档位说明跟按钮上的文案走。没给五档文案时才用旧的贴切度说法。 */
+const agreementAnchors = computed(() => {
+  const anchors = props.anchors
+  return Array.isArray(anchors) && anchors.length === 5 ? anchors : null
+})
+
+const agreementLegend = computed(() => {
+  const anchors = agreementAnchors.value
+  if (anchors) {
+    return `1 = ${anchors[0]} · 3 = ${anchors[2]}（也算作答，不代表没想好）· 5 = ${anchors[4]}`
+  }
+  return '1 = 非常不贴切 · 3 = 谈不上贴切或不贴切（也算作答，不代表没想好）· 5 = 非常贴切'
+})
+
+/** 旧 IPIP 锚点自己就写「贴切」。只有锚点改成「符合」时，题干才跟着改。 */
+const anchorsUseAgreement = computed(() => agreementAnchors.value?.some((item) => item.includes('符合')) === true)
+
+const agreementKicker = computed(() => {
+  const anchors = agreementAnchors.value
+  if (anchors && anchorsUseAgreement.value) return `从「${anchors[0]}」到「${anchors[4]}」`
+  return '这句描述对你有多贴切？'
+})
+
 /** 档位短文案：内容包给了 anchors 就用它，否则用 OEJTS 的五档说明。 */
 function captionOf(value: number): string {
   const anchors = props.anchors
@@ -131,14 +154,24 @@ function onGroupKeydown(event: KeyboardEvent) {
   select(options[next].value)
 }
 
-const groupLabel = computed(() =>
-  isAgreement.value
-    ? `对「${props.statement ?? ''}」这句描述的贴切程度，五档选择`
-    : `从「${props.textLeft ?? ''}」到「${props.textRight ?? ''}」的五点选择`,
-)
+const groupLabel = computed(() => {
+  if (!isAgreement.value) {
+    return `从「${props.textLeft ?? ''}」到「${props.textRight ?? ''}」的五点选择`
+  }
+  const anchors = agreementAnchors.value
+  if (anchors && anchorsUseAgreement.value) {
+    return `对「${props.statement ?? ''}」从「${anchors[0]}」到「${anchors[4]}」，五档选择`
+  }
+  return `对「${props.statement ?? ''}」这句描述的贴切程度，五档选择`
+})
 
 function optionLabel(value: number, index: number): string {
-  const scale = isAgreement.value ? '（第 N 档，1 为最不贴切，5 为最贴切）' : '（第 N 档，1 为最靠左，5 为最靠右）'
+  const anchors = agreementAnchors.value
+  const scale = !isAgreement.value
+    ? '（第 N 档，1 为最靠左，5 为最靠右）'
+    : anchors && anchorsUseAgreement.value
+      ? `（第 N 档，1 为${anchors[0]}，5 为${anchors[4]}）`
+      : '（第 N 档，1 为最不贴切，5 为最贴切）'
   const selected = props.modelValue === value ? '，当前已选' : ''
   return `${captionOf(value)}${scale.replace('N', String(index + 1))}${selected}`
 }
@@ -152,7 +185,7 @@ function optionLabel(value: number, index: number): string {
       class="border-t border-line-strong pt-3 text-[18px] font-medium leading-[1.55] text-ink tablet:text-[21px] laptop:text-[23px]"
     >
       <span class="mb-1 block text-[12px] font-normal tracking-wide text-ink-faint">
-        这句描述对你有多贴切？
+        {{ agreementKicker }}
       </span>
       {{ statement }}
     </p>
@@ -221,7 +254,7 @@ function optionLabel(value: number, index: number): string {
 
     <!-- 统一的档位说明（五档大小一致，不暗示某个答案更理想） -->
     <p v-if="isAgreement" class="mt-2.5 text-[12.5px] leading-relaxed text-ink-faint">
-      1 = 非常不贴切 · 3 = 谈不上贴切或不贴切（也算作答，不代表没想好）· 5 = 非常贴切
+      {{ agreementLegend }}
     </p>
     <p v-else class="mt-2.5 text-[12.5px] leading-relaxed text-ink-faint">
       1 = 明显偏左 · 3 = 两边相近（也算作答，不代表没想好）· 5 = 明显偏右

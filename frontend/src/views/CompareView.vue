@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
-import { describeError, type ErrorDisplay } from '@/api/v3'
+import { describeError, isSessionChanged, type ErrorDisplay } from '@/api/v3'
 import { compareReports, fetchReports, type CompareResult, type ReportSummary } from '@/api/v3Assessment'
 import { formatLocalTime } from '@/domain/localTime'
 
@@ -111,7 +111,7 @@ function statusLabel(status: string): string {
     case 'TENTATIVE':
       return '倾向较轻'
     case 'TIED':
-      return '并列'
+      return '几个方向并列'
     case 'NEEDS_REVIEW':
       return '信息不足'
     default:
@@ -140,6 +140,11 @@ async function loadList(): Promise<void> {
     list.value = found
   } catch (error) {
     if (current !== listGeneration) return
+    if (isSessionChanged(error)) {
+      listLoading.value = false
+      void loadList()
+      return
+    }
     list.value = []
     listError.value = describeError(error)
   } finally {
@@ -168,6 +173,11 @@ async function runCompare(): Promise<void> {
     resultIds.value = pair
   } catch (error) {
     if (myGeneration !== generation) return
+    if (isSessionChanged(error)) {
+      comparing.value = false
+      void runCompare()
+      return
+    }
     result.value = null
     resultIds.value = null
     compareError.value = describeError(error)
@@ -382,8 +392,11 @@ onBeforeUnmount(() => { listGeneration++; generation++ })
                     <span class="text-ink-faint">（强度 {{ magnitude(row.toMFinal) }}）</span>
                   </td>
                   <td class="py-2.5">
-                    <span v-if="row.changed" class="chip chip-accent">方向不同</span>
-                    <span v-else class="chip chip-neutral">方向一致</span>
+                    <span v-if="!result.samePackage" class="chip chip-neutral">这次不标记变化</span>
+                    <span v-else-if="!row.fromPole && !row.toPole" class="chip chip-neutral">都没有给出方向</span>
+                    <span v-else-if="row.changed" class="chip chip-accent">方向不同</span>
+                    <span v-else-if="row.fromPole && row.toPole && row.fromPole === row.toPole" class="chip chip-neutral">方向一致</span>
+                    <span v-else class="chip chip-neutral">这次不标记变化</span>
                   </td>
                 </tr>
               </tbody>

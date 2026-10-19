@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { V3ApiError } from '@/api/v3'
 import { WAIT_BUDGET_MS, useIllustrationAssetsStore } from './illustrationAssetsV3'
 
 const { fetchIllustrations } = vi.hoisted(() => ({ fetchIllustrations: vi.fn() }))
@@ -142,6 +143,21 @@ describe('插画地址表 store', () => {
     expect(fetchIllustrations).toHaveBeenCalledTimes(1)
 
     await store.load(true)
+    expect(fetchIllustrations).toHaveBeenCalledTimes(2)
+  })
+
+  it('会话确认打断第一次读取时重读，不把地址表记成失败', async () => {
+    fetchIllustrations
+      .mockRejectedValueOnce(new V3ApiError(
+        { code: 'SESSION_CHANGED', message: '登录状态已改变，请在当前账号下重新操作。', requestId: null, details: {} },
+        { status: 0 },
+      ))
+      .mockResolvedValueOnce(mapOf({ 'home-hero': HOME }))
+    const store = useIllustrationAssetsStore()
+    await store.load()
+    expect(store.status).toBe('ready')
+    expect(store.urls['home-hero']).toBe(HOME)
+    expect(store.error).toBeNull()
     expect(fetchIllustrations).toHaveBeenCalledTimes(2)
   })
 })

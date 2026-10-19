@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
+import { invalidateSessionRequests } from '@/api/v3'
 import AssessChooserView from './AssessChooserView.vue'
 
 /**
@@ -75,6 +76,9 @@ let draftsFail = false
 let createFailOnce = false
 let catalogFail = false
 let createDelay: Promise<void> | null = null
+let holdFirstDrafts = false
+let draftsFetches = 0
+let releaseDrafts: (() => void) | null = null
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -99,6 +103,10 @@ function installFetch(): void {
       return jsonResponse(CATALOG)
     }
     if (method === 'GET' && url.includes('/platform/attempts')) {
+      draftsFetches += 1
+      if (holdFirstDrafts && draftsFetches === 1) {
+        await new Promise<void>((resolve) => { releaseDrafts = resolve })
+      }
       if (draftsFail) return jsonResponse({ code: 'SERVICE_UNAVAILABLE', message: '稍后再试' }, 503)
       const open = url.includes('scope=open')
         ? drafts.filter((item) => item.status === 'BASE_IN_PROGRESS' || item.status === 'CLARIFICATION_IN_PROGRESS')
@@ -225,6 +233,9 @@ beforeEach(() => {
   createFailOnce = false
   catalogFail = false
   createDelay = null
+  holdFirstDrafts = false
+  draftsFetches = 0
+  releaseDrafts = null
   installFetch()
 })
 
@@ -328,6 +339,42 @@ describe('/assess 选择页', () => {
     expect(calls.filter((call) => call.method === 'POST')).toHaveLength(0)
   })
 
+  it('草稿状态用中文，卡片上不出现内部状态码', async () => {
+    drafts = [
+      draft({ status: 'BASE_IN_PROGRESS' }),
+      draft({
+        attemptId: 'jung-base',
+        instrumentKind: 'jung',
+        instrumentSlug: 'jung48',
+        instrumentTitle: '十六型人格参考测评',
+        status: 'BASE_IN_PROGRESS',
+        requiredCount: 48,
+      }),
+      draft({
+        attemptId: 'jung-clar',
+        instrumentKind: 'jung',
+        instrumentSlug: 'jung48',
+        instrumentTitle: '十六型人格参考测评',
+        status: 'CLARIFICATION_IN_PROGRESS',
+        answeredCount: 48,
+        requiredCount: 48,
+      }),
+    ]
+    const { wrapper } = await mountChooser()
+    const big = wrapper.get('[data-draft="attempt-open"]').text()
+    expect(big).toContain('答题中')
+    expect(big).not.toContain('BASE_IN_PROGRESS')
+    expect(big).not.toContain('主测')
+    const base = wrapper.get('[data-draft="jung-base"]').text()
+    expect(base).toContain('主测答题中')
+    expect(base).not.toContain('BASE_IN_PROGRESS')
+    const clar = wrapper.get('[data-draft="jung-clar"]').text()
+    expect(clar).toContain('补充答题中')
+    expect(clar).not.toContain('CLARIFICATION')
+    expect(clar).toContain('主测 48 / 48')
+    expect(clar).not.toContain('48 / 48 题')
+  })
+
   it('已有没答完的草稿时，卡片按钮继续那一份，不新建', async () => {
     drafts = [draft({ status: 'BASE_IN_PROGRESS' })]
     const { wrapper, router } = await mountChooser()
@@ -356,6 +403,19 @@ describe('/assess 选择页', () => {
     expect(post).toBeTruthy()
     expect(post!.url).toContain('/platform/attempts')
     expect(router.currentRoute.value.params.attemptId).toBe('attempt-new')
+  })
+
+  it('会话确认打断草稿列表后重读，未完成的测评仍可继续', async () => {
+    holdFirstDrafts = true
+    drafts = [draft({ status: 'BASE_IN_PROGRESS' })]
+    const { wrapper } = await mountChooser()
+    expect(wrapper.find('[data-assess-drafts-error]').exists()).toBe(false)
+    invalidateSessionRequests()
+    releaseDrafts?.()
+    await settle()
+    expect(wrapper.find('[data-assess-drafts-error]').exists()).toBe(false)
+    expect(wrapper.find('[data-draft]').exists()).toBe(true)
+    expect(draftsFetches).toBeGreaterThanOrEqual(2)
   })
 
   it('超过一页的开放草稿仍可见，服务端筛选先于分页', async () => {

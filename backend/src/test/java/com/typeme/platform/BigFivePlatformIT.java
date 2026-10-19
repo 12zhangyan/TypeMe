@@ -110,6 +110,39 @@ class BigFivePlatformIT extends AccountIntegrationTestBase {
     }
 
     @Test
+    @DisplayName("未完成列表的已答数只算主测，补充题不会把进度写成超过题量")
+    void openDraftProgressIgnoresClarificationAnswers() throws Exception {
+        RegisteredAccount account = register(uniqueUsername("clar_count"), "Clar-Count!2026");
+        CsrfContext csrf = csrf(account.session());
+        MvcResult created = mockMvc.perform(withCsrf(post("/api/v3/attempts")
+                .session(account.session()).contentType(MediaType.APPLICATION_JSON)
+                .content(json(Map.of("instrument", "jung48"))), csrf)).andReturn();
+        assertThat(created.getResponse().getStatus()).isEqualTo(201);
+        String attemptId = body(created).path("attemptId").asText();
+        LocalDateTime now = LocalDateTime.now();
+        invitationJdbc.update("""
+                INSERT INTO assessment_answer (attempt_id, question_id, kind, rating, updated_at)
+                VALUES (?, 'EI-01', 'RATING', 4, ?)
+                """, attemptId, now);
+        invitationJdbc.update("""
+                INSERT INTO assessment_answer (attempt_id, question_id, kind, rating, updated_at)
+                VALUES (?, 'EI-C1', 'RATING', 2, ?)
+                """, attemptId, now);
+
+        JsonNode open = body(mockMvc.perform(get("/api/v3/platform/attempts")
+                .param("scope", "open").session(account.session())).andReturn());
+        JsonNode row = null;
+        for (JsonNode item : open.path("items")) {
+            if (attemptId.equals(item.path("attemptId").asText())) {
+                row = item;
+            }
+        }
+        assertThat(row).isNotNull();
+        assertThat(row.path("answeredCount").asInt()).isEqualTo(1);
+        assertThat(row.path("requiredCount").asInt()).isEqualTo(48);
+    }
+
+    @Test
     @DisplayName("目录：公开可读，且同时列出十六型与大五")
     void instrumentsArePublicAndListBothKinds() throws Exception {
         // 不带任何会话：目录是公开的产品定义
@@ -255,10 +288,14 @@ class BigFivePlatformIT extends AccountIntegrationTestBase {
         long revision = answerAll(account, csrf, attempt, 5);
 
         String firstReportId = body(submit(account, csrf, attempt.attemptId(), revision)).path("reportId").asText();
-        String secondReportId = body(submit(account, csrf, attempt.attemptId(), revision)).path("reportId").asText();
-        assertThat(secondReportId)
+        JsonNode second = body(submit(account, csrf, attempt.attemptId(), revision));
+        assertThat(second.path("reportId").asText())
                 .as("同一份草稿只能有一份报告")
                 .isEqualTo(firstReportId);
+        assertThat(second.path("unprocessedCount").asInt())
+                .as("已经交卷的答卷没有未处理题，不能把答案行数填进这个字段")
+                .isEqualTo(0);
+        assertThat(second.path("unknownCount").asInt()).isEqualTo(0);
 
         // 建草稿的幂等：同一个键两次必须得到同一份草稿
         String key = "it-key-" + System.nanoTime();
@@ -368,6 +405,7 @@ class BigFivePlatformIT extends AccountIntegrationTestBase {
                 .as("十六型交卷应建出报告，实际 %d，响应体：%s",
                         jungSubmitted.getResponse().getStatus(), jungSubmitted.getResponse().getContentAsString())
                 .isEqualTo(201);
+        String jungReportId = body(jungSubmitted).path("reportId").asText();
 
         // 再做一份大五报告
         CreatedAttempt bigFive = createAttempt(account, csrf, "bigfive50");
@@ -398,6 +436,52 @@ class BigFivePlatformIT extends AccountIntegrationTestBase {
                 || bigFiveRow.path("computedTypeCode").asText().isEmpty())
                 .as("大五列表项不能凭空出现类型码")
                 .isTrue();
+
+        // 十六型比较页用的是 /api/v3/reports，不能把大五报告混进下拉框。
+        MvcResult jungList = mockMvc.perform(get("/api/v3/reports").session(account.session())).andReturn();
+        assertThat(jungList.getResponse().getStatus()).isEqualTo(200);
+        JsonNode jungItems = body(jungList).path("items");
+        assertThat(body(jungList).path("total").asInt())
+                .as("十六型报告列表的总数不能把大五报告算进去")
+                .isEqualTo(1);
+        assertThat(jungItems).hasSize(1);
+        assertThat(jungItems.get(0).path("reportId").asText()).isEqualTo(jungReportId);
+
+        MvcResult mixed = mockMvc.perform(get("/api/v3/reports/compare")
+                .param("ids", jungReportId, bigFiveReportId)
+                .session(account.session())).andReturn();
+        assertThat(mixed.getResponse().getStatus())
+                .as("十六型比较不能把大五报告当成另一份十六型报告：%s",
+                        mixed.getResponse().getContentAsString())
+                .isEqualTo(400);
+    }
+
+    @Test
+    @DisplayName("同一内容包的两份报告比较时，要读到嵌在报告正文里的版本，而不是一律当成版本不同")
+    void samePackageCompareReadsNestedMethodology() throws Exception {
+        RegisteredAccount account = register(uniqueUsername("jung_compare"), "Jung-Compare!2026");
+        CsrfContext csrf = csrf(account.session());
+
+        String low = submitJungReport(account, csrf, 1);
+        String high = submitJungReport(account, csrf, 5);
+        MvcResult compared = mockMvc.perform(get("/api/v3/reports/compare")
+                .param("ids", low, high)
+                .session(account.session())).andReturn();
+        assertThat(compared.getResponse().getStatus())
+                .as("比较应返回 200，实际 %d，响应体：%s",
+                        compared.getResponse().getStatus(), compared.getResponse().getContentAsString())
+                .isEqualTo(200);
+        JsonNode payload = body(compared);
+        assertThat(payload.path("reports").get(0).path("packageId").asText()).startsWith("typeme-jung48-");
+        assertThat(payload.path("reports").get(0).path("scoringVersion").asText()).isNotBlank();
+        assertThat(payload.path("samePackage").asBoolean())
+                .as("两份都是当前十六型内容包，比较结果却说版本不同：%s",
+                        compared.getResponse().getContentAsString())
+                .isTrue();
+        assertThat(payload.path("differences")).isNotEmpty();
+        String notes = payload.path("notes").toString();
+        assertThat(notes).contains("变化不等于成长或退步");
+        assertThat(notes).doesNotContain("版本不同");
     }
 
     @Test
@@ -435,6 +519,30 @@ class BigFivePlatformIT extends AccountIntegrationTestBase {
         assertThat(body(result).path("jobId").isMissingNode() || body(result).path("jobId").isNull())
                 .as("被拒绝的请求不能留下任务")
                 .isTrue();
+    }
+
+    @Test
+    @DisplayName("「说不好」再带分值时，报错不能把它说成中间档")
+    void unknownWithRatingIsNotDescribedAsTheMiddleRating() throws Exception {
+        RegisteredAccount account = register(uniqueUsername("bigfive_unknown_rating"), "Unknown-Rating!2026");
+        CsrfContext csrf = csrf(account.session());
+        CreatedAttempt attempt = createAttempt(account, csrf, "bigfive50");
+
+        Map<String, Object> response = unknown(attempt.itemIds().get(0));
+        response.put("rating", 3);
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("expectedRevision", 0L);
+        payload.put("responses", List.of(response));
+        MvcResult result = mockMvc.perform(withCsrf(
+                patch("/api/v3/platform/attempts/{id}/answers", attempt.attemptId())
+                        .session(account.session())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(payload)), csrf)).andReturn();
+
+        assertThat(result.getResponse().getStatus()).isEqualTo(400);
+        String message = body(result).path("message").asText();
+        assertThat(message).contains("说不好");
+        assertThat(message).doesNotContain("说不上符合或不符合");
     }
 
     /* ── 小工具 ─────────────────────────────────────────────────────────── */
@@ -537,6 +645,37 @@ class BigFivePlatformIT extends AccountIntegrationTestBase {
         response.put("kind", "RATING");
         response.put("rating", value);
         return response;
+    }
+
+    /** 十六型走老入口交卷，返回报告 id。 */
+    private String submitJungReport(RegisteredAccount account, CsrfContext csrf, int rating) throws Exception {
+        MvcResult created = mockMvc.perform(withCsrf(post("/api/v3/attempts")
+                .session(account.session())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{}"), csrf)).andReturn();
+        assertThat(created.getResponse().getStatus()).isEqualTo(201);
+        String attemptId = body(created).path("attemptId").asText();
+        List<Map<String, Object>> responses = new ArrayList<>();
+        for (JsonNode question : body(mockMvc.perform(get("/api/v3/catalog/current/package")
+                .session(account.session())).andReturn()).path("questions")) {
+            if ("base".equals(question.path("stage").asText())) {
+                responses.add(rating(question.path("id").asText(), rating));
+            }
+        }
+        long revision = patchJungAnswers(account, csrf, attemptId, responses);
+        Map<String, Object> submit = new LinkedHashMap<>();
+        submit.put("expectedRevision", revision);
+        submit.put("clarificationSkipped", true);
+        MvcResult submitted = mockMvc.perform(withCsrf(
+                post("/api/v3/attempts/{id}/submit", attemptId)
+                        .session(account.session())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(submit)), csrf)).andReturn();
+        assertThat(submitted.getResponse().getStatus())
+                .as("十六型交卷应建出报告，实际 %d，响应体：%s",
+                        submitted.getResponse().getStatus(), submitted.getResponse().getContentAsString())
+                .isEqualTo(201);
+        return body(submitted).path("reportId").asText();
     }
 
     /** 十六型走的是老入口，请求形状与大五不同（不能共用）。 */

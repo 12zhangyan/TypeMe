@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
+import { invalidateSessionRequests } from '@/api/v3'
 import BigFiveAssessView from './BigFiveAssessView.vue'
 import { useBigFiveStore } from '@/stores/bigFiveV3'
 
@@ -79,6 +80,8 @@ interface Recorded {
 
 let calls: Recorded[] = []
 let patchCount = 0
+let detailGets = 0
+let holdFirstDetail: Promise<void> | null = null
 let server: {
   detail?: () => Record<string, unknown>
   patch?: (index: number) => { status: number; body: unknown }
@@ -103,6 +106,8 @@ function installFetch(): void {
       return jsonResponse({ token: 'csrf-token', headerName: 'X-XSRF-TOKEN', parameterName: '_csrf' })
     }
     if (method === 'GET' && url.includes(`/platform/attempts/${ATTEMPT_ID}`)) {
+      detailGets += 1
+      if (holdFirstDetail && detailGets === 1) await holdFirstDetail
       return jsonResponse(server.detail ? server.detail() : attemptView())
     }
     if (method === 'PATCH' && url.includes(`/platform/attempts/${ATTEMPT_ID}/answers`)) {
@@ -192,6 +197,8 @@ beforeEach(() => {
   calls = []
   patchCount = 0
   server = {}
+  detailGets = 0
+  holdFirstDetail = null
   installFetch()
 })
 
@@ -200,6 +207,20 @@ afterEach(() => {
 })
 
 describe('大五答题页', () => {
+  it('进行中的草稿读取被会话确认打断后重读，停在第一题', async () => {
+    let release: () => void = () => {}
+    holdFirstDetail = new Promise<void>((resolve) => { release = resolve })
+    const { wrapper } = await mountAssess()
+    expect(wrapper.find('[data-bigfive-load-error]').exists()).toBe(false)
+    invalidateSessionRequests()
+    release()
+    await flushPromises()
+    await flushPromises()
+    expect(wrapper.find('[data-bigfive-load-error]').exists()).toBe(false)
+    expect(wrapper.text()).toContain('陈述句 1')
+    expect(detailGets).toBeGreaterThanOrEqual(2)
+  })
+
   it('会话失效后能走登录入口，未同步答案不被普通离页弹窗阻断', async () => {
     server.patch = () => ({
       status: 401,
@@ -226,8 +247,43 @@ describe('大五答题页', () => {
     expect(wrapper.text()).toContain('第 1 / 50 题')
     expect(wrapper.findAll('[role="radio"]')).toHaveLength(5)
     expect(wrapper.find('[data-bigfive-unknown]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('说不上符合或不符合')
+    expect(wrapper.text()).toContain('1 = 非常不符合')
+    expect(wrapper.text()).toContain('3 = 说不上符合或不符合（也算作答，不代表没想好）')
+    expect(wrapper.text()).toContain('5 = 非常符合')
+    expect(wrapper.text()).not.toContain('谈不上贴切或不贴切')
+    expect(wrapper.text()).toContain('从「非常不符合」到「非常符合」')
+    expect(wrapper.text()).not.toContain('有多贴切')
+    expect(wrapper.get('[role="radiogroup"]').attributes('aria-label')).not.toContain('贴切')
+    expect(wrapper.text()).not.toContain('暂时无法判断')
     // 没有任何改动时不应说"有 N 题还没保存"
     expect(wrapper.find('[data-bigfive-save-state]').text()).toContain('改动会自动保存')
+  })
+
+  it('翻到下一题时记下正在看的题，重新打开还停在这一题', async () => {
+    const { wrapper } = await mountAssess()
+    await wrapper.find('[data-bigfive-next]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('第 2 / 50 题')
+    expect(patchCalls()[0]?.body?.['currentQuestionId']).toBe('Q02')
+
+    wrapper.unmount()
+    server.detail = () => attemptView({ currentQuestionId: 'Q02' })
+    setActivePinia(createPinia())
+    const again = await mountAssess()
+    expect(again.wrapper.text()).toContain('第 2 / 50 题')
+    expect(again.wrapper.text()).toContain('陈述句 2')
+  })
+
+  it('从题号跳到后面的题时，记下的也是跳到的那一题', async () => {
+    const { wrapper } = await mountAssess()
+    const grid = wrapper.findAll('[data-bigfive-grid] button')
+    await grid[4]!.trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('第 5 / 50 题')
+    expect(patchCalls()[0]?.body?.['currentQuestionId']).toBe('Q05')
   })
 
   it('选了一档之后立刻显示「有 1 题还没保存」，保存成功后才变「已保存」', async () => {
@@ -291,6 +347,18 @@ describe('大五答题页', () => {
     await wrapper.find('[data-bigfive-next]').trigger('click')
     await flushPromises()
     expect(patchCalls()).toHaveLength(1)
+    expect(wrapper.text()).toContain('陈述句 1')
+    await wrapper.trigger('keydown', { key: 'ArrowRight' })
+    await flushPromises()
+    expect(wrapper.text()).toContain('陈述句 1')
+    expect(wrapper.text()).not.toContain('陈述句 2')
+    const grid = wrapper.findAll('[data-bigfive-grid] button')
+    expect(grid[1]!.attributes('disabled')).toBeDefined()
+    await grid[1]!.trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('陈述句 1')
+    expect(wrapper.text()).not.toContain('陈述句 2')
+    expect(patchCalls()).toHaveLength(1)
   })
 
   it('「说不好」以 UNKNOWN 提交，再点一次撤销回未作答', async () => {
@@ -350,10 +418,38 @@ describe('大五答题页', () => {
     await wrapper.find('[data-bigfive-submit]').trigger('click')
     await flushPromises()
 
-    expect(wrapper.find('[data-bigfive-submit-error]').text()).toContain('还有 1 题')
-    // 页面上当前题必须是服务端说缺的那一题
+    const submitError = wrapper.find('[data-bigfive-submit-error]').text()
+    expect(submitError).toContain('还有 1 题')
+    expect(submitError).toContain('说不好')
+    expect(submitError).not.toContain('说不上')
+    // 页面上当前题必须是服务端说缺的那一题，并且这个位置要写回服务端。
+    // 只改本地题号的话，刷新会回到交卷前的那一题。
     expect(wrapper.find('[data-bigfive-item]').attributes('data-bigfive-item')).toBe('Q07')
     expect(wrapper.text()).toContain('服务端还缺这一题')
+    const positioned = calls.filter((call) => call.method === 'PATCH' && call.body?.['currentQuestionId'] === 'Q07')
+    expect(positioned.length).toBeGreaterThan(0)
+  })
+
+  it('提交撞上进度冲突时只提示去核对，不另报一条原始错误', async () => {
+    const answers = ITEMS.map((each, index) => ({
+      questionId: each['id'] as string,
+      kind: 'RATING',
+      rating: (index % 5) + 1,
+    }))
+    server.detail = () => attemptView({ answers, answeredCount: 50, answerComplete: true })
+    server.submit = () => ({
+      status: 409,
+      body: { code: 'CONFLICT_REVISION', message: '另一台设备已经更新了这份草稿。' },
+    })
+    const { wrapper, router } = await mountAssess()
+
+    await wrapper.find('[data-bigfive-submit]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('[data-bigfive-conflict]').text()).toContain('读取服务端进度并核对')
+    expect(wrapper.find('[data-bigfive-conflict]').text()).not.toContain('重新载入最新版本')
+    expect(wrapper.find('[data-bigfive-submit-error]').exists()).toBe(false)
+    expect(router.currentRoute.value.name).toBe('assess-attempt')
   })
 
   it('提交成功跳到该报告的详情页', async () => {
@@ -424,5 +520,19 @@ describe('大五答题页', () => {
     await wrapper.find('[data-bigfive-leave-anyway]').trigger('click')
     await leave
     expect(router.currentRoute.value.name).toBe('instruments')
+  })
+
+  it('没有未保存答案时，记住题号失败也不直接离开', async () => {
+    server.patch = () => ({ status: 503, body: { code: 'UNAVAILABLE', message: '暂时无法保存' } })
+    const { wrapper, router } = await mountAssess()
+    const navigation = router.push('/instruments')
+    await flushPromises()
+    expect(patchCalls()[0]?.body?.['currentQuestionId']).toBe('Q01')
+    expect(wrapper.find('[data-bigfive-leave-stay]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('不会停在这一题')
+    expect(router.currentRoute.value.name).toBe('assess-attempt')
+    await wrapper.find('[data-bigfive-leave-stay]').trigger('click')
+    await navigation
+    expect(router.currentRoute.value.name).toBe('assess-attempt')
   })
 })

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { fetchIllustrations } from '@/api/platformV3'
-import { describeError } from '@/api/v3'
+import { describeError, isSessionChanged } from '@/api/v3'
 import { normalizeRemoteImageUrl } from '@/design/remoteImageUrl'
 
 /**
@@ -88,6 +88,7 @@ export const useIllustrationAssetsStore = defineStore('illustrationAssets', {
       if (!hadUrls) this.status = 'loading'
       startWaitBudget(this)
 
+      let sessionChanged = false
       try {
         const map = await fetchIllustrations()
         const { urls, dropped } = usableUrls(map.urls)
@@ -104,11 +105,21 @@ export const useIllustrationAssetsStore = defineStore('illustrationAssets', {
           )
         }
       } catch (error) {
-        this.error = describeError(error).message
-        if (!hadUrls) this.status = 'failed'
-        console.warn(`[插画地址] 读取失败，本次改用本地打包插画：${this.error}`)
+        // 首屏请求经常早于 `/me` 确认。会话一变，这次响应不能当成「地址表坏了」，
+        // 否则第一次打开会永久退回本地图，直到整页刷新。
+        sessionChanged = isSessionChanged(error)
+        if (!sessionChanged) {
+          this.error = describeError(error).message
+          if (!hadUrls) this.status = 'failed'
+          console.warn(`[插画地址] 读取失败，本次改用本地打包插画：${this.error}`)
+        }
       } finally {
         clearWaitBudget()
+      }
+      if (sessionChanged) {
+        this.attempted = false
+        if (!hadUrls) this.status = 'idle'
+        await this.load()
       }
     },
 

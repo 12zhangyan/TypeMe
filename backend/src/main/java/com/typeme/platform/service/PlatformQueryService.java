@@ -199,9 +199,10 @@ public class PlatformQueryService {
     /**
      * 我的测评列表（草稿与已提交都算）。
      *
-     * <p>{@code answeredCount} 按**这份测评自己的题目数**统计，而不是 JOIN 出来的
-     * 总答案数：大五的答案表同样只有 50 行，但十六型可能有补充题，
-     * 用"答案行数"当进度会在两种量表上给出不同的含义。
+     * <p>{@code answeredCount} 只数主测题。分母是 {@code baseItemCount}。
+     * 补充题的题号带 {@code -C}（例如 {@code EI-C1}），如果把它们算进分子，
+     * 列表会写成「52 / 48」。大五题号没有这个片段，不受影响。
+     * 这和改主测时删除补充题答案用的是同一条题号约定。
      */
     public PlatformDtos.MyAttemptListResponse myAttempts(String userId, int page, int size) {
         return myAttempts(userId, page, size, null);
@@ -225,7 +226,8 @@ public class PlatformQueryService {
                        (SELECT r.id FROM assessment_report r WHERE r.attempt_id = a.id) AS report_id,
                        (SELECT r.status FROM assessment_report r WHERE r.attempt_id = a.id) AS report_status,
                        (SELECT r.computed_type_code FROM assessment_report r WHERE r.attempt_id = a.id) AS type_code,
-                       (SELECT COUNT(*) FROM assessment_answer ans WHERE ans.attempt_id = a.id) AS answered_count
+                       (SELECT COUNT(*) FROM assessment_answer ans
+                         WHERE ans.attempt_id = a.id AND ans.question_id NOT LIKE '%-C%') AS answered_count
                   FROM assessment_attempt a
                  WHERE a.user_id = ?
                 """ + filter + """

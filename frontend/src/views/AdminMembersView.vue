@@ -22,6 +22,31 @@ const expiresAt = ref(localDate(new Date(Date.now() + 7 * 86400000)))
 const time = (value: string | null) => value ? new Date(value).toLocaleString() : '暂无记录'
 const labels: Record<string, string> = { ACTIVE: '正常', DISABLED: '已禁用', DELETION_PENDING: '注销处理中', AVAILABLE: '待使用', USED: '已使用', EXPIRED: '已过期', REVOKED: '已撤销', DRAFT: '答题中', BASE_IN_PROGRESS: '主测答题中', CLARIFICATION_IN_PROGRESS: '补充答题中', READY_TO_SUBMIT: '待提交', PROFILE: '五维参考结果', IN_PROGRESS: '答题中', SUBMITTED: '已完成', COMPLETED: '已完成', ABANDONED: '已结束', REFERENCE: '参考结果', TENTATIVE: '倾向较轻', TIED: '两边接近' }
 const label = (value: string) => labels[value] ?? value
+function attemptStatusLabel(attempt: MyAttemptRow): string {
+  if (attempt.status === 'BASE_IN_PROGRESS') {
+    return attempt.instrumentKind === 'jung' ? '主测答题中' : '答题中'
+  }
+  if (attempt.status === 'CLARIFICATION_IN_PROGRESS') return '补充答题中'
+  return label(attempt.status)
+}
+function attemptProgressLabel(attempt: MyAttemptRow): string {
+  if (attempt.status === 'CLARIFICATION_IN_PROGRESS') {
+    return `主测 ${attempt.answeredCount} / ${attempt.requiredCount}`
+  }
+  return `已答 ${attempt.answeredCount} / ${attempt.requiredCount} 题`
+}
+function reportStatusLabel(report: MyReportRow): string {
+  if (report.reportKind === 'big_five_profile') {
+    return report.status === 'PROFILE' ? '五维画像' : label(report.status)
+  }
+  switch (report.status) {
+    case 'REFERENCE': return '参考类型'
+    case 'TENTATIVE': return '倾向较轻'
+    case 'TIED': return '几个方向并列'
+    case 'NEEDS_REVIEW': return '信息不足'
+    default: return label(report.status)
+  }
+}
 function fail(e: unknown) {
   const display = describeError(e)
   if (isForbidden(e) || display.sessionExpired) { denied.value = isForbidden(e); ready.value = false; selected.value = null; detail.value = null; newCode.value = ''; users.value = empty(); invites.value = empty() }
@@ -108,10 +133,10 @@ onMounted(load)
         <div class="section-top"><div><p class="section-kicker">成员档案</p><h2 id="detail-title">{{ selected.nickname || selected.username }}</h2><p class="caption">{{ label(selected.status) }} · 注册于 {{ time(selected.createdAt) }}</p></div><button class="link" :disabled="busy" @click="selected = null; detail = null">收起档案</button></div>
         <form class="quota-form" @submit.prevent="saveLimit"><label>每日 AI 额度<input v-model.number="dailyLimit" class="input" type="number" min="0" max="10000" step="1" required :disabled="busy" /></label><button class="btn-primary" :disabled="busy">保存额度</button><p class="caption">0 次会停止接受新请求。{{ selected.aiDailyLimit === null ? '当前沿用系统默认额度。' : '当前使用单独分配的额度。' }}今日已用 {{ selected.aiUsedToday }} 次，剩余 {{ selected.aiRemainingToday }} 次。正在执行的请求不取消，仍受全站 AI 开关和总预算限制。</p></form>
         <h3 class="mt-8 font-semibold">测评进度</h3><p v-if="!userAttempts.items.length" class="caption mt-3">还没有开始测评。</p>
-        <div v-for="a in userAttempts.items" :key="a.attemptId" class="record-row"><div><strong>{{ a.instrumentTitle }}</strong><p class="caption">{{ time(a.updatedAt) }}</p></div><p>{{ label(a.status) }} · 已答 {{ a.answeredCount }} / {{ a.requiredCount }} 题</p></div>
+        <div v-for="a in userAttempts.items" :key="a.attemptId" class="record-row"><div><strong>{{ a.instrumentTitle }}</strong><p class="caption">{{ time(a.updatedAt) }}</p></div><p>{{ attemptStatusLabel(a) }} · {{ attemptProgressLabel(a) }}</p></div>
         <nav class="pagination" aria-label="测评翻页"><button :disabled="busy || userAttempts.page === 0" @click="action(async () => { userAttempts = await api.attempts(selected!.id, userAttempts.page - 1) })">上一页</button><span>共 {{ userAttempts.total }} 次</span><button :disabled="busy || (userAttempts.page + 1) * userAttempts.size >= userAttempts.total" @click="action(async () => { userAttempts = await api.attempts(selected!.id, userAttempts.page + 1) })">下一页</button></nav>
         <h3 class="mt-8 font-semibold">测评报告</h3><p v-if="!userReports.items.length" class="caption mt-3">还没有生成报告。</p>
-        <div v-for="r in userReports.items" :key="r.reportId" class="record-row"><div><strong>{{ r.instrumentTitle }}</strong><p>{{ r.summaryLine }}</p><p class="caption">{{ time(r.createdAt) }} · {{ label(r.status) }}</p></div><button class="link" :disabled="busy" @click="action(async () => { detail = null; detail = await api.report(selected!.id, r.reportId) })">阅读报告 →</button></div>
+        <div v-for="r in userReports.items" :key="r.reportId" class="record-row"><div><strong>{{ r.instrumentTitle }}</strong><p>{{ r.summaryLine }}</p><p class="caption">{{ time(r.createdAt) }} · {{ reportStatusLabel(r) }}</p></div><button class="link" :disabled="busy" @click="action(async () => { detail = null; detail = await api.report(selected!.id, r.reportId) })">阅读报告 →</button></div>
         <nav class="pagination" aria-label="报告翻页"><button :disabled="busy || userReports.page === 0" @click="action(async () => { userReports = await api.reports(selected!.id, userReports.page - 1) })">上一页</button><span>共 {{ userReports.total }} 份</span><button :disabled="busy || (userReports.page + 1) * userReports.size >= userReports.total" @click="action(async () => { userReports = await api.reports(selected!.id, userReports.page + 1) })">下一页</button></nav>
         <div v-if="detail" class="report-paper mt-6"><AdminReportReadout :detail="detail" /></div>
       </section>

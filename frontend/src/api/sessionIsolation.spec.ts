@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { flushPromises } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { clearCsrfToken, currentCsrfHeader, ensureCsrfToken, rememberCsrfToken } from './csrf'
 import { v3Request, updateNickname } from './v3'
+import PlatformIntro from '@/components/PlatformIntro.vue'
 import { installSessionExpiryBridge, useAuthStore } from '@/stores/auth'
+import { useInstrumentV3Store } from '@/stores/instrumentV3'
 import { useInstrumentsStore } from '@/stores/instrumentsV3'
 
 const profile = (userId: string) => ({ userId, username: userId, nickname: userId, createdAt: null, passwordChangedAt: null })
@@ -17,6 +19,13 @@ function deferred<T>() {
   return { promise, resolve }
 }
 const csrf = (token = 'synthetic-current') => ({ token, headerName: 'X-XSRF-TOKEN', parameterName: '_csrf' })
+const rawCard = (slug: string) => ({
+  slug, kind: 'jung', title: slug === 'stale-old' ? '旧会话的测评' : '当前会话的测评',
+  tagline: '示例', summary: '说明这次作答的倾向', whatYouLearn: ['倾向'], notFor: ['诊断'],
+  format: 'bipolar', hasTypeCode: true, supportsClarification: true, dimensions: ['EI', 'SN', 'TF', 'JP'],
+  defaultPackageId: 'fixture', baseItemCount: 48, clarificationItemCount: 16, maxClarificationItems: 16,
+  estimatedMinutes: 10, contentStatus: 'draft_review_pending',
+})
 let unbind: () => void
 
 beforeEach(() => {
@@ -140,25 +149,27 @@ describe('请求只属于发起时的会话', () => {
     expect(useAuthStore().lastError).toBeNull()
   })
 
-  it('账号切换后立即重新载入目录，旧请求不结束新 loading 或留下错误', async () => {
-    const old = deferred<Response>(), fresh = deferred<Response>()
-    const fetch = vi.fn().mockReturnValueOnce(old.promise).mockReturnValueOnce(fresh.promise)
-    vi.stubGlobal('fetch', fetch)
+  it('账号切换后目录自行重新载入，旧请求不结束新 loading、不留错误也不写入旧结果', async () => {
+    const replies: Array<(value: Response) => void> = []
+    vi.stubGlobal('fetch', vi.fn(() => {
+      const reply = deferred<Response>()
+      replies.push(reply.resolve)
+      return reply.promise
+    }))
     const instruments = useInstrumentsStore()
     const first = instruments.load()
     switchAccount()
-    const second = instruments.load()
-    old.resolve(json({ code: 'UNAUTHENTICATED' }, 401))
+    replies[0]!(json({ code: 'UNAUTHENTICATED' }, 401))
     await first
-    try {
-      expect(fetch).toHaveBeenCalledTimes(2)
-      expect(instruments.loading).toBe(true)
-      expect(instruments.error).toBeNull()
-      expect(instruments.attempted).toBe(false)
-    } finally {
-      fresh.resolve(json({ items: [] }))
-      await second
-    }
+    await flushPromises()
+    expect(useAuthStore().profile?.userId).toBe('account-b')
+    expect(instruments.loading).toBe(true)
+    expect(instruments.error).toBeNull()
+    replies.at(-1)!(json({ items: [rawCard('bigfive50')] }))
+    await flushPromises()
+    for (const reply of replies.slice(1, -1)) reply(json({ items: [rawCard('stale-old')] }))
+    await flushPromises()
+    expect(instruments.items.map((item) => item.slug)).toEqual(['bigfive50'])
     expect(instruments.attempted).toBe(true)
     expect(instruments.loading).toBe(false)
   })
@@ -183,6 +194,90 @@ describe('请求只属于发起时的会话', () => {
     finally { login.resolve(json(profile('account-b'))); await loggingIn }
     expect(auth.profile?.userId).toBe('account-b')
     expect(auth.busy).toBe(false)
+  })
+})
+
+describe('首次确认登录态后公开目录仍然可用', () => {
+  const pageStubs = {
+    RouterLink: { props: ['to'], template: '<a :href="to"><slot /></a>' },
+    IllustrationFrame: true, PersonalityGallery: true, EditorialScene: true,
+  }
+
+  it('首页目录请求早于 /me 返回时，确认登录后显示测评而不是空态', async () => {
+    setActivePinia(createPinia())
+    const me = deferred<Response>()
+    const lists: Array<(value: Response) => void> = []
+    vi.stubGlobal('fetch', vi.fn((url: string) => {
+      if (url.includes('/platform/instruments')) {
+        const reply = deferred<Response>()
+        lists.push(reply.resolve)
+        return reply.promise
+      }
+      if (url.endsWith('/me')) return me.promise
+      return Promise.resolve(json({}, 404))
+    }))
+    const wrapper = mount(PlatformIntro, { global: { stubs: pageStubs } })
+    const checking = useAuthStore().ensureLoaded()
+    me.resolve(json(profile('account-a')))
+    await checking
+    lists.at(-1)!(json({ items: [rawCard('jung48')] }))
+    await flushPromises()
+    for (const reply of lists.slice(0, -1)) reply(json({ items: [rawCard('stale-old')] }))
+    await flushPromises()
+    expect(useAuthStore().status).toBe('authenticated')
+    expect(wrapper.text()).not.toContain('暂时没有可开始的测评')
+    expect(wrapper.findAll('[data-home-instruments] > li')).toHaveLength(1)
+    expect(wrapper.text()).toContain('当前会话的测评')
+    expect(wrapper.text()).not.toContain('旧会话的测评')
+    wrapper.unmount()
+  })
+
+  it('目录已经载入、随后 /me 返回 401 时，目录不被清成空列表', async () => {
+    setActivePinia(createPinia())
+    const me = deferred<Response>()
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.includes('/platform/instruments')) return json({ items: [rawCard('jung48')] })
+      if (url.endsWith('/me')) return me.promise
+      return json({}, 404)
+    }))
+    const instruments = useInstrumentsStore()
+    await instruments.load()
+    const auth = useAuthStore()
+    const checking = auth.ensureLoaded()
+    me.resolve(json({ code: 'UNAUTHENTICATED' }, 401))
+    await checking
+    await flushPromises()
+    expect(auth.status).toBe('anonymous')
+    expect(instruments.items.map((item) => item.slug)).toEqual(['jung48'])
+    expect(instruments.attempted).toBe(true)
+    expect(instruments.loading).toBe(false)
+  })
+
+  it('十六型目录请求早于 /me 返回时，不因会话确认退回内置口径，也不采用旧会话响应', async () => {
+    setActivePinia(createPinia())
+    const me = deferred<Response>(), old = deferred<Response>()
+    let catalogCalls = 0
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.includes('/catalog/current')) {
+        catalogCalls += 1
+        return catalogCalls === 1 ? old.promise : json({ packageId: 'synthetic-current', title: '服务端量表名' })
+      }
+      if (url.endsWith('/me')) return me.promise
+      return json({}, 404)
+    }))
+    const instrument = useInstrumentV3Store()
+    const loading = instrument.load()
+    const checking = useAuthStore().ensureLoaded()
+    me.resolve(json(profile('account-a')))
+    await checking
+    old.resolve(json({ packageId: 'synthetic-old-session', title: '旧会话量表名' }))
+    await loading
+    await flushPromises()
+    expect(instrument.catalog?.packageId).toBe('synthetic-current')
+    expect(instrument.facts.fromCatalog).toBe(true)
+    expect(instrument.facts.title).toBe('服务端量表名')
+    expect(instrument.attempted).toBe(true)
+    expect(instrument.loading).toBe(false)
   })
 })
 

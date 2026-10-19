@@ -146,12 +146,14 @@ public class ReportService {
                     }
                 }
             }
-        } else {
+        } else if (!skipRequested) {
+            // 库里已经记过「跳过」，却又有补充题答案：这不是本次按钮能解释的状态。
+            // 本次请求自己带了跳过时不走这里 —— 计分会忽略补充题，报告写入后再删掉那些答案。
             for (JungDimension dimension : scheduled) {
                 for (JungItem item : pkg.clarificationItems(dimension)) {
                     if (answerMap.containsKey(item.id())) {
                         throw JungApiException.invalid(
-                                "已选择跳过补充题，就不应该再有补充题答案：" + item.id());
+                                "已选择跳过补充题，但补充题里还有作答。请继续答完再交卷，或回到主测后重新决定。");
                     }
                 }
             }
@@ -216,7 +218,10 @@ public class ReportService {
 
         // 到这里才确定这次提交会留下一份报告，把「跳过补充题」的选择落库。
         // 与下面的 status='SUBMITTED' 同一事务：要么报告与标记一起生效，要么都不生效。
+        // 本次明确跳过时，已经答过的补充题不参与计分（上面的 scorer 已忽略），
+        // 这里再删掉，避免库里同时留着「已跳过」和补充题答案。
         if (skipRequested) {
+            deleteClarificationAnswers(attemptId, pkg);
             jdbc.update("UPDATE assessment_attempt SET clarification_skipped = 1 WHERE id = ? AND user_id = ?",
                     attemptId, userId);
         }
@@ -238,13 +243,39 @@ public class ReportService {
                 true);
     }
 
+    /** 本次明确跳过补充题：删掉这份草稿上的全部补充题答案，主测答案不动。 */
+    private void deleteClarificationAnswers(String attemptId, JungPackage pkg) {
+        List<String> ids = new ArrayList<>();
+        for (JungDimension dimension : JungDimension.values()) {
+            for (JungItem item : pkg.clarificationItems(dimension)) {
+                ids.add(item.id());
+            }
+        }
+        if (ids.isEmpty()) return;
+        String placeholders = String.join(",", java.util.Collections.nCopies(ids.size(), "?"));
+        Object[] args = new Object[ids.size() + 1];
+        args[0] = attemptId;
+        for (int index = 0; index < ids.size(); index++) {
+            args[index + 1] = ids.get(index);
+        }
+        jdbc.update(
+                "DELETE FROM assessment_answer WHERE attempt_id = ? AND question_id IN (" + placeholders + ")",
+                args);
+    }
+
     /* ── 读取 ───────────────────────────────────────────────────────────── */
 
     public JungDtos.ReportListResponse list(String userId, int page, int size) {
         int safePage = Math.max(0, page);
         int safeSize = Math.min(50, Math.max(1, size));
-        Long total = jdbc.queryForObject(
-                "SELECT COUNT(*) FROM assessment_report WHERE user_id = ?", Long.class, userId);
+        // 这个接口只服务十六型比较页和十六型历史。大五报告走 /api/v3/platform/reports。
+        // 混进来之后，比较下拉框会出现「PROFILE」、计分版本为空的大五行。
+        Long total = jdbc.queryForObject("""
+                SELECT COUNT(*)
+                  FROM assessment_report r
+                  JOIN assessment_attempt a ON a.id = r.attempt_id
+                 WHERE r.user_id = ? AND a.package_id LIKE 'typeme-jung48-%'
+                """, Long.class, userId);
 
         List<JungDtos.ReportSummary> items = jdbc.query("""
                 SELECT r.id, r.attempt_id, r.created_at, r.status, r.computed_type_code,
@@ -253,7 +284,7 @@ public class ReportService {
                   FROM assessment_report r
                   JOIN assessment_attempt a ON a.id = r.attempt_id
                   LEFT JOIN report_self_reflection s ON s.report_id = r.id AND s.user_id = r.user_id
-                 WHERE r.user_id = ?
+                 WHERE r.user_id = ? AND a.package_id LIKE 'typeme-jung48-%'
                  ORDER BY r.created_at DESC, r.id DESC
                  LIMIT ? OFFSET ?
                 """,
@@ -387,7 +418,15 @@ public class ReportService {
             Map<String, Object> row = readReportRow(reportId, userId);
             Map<String, Object> report = readJsonMap((String) row.get("report_json"));
             reports.add(report);
-            Map<String, Object> methodology = asMap(report.get("methodology"));
+            // 落库的是信封：methodology / summary 在 report 正文里。
+            // 直接读根节点会把 packageId、scoringVersion 读成空，
+            // 于是同一内容包的两次作答也被说成「版本不同、不计算变化」。
+            Map<String, Object> body = reportBody(report);
+            Map<String, Object> methodology = asMap(body.get("methodology"));
+            String packageId = methodology == null ? null : asString(methodology.get("packageId"));
+            if (packageId != null && !packageId.startsWith("typeme-jung48-")) {
+                throw JungApiException.validation("只能比较两份十六型人格参考测评的报告。");
+            }
             JungDtos.ReportSummary summary = new JungDtos.ReportSummary(
                     reportId,
                     (String) row.get("attempt_id"),
@@ -395,24 +434,24 @@ public class ReportService {
                     (String) row.get("status"),
                     (String) row.get("computed_type_code"),
                     null,
-                    asString(report.get("summary")),
-                    methodology == null ? null : asString(methodology.get("packageId")),
+                    asString(body.get("summary")),
+                    packageId,
                     methodology == null ? null : asString(methodology.get("scoringVersion")));
             summaries.add(summary);
         }
 
-        Map<String, Object> first = reports.get(0);
-        Map<String, Object> second = reports.get(1);
-        Map<String, Object> firstMethod = asMap(first.get("methodology"));
-        Map<String, Object> secondMethod = asMap(second.get("methodology"));
+        Map<String, Object> firstBody = reportBody(reports.get(0));
+        Map<String, Object> secondBody = reportBody(reports.get(1));
+        Map<String, Object> firstMethod = asMap(firstBody.get("methodology"));
+        Map<String, Object> secondMethod = asMap(secondBody.get("methodology"));
         boolean samePackage = firstMethod != null && secondMethod != null
                 && java.util.Objects.equals(firstMethod.get("packageId"), secondMethod.get("packageId"))
                 && java.util.Objects.equals(firstMethod.get("scoringVersion"), secondMethod.get("scoringVersion"));
 
         List<JungDtos.DimensionDifference> differences = new ArrayList<>(4);
         List<String> notes = new ArrayList<>();
-        Map<String, Object> firstDimensions = dimensionIndex(first);
-        Map<String, Object> secondDimensions = dimensionIndex(second);
+        Map<String, Object> firstDimensions = dimensionIndex(reports.get(0));
+        Map<String, Object> secondDimensions = dimensionIndex(reports.get(1));
         for (JungDimension dimension : JungDimension.values()) {
             Map<String, Object> a = asMap(firstDimensions.get(dimension.name()));
             Map<String, Object> b = asMap(secondDimensions.get(dimension.name()));

@@ -1,0 +1,21 @@
+{
+  "failures": [],
+  "unknown": [],
+  "shots": [
+    "bigfive-conflict-1440.png",
+    "bigfive-conflict-320.png",
+    "bigfive-conflict-390.png",
+    "home-resume-1440.png",
+    "home-resume-320.png",
+    "home-resume-390.png",
+    "jung-conflict-1440.png",
+    "jung-conflict-320.png",
+    "jung-conflict-390.png",
+    "method-1440.png",
+    "method-320.png",
+    "method-390.png",
+    "skip-confirm-1440.png",
+    "skip-confirm-320.png",
+    "skip-confirm-390.png"
+  ]
+}

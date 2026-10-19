@@ -6,7 +6,7 @@ import AppIcon from '@/components/AppIcon.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { useAssessmentStore, SCALE_CAPTIONS } from '@/stores/assessmentV3'
 import { useAuthStore } from '@/stores/auth'
-import { describeError, isSessionExpired } from '@/api/v3'
+import { describeError, isRevisionConflict, isSessionExpired } from '@/api/v3'
 import type { Dimension, Item } from '@/domain/jung/types'
 import { DIMENSION_SHORT_NAME } from '@/domain/jung/labels'
 import { ANSWER_VALUES } from '@/domain/answers'
@@ -61,6 +61,7 @@ const loading = ref(false)
 const loadFailure = ref<string | null>(null)
 const showUnanswered = ref(false)
 const leaveDialog = ref(false)
+const skipConfirm = ref(false)
 let leaveResolve: ((allowed: boolean) => void) | null = null
 /** 交卷请求进行中（防连点）。 */
 const submitting = ref(false)
@@ -391,10 +392,19 @@ function announce(message: string): void {
   liveMessage.value = message
 }
 
+const answeredClarificationCount = computed(() =>
+  clarificationQuestions.value.filter((question) => assessment.answerOf(question.id)).length,
+)
+
 /** 手动前进。未作答时**不前进**，只给可见提示（与旧答题页一致）。 */
 async function next(): Promise<void> {
   const question = currentQuestion.value
   if (!question) return
+  if (assessment.conflict) {
+    hint.value = '先处理上方的同步提示，再继续。现在翻题或交卷会对不上另一台设备的进度。'
+    announce('先处理同步提示。')
+    return
+  }
   if (!assessment.answerOf(question.id)) {
     hint.value = '这一题还没有作答。请选一档，或选「这题我说不好」（两者都算处理过这一题）。'
     announce('还没有作答，不能前进。')
@@ -405,6 +415,11 @@ async function next(): Promise<void> {
     // 先记住"我刚刚在哪一题"，再前进：反过来会把下一题的位置写上去，
     // 下次回来就从更后面开始了。
     await assessment.rememberPosition(question.id)
+    if (assessment.conflict) {
+      hint.value = '先处理上方的同步提示，再继续。现在翻题或交卷会对不上另一台设备的进度。'
+      announce('先处理同步提示。')
+      return
+    }
     if (step.value === 'clarification') clarificationIndex.value += 1
     else baseIndex.value += 1
     announce(`第 ${activeNumber.value} 题。`)
@@ -415,6 +430,11 @@ async function next(): Promise<void> {
 
 async function previous(): Promise<void> {
   hint.value = null
+  if (assessment.conflict) {
+    hint.value = '先处理上方的同步提示，再继续。'
+    announce('先处理同步提示。')
+    return
+  }
   if (activeIndex.value === 0) return
   if (step.value === 'clarification') clarificationIndex.value -= 1
   else baseIndex.value -= 1
@@ -422,24 +442,33 @@ async function previous(): Promise<void> {
 
 /** 主动跳到某道题（未答题入口用）。 */
 async function jumpTo(questionId: string): Promise<void> {
-  const baseAt = baseQuestions.value.findIndex((question) => question.id === questionId)
-  if (baseAt >= 0) {
-    step.value = 'base'
-    baseIndex.value = baseAt
-    showUnanswered.value = false
-    hint.value = null
-    await assessment.rememberPosition(questionId)
+  if (assessment.conflict) {
+    hint.value = '先处理上方的同步提示，再继续。'
+    announce('先处理同步提示。')
     return
   }
+  const baseAt = baseQuestions.value.findIndex((question) => question.id === questionId)
   const clarificationAt = clarificationQuestions.value.findIndex(
     (question) => question.id === questionId,
   )
-  if (clarificationAt >= 0) {
+  if (baseAt < 0 && clarificationAt < 0) return
+  const visibleId = currentQuestion.value?.id ?? null
+  await assessment.rememberPosition(questionId)
+  if (assessment.conflict) {
+    if (visibleId) assessment.currentQuestionId = visibleId
+    hint.value = '先处理上方的同步提示，再继续。'
+    announce('先处理同步提示。')
+    return
+  }
+  if (baseAt >= 0) {
+    step.value = 'base'
+    baseIndex.value = baseAt
+  } else {
     step.value = 'clarification'
     clarificationIndex.value = clarificationAt
-    showUnanswered.value = false
-    hint.value = null
   }
+  showUnanswered.value = false
+  hint.value = null
 }
 
 /**
@@ -492,12 +521,24 @@ async function jumpToFirstUnanswered(): Promise<void> {
 async function backToBase(): Promise<void> {
   const first = baseQuestions.value[0]
   if (!first) return
+  if (assessment.conflict) {
+    hint.value = '先处理上方的同步提示，再继续。'
+    announce('先处理同步提示。')
+    return
+  }
+  const visibleId = currentQuestion.value?.id ?? null
+  await assessment.rememberPosition(first.id)
+  if (assessment.conflict) {
+    if (visibleId) assessment.currentQuestionId = visibleId
+    hint.value = '先处理上方的同步提示，再继续。'
+    announce('先处理同步提示。')
+    return
+  }
   step.value = 'base'
   baseIndex.value = 0
   showUnanswered.value = false
   hint.value = null
   announce('已回到主测。改答会重新计算要问的补充题。')
-  await assessment.rememberPosition(first.id)
 }
 
 /* ── 阶段收尾：review → 补充题或直接交卷 ─────────────────────────────────── */
@@ -549,8 +590,26 @@ async function startClarification(): Promise<void> {
 
 /** 跳过补充题：**跳过 ≠ 未答**，如实说明代价。 */
 async function skipClarification(): Promise<void> {
+  if (assessment.conflict) {
+    hint.value = '先处理上方的同步提示，再决定是否跳过补充题。'
+    announce('先处理同步提示。')
+    return
+  }
+  if (answeredClarificationCount.value > 0) {
+    skipConfirm.value = true
+    return
+  }
+  await commitSkip()
+}
+
+async function commitSkip(): Promise<void> {
+  skipConfirm.value = false
   assessment.markClarificationSkipped()
-  announce('已选择跳过补充题：这几维只按主测作答说明，方向可能仍然看不清。')
+  announce(
+    answeredClarificationCount.value > 0
+      ? '已跳过补充题：已经答过的补充题不会被采用，这几维只按主测说明。'
+      : '已选择跳过补充题：这几维只按主测作答说明，方向可能仍然看不清。',
+  )
   await submit(true)
 }
 
@@ -575,6 +634,19 @@ async function submit(skipped: boolean): Promise<void> {
     await router.push({ name: 'report-detail', params: { reportId: result.reportId } })
   } catch (error) {
     sessionExpired.value = isSessionExpired(error)
+    if (isRevisionConflict(error)) {
+      const probe = await assessment.probeSubmission()
+      if (probe.submitted && probe.reportId) {
+        submitNotice.value = '这次测评其实已经交上去了。正在打开那份报告。'
+        announce('这次测评已经提交过了，正在打开报告。')
+        await router.push({ name: 'report-detail', params: { reportId: probe.reportId } })
+        return
+      }
+      assessment.noteExternalRevisionConflict(error)
+      submitNotice.value = null
+      announce('另一台设备更新了进度，这次没有交卷。')
+      return
+    }
     // 交卷失败里最常见、也最让用户卡住的一种是"其实已经交上去了"（响应丢在路上、
     // 或用户重复点了交卷）。这时把他留在一句错误上没有意义：报告已经生成，
     // 契约里 `attempt.reportId` 就是为这条路准备的，只是前端以前从来没读它（第 17 轮）。
@@ -850,9 +922,12 @@ const earlierUnanswered = computed(() =>
               · {{ label }}
             </li>
           </ul>
-          <p class="mt-1 text-[13px] leading-relaxed">
+          <p v-if="assessment.lostAnswerLabels.length" class="mt-1 text-[13px] leading-relaxed">
             上面这些本机改动没有写上去；载入最新进度后，以另一台设备的版本为准，
             被覆盖的题需要重新作答一遍。
+          </p>
+          <p v-else class="mt-1 text-[13px] leading-relaxed">
+            本机没有还没写上去的答案。载入最新进度后，按另一台设备上的版本继续。
           </p>
           <button
             type="button"
@@ -918,7 +993,7 @@ const earlierUnanswered = computed(() =>
               type="button"
               class="btn-secondary"
               data-skip-clarification
-              :disabled="submitting"
+              :disabled="submitting || !!assessment.conflict"
               @click="skipClarification"
             >
               {{ submitting ? '正在交卷…' : '跳过补充题，直接交卷' }}
@@ -1074,7 +1149,7 @@ const earlierUnanswered = computed(() =>
               type="button"
               class="btn-secondary"
               data-previous
-              :disabled="activeIndex === 0"
+              :disabled="activeIndex === 0 || !!assessment.conflict"
               @click="previous"
             >
               上一题
@@ -1083,7 +1158,7 @@ const earlierUnanswered = computed(() =>
               type="button"
               class="btn-primary"
               data-next
-              :disabled="submitting || loading"
+              :disabled="submitting || loading || !!assessment.conflict"
               @click="next"
             >
               {{ isLastInStage ? (step === 'clarification' ? '完成并交卷' : '完成主测') : '下一题' }}
@@ -1108,7 +1183,7 @@ const earlierUnanswered = computed(() =>
               type="button"
               class="btn-ghost btn-sm"
               data-skip-clarification-in-progress
-              :disabled="submitting"
+              :disabled="submitting || !!assessment.conflict"
               @click="skipClarification"
             >
               跳过补充题，直接交卷
@@ -1155,6 +1230,16 @@ const earlierUnanswered = computed(() =>
       </section>
     </div>
 
+    <ConfirmDialog
+      :open="skipConfirm"
+      title="跳过已经答过的补充题"
+      :description="`已经有 ${answeredClarificationCount} 道补充题作答。跳过之后这些作答不会被采用，报告只按主测说明。`"
+      confirm-label="跳过并交卷"
+      cancel-label="留下继续答"
+      initial-focus="cancel"
+      @cancel="skipConfirm = false"
+      @confirm="commitSkip"
+    />
     <ConfirmDialog
       :open="leaveDialog"
       title="这次改动还没同步"

@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
+import { invalidateSessionRequests } from '@/api/v3'
 import AttemptRouterView from './AttemptRouterView.vue'
 
 /**
@@ -255,6 +256,30 @@ describe('同一路由换 attemptId：必须重新分流，且旧响应不许覆
 
     await release('slow-jung')
     expect(page(wrapper)).toBe('big_five')
+  })
+
+  it('会话确认打断进行中的分流后重读，不把页面停在失败上', async () => {
+    let release: (value: Response) => void = () => {}
+    const first = new Promise<Response>((resolve) => { release = resolve })
+    let metadataCalls = 0
+    vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/auth/csrf')) {
+        return Promise.resolve(jsonResponse({ token: 'csrf', headerName: 'X-XSRF-TOKEN', parameterName: '_csrf' }))
+      }
+      metadataCalls += 1
+      if (metadataCalls === 1) return first
+      return Promise.resolve(jsonResponse(jungAttempt()))
+    }))
+    const wrapper = await mountAt(makeRouter(), `/assess/${JUNG_ID}`)
+    expect(page(wrapper)).toBe('unknown')
+    invalidateSessionRequests()
+    release(jsonResponse(jungAttempt()))
+    await flushPromises()
+    await flushPromises()
+    expect(wrapper.text()).not.toContain('登录状态已改变')
+    expect(page(wrapper)).toBe('jung')
+    expect(metadataCalls).toBeGreaterThanOrEqual(2)
   })
 
   it('从失败的那份换到正常的那份：旧的错误提示必须消失', async () => {

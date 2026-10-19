@@ -5,7 +5,7 @@ import PageContainer from '@/components/PageContainer.vue'
 import { fetchMyReports, fetchPlatformReport, parseBigFiveReport, type MyReportRow, type BigFiveReportView, type ReportDetailView } from '@/api/platformV3'
 import { bigFiveComparable } from '@/domain/bigFiveExport'
 import { formatLocalTime } from '@/domain/localTime'
-import { describeError } from '@/api/v3'
+import { describeError, isSessionChanged } from '@/api/v3'
 
 const route = useRoute()
 const router = useRouter()
@@ -56,11 +56,27 @@ async function loadList(): Promise<void> {
     if (current === listGeneration) rows.value = found
   } catch (cause) {
     if (current !== listGeneration) return
+    if (isSessionChanged(cause)) {
+      loading.value = false
+      void loadList()
+      return
+    }
     rows.value = []
     error.value = describeError(cause).message
   } finally {
     if (current === listGeneration) loading.value = false
   }
+}
+
+function optionLabel(row: MyReportRow, index: number): string {
+  const when = formatLocalTime(row.createdAt)
+  const summary = row.summaryLine || '（没有摘要）'
+  const base = `${when} · ${summary}`
+  const twins = rows.value.filter((other) =>
+    formatLocalTime(other.createdAt) === when && (other.summaryLine || '（没有摘要）') === summary)
+  if (twins.length < 2) return base
+  const place = twins.findIndex((other) => other.reportId === row.reportId)
+  return `${base} · 同一时间的第 ${place >= 0 ? place + 1 : index + 1} 份`
 }
 
 function select(which: 'a' | 'b', value: string): void {
@@ -80,7 +96,13 @@ async function compare(): Promise<void> {
     first.value = { detail: a, report: parseBigFiveReport(a.report) }
     second.value = { detail: b, report: parseBigFiveReport(b.report) }
   } catch (cause) {
-    if (current === generation) compareError.value = describeError(cause).message
+    if (current !== generation) return
+    if (isSessionChanged(cause)) {
+      comparing.value = false
+      void compare()
+      return
+    }
+    compareError.value = describeError(cause).message
   } finally {
     if (current === generation) comparing.value = false
   }
@@ -107,16 +129,16 @@ onBeforeUnmount(() => { listGeneration++; generation++ })
     <p v-else-if="rows.length < 2" class="notice-neutral mt-5">至少需要两份大五报告才能比较。</p>
     <template v-else>
       <div class="mt-5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3 tablet:grid-cols-2">
-        <label class="grid min-w-0 gap-1">第一次
+        <label class="grid min-w-0 gap-1">先看的那份
           <select class="input w-full min-w-0" :value="idA" @change="select('a', ($event.target as HTMLSelectElement).value)">
             <option value="">请选择</option>
-            <option v-for="(row, index) in rows" :key="row.reportId" :value="row.reportId">第 {{ index + 1 }} 份 · {{ formatLocalTime(row.createdAt) }} · {{ row.summaryLine }}</option>
+            <option v-for="(row, index) in rows" :key="row.reportId" :value="row.reportId">{{ optionLabel(row, index) }}</option>
           </select>
         </label>
-        <label class="grid min-w-0 gap-1">第二次
+        <label class="grid min-w-0 gap-1">再看的那份
           <select class="input w-full min-w-0" :value="idB" @change="select('b', ($event.target as HTMLSelectElement).value)">
             <option value="">请选择</option>
-            <option v-for="(row, index) in rows" :key="row.reportId" :value="row.reportId">第 {{ index + 1 }} 份 · {{ formatLocalTime(row.createdAt) }} · {{ row.summaryLine }}</option>
+            <option v-for="(row, index) in rows" :key="row.reportId" :value="row.reportId">{{ optionLabel(row, index) }}</option>
           </select>
         </label>
       </div>
@@ -126,15 +148,15 @@ onBeforeUnmount(() => { listGeneration++; generation++ })
       <section v-if="first && second" class="mt-6" data-big-five-comparison>
         <p v-if="!comparable" class="notice-uncertain">这两份报告的内容包或计分版本不同，或旧报告缺少版本记录。不计算分数差值；请分别阅读原报告。</p>
         <template v-else>
-          <p class="caption">正数仅表示第二次自报的原始分更高，负数表示更低；不是人群排名。</p>
+          <p class="caption">正数仅表示再看的那份自报的原始分更高，负数表示更低；不是人群排名。</p>
           <div class="mt-3 overflow-x-auto"><table class="w-full text-left text-[14px]">
-            <thead><tr><th scope="col">方面</th><th scope="col">第一次</th><th scope="col">第二次</th><th scope="col">差值</th></tr></thead>
+            <thead><tr><th scope="col">方面</th><th scope="col">先看的那份</th><th scope="col">再看的那份</th><th scope="col">差值</th></tr></thead>
             <tbody><tr v-for="row in differences" :key="row.name" class="border-t border-line">
               <th scope="row" class="py-3">{{ row.name }}</th><td>{{ row.before ?? '信息不足' }}</td><td>{{ row.after ?? '信息不足' }}</td><td>{{ row.delta === null ? '不计算' : row.delta > 0 ? `+${row.delta}` : row.delta }}</td>
             </tr></tbody>
           </table></div>
         </template>
-        <div class="mt-4 flex flex-wrap gap-3"><RouterLink :to="`/reports/big-five/${idA}`" class="link">阅读第一次报告</RouterLink><RouterLink :to="`/reports/big-five/${idB}`" class="link">阅读第二次报告</RouterLink></div>
+        <div class="mt-4 flex flex-wrap gap-3"><RouterLink :to="`/reports/big-five/${idA}`" class="link">阅读先看的那份</RouterLink><RouterLink :to="`/reports/big-five/${idB}`" class="link">阅读再看的那份</RouterLink></div>
       </section>
     </template>
     <RouterLink to="/reports" class="btn-ghost btn-sm mt-6">回到历史报告</RouterLink>

@@ -148,7 +148,7 @@ public final class BigFiveReportBuilder {
         }
         if (result.unknownCount() > 0) {
             text.append("你有 ").append(result.unknownCount())
-                    .append(" 题选了「说不上符合或不符合」，这些题不参与计分。");
+                    .append(" 题选了「说不好」，这些题不参与计分。");
         }
         String value = text.toString();
         assertNoBannedWords(value, "首屏摘要");
@@ -220,7 +220,7 @@ public final class BigFiveReportBuilder {
     private static String insufficientText(BigFiveDimensionCopy copy, BigFiveResult.DimensionResult row) {
         int missing = Math.max(0, row.unknownCount() + row.unprocessedCount());
         return "这一方面这次只有 " + row.validCount() + " 题算数（另有 " + missing
-                + " 题没答或选了「说不上」），还不够形成描述。它问的是「" + copy.question() + "」。";
+                + " 题没答或选了「说不好」），还不够形成描述。它问的是「" + copy.question() + "」。";
     }
 
     /**

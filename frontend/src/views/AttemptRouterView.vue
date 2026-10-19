@@ -5,7 +5,7 @@ import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
 import AssessView from '@/views/AssessView.vue'
 import BigFiveAssessView from '@/views/BigFiveAssessView.vue'
-import { describeError, type ErrorDisplay } from '@/api/v3'
+import { describeError, isSessionChanged, type ErrorDisplay } from '@/api/v3'
 import { fetchAttemptMetadata, type InstrumentKind } from '@/api/platformV3'
 
 /**
@@ -71,6 +71,11 @@ async function loadAttempt(id: string): Promise<void> {
     kind.value = attempt.instrumentKind
   } catch (loadError) {
     if (seq !== requestSeq) return
+    // 打开草稿往往早于会话确认。那次打断不是「这份测评读不出来」。
+    if (isSessionChanged(loadError)) {
+      void loadAttempt(id)
+      return
+    }
     const display = describeError(loadError)
     if (display.code === 'NOT_FOUND') {
       // 不存在，或不是本人的草稿（同形）。绝不能当成"这是十六型草稿"。

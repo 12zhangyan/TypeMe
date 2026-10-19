@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import { isSessionChanged } from '@/api/v3'
 import { useAuthStore } from '@/stores/auth'
 import { POLE_META } from '@/domain/scoring'
 import { FALLBACK_TYPE_PROFILES } from '@/content/fallback'
-import { UNKNOWN_REASON_LABEL } from '@/domain/answers'
+import { BIG_FIVE_ANCHORS, UNKNOWN_REASON_LABEL } from '@/domain/answers'
 import { useInstrumentV3Store } from '@/stores/instrumentV3'
 import { useAssessmentStore } from '@/stores/assessmentV3'
 import { fetchMyAttempts, type MyAttemptRow } from '@/api/platformV3'
@@ -57,6 +58,7 @@ const assessment = useAssessmentStore()
 const router = useRouter()
 const auth = useAuthStore()
 const platformDraft = ref<MyAttemptRow | null>(null)
+const platformOpenTotal = ref(0)
 const platformDraftsLoaded = ref(false)
 const platformDraftsLoading = ref(false)
 const platformDraftsError = ref(false)
@@ -67,6 +69,7 @@ async function loadPlatformDraft(): Promise<void> {
   const owner = auth.profile?.userId
   if (!auth.isAuthenticated || !owner) {
     platformDraft.value = null
+    platformOpenTotal.value = 0
     platformDraftsLoaded.value = false
     platformDraftsLoading.value = false
     return
@@ -77,19 +80,33 @@ async function loadPlatformDraft(): Promise<void> {
     const page = await fetchMyAttempts(0, 1, 'open')
     if (generation !== draftGeneration || auth.profile?.userId !== owner) return
     platformDraft.value = page.items[0] ?? null
+    platformOpenTotal.value = page.total
     platformDraftsLoaded.value = true
-  } catch {
+  } catch (error) {
     if (generation !== draftGeneration || auth.profile?.userId !== owner) return
+    if (isSessionChanged(error)) {
+      void loadPlatformDraft()
+      return
+    }
     platformDraftsError.value = true
   } finally {
     if (generation === draftGeneration) platformDraftsLoading.value = false
   }
 }
 
-watch(() => auth.profile?.userId, () => {
-  platformDraft.value = null
-  platformDraftsLoaded.value = false
+watch(() => [auth.status, auth.profile?.userId] as const, () => {
+  if (!auth.isAuthenticated) {
+    platformDraft.value = null
+    platformOpenTotal.value = 0
+    platformDraftsLoaded.value = false
+    platformDraftsLoading.value = false
+    assessment.clearDraftEntry()
+    return
+  }
+  // 首页往往比会话确认更早挂上。只在 onMounted 里读草稿，会赶在登录态落定之前
+  // 放弃，之后主按钮就一直是「开始测评」。
   void loadPlatformDraft()
+  void assessment.loadDraftEntry()
 }, { immediate: true })
 onBeforeUnmount(() => { draftGeneration++ })
 
@@ -118,6 +135,26 @@ const resumeTarget = computed(() => {
   return assessment.resumableDraft
 })
 
+/** 续答的是大五时，这一块不能再用十六型的题数和「暂时无法判断」。 */
+const resumeIsBigFive = computed(() => {
+  const draft = resumeTarget.value
+  if (!draft) return false
+  if ('instrumentKind' in draft) return draft.instrumentKind === 'big_five'
+  return 'packageId' in draft && draft.packageId.startsWith('typeme-bigfive50-')
+})
+
+const resumeTitle = computed(() => {
+  const draft = resumeTarget.value
+  if (draft && 'instrumentTitle' in draft && draft.instrumentTitle) return draft.instrumentTitle
+  return '大五人格倾向测评'
+})
+
+const resumeRequired = computed(() => {
+  const draft = resumeTarget.value
+  if (draft && 'requiredCount' in draft && draft.requiredCount > 0) return draft.requiredCount
+  return null
+})
+
 /** 续答那行说明：已答数只在**读到了**那份草稿详情时出现。 */
 const resumeNote = computed(() => {
   const draft = resumeTarget.value
@@ -125,12 +162,23 @@ const resumeNote = computed(() => {
   const when = formatLocalTime(draft.updatedAt) || '（时间未记录）'
   const progress = assessment.draftProgress
   const parts: string[] = []
-  if (progress && progress.attemptId === draft.attemptId && (!('instrumentKind' in draft) || draft.instrumentKind === 'jung')) {
+  const jungDetail = progress
+    && progress.attemptId === draft.attemptId
+    && (!('instrumentKind' in draft) || draft.instrumentKind === 'jung')
+  if (jungDetail) {
     parts.push(`已答 ${progress.answered}/${progress.baseTotal} 题（主测）`)
+  } else if ('answeredCount' in draft && 'requiredCount' in draft && draft.requiredCount > 0) {
+    const counted = `${draft.answeredCount}/${draft.requiredCount} 题`
+    parts.push('status' in draft && draft.status === 'CLARIFICATION_IN_PROGRESS'
+      ? `主测已答 ${counted}`
+      : `已答 ${counted}`)
   }
   parts.push(`上次答到 ${when}`)
-  if (assessment.otherDraftCount > 0) {
-    parts.push(`另外还有 ${assessment.otherDraftCount} 份没答完`)
+  const others = platformDraftsLoaded.value && draft
+    ? Math.max(0, platformOpenTotal.value - 1)
+    : assessment.otherDraftCount
+  if (others > 0) {
+    parts.push(`另外还有 ${others} 份没答完`)
   }
   return `接着答不会重新开始：${parts.join(' · ')}。`
 })
@@ -259,6 +307,13 @@ const AI_STRUCTURE = [
 /**
  * 不计分的教学例子 —— 按新测实际的双极作答格式讲。
  */
+const BIG_FIVE_HOW_TO = computed(() => [
+  `1 是「${BIG_FIVE_ANCHORS[0]}」，5 是「${BIG_FIVE_ANCHORS[4]}」。`,
+  `3 是「${BIG_FIVE_ANCHORS[2]}」，仍然算一次有效作答。`,
+  '不理解、这句话不适用，或没有相关经历，选「说不好」。它和中间那一档不是一回事。',
+  '按平时的感受选，不必为了显得某一种性格而改答案。',
+])
+
 const TEACHING_EXAMPLE = computed(() => [
   '两边都读完：左边是 1，右边是 5。',
   '3 表示理解之后觉得两侧差不多符合，不代表没看懂。',
@@ -266,7 +321,28 @@ const TEACHING_EXAMPLE = computed(() => [
   '实际约束下的行为不必然等于偏好；不要为了选一个“好性格”而选答案。',
 ])
 
-const faqs = computed(() => [
+const BIG_FIVE_DIMENSIONS = [
+  { name: '外向性', hint: '更愿意主动接触外界，还是更常把精力留在自己这边。' },
+  { name: '宜人性', hint: '合作、体谅别人的倾向有多明显。' },
+  { name: '尽责性', hint: '做事有多按计划、有多在意把事情做完。' },
+  { name: '情绪稳定性', hint: '情绪起伏时，自己能多稳地待着。' },
+  { name: '开放性', hint: '对新想法、新体验有多愿意接触。' },
+] as const
+
+const faqs = computed(() => resumeIsBigFive.value ? [
+  {
+    q: '看不懂题目怎么办？',
+    a: '可以选「说不好」。它表示这题没有作答，不会被当成中间那一档「说不上符合或不符合」。',
+  },
+  {
+    q: '选「说不好」会怎样？',
+    a: '这题不计入有效作答。一个方面有效作答不够时，这一方面不给方向；其余方面照常说明。',
+  },
+  {
+    q: '结果会不会合成一个类型？',
+    a: '不会。五个方面各自说明，不加总，也不给字母组合。分数是这次作答的原始分，不是人群排名。',
+  },
+] : [
   {
     q: '看不懂题目怎么办？',
     a: '每题下面都有「这题是什么意思？」，点开可以看这条题的短释义，展开不会改变你的答案。如果读完仍然说不清、这句话不适用或没有相关经历，可以点「暂时无法判断」。',
@@ -289,7 +365,23 @@ const faqs = computed(() => [
   },
 ])
 
-const VALUES = computed(() => [
+const VALUES = computed(() => resumeIsBigFive.value ? [
+  {
+    icon: 'dimensions' as const,
+    title: '五个方面各自说明',
+    body: '不加总，也不合成一个类型。某一方面有效作答不够时，只说这一方面这次看不清。',
+  },
+  {
+    icon: 'question' as const,
+    title: '中间档和「说不好」不是一回事',
+    body: '3 是「说不上符合或不符合」，仍然算有效作答。选「说不好」表示这题没有作答。',
+  },
+  {
+    icon: 'chart' as const,
+    title: '只解释这次答过的部分',
+    body: '看不清的方面不会被补成一个方向。',
+  },
+] : [
   {
     icon: 'dimensions' as const,
     title: '四个维度的结果，而不是一个默认类型',
@@ -326,13 +418,6 @@ function scrollToPreview(): void {
 
 onMounted(() => {
   void instrument.load()
-  // 已登录时才问服务端"有没有没答完的测评"。未登录时**不发这个请求**（那只会拿到 401），
-  // 并且要清掉上一个人留下的草稿入口 —— 共用设备上换账号后不能看到别人的进度。
-  if (auth.isAuthenticated) {
-    void assessment.loadDraftEntry()
-  } else {
-    assessment.clearDraftEntry()
-  }
 })
 </script>
 
@@ -357,7 +442,7 @@ onMounted(() => {
       </div>
     </section>
     <details class="mt-8" :open="!!resumeTarget" data-jung-introduction>
-      <summary class="cursor-pointer text-[16px] font-semibold text-ink">十六型测评：答题和报告示例</summary>
+      <summary class="cursor-pointer text-[16px] font-semibold text-ink">{{ resumeIsBigFive ? `接着答：${resumeTitle}` : '十六型测评：答题和报告示例' }}</summary>
       <div class="mt-5">
     <!-- ══ 主视觉：深色面板（不是满屏出血，而是一块有边界的"探索界面"） ══ -->
     <section
@@ -370,7 +455,8 @@ onMounted(() => {
             <span class="chip chip-on-deep">
               <AppIcon name="compass" :size="14" />
               <!-- 首屏的量表口径：量表名 · 主测题数 · 时长。这一行的文本被单测钉住。 -->
-              <span>{{ instrumentFacts.title }} · 主测 {{ instrumentFacts.baseQuestions }} 题 · 约 {{ minutesLabel }} 分钟</span>
+              <span v-if="resumeIsBigFive">{{ resumeTitle }}<template v-if="resumeRequired"> · {{ resumeRequired }} 题</template></span>
+              <span v-else>{{ instrumentFacts.title }} · 主测 {{ instrumentFacts.baseQuestions }} 题 · 约 {{ minutesLabel }} 分钟</span>
             </span>
           </p>
 
@@ -380,7 +466,10 @@ onMounted(() => {
             了解你的偏好，<br class="hidden tablet:inline" />也保留还不确定的部分。
           </h2>
 
-          <p class="mt-5 max-w-[34rem] text-[15.5px] leading-[1.75] text-navy-100 tablet:text-[16.5px]">
+          <p v-if="resumeIsBigFive" class="mt-5 max-w-[34rem] text-[15.5px] leading-[1.75] text-navy-100 tablet:text-[16.5px]">
+            按平时的感受选择。不理解或缺少经历时可以选「说不好」。五个方面各自说明，不合成一个类型。
+          </p>
+          <p v-else class="mt-5 max-w-[34rem] text-[15.5px] leading-[1.75] text-navy-100 tablet:text-[16.5px]">
             主测 {{ instrumentFacts.baseQuestions }} 组日常情境描述。按通常情况下的真实感受选择，
             没有理想答案。不理解或缺少经历时可以标记「暂时无法判断」。
           </p>
@@ -388,9 +477,10 @@ onMounted(() => {
           <ul class="mt-6 flex flex-wrap items-center gap-2">
             <li class="chip chip-on-deep">
               <AppIcon name="steps" :size="14" />
-              主测 {{ instrumentFacts.baseQuestions }} 道题
+              <template v-if="resumeIsBigFive">{{ resumeRequired ? `${resumeRequired} 道题` : '按题目清单接着答' }}</template>
+              <template v-else>主测 {{ instrumentFacts.baseQuestions }} 道题</template>
             </li>
-            <li class="chip chip-on-deep">
+            <li v-if="!resumeIsBigFive" class="chip chip-on-deep">
               <AppIcon name="clock" :size="14" />
               约 {{ minutesLabel }} 分钟
             </li>
@@ -400,7 +490,8 @@ onMounted(() => {
             </li>
             <li class="chip chip-on-deep">
               <AppIcon name="dimensions" :size="14" />
-              {{ dimensionCountLabel }}个维度分别成结论
+              <template v-if="resumeIsBigFive">五个方面分别说明</template>
+              <template v-else>{{ dimensionCountLabel }}个维度分别成结论</template>
             </li>
           </ul>
 
@@ -480,28 +571,46 @@ onMounted(() => {
             题量口径：主按钮点进去先答「主测」那一轮。题库总数与它的关系必须写清楚，
             否则紧挨着按钮放一个裸的「64 题」会让人以为要答 64 题。
           -->
-          <p class="mt-4 max-w-[36rem] text-[12.5px] leading-relaxed text-navy-200" data-instrument-scope>
+          <p v-if="resumeIsBigFive" class="mt-4 max-w-[36rem] text-[12.5px] leading-relaxed text-navy-200" data-instrument-scope>
+            题量口径：这一份是{{ resumeTitle }}<template v-if="resumeRequired">，一共 {{ resumeRequired }} 题</template>。没有十六型那种补充题。
+          </p>
+          <p v-else class="mt-4 max-w-[36rem] text-[12.5px] leading-relaxed text-navy-200" data-instrument-scope>
             题量口径：题库共 {{ instrumentFacts.bankQuestions }} 题 = 主测 {{ instrumentFacts.baseQuestions }} 题 + 最多
             {{ instrumentFacts.clarificationQuestions }} 道补充题。补充题只在你某一维两边差不多时才会出现，也可以跳过。
           </p>
         </div>
 
-        <!-- 主视觉图形：四条维度轴。它是装饰，不显示任何人的分数。 -->
-        <div class="order-first mx-auto h-[190px] w-full max-w-[280px] tablet:h-[240px] laptop:order-none laptop:h-[360px] laptop:max-w-none">
+        <!-- 主视觉图形：四条维度轴。它是装饰，不显示任何人的分数。大五续答时不放这张图，避免写成四个维度。 -->
+        <div v-if="!resumeIsBigFive" class="order-first mx-auto h-[190px] w-full max-w-[280px] tablet:h-[240px] laptop:order-none laptop:h-[360px] laptop:max-w-none">
           <DimensionGlyph :compact="false" :tracks="glyphTracks" />
         </div>
       </div>
     </section>
 
     <!-- ══ 开始前说明（不计分的教学例子） ═══════════════════════════════ -->
-    <section class="mt-12 laptop:mt-16">
+    <section class="mt-12 laptop:mt-16" data-how-to-answer>
       <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
         <h2 class="section-title">开始前，先说清楚怎么答</h2>
-        <p class="caption">这一步不计分，只是让你知道五种操作各自是什么意思。</p>
+        <p class="caption">这一步不计分，只是让你知道选项各自是什么意思。</p>
       </div>
 
+      <div v-if="resumeIsBigFive" class="mt-5 rounded-question border border-line bg-surface px-4 py-4 shadow-card tablet:px-6 tablet:py-5">
+        <div class="grid grid-cols-5 gap-1.5 tablet:gap-3">
+          <div
+            v-for="(anchor, index) in BIG_FIVE_ANCHORS"
+            :key="anchor"
+            class="flex min-h-[56px] flex-col items-center justify-center gap-1.5 rounded-card border-2 border-line bg-surface px-1 text-center"
+          >
+            <span class="flex h-7 w-7 items-center justify-center rounded-full border border-line-strong text-[12.5px] font-semibold text-ink-soft">{{ index + 1 }}</span>
+            <span class="text-[11px] leading-snug text-ink-soft">{{ anchor }}</span>
+          </div>
+        </div>
+        <p class="mt-3 text-center text-[12.5px] text-ink-soft">
+          示例：3 是「{{ BIG_FIVE_ANCHORS[2] }}」。选「说不好」表示这题没有作答，不会计入有效题。
+        </p>
+      </div>
       <!-- 一张真的可以看懂的作答示意图：左 1 ── 中 3 ── 右 5 -->
-      <div class="mt-5 rounded-question border border-line bg-surface px-4 py-4 shadow-card tablet:px-6 tablet:py-5" aria-hidden="true">
+      <div v-else class="mt-5 rounded-question border border-line bg-surface px-4 py-4 shadow-card tablet:px-6 tablet:py-5" aria-hidden="true">
         <div class="flex items-center justify-between text-[12.5px] text-ink-soft">
           <span class="font-medium text-ink">左边这一侧</span>
           <span class="font-medium text-ink">右边这一侧</span>
@@ -527,7 +636,7 @@ onMounted(() => {
 
       <ul class="mt-6 grid gap-4 tablet:grid-cols-2 tablet:gap-x-10">
         <li
-          v-for="(line, index) in TEACHING_EXAMPLE"
+          v-for="(line, index) in (resumeIsBigFive ? BIG_FIVE_HOW_TO : TEACHING_EXAMPLE)"
           :key="index"
           class="flex gap-3 border-t border-line pt-3.5 text-[14.5px] leading-[1.7] text-ink-soft"
         >
@@ -542,6 +651,7 @@ onMounted(() => {
 
     <!-- ══ 报告预览（首屏的第二个入口就落在这里） ══════════════════════ -->
     <section
+      v-if="!resumeIsBigFive"
       id="report-preview"
       data-anchor
       tabindex="-1"
@@ -626,7 +736,16 @@ onMounted(() => {
     </section>
 
     <!-- ══ 会测到的维度 ════════════════════════════════════════════════ -->
-    <section class="mt-12 laptop:mt-16">
+    <section v-if="resumeIsBigFive" class="mt-12 laptop:mt-16">
+      <h2 class="section-title">会测到的五个方面</h2>
+      <dl data-dimension-list class="mt-5 grid gap-x-10 gap-y-4 tablet:grid-cols-2">
+        <div v-for="item in BIG_FIVE_DIMENSIONS" :key="item.name" class="flex gap-4 border-t border-line pt-3.5">
+          <dt class="w-[7.5rem] shrink-0 font-display text-[15px] font-bold text-primary-600">{{ item.name }}</dt>
+          <dd class="prose-sm">{{ item.hint }}</dd>
+        </div>
+      </dl>
+    </section>
+    <section v-else class="mt-12 laptop:mt-16">
       <h2 class="section-title">会测到的{{ dimensionCountLabel }}个维度</h2>
       <dl data-dimension-list class="mt-5 grid gap-x-10 gap-y-4 tablet:grid-cols-2">
         <div
@@ -660,7 +779,7 @@ onMounted(() => {
             报告之外，还有一段<br class="hidden tablet:inline" />为你单独写的分析
           </h2>
           <p class="mt-4 max-w-[34rem] text-[15px] leading-[1.75] text-navy-100">
-            固定报告始终完整可读 —— 不用 AI 也能拿到四个维度、类型、解读与建议。
+            固定报告始终完整可读 —— {{ resumeIsBigFive ? '不用 AI 也能看到五个方面各自的说明。' : '不用 AI 也能拿到四个维度、类型、解读与建议。' }}
             AI 分析是<strong class="font-semibold text-white">额外</strong>的一段视角：它读的是你已经看到的那份报告，
             换一段更贴近日常的说法回来，并给出可以照着做的步骤。
           </p>
@@ -679,7 +798,7 @@ onMounted(() => {
             </li>
             <li class="flex gap-3 text-[14px] leading-relaxed text-navy-100">
               <AppIcon name="alert" :size="17" class="mt-0.5 text-glow" />
-              <span>它不会改写固定结果，也不改变四个维度 —— 模型说的和报告算的分开显示。这台服务器没开这项能力时，页面会直接说明，而不是给一份假的分析。</span>
+              <span>它不会改写固定结果，也不改变{{ resumeIsBigFive ? '五个方面的说明' : '四个维度' }} —— 模型说的和报告算的分开显示。这台服务器没开这项能力时，页面会直接说明，而不是给一份假的分析。</span>
             </li>
           </ul>
 
@@ -706,7 +825,7 @@ onMounted(() => {
     </section>
 
     <!-- ══ 结果示例卡（明确标"示例"） ══════════════════════════════════ -->
-    <section v-if="sample" data-result-example class="mt-12 laptop:mt-16">
+    <section v-if="sample && !resumeIsBigFive" data-result-example class="mt-12 laptop:mt-16">
       <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
         <h2 class="section-title">结果示例</h2>
         <p class="caption">
@@ -745,7 +864,7 @@ onMounted(() => {
         </details>
       </div>
       <button
-        v-if="!showAllFaq"
+        v-if="!showAllFaq && faqs.length > visibleFaqs.length"
         type="button"
         class="btn-ghost btn-sm mt-2 px-0 text-primary-600 hover:bg-transparent"
         @click="showAllFaq = true"
@@ -757,10 +876,11 @@ onMounted(() => {
     <!-- ══ 方法与隐私入口 ══════════════════════════════════════════════ -->
     <section class="mt-12 laptop:mt-16">
       <div class="notice-neutral flex flex-wrap items-center justify-between gap-3">
-        <p class="text-[13.5px] leading-relaxed">
+        <p class="text-[13.5px] leading-relaxed" data-unknown-note>
           想知道分数怎么算、门槛是怎么定的、回答保存在哪，可以读
           <RouterLink to="/about" class="link">方法与隐私</RouterLink>。
-          标记「暂时无法判断」时可选的原因有：{{ Object.values(UNKNOWN_REASON_LABEL).join(' / ') }}。
+          <template v-if="resumeIsBigFive">选「说不好」表示这题没有作答，不计入有效题；它和「说不上符合或不符合」不是一回事。</template>
+          <template v-else>标记「暂时无法判断」时可选的原因有：{{ Object.values(UNKNOWN_REASON_LABEL).join(' / ') }}。</template>
         </p>
       </div>
       <p class="mt-4 fineprint">
@@ -770,11 +890,16 @@ onMounted(() => {
         <summary
           class="inline-flex cursor-pointer list-none items-center gap-1 text-[12.5px] text-ink-faint transition-colors hover:text-ink-soft"
         >
-          {{ instrumentFacts.title }}：来源与许可
+          {{ resumeIsBigFive ? resumeTitle : instrumentFacts.title }}：来源与许可
           <span class="transition-transform group-open:rotate-180" aria-hidden="true">⌄</span>
         </summary>
         <div class="notice-neutral mt-2 text-[12.5px] leading-relaxed" data-instrument-attribution>
-          {{ instrumentFacts.title }}的题目与报告文案为本项目自行撰写，没有照搬任何商业量表的题目。
+          <template v-if="resumeIsBigFive">
+            题目来自 IPIP-50（International Personality Item Pool，Goldberg Big-Five Factor Markers，公有领域）；中文题面与逐题解释是本仓库的改写稿。
+          </template>
+          <template v-else>
+            {{ instrumentFacts.title }}的题目与报告文案为本项目自行撰写，没有照搬任何商业量表的题目。
+          </template>
           本站<strong class="font-medium">不隶属</strong>任何商业人格测评机构，也不是任何机构的官方测评。
           它是一份参考测评，没有信度或效度证据，内容仍在内部审校中，不得用于诊断或选拔。
         </div>

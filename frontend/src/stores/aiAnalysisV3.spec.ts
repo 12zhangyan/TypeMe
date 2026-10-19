@@ -96,6 +96,29 @@ describe('AI 分析 store：归属与轮询清理', () => {
     store.reset()
   })
 
+  it('能力状态和已有分析被会话确认打断后重读，不记成不可用', async () => {
+    const changed = new V3ApiError(
+      { code: 'SESSION_CHANGED', message: '登录状态已改变，请在当前账号下重新操作。', requestId: null, details: {} },
+      { status: 0 },
+    )
+    fetchAiStatus
+      .mockRejectedValueOnce(changed)
+      .mockResolvedValueOnce({ enabled: true, mock: false, promptVersion: 'typeme-ai-prompt-v5' })
+    fetchReportAnalyses
+      .mockRejectedValueOnce(changed)
+      .mockResolvedValueOnce([job(REPORT_A, { result: { summary: '上次的分析还在' } })])
+    const store = useAiAnalysisStore()
+    await store.loadStatus()
+    await store.loadJobs(REPORT_A)
+    expect(store.statusError).toBeNull()
+    expect(store.status?.enabled).toBe(true)
+    expect(store.jobsError).toBeNull()
+    expect(store.ownJobs).toHaveLength(1)
+    expect(fetchAiStatus).toHaveBeenCalledTimes(2)
+    expect(fetchReportAnalyses).toHaveBeenCalledTimes(2)
+    store.reset()
+  })
+
   it('换报告时先清空旧任务：新报告的界面不会出现旧报告的分析（哪怕响应还没回来）', async () => {
     const store = useAiAnalysisStore()
 
