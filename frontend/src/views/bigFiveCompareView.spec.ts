@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
+import { V3ApiError } from '@/api/v3'
 import BigFiveCompareView from './BigFiveCompareView.vue'
 import type { MyReportRow, ReportDetailView } from '@/api/platformV3'
 
@@ -43,6 +44,37 @@ describe('大五复测比较', () => {
     }))
   })
 
+  it('第一次读取被会话确认打断后重读，不把比较页停在失败上', async () => {
+    fetchMyReports.mockReset()
+    fetchMyReports
+      .mockRejectedValueOnce(new V3ApiError(
+        { code: 'SESSION_CHANGED', message: '登录状态已改变，请在当前账号下重新操作。', requestId: null, details: {} },
+        { status: 0 },
+      ))
+      .mockResolvedValue({ items: [row('first'), row('second')], page: 0, size: 50, total: 2 })
+    const wrapper = await render()
+    expect(wrapper.text()).not.toContain('登录状态已改变')
+    expect(wrapper.findAll('select')).toHaveLength(2)
+    expect(fetchMyReports).toHaveBeenCalledTimes(2)
+  })
+
+  it('比较请求被会话确认打断后重读，仍显示差值', async () => {
+    fetchPlatformReport.mockReset()
+    fetchPlatformReport
+      .mockRejectedValueOnce(new V3ApiError(
+        { code: 'SESSION_CHANGED', message: '登录状态已改变，请在当前账号下重新操作。', requestId: null, details: {} },
+        { status: 0 },
+      ))
+      .mockImplementation(async (id: string) => detail(id))
+    const wrapper = await render()
+    await wrapper.get('button.btn-primary').trigger('click')
+    await flushPromises()
+    await flushPromises()
+    expect(wrapper.text()).not.toContain('登录状态已改变')
+    expect(wrapper.get('[data-big-five-comparison]').text()).toContain('+3')
+    expect(fetchPlatformReport.mock.calls.length).toBeGreaterThanOrEqual(3)
+  })
+
   it('同版本只比较有结果的维度，信息不足不算差值', async () => {
     const wrapper = await render()
     await wrapper.get('button.btn-primary').trigger('click')
@@ -59,6 +91,35 @@ describe('大五复测比较', () => {
     await flushPromises()
     expect(wrapper.get('[data-big-five-comparison]').text()).toContain('不计算分数差值')
     expect(wrapper.get('[data-big-five-comparison]').findAll('table')).toHaveLength(0)
+  })
+
+  it('两栏按看的顺序称呼，不写成第一次和第二次', async () => {
+    const wrapper = await render()
+    const text = wrapper.text()
+    expect(text).toContain('先看的那份')
+    expect(text).toContain('再看的那份')
+    expect(text).not.toContain('第一次')
+    expect(text).not.toContain('第二次')
+    await wrapper.get('button.btn-primary').trigger('click')
+    await flushPromises()
+    const compared = wrapper.get('[data-big-five-comparison]').text()
+    expect(compared).toContain('再看的那份自报的原始分更高')
+    expect(compared).not.toContain('第一次')
+    expect(compared).not.toContain('第二次')
+  })
+
+  it('较新的报告排在前面时，不把它写成第 1 份', async () => {
+    // 页面按**读者本地时区**显示时间；这里用 UTC 正午，避免在 UTC-11…UTC+11 的机器上
+    // 被推到相邻月份，让断言依赖跑测试的机器时区。
+    const newer = { ...row('newer'), createdAt: '2026-10-14T12:00:00Z', summaryLine: '最近一次' }
+    const older = { ...row('older'), createdAt: '2026-09-01T12:00:00Z', summaryLine: '早先一次' }
+    fetchMyReports.mockResolvedValue({ items: [newer, older], page: 0, size: 50, total: 2 })
+    const wrapper = await render()
+    const labels = wrapper.findAll('select').at(0)!.findAll('option').slice(1).map((option) => option.text())
+    expect(labels[0]).toContain('2026 年 10 月')
+    expect(labels[0]).not.toContain('第 1 份')
+    expect(labels[1]).toContain('2026 年 9 月')
+    expect(labels.join('\n')).not.toContain('第 1 份')
   })
 
   it('同一时刻且摘要相同的报告仍可在两个选择框中区分', async () => {

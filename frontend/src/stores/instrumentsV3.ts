@@ -90,14 +90,21 @@ export const useInstrumentsStore = defineStore('instruments', {
       }
     },
 
-    /** 会话切换时重新读取公开目录，旧请求不能阻塞或覆盖新请求。 */
+    /**
+     * 会话切换时重新读取公开目录，旧请求不能阻塞或覆盖新请求。
+     *
+     * 已经有页面要过目录（在途或已尝试）就立即在新会话下重读：页面只在 `onMounted`
+     * 调一次 `load()`，这里不重读，首次 `/me` 确认后列表会停在“暂无测评”且没有重试入口。
+     */
     reset(): void {
+      const reload = this.loading || this.attempted
       this.generation += 1
       this.loading = false
       this.items = []
       this.attempted = false
       this.error = null
       this.details = {}
+      if (reload) void this.load()
     },
   },
 })

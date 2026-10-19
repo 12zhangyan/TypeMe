@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
 import { describeError, isForbidden, isSessionExpired, type ErrorDisplay } from '@/api/v3'
+import { formatLocalTime } from '@/domain/localTime'
 import {
   fetchAdminAiSettings,
   fetchAdminUsers,
@@ -152,7 +153,7 @@ const keySourceLabel = computed(() => {
 const updatedLine = computed(() => {
   const settings = saved.value
   if (!settings?.updatedAt) return '还没有人在后台改过这里的设置。'
-  const at = settings.updatedAt.replace('T', ' ').slice(0, 19)
+  const at = formatLocalTime(settings.updatedAt)
   return settings.updatedBy ? `${at} 由 ${settings.updatedBy} 修改` : `${at} 修改`
 })
 
@@ -293,13 +294,25 @@ async function load(): Promise<void> {
   }
 }
 
+const usersPage = ref(0)
+
 async function loadUsers(): Promise<void> {
   usersError.value = null
   try {
-    users.value = await fetchAdminUsers({ size: 20 })
+    users.value = await fetchAdminUsers({ page: usersPage.value, size: 20 })
   } catch (error) {
     usersError.value = describeError(error)
   }
+}
+
+function goUsersPage(next: number): void {
+  const current = users.value
+  if (!current || current.size <= 0) return
+  const pageCount = Math.max(1, Math.ceil(current.total / current.size))
+  const target = Math.min(Math.max(0, next), pageCount - 1)
+  if (target === usersPage.value) return
+  usersPage.value = target
+  void loadUsers()
 }
 
 onMounted(load)
@@ -715,7 +728,7 @@ onMounted(load)
                     <td class="py-2.5 pr-3 text-ink-soft">{{ user.role }}</td>
                     <td class="py-2.5 pr-3 text-ink-soft">{{ user.status }}</td>
                     <td class="py-2.5 pr-3 text-ink-soft">
-                      {{ user.createdAt ? user.createdAt.replace('T', ' ').slice(0, 16) : '—' }}
+                      {{ user.createdAt ? formatLocalTime(user.createdAt) : '—' }}
                     </td>
                     <td class="py-2.5 text-ink-soft">
                       <!-- null = 未知，不是 0。把未知显示成 0 会让管理员以为这个账号没测过。 -->
@@ -727,7 +740,12 @@ onMounted(load)
               </table>
             </div>
           </div>
-          <p class="caption mt-3">共 {{ users.total }} 个账号，这里显示前 {{ users.items.length }} 个。</p>
+          <p class="caption mt-3">共 {{ users.total }} 个账号，本页 {{ users.items.length }} 个。</p>
+          <div v-if="users.size > 0 && users.total > users.size" class="mt-3 flex flex-wrap items-center gap-2">
+            <button type="button" class="btn-secondary btn-sm" :disabled="users.page <= 0" @click="goUsersPage(users.page - 1)">上一页</button>
+            <span class="caption">第 {{ users.page + 1 }} / {{ Math.ceil(users.total / users.size) }} 页</span>
+            <button type="button" class="btn-secondary btn-sm" data-admin-users-next :disabled="(users.page + 1) * users.size >= users.total" @click="goUsersPage(users.page + 1)">下一页</button>
+          </div>
         </div>
       </section>
     </template>

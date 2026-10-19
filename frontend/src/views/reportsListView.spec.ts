@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import ReportsListView from './ReportsListView.vue'
+import { V3ApiError } from '@/api/v3'
 import { fetchMyReports, type MyReportRow } from '@/api/platformV3'
 import { deleteReport } from '@/api/v3Assessment'
 
@@ -62,6 +63,19 @@ describe('历史报告分页', () => {
     expect(fetchMyReports).toHaveBeenLastCalledWith(2, 20, undefined)
   })
 
+  it('并列结果用和报告页一样的说法，不把状态码或过短的「并列」单独放出来', async () => {
+    vi.mocked(fetchMyReports).mockResolvedValue({
+      items: [row(0), { ...row(1), status: 'TIED', computedTypeCode: null }],
+      page: 0,
+      size: 20,
+      total: 2,
+    })
+    const wrapper = await mountList()
+    const tied = wrapper.get('[data-report-row="report-1"]')
+    expect(tied.text()).toContain('几个方向并列')
+    expect(tied.text()).not.toContain('TIED')
+  })
+
   it('切换筛选隔离旧响应', async () => {
     let finishOld!: (value: { items: MyReportRow[]; page: number; size: number; total: number }) => void
     vi.mocked(fetchMyReports).mockResolvedValueOnce({ items: [row(0)], page: 0, size: 20, total: 41 })
@@ -98,5 +112,34 @@ describe('历史报告分页', () => {
     expect(wrapper.find('[data-report-pagination]').text()).toContain('第 2 / 2 页')
     expect(wrapper.findAll('[data-report-row]')).toHaveLength(20)
     expect(wrapper.find('[data-report-counts]').text()).toContain('共 40 份')
+  })
+
+  it('刷新失败时仍留下已经载入的报告', async () => {
+    vi.mocked(fetchMyReports)
+      .mockResolvedValueOnce({ items: [row(1), row(2)], page: 0, size: 20, total: 2 })
+      .mockRejectedValueOnce(new V3ApiError(
+        { code: 'SERVICE_UNAVAILABLE', message: '报告列表暂时没能刷新。', requestId: 'req-list', details: {} },
+        { status: 503 },
+      ))
+    const wrapper = await mountList()
+    expect(wrapper.findAll('[data-report-row]')).toHaveLength(2)
+    await wrapper.findAll('[data-report-filters] button')[1]!.trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-reports-error]').text()).toContain('报告列表暂时没能刷新')
+    expect(wrapper.findAll('[data-report-row]')).toHaveLength(2)
+    expect(wrapper.findAll('[data-report-filters] button')[0]!.attributes('aria-pressed')).toBe('true')
+  })
+
+  it('第一次读取被会话确认打断后重读，不显示登录状态已改变', async () => {
+    vi.mocked(fetchMyReports)
+      .mockRejectedValueOnce(new V3ApiError(
+        { code: 'SESSION_CHANGED', message: '登录状态已改变，请在当前账号下重新操作。', requestId: null, details: {} },
+        { status: 0 },
+      ))
+      .mockResolvedValueOnce({ items: [row(1)], page: 0, size: 20, total: 1 })
+    const wrapper = await mountList()
+    expect(wrapper.find('[data-reports-error]').exists()).toBe(false)
+    expect(wrapper.findAll('[data-report-row]')).toHaveLength(1)
+    expect(fetchMyReports).toHaveBeenCalledTimes(2)
   })
 })

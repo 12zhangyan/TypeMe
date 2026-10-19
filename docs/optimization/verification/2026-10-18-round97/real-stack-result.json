@@ -1,0 +1,157 @@
+{
+ "scope": "真实栈：真实 jar + 真实 MySQL（隔离库 typeme_r97_e2e）+ 真实 Chromium，不 mock /api",
+ "base": "http://127.0.0.1:8098",
+ "database": "typeme_r97_e2e",
+ "notes": [
+  "冲突发生在题目 SN-01；冲突前已答 ['EI-01', 'SN-01']"
+ ],
+ "checks": [
+  {
+   "label": "真实注册成功",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "第二个会话用同一账号登录成功（独立会话）",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "建出测评并进入答题页",
+   "passed": true,
+   "detail": "http://127.0.0.1:8098/#/assess/94dae51c-0881-4069-a69f-8c019b12b30e"
+  },
+  {
+   "label": "会话 A 先答 1 题",
+   "passed": true,
+   "detail": "1"
+  },
+  {
+   "label": "会话 B 打开同一草稿并答 1 题",
+   "passed": true,
+   "detail": "1"
+  },
+  {
+   "label": "冲突横幅出现并说明是另一台设备",
+   "passed": true,
+   "detail": "另一台设备改过这次的进度\n\n另一台设备改过这次的进度，所以这一条没有写上去。请先载入最新进度，再从最新版本继续作答。\n\n· 第 2 题 · 很像右边\n\n上面这些本机改动没有写上去；载入最新进度后，以另一台设备的版本为准， 被覆盖的题需要重新"
+  },
+  {
+   "label": "冲突后「下一题」被禁用",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "横幅列出本机没写上去的那一题",
+   "passed": true,
+   "detail": "· 第 2 题 · 很像右边"
+  },
+  {
+   "label": "被 409 拒绝的那一题没有写进服务端（不静默覆盖 B）",
+   "passed": true,
+   "detail": "['EI-01', 'SN-01']"
+  },
+  {
+   "label": "载入后横幅消失",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "B 的作答在载入后仍然保留",
+   "passed": true,
+   "detail": "{'EI-01': 4, 'SN-01': 2}"
+  },
+  {
+   "label": "A 被拒的那一题仍未写入",
+   "passed": true,
+   "detail": "['EI-01', 'SN-01']"
+  },
+  {
+   "label": "主测可以一路答完",
+   "passed": true,
+   "detail": "48"
+  },
+  {
+   "label": "主测结束提供补充题入口",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "补充题进行中保留「回到主测改答」出口",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "补充题进行中保留「跳过补充题」出口",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "补充题可以答完",
+   "passed": true,
+   "detail": "16"
+  },
+  {
+   "label": "答完补充题后进入报告页",
+   "passed": true,
+   "detail": "http://127.0.0.1:8098/#/reports/2cee1ab8-0314-38c8-a2cd-160110c43231"
+  },
+  {
+   "label": "报告页有固定报告概览",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "AI 关闭时页面明确说明暂未开放",
+   "passed": true,
+   "detail": "AI 解读暂未开放，已有分析仍可阅读。固定报告无需 AI 即可阅读。"
+  },
+  {
+   "label": "AI 关闭不影响固定报告阅读",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "第二份测评答完 48 题",
+   "passed": true,
+   "detail": "48"
+  },
+  {
+   "label": "第二份测评交卷后进入报告页",
+   "passed": true,
+   "detail": "http://127.0.0.1:8098/#/reports/f16770fe-386e-38e1-8e7b-a548442f030b"
+  },
+  {
+   "label": "两份报告编号不同",
+   "passed": true,
+   "detail": "2cee1ab8-0314-38c8-a2cd-160110c43231 / f16770fe-386e-38e1-8e7b-a548442f030b"
+  },
+  {
+   "label": "比较页写明这次比的是哪两份",
+   "passed": true,
+   "detail": "这次比的是：先看的那份 2026 年 10 月 18 日 22:04 · （没有单一类型） · 几个方向并列；再看的那份 2026 年 10 月 18 日 22:05 · （没有单一类型） · 几个方向并列。"
+  },
+  {
+   "label": "同一内容包时不显示「版本不同」",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "比较表给出四个维度",
+   "passed": true,
+   "detail": "4"
+  },
+  {
+   "label": "历史列表有两份十六型报告",
+   "passed": true,
+   "detail": "2"
+  },
+  {
+   "label": "全程没有未捕获的前端异常",
+   "passed": true,
+   "detail": ""
+  }
+ ],
+ "passed": 29,
+ "failed": 0
+}

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 import { flushPromises, mount } from '@vue/test-utils'
+import { V3ApiError } from '@/api/v3'
 import CompareView from '@/views/CompareView.vue'
 
 /**
@@ -69,6 +70,37 @@ describe('复测比较页', () => {
     compareReports.mockReset()
   })
 
+  it('第一次读取被会话确认打断后重读，不把比较页停在失败上', async () => {
+    fetchReports
+      .mockRejectedValueOnce(new V3ApiError(
+        { code: 'SESSION_CHANGED', message: '登录状态已改变，请在当前账号下重新操作。', requestId: null, details: {} },
+        { status: 0 },
+      ))
+      .mockResolvedValueOnce({
+        items: [summary(), summary({ reportId: 'r2', attemptId: 'a2' })],
+        page: 0,
+        size: 50,
+        total: 2,
+      })
+    const { wrapper } = await mountCompare()
+    expect(wrapper.text()).not.toContain('登录状态已改变')
+    expect(wrapper.find('[data-compare-pickers]').exists()).toBe(true)
+    expect(fetchReports).toHaveBeenCalledTimes(2)
+  })
+
+  it('选择框里的并列结果用和报告页一样的说法', async () => {
+    fetchReports.mockResolvedValue({
+      items: [summary({ status: 'TIED', computedTypeCode: null }), summary({ reportId: 'r2' })],
+      page: 0,
+      size: 50,
+      total: 2,
+    })
+    const { wrapper } = await mountCompare()
+    const option = wrapper.get('[data-compare-select-a] option[value="r1"]')
+    expect(option.text()).toContain('几个方向并列')
+    expect(option.text()).not.toContain('TIED')
+  })
+
   it('只有一份报告时：说清还差什么，不给比较按钮', async () => {
     fetchReports.mockResolvedValue({ items: [summary()], page: 0, size: 100, total: 1 })
     const { wrapper } = await mountCompare()
@@ -87,6 +119,34 @@ describe('复测比较页', () => {
     expect(fetchReports).toHaveBeenCalledTimes(3)
     expect(wrapper.find('[data-compare-select-a]').findAll('option')).toHaveLength(102)
     expect(wrapper.find('[data-compare-select-a] option[value="r100"]').exists()).toBe(true)
+  })
+
+  it('自动比较被会话确认打断后重读，仍显示对照', async () => {
+    fetchReports.mockResolvedValue({
+      items: [summary(), summary({ reportId: 'r2', computedTypeCode: 'INFP' })],
+      page: 0,
+      size: 100,
+      total: 2,
+    })
+    compareReports
+      .mockRejectedValueOnce(new V3ApiError(
+        { code: 'SESSION_CHANGED', message: '登录状态已改变，请在当前账号下重新操作。', requestId: null, details: {} },
+        { status: 0 },
+      ))
+      .mockResolvedValueOnce({
+        reports: [summary(), summary({ reportId: 'r2', computedTypeCode: 'INFP' })],
+        differences: [
+          { dimension: 'EI', fromPole: 'E', toPole: 'I', fromMFinal: 0.42, toMFinal: 0.35, changed: true },
+        ],
+        samePackage: true,
+        notes: ['变化不等于成长或退步。'],
+      })
+    const { wrapper } = await mountCompare({ a: 'r1', b: 'r2' })
+    await flushPromises()
+    expect(wrapper.find('[data-compare-error]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('登录状态已改变')
+    expect(wrapper.find('[data-compare-result]').exists()).toBe(true)
+    expect(compareReports).toHaveBeenCalledTimes(2)
   })
 
   it('两份都在 URL 里时自动比较，并渲染四个维度的对照', async () => {
@@ -148,6 +208,30 @@ describe('复测比较页', () => {
     expect(text).toContain('不评价进步或退步')
   })
 
+  it('同一内容包里某一维两边都没有方向时，不写成方向一致', async () => {
+    fetchReports.mockResolvedValue({
+      items: [summary(), summary({ reportId: 'r2' })],
+      page: 0,
+      size: 100,
+      total: 2,
+    })
+    compareReports.mockResolvedValue({
+      reports: [summary(), summary({ reportId: 'r2' })],
+      differences: [
+        { dimension: 'EI', fromPole: null, toPole: null, fromMFinal: 0, toMFinal: 0, changed: false },
+      ],
+      samePackage: true,
+      notes: ['两次作答的时间、状态与当时的理解都可能影响结果，变化不等于成长或退步。'],
+    })
+
+    const { wrapper } = await mountCompare({ a: 'r1', b: 'r2' })
+    await flushPromises()
+
+    const row = wrapper.find('[data-compare-row="EI"]').text()
+    expect(row).toContain('都没有给出方向')
+    expect(row).not.toContain('方向一致')
+  })
+
   it('两次规则版本不同：不显示变化标记，并说明为什么不算变化', async () => {
     fetchReports.mockResolvedValue({
       items: [summary(), summary({ reportId: 'r2' })],
@@ -170,7 +254,8 @@ describe('复测比较页', () => {
 
     expect(wrapper.find('[data-compare-different-package]').exists()).toBe(true)
     expect(wrapper.find('[data-compare-different-package]').text()).toContain('没有计算变化')
-    expect(wrapper.find('[data-compare-row="EI"]').text()).toContain('方向一致')
+    expect(wrapper.find('[data-compare-row="EI"]').text()).toContain('这次不标记变化')
+    expect(wrapper.find('[data-compare-row="EI"]').text()).not.toContain('方向一致')
     expect(wrapper.find('[data-compare-row="EI"]').text()).not.toContain('方向不同')
   })
 

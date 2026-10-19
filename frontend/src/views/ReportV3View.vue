@@ -10,6 +10,7 @@ import AppIcon from '@/components/AppIcon.vue'
 import PersonalityPortrait from '@/components/PersonalityPortrait.vue'
 import { plainJungRows, readingParagraphs } from '@/domain/plainReport'
 import { formatLocalTime } from '@/domain/localTime'
+import { shareCardFrame } from '@/domain/shareCard'
 
 import { useReportStore } from '@/stores/reportV3'
 import { useInstrumentV3Store } from '@/stores/instrumentV3'
@@ -228,6 +229,21 @@ async function renderShareBlob(
   const canvas = document.createElement('canvas')
   canvas.width = 1080
   canvas.height = 1920
+  const measure = canvas.getContext('2d')
+  if (!measure) throw new Error('当前浏览器不支持 canvas 2d')
+  measure.font = '700 96px system-ui, sans-serif'
+  const headlineLines = wrapLines(measure, headline, 900)
+  measure.font = '400 34px system-ui, sans-serif'
+  const boundaryLines = boundaryLine ? wrapLines(measure, boundaryLine, 900) : []
+  measure.font = '400 32px system-ui, sans-serif'
+  const bodyLines = wrapLines(measure, text, 900)
+  const bodyStart = Math.max(760, 480 + headlineLines.length * 120 + 24)
+  let contentBottom = bodyStart
+  if (boundaryLines.length > 0) contentBottom += boundaryLines.length * 48 + 24
+  contentBottom += bodyLines.length * 46
+  const frame = shareCardFrame(contentBottom)
+  // 改高度会清空画布和字体，所以先量完再画。
+  canvas.height = frame.height
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('当前浏览器不支持 canvas 2d')
   // 2026-09-18 视觉重构：分享图换成与页面同一套色值（浅色纸面 + 藏青墨 + 蓝青），
@@ -242,14 +258,14 @@ async function renderShareBlob(
   ctx.font = '500 36px system-ui, sans-serif'
   ctx.fillText(imageTitle, 540, 300)
   ctx.font = '700 96px system-ui, sans-serif'
-  wrapLines(ctx, headline, 900).forEach((line, index) => {
+  headlineLines.forEach((line, index) => {
     ctx.fillText(line, 540, 480 + index * 120)
   })
-  let y = 760
-  if (boundaryLine) {
+  let y = bodyStart
+  if (boundaryLines.length > 0) {
     ctx.font = '400 34px system-ui, sans-serif'
     ctx.fillStyle = '#48586A'
-    wrapLines(ctx, boundaryLine, 900).forEach((line) => {
+    boundaryLines.forEach((line) => {
       ctx.fillText(line, 540, y)
       y += 48
     })
@@ -257,13 +273,13 @@ async function renderShareBlob(
   }
   ctx.font = '400 32px system-ui, sans-serif'
   ctx.fillStyle = '#48586A'
-  wrapLines(ctx, text, 900).forEach((line) => {
+  bodyLines.forEach((line) => {
     ctx.fillText(line, 540, y)
     y += 46
   })
   ctx.font = '400 28px system-ui, sans-serif'
   ctx.fillStyle = '#5B6B7F'
-  ctx.fillText('参考测评，不是诊断 · 内容仍在内部审校中', 540, 1780)
+  ctx.fillText('参考测评，不是诊断 · 内容仍在内部审校中', 540, frame.footerY)
 
   const blob = await new Promise<Blob | null>((resolve) => {
     try {

@@ -89,7 +89,9 @@ public class BigFiveReportService {
                     ReportEnvelope.KIND_BIG_FIVE,
                     List.of(),
                     countKind(attemptId, "UNKNOWN"),
-                    countKind(attemptId, null));
+                    // 能标成已提交，说明当时每题都处理过。这里不能改数答案行：
+                    // 50 道已答会被写成「还有 50 题没处理」。
+                    0);
         }
 
         if (request != null && request.expectedRevision() != null && request.expectedRevision() != revision) {

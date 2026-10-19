@@ -8,7 +8,7 @@ import AiAnalysisPanel from '@/components/AiAnalysisPanel.vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
-import { describeError, type ErrorDisplay } from '@/api/v3'
+import { describeError, isSessionChanged, type ErrorDisplay } from '@/api/v3'
 import {
   fetchPlatformReport,
   parseBigFiveReport,
@@ -176,6 +176,10 @@ async function load(): Promise<void> {
     }
   } catch (loadError) {
     if (sequence !== loadSequence) return
+    if (isSessionChanged(loadError)) {
+      void load()
+      return
+    }
     error.value = describeError(loadError)
   } finally {
     if (sequence === loadSequence) loading.value = false

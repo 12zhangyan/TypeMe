@@ -1,0 +1,100 @@
+{
+ "scope": "真实栈账号与异常路径（真实 jar + 真实 MySQL 隔离库 + 真实 Chromium，不 mock /api）",
+ "base": "http://127.0.0.1:8098",
+ "database": "typeme_r97_e2e",
+ "notes": [],
+ "checks": [
+  {
+   "label": "注册成功并拿到 userId",
+   "passed": true,
+   "detail": "02c6ee91-d5ae-4a7e-9944-60a7b41896b6"
+  },
+  {
+   "label": "第一份报告生成",
+   "passed": true,
+   "detail": "http://127.0.0.1:8098/#/reports/dd59c082-1ff6-36e3-a657-8706f747439a"
+  },
+  {
+   "label": "导出的是 JSON 文件",
+   "passed": true,
+   "detail": "typeme-export.json"
+  },
+  {
+   "label": "导出包含账号资料与解包后的测评/报告",
+   "passed": true,
+   "detail": "['schemaVersion', 'exportedAt', 'profile', 'attempts', 'reports', 'selfReflections', 'aiJobs', 'excluded', 'degradedSections']"
+  },
+  {
+   "label": "导出没有降级段落（是完整备份）",
+   "passed": true,
+   "detail": "[]"
+  },
+  {
+   "label": "导出里确有这次测评的答案与报告",
+   "passed": true,
+   "detail": "attempts=1 reports=1"
+  },
+  {
+   "label": "导出不含密码/恢复码/会话",
+   "passed": true,
+   "detail": "['passwordHash', 'recoveryCodeHash', 'sessions', 'apiIdempotency']"
+  },
+  {
+   "label": "页面说这份备份是完整的",
+   "passed": true,
+   "detail": "已经导出 typeme-export.json：账号资料、测评记录、答案、报告与 AI 分析记录都在里面。"
+  },
+  {
+   "label": "改昵称后 /me 返回新昵称",
+   "passed": true,
+   "detail": "新昵称b1d6"
+  },
+  {
+   "label": "改昵称后输入框与提示都是新昵称",
+   "passed": true,
+   "detail": "新昵称b1d6"
+  },
+  {
+   "label": "改密码错误显示在该区块",
+   "passed": true,
+   "detail": "用户名或密码不对。\n\n服务器说明：当前密码不正确。\n\n报障编号：c8d8d3f0-9243-4df5-8315-3384e7a6e477\n（反馈问题时把这个编号一起发过来，能直接查到这次请求。）"
+  },
+  {
+   "label": "错误里带服务端原话（当前密码不正确）",
+   "passed": true,
+   "detail": "用户名或密码不对。\n\n服务器说明：当前密码不正确。\n\n报障编号：c8d8d3f0-9243-4df5-8315-3384e7a6e477\n（反馈问题时把这个编号一起发过来，能直接查到这次请求。）"
+  },
+  {
+   "label": "删除后列表里没有这份报告",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "旧链接如实说报告打不开",
+   "passed": true,
+   "detail": "跳到主要内容 TypeMe 开始测评 历史报告 关于 账号 退出  报告不在这里  这份报告打不开了  服务端说没有这份报告。常见的原因有三个，都不是\"系统坏了\"：  它已经被删除了（删除是立刻生效的，链接会失效）。 这个链接属于另一个账号 —— 报告只对生成它的账号可见。 链接里的编号不完整或被改动过。  如果这份报告是刚刚生成的，可以 再读一次； 已经交卷的测评不会因为打不开这一页而消失。  "
+  },
+  {
+   "label": "旧链接不会被说成「还没做完」",
+   "passed": true,
+   "detail": "跳到主要内容 TypeMe 开始测评 历史报告 关于 账号 退出  报告不在这里  这份报告打不开了  服务端说没有这份报告。常见的原因有三个，都不是\"系统坏了\"：  它已经被删除了（删除是立刻生效的，链接会失效）。 这个链接属于另一个账号 —— 报告只对生成它的账号可见。 链接里的编号不完整或被改动过。  如果这份报告是刚刚生成的，可以 再读一次； 已经交卷的测评不会因为打不开这一页而消失。  "
+  },
+  {
+   "label": "会话失效后页面给出去登录的回路",
+   "passed": true,
+   "detail": "url=http://127.0.0.1:8098/#/assess/ae5c0e2c-40bc-4691-9c85-affef2c039c1 text=跳到主要内容 TypeMe 暂时离开  十六型人格参考测评  第 2 / 48 题  主测 2 / 48  第 2 题 / 共 48 题  未同步（1 题的作答还没写上去）  有 1 题的作答还没写上去，刷新或离开会丢掉它们。  登录状态已"
+  },
+  {
+   "label": "会话失效时不会谎称「已保存」",
+   "passed": true,
+   "detail": "未同步（1 题的作答还没写上去）"
+  },
+  {
+   "label": "全程没有未捕获的前端异常",
+   "passed": true,
+   "detail": ""
+  }
+ ],
+ "passed": 18,
+ "failed": 0
+}

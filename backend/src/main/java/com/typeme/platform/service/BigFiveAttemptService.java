@@ -284,7 +284,7 @@ public class BigFiveAttemptService {
                 toWrite.add(JungAnswer.rating(input.questionId(), input.rating()));
             } else if ("UNKNOWN".equals(kind)) {
                 if (input.rating() != null) {
-                    throw JungApiException.invalid("「说不上符合或不符合」不能同时带分值：" + input.questionId());
+                    throw JungApiException.invalid("「说不好」不能同时带分值：" + input.questionId());
                 }
                 toWrite.add(JungAnswer.unknown(input.questionId()));
             } else if ("CLEAR".equals(kind)) {

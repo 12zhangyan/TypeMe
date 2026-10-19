@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
+import { invalidateSessionRequests } from '@/api/v3'
 import AssessView from './AssessView.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import { useAssessmentStore } from '@/stores/assessmentV3'
@@ -128,6 +129,8 @@ interface ServerOptions {
 let calls: Recorded[] = []
 let patchCount = 0
 let server: ServerOptions = {}
+let detailGets = 0
+let holdFirstDetail: Promise<void> | null = null
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -147,6 +150,8 @@ function installFetch(): void {
       return jsonResponse({ token: 'csrf-token', headerName: 'X-XSRF-TOKEN', parameterName: '_csrf' })
     }
     if (method === 'GET' && url.includes(`/attempts/${ATTEMPT_ID}`)) {
+      detailGets += 1
+      if (holdFirstDetail && detailGets === 1) await holdFirstDetail
       return jsonResponse(server.detail ? server.detail() : attemptDetail())
     }
     if (method === 'PATCH' && url.includes(`/attempts/${ATTEMPT_ID}/answers`)) {
@@ -266,11 +271,29 @@ beforeEach(() => {
   calls = []
   patchCount = 0
   server = {}
+  detailGets = 0
+  holdFirstDetail = null
   installFetch()
 })
 
 afterEach(() => {
   vi.unstubAllGlobals()
+})
+
+describe('答题页：会话确认打断载入', () => {
+  it('进行中的草稿读取被打断后重读，页面停在第一题而不是失败', async () => {
+    let release: () => void = () => {}
+    holdFirstDetail = new Promise<void>((resolve) => { release = resolve })
+    const { wrapper } = await mountAssess()
+    expect(wrapper.text()).not.toContain('这份测评没能载入')
+    invalidateSessionRequests()
+    release()
+    await flushPromises()
+    await flushPromises()
+    expect(wrapper.text()).toContain('情境 q1')
+    expect(wrapper.text()).not.toContain('登录状态已改变')
+    expect(detailGets).toBeGreaterThanOrEqual(2)
+  })
 })
 
 describe('答题页：手动下一题', () => {
@@ -393,6 +416,110 @@ describe('答题页：409 冲突走"重新拉取"，不静默覆盖', () => {
     await wrapper.findAll('[data-rating]')[1].trigger('click')
     await flushPromises()
     expect(patchCalls().length, '冲突未解决前不该再写').toBe(before)
+  })
+
+  it('冲突横幅出现后，下一题不会翻页，也不会接着交卷', async () => {
+    server.patch = () => ({
+      status: 409,
+      body: {
+        code: 'CONFLICT_REVISION',
+        message: '另一台设备已经更新了这份草稿。',
+        requestId: 'req-next',
+        details: { currentRevision: 9 },
+      },
+    })
+    const { wrapper } = await mountAssess()
+    await wrapper.findAll('[data-rating]')[2].trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('情境 q1')
+    const postsBefore = calls.filter((call) => call.method === 'POST').length
+    await wrapper.find('[data-next]').trigger('click')
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
+    await flushPromises()
+    expect(wrapper.text()).toContain('情境 q1')
+    expect(wrapper.text()).not.toContain('情境 q2')
+    expect(calls.filter((call) => call.method === 'POST').length).toBe(postsBefore)
+  })
+
+  it('冲突出现在后一题时，上一题和跳题也不换位置', async () => {
+    server.patch = (callIndex) => callIndex <= 2
+      ? { status: 200, body: { revision: 7 + callIndex, status: 'BASE_IN_PROGRESS', clarificationDimensions: [] } }
+      : {
+          status: 409,
+          body: {
+            code: 'CONFLICT_REVISION',
+            message: '另一台设备已经更新了这份草稿。',
+            requestId: 'req-prev',
+            details: { currentRevision: 9 },
+          },
+        }
+    const { wrapper } = await mountAssess()
+    await wrapper.findAll('[data-rating]')[1].trigger('click')
+    await flushPromises()
+    await wrapper.find('[data-next]').trigger('click')
+    await flushPromises()
+    await wrapper.findAll('[data-rating]')[2].trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('情境 q2')
+    await wrapper.find('[data-previous]').trigger('click')
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft' }))
+    await flushPromises()
+    expect(wrapper.text()).toContain('情境 q2')
+    expect(wrapper.text()).not.toContain('情境 q1')
+  })
+
+  it('跳到未答题时，记住位置撞上冲突就停在当前题', async () => {
+    server.patch = (callIndex) => callIndex <= 4
+      ? { status: 200, body: { revision: 7 + callIndex, status: 'BASE_IN_PROGRESS', clarificationDimensions: [] } }
+      : {
+          status: 409,
+          body: {
+            code: 'CONFLICT_REVISION',
+            message: '另一台设备已经更新了这份草稿。',
+            requestId: 'req-jump',
+            details: { currentRevision: 11 },
+          },
+        }
+    const { wrapper } = await mountAssess()
+    await wrapper.findAll('[data-rating]')[1].trigger('click')
+    await flushPromises()
+    await wrapper.find('[data-next]').trigger('click')
+    await flushPromises()
+    await wrapper.findAll('[data-rating]')[2].trigger('click')
+    await flushPromises()
+    await wrapper.find('[data-next]').trigger('click')
+    await flushPromises()
+    await wrapper.find('[data-previous]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-question-card]').text()).toContain('情境 q2')
+    await wrapper.find('[data-jump-unanswered]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-conflict-banner]').exists()).toBe(true)
+    expect(wrapper.find('[data-question-card]').text()).toContain('情境 q2')
+    expect(wrapper.find('[data-question-card]').text()).not.toContain('情境 q3')
+  })
+
+  it('交卷遇到版本冲突时出现载入最新进度，而不是只留一句错误', async () => {
+    server.submit = () => ({
+      status: 409,
+      body: {
+        code: 'CONFLICT_REVISION',
+        message: '另一台设备已经更新了这份草稿，请先读取最新版本再提交。',
+        requestId: 'req-submit',
+        details: { currentRevision: 12 },
+      },
+    })
+    const { wrapper } = await mountAssess()
+    for (let index = 0; index < 4; index += 1) {
+      await wrapper.findAll('[data-rating]')[2].trigger('click')
+      await flushPromises()
+      await wrapper.find('[data-next]').trigger('click')
+      await flushPromises()
+    }
+    expect(wrapper.find('[data-conflict-banner]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('载入最新进度')
+    expect(wrapper.text()).toContain('本机没有还没写上去的答案')
+    expect(wrapper.text()).not.toContain('请先读取最新版本再提交')
   })
 
   it('点「载入最新进度」重新拉取，并以服务端 revision 继续', async () => {
@@ -627,6 +754,27 @@ describe('答题页：补充题阶段必须留有出口', () => {
     expect(card.text()).not.toContain('情境 c1')
   })
 
+  it('回到主测时记住位置撞上冲突，仍停在补充题', async () => {
+    const wrapper = await enterClarification()
+    await wrapper.find('[data-start-clarification]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-question-card]').text()).toContain('情境 c1')
+    server.patch = () => ({
+      status: 409,
+      body: {
+        code: 'CONFLICT_REVISION',
+        message: '另一台设备已经更新了这份草稿。',
+        requestId: 'req-back',
+        details: { currentRevision: 20 },
+      },
+    })
+    await wrapper.find('[data-back-to-base]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-conflict-banner]').exists()).toBe(true)
+    expect(wrapper.find('[data-question-card]').text()).toContain('情境 c1')
+    expect(wrapper.find('[data-question-card]').text()).not.toContain('情境 q1')
+  })
+
   it('补充阶段也能跳过并直接交卷', async () => {
     const wrapper = await enterClarification()
     await wrapper.find('[data-start-clarification]').trigger('click')
@@ -636,6 +784,32 @@ describe('答题页：补充题阶段必须留有出口', () => {
     await flushPromises()
 
     // 跳过就等于交卷：应该发出 submit，而不是继续要求答补充题
+    expect(calls.some((call) => call.method === 'POST' && call.url.includes('/submit'))).toBe(true)
+  })
+
+  it('已经答过补充题再跳过：先确认，确认后才交卷', async () => {
+    const wrapper = await enterClarification()
+    server.patch = () => ({
+      status: 200,
+      body: {
+        revision: 9,
+        status: 'CLARIFICATION_IN_PROGRESS',
+        clarificationDimensions: ['EI'],
+      },
+    })
+    await wrapper.find('[data-start-clarification]').trigger('click')
+    await flushPromises()
+    await wrapper.findAll('[data-rating]')[1].trigger('click')
+    await flushPromises()
+
+    await wrapper.find('[data-skip-clarification-in-progress]').trigger('click')
+    await flushPromises()
+    const dialog = wrapper.findAllComponents(ConfirmDialog).find((item) => item.props('title') === '跳过已经答过的补充题')
+    expect(dialog?.props('open')).toBe(true)
+    expect(calls.some((call) => call.method === 'POST' && call.url.includes('/submit'))).toBe(false)
+
+    dialog?.vm.$emit('confirm')
+    await flushPromises()
     expect(calls.some((call) => call.method === 'POST' && call.url.includes('/submit'))).toBe(true)
   })
 })
@@ -1018,6 +1192,27 @@ describe('答题页：快速操作不会制造假冲突', () => {
   })
 })
 
+describe('答题页：交卷成功后打开报告', () => {
+  /**
+   * 这条钉的是一个只有真实浏览器能暴露的断裂：交卷接口返回的 `status` 是**报告状态**
+   * （如 REFERENCE），而离页守卫用 store 的 `status === 'SUBMITTED'` 判断"可以走了"。
+   * 如果 store 把报告状态写进 `status`，`await router.push(...)` 会在 `submitting` 仍为 true
+   * 时被守卫返回 false —— 导航被静默取消，报告已经生成，用户却停在被答完的题上。
+   * 2026-10-18 真实栈走查里复现（浏览器停在 /assess/…，库里已是 SUBMITTED + TIED）。
+   */
+  it('正常交卷（有报告编号）后进入报告页，不会停在被离页守卫拦住的答题页', async () => {
+    const { wrapper, router } = await mountAssess()
+    await answerAllBase(wrapper)
+    await wrapper.find('[data-next]').trigger('click')
+    await flushPromises()
+    await flushPromises()
+
+    expect(useAssessmentStore().status).toBe('SUBMITTED')
+    expect(router.currentRoute.value.name).toBe('report-detail')
+    expect(router.currentRoute.value.params.reportId).toBe('report-1')
+  })
+})
+
 describe('答题页：交卷响应丢失也要能到报告', () => {
   /**
    * 交卷成功但响应没回来时，用户重试只会得到一句「这份测评已经提交」。
@@ -1086,7 +1281,8 @@ describe('十六型未同步改动离页保护', () => {
     const navigation = router.push('/assess/another-attempt')
     await flushPromises()
     expect(wrapper.text()).toContain('还有 1 题的本地改动')
-    await wrapper.findComponent(ConfirmDialog).findAll('button')[0]!.trigger('click')
+    const dialog = wrapper.findAllComponents(ConfirmDialog).find((item) => item.props('title') === '这次改动还没同步')
+    await dialog!.findAll('button')[0]!.trigger('click')
     await navigation
     expect(router.currentRoute.value.params.attemptId).toBe(ATTEMPT_ID)
     expect(wrapper.find('[data-save-state]').text()).toContain('未同步')

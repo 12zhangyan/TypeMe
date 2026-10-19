@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import { V3ApiError } from '@/api/v3'
 import { useReportStore } from './reportV3'
 import { useAuthStore } from './auth'
 import type { ReportDetail, ReportListPage, SelfReflection } from '@/api/v3Assessment'
@@ -33,6 +34,21 @@ describe('报告切换中的晚到响应', () => {
     await first
     expect(store.current?.report.reportId).toBe('new')
     expect(store.loading).toBe(false)
+  })
+
+  it('第一次读取被会话确认打断后重读，不把报告停在失败上', async () => {
+    fetchReportDetail
+      .mockRejectedValueOnce(new V3ApiError(
+        { code: 'SESSION_CHANGED', message: '登录状态已改变，请在当前账号下重新操作。', requestId: null, details: {} },
+        { status: 0 },
+      ))
+      .mockResolvedValueOnce(detail('kept'))
+    const store = useReportStore()
+    await store.loadReport('kept')
+    expect(store.loadError).toBeNull()
+    expect(store.current?.report.reportId).toBe('kept')
+    expect(store.loading).toBe(false)
+    expect(fetchReportDetail).toHaveBeenCalledTimes(2)
   })
 
   it('离开后清空状态，旧的按答卷查询结果不能复活', async () => {

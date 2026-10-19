@@ -6,6 +6,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import AdminView from '@/views/AdminView.vue'
 import { resetAdminProbeForTests } from '@/composables/useAdminProbe'
 import { V3ApiError } from '@/api/v3'
+import { formatLocalTime } from '@/domain/localTime'
 
 /**
  * 管理后台页（2026-09-17 新增）。
@@ -332,5 +333,50 @@ describe('管理后台 · AI 设置', () => {
     // 只读：页面里没有提交角色/禁用的控件
     expect(wrapper.find('[data-admin-users] button').exists()).toBe(false)
     expect(wrapper.text()).toContain('不提供')
+  })
+
+  it('设置修改时间和注册时间按本地时区显示，不把 UTC 直接截出来', async () => {
+    fetchAdminAiSettings.mockResolvedValue(settings())
+    fetchAdminUsers.mockResolvedValue({
+      items: [
+        { id: 'u1', username: 'one', nickname: null, role: 'ADMIN', status: 'ACTIVE', createdAt: '2026-09-17T08:00:00Z', reportCount: 2 },
+      ],
+      page: 0,
+      size: 20,
+      total: 1,
+    })
+    const { wrapper } = await mountAdmin()
+    const local = formatLocalTime('2026-09-17T08:00:00Z')
+    expect(wrapper.text()).toContain(local)
+    expect(wrapper.text()).not.toContain('2026-09-17 08:00')
+  })
+
+  it('账号超过一页时可以翻到后面，不会只停在前 20 个', async () => {
+    fetchAdminAiSettings.mockResolvedValue(settings())
+    fetchAdminUsers.mockImplementation(async (options: { page?: number } = {}) => {
+      const page = options.page ?? 0
+      return {
+        items: [{
+          id: page === 0 ? 'u1' : 'u21',
+          username: page === 0 ? 'first-page' : 'later-page',
+          nickname: null,
+          role: 'USER',
+          status: 'ACTIVE',
+          createdAt: '2026-09-17T08:00:00Z',
+          reportCount: 0,
+        }],
+        page,
+        size: 20,
+        total: 21,
+      }
+    })
+    const { wrapper } = await mountAdmin()
+    expect(wrapper.text()).toContain('first-page')
+    expect(wrapper.text()).not.toContain('later-page')
+    await wrapper.get('[data-admin-users-next]').trigger('click')
+    await flushPromises()
+    expect(fetchAdminUsers).toHaveBeenCalledWith(expect.objectContaining({ page: 1, size: 20 }))
+    expect(wrapper.text()).toContain('later-page')
+    expect(wrapper.text()).not.toContain('first-page')
   })
 })

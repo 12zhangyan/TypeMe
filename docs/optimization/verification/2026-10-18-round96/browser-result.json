@@ -1,0 +1,35 @@
+{
+  "base": "http://127.0.0.1:5191",
+  "widths": [
+    320,
+    390,
+    1440
+  ],
+  "checks": 159,
+  "passed": 159,
+  "failures": [],
+  "unknown_api": [],
+  "shots": [
+    "assess-bigfive-1440.png",
+    "assess-bigfive-320.png",
+    "assess-bigfive-390.png",
+    "assess-chooser-1440.png",
+    "assess-chooser-320.png",
+    "assess-chooser-390.png",
+    "assess-jung-1440.png",
+    "assess-jung-320.png",
+    "assess-jung-390.png",
+    "compare-1440.png",
+    "compare-320.png",
+    "compare-390.png",
+    "home-bigfive-1440.png",
+    "home-bigfive-320.png",
+    "home-bigfive-390.png",
+    "home-jung-1440.png",
+    "home-jung-320.png",
+    "home-jung-390.png",
+    "reports-list-1440.png",
+    "reports-list-320.png",
+    "reports-list-390.png"
+  ]
+}

@@ -201,20 +201,31 @@ function chooseUnknown(): void {
 }
 
 async function go(delta: number): Promise<void> {
-  if (store.saving || store.submitting) return
+  if (store.saving || store.submitting || store.conflict || isSubmitted.value) return
   const next = index.value + delta
   if (next < 0 || next >= items.value.length) return
-  // 换题时顺手保存：这是最自然的自动保存时机，且不需要额外的定时器。
-  await flush(true)
-  index.value = next
-  store.rememberCurrentQuestion(items.value[next].id)
+  // 先把要去的题号写上再保存。反过来会把刚离开的题记成进度，刷新后又回到那一题。
+  await moveTo(next)
 }
 
 async function jumpTo(index2: number): Promise<void> {
-  if (store.saving || store.submitting) return
-  if (index2 === index.value) return
-  await flush(true)
-  index.value = index2
+  if (store.saving || store.submitting || store.conflict || isSubmitted.value) return
+  if (index2 === index.value || index2 < 0 || index2 >= items.value.length) return
+  await moveTo(index2)
+}
+
+/** 保存成功才换题。失败时题号指针仍指向眼前这一题，避免下次保存写错位置。 */
+async function moveTo(next: number): Promise<void> {
+  const visibleId = current.value?.id ?? null
+  const destination = items.value[next]?.id
+  if (!destination) return
+  store.rememberCurrentQuestion(destination)
+  const ok = await store.saveNow()
+  if (!ok || store.conflict || isSubmitted.value) {
+    if (visibleId) store.rememberCurrentQuestion(visibleId)
+    return
+  }
+  index.value = next
 }
 
 /** 保存当前未保存的改动；失败时把原因放进页头提示（不打断答题）。 */
@@ -262,11 +273,11 @@ async function submit(): Promise<void> {
     await router.push({ name: 'big-five-report', params: { reportId: result.reportId } })
     return
   }
-  // 还缺题：直接跳到第一道缺的题上，而不是只给一句"还差 N 题"。
+  // 还缺题：先把要去的题号写上再换页。只改本地题号的话，刷新会回到交卷前的那一题。
   if (result && result.incompleteQuestionIds.length > 0) {
     const missing = new Set(result.incompleteQuestionIds)
     const target = items.value.findIndex((item) => missing.has(item.id))
-    if (target >= 0) index.value = target
+    if (target >= 0) await moveTo(target)
   }
 }
 
@@ -283,11 +294,17 @@ async function protectDeparture(): Promise<boolean> {
   if (store.submitting) return false
   if (!attempt.value || isSubmitted.value) return true
   if (store.unsavedCount === 0 && !store.conflict) {
-    // 没有未保存的改动，但仍记一下"做到哪一题"，方便下次继续。
+    // 没有未保存的答案，但仍记一下"做到哪一题"。这次保存失败就不能直接离开。
     const item = current.value
     if (item) {
       store.rememberCurrentQuestion(item.id)
-      await store.saveNow()
+      const saved = await store.saveNow()
+      if (!saved || store.conflict) {
+        leaveDialog.value = true
+        return await new Promise<boolean>((resolve) => {
+          leaveResolve = resolve
+        })
+      }
     }
     return true
   }
@@ -493,7 +510,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
             {{ isUnknown ? '已记「说不好」（再点一次撤销）' : '说不好' }}
           </button>
           <p class="caption max-w-prose">
-            说不好：暂时无法判断，不计分；中间档会计分。
+            「说不好」表示这题没有作答、不计分；中间档「说不上符合或不符合」仍会计分。
           </p>
         </div>
 
@@ -510,7 +527,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
         <button
           type="button"
           class="btn-secondary btn-sm"
-          :disabled="index === 0 || store.saving || store.submitting"
+          :disabled="index === 0 || store.saving || store.submitting || store.conflict || isSubmitted"
           data-bigfive-prev
           @click="go(-1)"
         >
@@ -519,7 +536,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
         <button
           type="button"
           class="btn-primary btn-sm"
-          :disabled="index >= totalCount - 1 || store.saving || store.submitting"
+          :disabled="index >= totalCount - 1 || store.saving || store.submitting || store.conflict || isSubmitted"
           data-bigfive-next
           @click="go(1)"
         >
@@ -545,7 +562,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
               ]"
               :aria-label="`第 ${itemIndex + 1} 题${store.answers[item.id] ? '，已处理' : '，未处理'}`"
               :aria-current="itemIndex === index ? 'true' : undefined"
-              :disabled="store.saving || store.submitting"
+              :disabled="store.saving || store.submitting || store.conflict || isSubmitted"
               @click="jumpTo(itemIndex)"
             >
               {{ itemIndex + 1 }}
@@ -612,7 +629,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
           <template v-if="store.unsavedCount > 0">
             现在离开会丢掉这 {{ store.unsavedCount }} 题的改动（已经保存过的答案不受影响）。
           </template>
-          <template v-else>现在离开不会丢答案。</template>
+          <template v-else>答案已经保存。现在离开的话，下次打开可能不会停在这一题。</template>
         </p>
         <div class="mt-4 flex flex-wrap gap-2">
           <button ref="leaveStayButton" type="button" class="btn-primary btn-sm" data-bigfive-leave-stay @click="resolveLeave(false)">

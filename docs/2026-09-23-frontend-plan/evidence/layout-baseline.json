@@ -1,0 +1,184 @@
+{
+  "date": "2026-09-23",
+  "commit": "96a7e67",
+  "mode": "Current Vite source; read-only local API fixture; synthetic reports; no backend/database/real AI",
+  "measurements": [
+    {
+      "page": "home",
+      "cta": {
+        "height": 52,
+        "y": 477
+      },
+      "document": {
+        "height": 5581,
+        "scrollWidth": 305,
+        "width": 305
+      },
+      "hero": {
+        "height": 886,
+        "y": 137
+      },
+      "instrumentTitles": [
+        {
+          "text": "十六型人格参考测评",
+          "y": 1578
+        },
+        {
+          "text": "大五人格倾向测评",
+          "y": 2220
+        }
+      ],
+      "viewport": {
+        "height": 720,
+        "width": 320
+      }
+    },
+    {
+      "page": "home",
+      "cta": {
+        "height": 52,
+        "y": 458
+      },
+      "document": {
+        "height": 5471,
+        "scrollWidth": 375,
+        "width": 375
+      },
+      "hero": {
+        "height": 933,
+        "y": 137
+      },
+      "instrumentTitles": [
+        {
+          "text": "十六型人格参考测评",
+          "y": 1625
+        },
+        {
+          "text": "大五人格倾向测评",
+          "y": 2205
+        }
+      ],
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    },
+    {
+      "page": "home",
+      "cta": {
+        "height": 53,
+        "y": 615
+      },
+      "document": {
+        "height": 4130,
+        "scrollWidth": 1425,
+        "width": 1425
+      },
+      "hero": {
+        "height": 848,
+        "y": 129
+      },
+      "instrumentTitles": [
+        {
+          "text": "十六型人格参考测评",
+          "y": 1538
+        },
+        {
+          "text": "大五人格倾向测评",
+          "y": 1538
+        }
+      ],
+      "viewport": {
+        "height": 900,
+        "width": 1440
+      }
+    },
+    {
+      "page": "jung-report-synthetic",
+      "document": {
+        "height": 9755,
+        "scrollWidth": 305,
+        "width": 305
+      },
+      "firstDimensionY": 1633,
+      "overview": {
+        "height": 1362
+      },
+      "viewport": {
+        "height": 720,
+        "width": 320
+      }
+    },
+    {
+      "page": "jung-report-synthetic",
+      "document": {
+        "height": 8863,
+        "scrollWidth": 375,
+        "width": 375
+      },
+      "firstDimensionY": 1534,
+      "overview": {
+        "height": 1263
+      },
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    },
+    {
+      "page": "jung-report-synthetic",
+      "document": {
+        "height": 6913,
+        "scrollWidth": 1425,
+        "width": 1425
+      },
+      "firstDimensionY": 1069,
+      "overview": {
+        "height": 900
+      },
+      "viewport": {
+        "height": 900,
+        "width": 1440
+      }
+    },
+    {
+      "page": "bigfive-report-synthetic",
+      "document": {
+        "height": 7745,
+        "scrollWidth": 305,
+        "width": 305
+      },
+      "firstDimensionY": 889,
+      "viewport": {
+        "height": 720,
+        "width": 320
+      }
+    },
+    {
+      "page": "bigfive-report-synthetic",
+      "document": {
+        "height": 6979,
+        "scrollWidth": 375,
+        "width": 375
+      },
+      "firstDimensionY": 749,
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    },
+    {
+      "page": "bigfive-report-synthetic",
+      "document": {
+        "height": 5326,
+        "scrollWidth": 1425,
+        "width": 1425
+      },
+      "firstDimensionY": 643,
+      "viewport": {
+        "height": 900,
+        "width": 1440
+      }
+    }
+  ]
+}

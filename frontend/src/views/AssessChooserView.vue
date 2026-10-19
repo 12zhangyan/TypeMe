@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
-import { describeError, type ErrorDisplay } from '@/api/v3'
+import { describeError, isSessionChanged, type ErrorDisplay } from '@/api/v3'
 import { fetchMyAttempts, type InstrumentCard, type MyAttemptRow } from '@/api/platformV3'
 import { useInstrumentsStore } from '@/stores/instrumentsV3'
 import { useBigFiveStore } from '@/stores/bigFiveV3'
@@ -42,7 +42,10 @@ const assessment = useAssessmentStore()
 const route = useRoute()
 const router = useRouter()
 let active = true
-onBeforeUnmount(() => { active = false })
+onBeforeUnmount(() => {
+  active = false
+  draftsSequence += 1
+})
 
 const starting = ref<string | null>(null)
 /**
@@ -84,8 +87,10 @@ onMounted(() => {
   void loadDrafts()
 })
 
+let draftsSequence = 0
+
 async function loadDrafts(): Promise<void> {
-  if (draftsLoading.value) return
+  const sequence = ++draftsSequence
   draftsLoading.value = true
   draftsLoaded.value = false
   draftsError.value = null
@@ -95,6 +100,7 @@ async function loadDrafts(): Promise<void> {
     let total = 0
     do {
       const page = await fetchMyAttempts(pageIndex, 50, 'open')
+      if (sequence !== draftsSequence) return
       if (page.items.length === 0 && found.length < page.total) {
         throw new Error('草稿列表未能完整载入，请重试。')
       }
@@ -102,13 +108,21 @@ async function loadDrafts(): Promise<void> {
       total = page.total
       pageIndex += 1
     } while (found.length < total)
+    if (sequence !== draftsSequence) return
     drafts.value = found
   } catch (error) {
+    if (sequence !== draftsSequence) return
+    if (isSessionChanged(error)) {
+      void loadDrafts()
+      return
+    }
     drafts.value = []
     draftsError.value = describeError(error)
   } finally {
-    draftsLoading.value = false
-    draftsLoaded.value = true
+    if (sequence === draftsSequence) {
+      draftsLoading.value = false
+      draftsLoaded.value = true
+    }
   }
 }
 
@@ -185,8 +199,12 @@ async function goToAttempt(attemptId: string): Promise<void> {
   await router.push({ name: 'assess-attempt', params: { attemptId } })
 }
 
-function draftStatusLabel(status: string): string {
-  switch (status) {
+function draftStatusLabel(draft: { status: string; instrumentKind: string }): string {
+  switch (draft.status) {
+    case 'BASE_IN_PROGRESS':
+      return draft.instrumentKind === 'jung' ? '主测答题中' : '答题中'
+    case 'CLARIFICATION_IN_PROGRESS':
+      return '补充答题中'
     case 'DRAFT':
       return '没答完'
     case 'SUBMITTED':
@@ -194,7 +212,7 @@ function draftStatusLabel(status: string): string {
     case 'NEEDS_REVIEW':
       return '信息不足'
     default:
-      return status
+      return '进行中'
   }
 }
 
@@ -252,9 +270,10 @@ function minutesText(card: InstrumentCard): string {
         >
           <div class="flex flex-wrap items-center gap-2">
             <h3 class="text-[16.5px] font-semibold text-ink">{{ draft.instrumentTitle }}</h3>
-            <span class="chip chip-accent">{{ draftStatusLabel(draft.status) }}</span>
+            <span class="chip chip-accent">{{ draftStatusLabel(draft) }}</span>
             <span class="chip chip-neutral">
-              {{ draft.answeredCount }} / {{ draft.requiredCount }} 题
+              <template v-if="draft.status === 'CLARIFICATION_IN_PROGRESS'">主测 {{ draft.answeredCount }} / {{ draft.requiredCount }}</template>
+              <template v-else>{{ draft.answeredCount }} / {{ draft.requiredCount }} 题</template>
             </span>
           </div>
           <p class="caption mt-1.5">

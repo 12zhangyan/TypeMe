@@ -15,7 +15,7 @@ import {
   type ReviewResult,
   type SubmitResult,
 } from '@/api/v3Assessment'
-import { describeError, isV3ApiError, newIdempotencyKey, type ErrorDisplay } from '@/api/v3'
+import { describeError, isSessionChanged, isV3ApiError, newIdempotencyKey, type ErrorDisplay } from '@/api/v3'
 import { isRevisionConflict } from '@/api/v3'
 import { checkCoverage, score, type ScoringResult } from '@/domain/jung/scoring'
 import {
@@ -422,6 +422,10 @@ export const useAssessmentStore = defineStore('assessmentV3', {
         this.applyDetail(detail)
       } catch (error) {
         if (generation !== sessionGeneration) return
+        if (isSessionChanged(error)) {
+          await this.load(attemptId, discardPending)
+          return
+        }
         this.lastError = describeError(error)
         throw error
       } finally {
@@ -837,7 +841,11 @@ export const useAssessmentStore = defineStore('assessmentV3', {
         clarificationSkipped: options.clarificationSkipped,
         ...(options.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : {}),
       })
-      this.status = result.status || this.status
+      // 服务端 SubmitResponse.status 是**报告状态**（REFERENCE / TIED / TENTATIVE…），
+      // 而本 store 的 `status` 在别处（applyDetail / runReview）一直是**测评状态**。
+      // 拿到报告编号就说明这次已经交卷，这里必须写回 SUBMITTED：答题页的离页守卫
+      // 用 `status === 'SUBMITTED'` 判断"可以走了"，否则交卷成功后的跳转会被自己拦下。
+      this.status = result.reportId ? 'SUBMITTED' : (result.status || this.status)
       if (result.coverage.length > 0) this.coverage = result.coverage
       this.insufficientDimensions = [...result.insufficientDimensions]
       this.clarificationSkipped = options.clarificationSkipped
@@ -872,6 +880,28 @@ export const useAssessmentStore = defineStore('assessmentV3', {
     /** 用户明确跳过补充题：如实记下来（跳过 ≠ 未答）。 */
     markClarificationSkipped(): void {
       this.clarificationSkipped = true
+    },
+
+    /**
+     * 交卷撞上版本冲突：打开和保存失败同一条「载入最新进度」，而不是只留一句错误。
+     * 本机还没确认的作答列进横幅；没有的话就不要说「改动没写上去」。
+     */
+    noteExternalRevisionConflict(error: unknown): void {
+      const lost: LostAnswer[] = []
+      for (const [questionId, answer] of Object.entries(this.unconfirmed)) {
+        lost.push({
+          questionId,
+          rating: answer.kind === 'rating' && typeof answer.rating === 'number' ? answer.rating : null,
+        })
+      }
+      this.unconfirmed = {}
+      this.saveState = 'conflict'
+      this.conflict = {
+        currentRevision: currentRevisionOf(error),
+        message: '另一台设备已经更新了这份草稿，这次没有交卷。请先载入最新进度，确认之后再交卷。',
+        pendingQuestionIds: lost.map((item) => item.questionId),
+        lostAnswers: lost,
+      }
     },
 
     /** 覆盖不足时"还差哪几维"（维度名 + 原因）。 */

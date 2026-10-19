@@ -318,6 +318,11 @@ export function isSessionExpired(error: unknown): boolean {
   return isV3ApiError(error) && error.code === UNAUTHENTICATED_CODE
 }
 
+/** 请求发出后本地会话已经换过。这不是接口失败，调用方应在新会话下重读。 */
+export function isSessionChanged(error: unknown): boolean {
+  return isV3ApiError(error) && error.code === SESSION_CHANGED_CODE
+}
+
 /**
  * 是「已登录但没权限」吗（契约 §7.1 `FORBIDDEN`，服务端由 `AccessDeniedHandler` 给出）。
  *

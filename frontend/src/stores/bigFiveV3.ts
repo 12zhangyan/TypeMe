@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { describeError, newIdempotencyKey } from '@/api/v3'
+import { describeError, isSessionChanged, newIdempotencyKey } from '@/api/v3'
 import {
   createPlatformAttempt,
   fetchPlatformAttempt,
@@ -195,6 +195,10 @@ export const useBigFiveStore = defineStore('bigFive', {
         this.adopt(attempt)
       } catch (error) {
         if (generation !== this.generation) return
+        if (isSessionChanged(error)) {
+          await this.load(attemptId, discardPending)
+          return
+        }
         this.loadError = describe(error)
         throw error
       } finally {
@@ -502,7 +506,7 @@ export const useBigFiveStore = defineStore('bigFive', {
         if (result.status === 'INCOMPLETE') {
           this.incompleteQuestionIds = result.incompleteQuestionIds
           this.submitError =
-            `还有 ${result.incompleteQuestionIds.length} 题没有处理过（既没作答也没选「说不上」）。` +
+            `还有 ${result.incompleteQuestionIds.length} 题没有处理过（既没作答也没选「说不好」）。` +
             '补齐之后就能生成报告。'
           return result
         }
@@ -515,8 +519,13 @@ export const useBigFiveStore = defineStore('bigFive', {
         if (generation !== this.generation) return null
         if (isPlatformError(error) && error.code === 'CONFLICT_REVISION') {
           this.conflict = true
+          this.conflictServer = null
+          this.conflictChanges = []
+          this.conflictLocalRevision = null
           this.conflictMessage =
-            '另一台设备已经更新了这份草稿。请重新载入最新版本后再提交。'
+            '另一台设备已经更新了这份草稿。请先读取服务端进度并核对，再提交。'
+          this.submitError = null
+          return null
         }
         this.submitError = describe(error)
         return null

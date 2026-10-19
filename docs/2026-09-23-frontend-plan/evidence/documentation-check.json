@@ -1,0 +1,112 @@
+{
+  "date": "2026-09-23",
+  "status": "PASS",
+  "scope": "Documentation and evidence checks only; no product tests or production verification",
+  "markdownFiles": 7,
+  "localLinksChecked": 41,
+  "sourcePathsChecked": 20,
+  "copyRewriteItems": 28,
+  "implementationStagesChecked": 7,
+  "layoutObservations": 9,
+  "images": [
+    {
+      "path": "evidence\\bigfive-report-1440.jpg",
+      "width": 1425,
+      "height": 891,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\bigfive-report-320.jpg",
+      "width": 305,
+      "height": 686,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\bigfive-report-390.jpg",
+      "width": 375,
+      "height": 812,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\competitor-16personalities-test.jpg",
+      "width": 1270,
+      "height": 714,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\competitor-bigfive.jpg",
+      "width": 1265,
+      "height": 712,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\competitor-dimensional.jpg",
+      "width": 1265,
+      "height": 712,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\competitor-overview.jpg",
+      "width": 1440,
+      "height": 654,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\competitor-principlesyou.jpg",
+      "width": 1265,
+      "height": 712,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\competitor-truity.jpg",
+      "width": 1265,
+      "height": 712,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\competitor-xinli001.jpg",
+      "width": 1280,
+      "height": 720,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\home-1440.jpg",
+      "width": 1425,
+      "height": 891,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\home-320.jpg",
+      "width": 305,
+      "height": 686,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\home-390.jpg",
+      "width": 375,
+      "height": 812,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\jung-report-1440.jpg",
+      "width": 1425,
+      "height": 891,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\jung-report-320.jpg",
+      "width": 305,
+      "height": 686,
+      "format": "JPEG"
+    },
+    {
+      "path": "evidence\\jung-report-390.jpg",
+      "width": 375,
+      "height": 812,
+      "format": "JPEG"
+    }
+  ],
+  "gitDiffCheckExit": 0,
+  "trackedProductChanges": [],
+  "errors": []
+}
