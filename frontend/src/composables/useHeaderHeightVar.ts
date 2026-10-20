@@ -5,7 +5,7 @@ import { onBeforeUnmount, onMounted, type Ref } from 'vue'
  *
  * 顶栏内容 `flex-wrap`，导航项又随登录状态和管理员身份增减：同是 320 宽，
  * 未登录约 109px、管理员约 153px，桌面约 77px。CSS 里写死的 60/64px 总是偏小，
- * 依赖 `scroll-margin-top: calc(var(--header-h) + …)` 的页内跳转会把标题落到顶栏下面。
+ * `html` 的 `scroll-padding-top` 读它：页内跳转、聚焦和 Tab 切换才会停在顶栏下面而不是被盖住。
  *
  * 环境不支持 `ResizeObserver`（jsdom / 老浏览器）时不写，沿用 `style.css` 的默认值。
  */

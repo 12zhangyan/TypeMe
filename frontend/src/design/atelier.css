@@ -86,7 +86,7 @@
 .discovery-choices a:focus-visible { outline: 2px solid var(--discovery-green); outline-offset: -3px; border-radius: 12px; }
 .discovery-choices strong { font-size: 15px; font-weight: 600; }
 .discovery-choices span { flex-shrink: 0; font-size: 12px; color: #607565; }
-.atelier-platform .catalog-heading { align-items: end; padding: 56px 0 24px; gap: 20px; scroll-margin-top: calc(var(--header-h) + 16px); }
+.atelier-platform .catalog-heading { align-items: end; padding: 56px 0 24px; gap: 20px; scroll-margin-top: 16px; }
 .atelier-platform .catalog-heading h2 { margin-top: 6px; font-family: inherit; font-size: 30px; font-weight: 600; letter-spacing: -.025em; }
 .atelier-platform .catalog-heading > p { max-width: 24em; font-size: 14px; line-height: 1.8; color: #607565; }
 .atelier-platform .assessment-grid, .atelier-catalog .assessment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }

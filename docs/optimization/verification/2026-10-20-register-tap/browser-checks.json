@@ -1,0 +1,98 @@
+[
+  {
+    "label": "webkit/320: blank form tap focuses first blocking field (hit <button type=\"button\" class=\"absolute in)",
+    "passed": true
+  },
+  {
+    "label": "webkit/320: tapping disclaimer checkbox checks it",
+    "passed": true
+  },
+  {
+    "label": "webkit/320: tapping 创建账号 sends register once (hit <button type=\"submit\" class=\"btn-primary)",
+    "passed": true
+  },
+  {
+    "label": "webkit/320: no horizontal overflow",
+    "passed": true
+  },
+  {
+    "label": "webkit/390: blank form tap focuses first blocking field (hit <button type=\"button\" class=\"absolute in)",
+    "passed": true
+  },
+  {
+    "label": "webkit/390: tapping disclaimer checkbox checks it",
+    "passed": true
+  },
+  {
+    "label": "webkit/390: tapping 创建账号 sends register once (hit <button type=\"submit\" class=\"btn-primary)",
+    "passed": true
+  },
+  {
+    "label": "webkit/390: no horizontal overflow",
+    "passed": true
+  },
+  {
+    "label": "webkit/1440: blank form tap focuses first blocking field (hit <button type=\"button\" class=\"absolute in)",
+    "passed": true
+  },
+  {
+    "label": "webkit/1440: tapping disclaimer checkbox checks it",
+    "passed": true
+  },
+  {
+    "label": "webkit/1440: tapping 创建账号 sends register once (hit <button type=\"submit\" class=\"btn-primary)",
+    "passed": true
+  },
+  {
+    "label": "webkit/1440: no horizontal overflow",
+    "passed": true
+  },
+  {
+    "label": "chromium/320: blank form tap focuses first blocking field (hit <button type=\"button\" class=\"absolute in)",
+    "passed": true
+  },
+  {
+    "label": "chromium/320: tapping disclaimer checkbox checks it",
+    "passed": true
+  },
+  {
+    "label": "chromium/320: tapping 创建账号 sends register once (hit <button type=\"submit\" class=\"btn-primary)",
+    "passed": true
+  },
+  {
+    "label": "chromium/320: no horizontal overflow",
+    "passed": true
+  },
+  {
+    "label": "chromium/390: blank form tap focuses first blocking field (hit <button type=\"button\" class=\"absolute in)",
+    "passed": true
+  },
+  {
+    "label": "chromium/390: tapping disclaimer checkbox checks it",
+    "passed": true
+  },
+  {
+    "label": "chromium/390: tapping 创建账号 sends register once (hit <button type=\"submit\" class=\"btn-primary)",
+    "passed": true
+  },
+  {
+    "label": "chromium/390: no horizontal overflow",
+    "passed": true
+  },
+  {
+    "label": "chromium/1440: blank form tap focuses first blocking field (hit <button type=\"button\" class=\"absolute in)",
+    "passed": true
+  },
+  {
+    "label": "chromium/1440: tapping disclaimer checkbox checks it",
+    "passed": true
+  },
+  {
+    "label": "chromium/1440: tapping 创建账号 sends register once (hit <button type=\"submit\" class=\"btn-primary)",
+    "passed": true
+  },
+  {
+    "label": "chromium/1440: no horizontal overflow",
+    "passed": true
+  }
+]
