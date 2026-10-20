@@ -1,0 +1,182 @@
+{
+  "checks": [
+    {
+      "label": "320: failure notice scrolled into view and not covered by sticky header",
+      "passed": true
+    },
+    {
+      "label": "320: revoke sent once",
+      "passed": true
+    },
+    {
+      "label": "320: 409 refreshes invitation list once",
+      "passed": true
+    },
+    {
+      "label": "320: used invitation no longer offers revoke",
+      "passed": true
+    },
+    {
+      "label": "320: row shows server status",
+      "passed": true
+    },
+    {
+      "label": "320: server message shown",
+      "passed": true
+    },
+    {
+      "label": "320: request id shown",
+      "passed": true
+    },
+    {
+      "label": "320: conflict does not suggest re-login",
+      "passed": true
+    },
+    {
+      "label": "320: no false success",
+      "passed": true
+    },
+    {
+      "label": "revoke-conflict/320: no overflow",
+      "passed": true
+    },
+    {
+      "label": "320: forbidden offers re-login",
+      "passed": true
+    },
+    {
+      "label": "320: forbidden shows request id",
+      "passed": true
+    },
+    {
+      "label": "320: forbidden hides admin data",
+      "passed": true
+    },
+    {
+      "label": "forbidden/320: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390: failure notice scrolled into view and not covered by sticky header",
+      "passed": true
+    },
+    {
+      "label": "390: revoke sent once",
+      "passed": true
+    },
+    {
+      "label": "390: 409 refreshes invitation list once",
+      "passed": true
+    },
+    {
+      "label": "390: used invitation no longer offers revoke",
+      "passed": true
+    },
+    {
+      "label": "390: row shows server status",
+      "passed": true
+    },
+    {
+      "label": "390: server message shown",
+      "passed": true
+    },
+    {
+      "label": "390: request id shown",
+      "passed": true
+    },
+    {
+      "label": "390: conflict does not suggest re-login",
+      "passed": true
+    },
+    {
+      "label": "390: no false success",
+      "passed": true
+    },
+    {
+      "label": "revoke-conflict/390: no overflow",
+      "passed": true
+    },
+    {
+      "label": "390: forbidden offers re-login",
+      "passed": true
+    },
+    {
+      "label": "390: forbidden shows request id",
+      "passed": true
+    },
+    {
+      "label": "390: forbidden hides admin data",
+      "passed": true
+    },
+    {
+      "label": "forbidden/390: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: failure notice scrolled into view and not covered by sticky header",
+      "passed": true
+    },
+    {
+      "label": "1440: revoke sent once",
+      "passed": true
+    },
+    {
+      "label": "1440: 409 refreshes invitation list once",
+      "passed": true
+    },
+    {
+      "label": "1440: used invitation no longer offers revoke",
+      "passed": true
+    },
+    {
+      "label": "1440: row shows server status",
+      "passed": true
+    },
+    {
+      "label": "1440: server message shown",
+      "passed": true
+    },
+    {
+      "label": "1440: request id shown",
+      "passed": true
+    },
+    {
+      "label": "1440: conflict does not suggest re-login",
+      "passed": true
+    },
+    {
+      "label": "1440: no false success",
+      "passed": true
+    },
+    {
+      "label": "revoke-conflict/1440: no overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: forbidden offers re-login",
+      "passed": true
+    },
+    {
+      "label": "1440: forbidden shows request id",
+      "passed": true
+    },
+    {
+      "label": "1440: forbidden hides admin data",
+      "passed": true
+    },
+    {
+      "label": "forbidden/1440: no overflow",
+      "passed": true
+    },
+    {
+      "label": "No browser JS errors",
+      "passed": true
+    },
+    {
+      "label": "No unexpected API requests",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "unexpected": []
+}
