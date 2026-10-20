@@ -178,25 +178,25 @@ onMounted(load)
 <style scoped>
 .members-page { padding-top: 3rem; padding-bottom: 5rem; }
 .members-heading,.section-top { display: flex; justify-content: space-between; align-items: baseline; gap: 1.5rem; flex-wrap: wrap; }
-h1 { font: 3.5rem/1.22 SimSun, serif; letter-spacing: -.04em; margin-top: 1rem; } h1 em { color: #315642; font-style: normal; }
+h1 { font: 3.5rem/1.22 SimSun, serif; letter-spacing: -.04em; margin-top: 1rem; } h1 em { color: #313656; font-style: normal; }
 h2 { font: 1.8rem/1.5 SimSun, serif; margin-top: .5rem; }
-.members-section { margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid #cbd1c6; }
+.members-section { margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid #c1c4d6; }
 .section-top { margin-bottom: 1.5rem; }
 .invite-form,.quota-form { display: flex; align-items: end; gap: 1rem; flex-wrap: wrap; }
-label { font-size: .85rem; display: grid; gap: .5rem; max-width: 100%; } .input { min-height: 2.8rem; width: 100%; border: 1px solid #ccd4c6; border-radius: .5rem; background: #fffef9; padding: .6rem .8rem; font-size: 1rem; }
+label { font-size: .85rem; display: grid; gap: .5rem; max-width: 100%; } .input { min-height: 2.8rem; width: 100%; border: 1px solid #c3c6d7; border-radius: .5rem; background: #ffffff; padding: .6rem .8rem; font-size: 1rem; }
 .quota-form > p { flex-basis: 100%; }.quota-form input { max-width: 12rem; }
-.invite-result { padding: 1.5rem; background: #e5eddf; margin-top: 1.5rem; border-radius: 1rem; }
+.invite-result { padding: 1.5rem; background: #dfe1ed; margin-top: 1.5rem; border-radius: 1rem; }
 .invite-result code { display: block; font-size: 1.35rem; overflow-wrap: anywhere; margin: .8rem 0; user-select: all; }
-.invite-list { margin-top: 1.5rem; }.invite-row,.record-row { display: flex; gap: 1rem; align-items: center; border-bottom: 1px solid #e1e3d9; padding: 1rem 0; flex-wrap: wrap; }
+.invite-list { margin-top: 1.5rem; }.invite-row,.record-row { display: flex; gap: 1rem; align-items: center; border-bottom: 1px solid #d7d9e5; padding: 1rem 0; flex-wrap: wrap; }
 .invite-row > div,.record-row > div { flex: 1; min-width: 150px; overflow-wrap: anywhere; }
-.status-tag { color: #315642; background: #e8eddf; padding: .25rem .6rem; border-radius: 20px; font-size: .72rem; white-space: nowrap; }
+.status-tag { color: #313656; background: #dfe1ed; padding: .25rem .6rem; border-radius: 20px; font-size: .72rem; white-space: nowrap; }
 .member-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; }
-.member-card { text-align: left; padding: 1.5rem; background: #fffef9; border: 1px solid #dfe2d6; border-radius: 1rem; overflow-wrap: anywhere; transition: border-color .15s; }
-.member-card:hover,.member-card.selected { border-color: #315642; }.member-card:focus-visible { outline: 2px solid #315642; outline-offset: 3px; }
-.member-stat { font: 2.5rem/1.3 Georgia,serif; margin: 1.5rem 0 .8rem; }.member-stat small,.member-stat span { font: .8rem/1.5 sans-serif; }.member-stat span { display: block; color: #627161; }
-.member-open { display: block; margin-top: 1.2rem; color: #315642; font-size: .85rem; }
+.member-card { text-align: left; padding: 1.5rem; background: #ffffff; border: 1px solid #d5d7e3; border-radius: 1rem; overflow-wrap: anywhere; transition: border-color .15s; }
+.member-card:hover,.member-card.selected { border-color: #313656; }.member-card:focus-visible { outline: 2px solid #313656; outline-offset: 3px; }
+.member-stat { font: 2.5rem/1.3 Georgia,serif; margin: 1.5rem 0 .8rem; }.member-stat small,.member-stat span { font: .8rem/1.5 sans-serif; }.member-stat span { display: block; color: #545a7e; }
+.member-open { display: block; margin-top: 1.2rem; color: #313656; font-size: .85rem; }
 .pagination { display: flex; align-items: center; justify-content: end; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; font-size: .8rem; }.pagination button { padding: .5rem; min-height: 44px; min-width: 44px; }button:disabled { opacity: .45; cursor: not-allowed; }
-.report-paper { background: #fffef9; padding: 2rem; border-radius: 1rem; }
+.report-paper { background: #ffffff; padding: 2rem; border-radius: 1rem; }
 @media(max-width:900px) { .member-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { .members-page { padding-top: 1.5rem; }h1 { font-size: 2.5rem; }.member-grid { grid-template-columns: 1fr; }.invite-form > label { width: 100%; }.invite-form > button { width: 100%; }.report-paper { padding: 1rem; } }
 </style>

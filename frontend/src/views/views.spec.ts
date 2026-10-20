@@ -1631,7 +1631,7 @@ describe('设计系统守卫（§4）', () => {
     expect(maxWidth['prose-result']).toBe('47.5rem')
   })
 
-  it('新版语义色齐备（暖白阅读表面 / 深绿文字 / 森林绿主色）', async () => {
+  it('新版语义色齐备（冷白阅读表面 / 深靛文字 / 靛蓝主色）', async () => {
     const config = await import('../../tailwind.config.js')
     const colors = config.default.theme.extend.colors as {
       paper: { DEFAULT: string }
@@ -1642,16 +1642,16 @@ describe('设计系统守卫（§4）', () => {
       navy: Record<string, string>
       glow: Record<string, string>
     }
-    // 用户选定暖白与森林绿；对比度门槛由 contrast.spec.ts 独立验证。
-    expect(colors.paper.DEFAULT).toBe('#F7F8F2')
-    expect(colors.ink.DEFAULT).toBe('#20372F')
-    expect(colors.primary[600]).toBe('#2D6652')
+    // 2026-10 视觉重构：冷白纸面与靛蓝主色；对比度门槛由 contrast.spec.ts 独立验证。
+    expect(colors.paper.DEFAULT).toBe('#F5F6FB')
+    expect(colors.ink.DEFAULT).toBe('#1B2038')
+    expect(colors.primary[600]).toBe('#4650C8')
     expect(colors.accent[500]).toBe('#8E5A0F')
-    expect(colors.line.DEFAULT).toBe('#DEE4DA')
+    expect(colors.line.DEFAULT).toBe('#E0E3F0')
     // 深色区域（首页主视觉 / AI 洞察）用的 navy 与 glow：没有它们，
     // 「深色面板」会退回成随便一个黑底，深色区的对比度断言也就失去意义。
-    expect(colors.navy[800]).toBe('#153429')
-    expect(colors.glow.DEFAULT).toBe('#D5E9AE')
+    expect(colors.navy[800]).toBe('#181F47')
+    expect(colors.glow.DEFAULT).toBe('#FFD2AE')
   })
 
   it('答题页在 laptop: 起是「左进度 + 右题卡」两栏，而不是单列窄条', () => {

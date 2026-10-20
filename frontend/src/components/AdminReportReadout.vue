@@ -69,6 +69,6 @@ const parsed = computed(() => {
 .admin-readout { line-height: 1.85; overflow-wrap: anywhere; }
 h3 { font-size: 1.7rem; font-family: SimSun, serif; margin: 1rem 0; }
 h4 { font-weight: 600; margin-bottom: .5rem; }
-section { border-top: 1px solid #d9ddd5; padding: 1.25rem 0; }
+section { border-top: 1px solid #d1d3e1; padding: 1.25rem 0; }
 p { margin-bottom: .7rem; } ul, ol { padding-left: 1.4rem; list-style: revert; }
 </style>

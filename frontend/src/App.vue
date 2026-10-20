@@ -301,7 +301,7 @@ function navPill(active: boolean): string {
         >
           <span class="flex items-baseline gap-2">
             <span
-              class="brand-mark inline-block h-[9px] w-[9px] shrink-0 translate-y-[-1px] rounded-[3px] bg-primary-600"
+              class="brand-mark inline-block shrink-0 bg-primary-600"
               aria-hidden="true"
             />
             <span class="font-display text-[19px] font-bold leading-none tracking-tight text-ink">
