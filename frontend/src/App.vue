@@ -8,6 +8,7 @@ import type { useQuizStore } from '@/stores/quiz'
 import { useInstrumentV3Store } from '@/stores/instrumentV3'
 import { isLegacyEngineRoute, legacyInstrumentTagline } from '@/utils/instrumentNaming'
 import { useAdminProbe } from '@/composables/useAdminProbe'
+import { useHeaderHeightVar } from '@/composables/useHeaderHeightVar'
 
 /**
  * 公共壳 —— `docs/2026-09-15/...重构开发文档.md` §4.5 / §10.4。
@@ -36,6 +37,9 @@ const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const { isAdmin, refresh: refreshAdminProbe } = useAdminProbe()
+// 页内跳转的落点偏移跟着顶栏实际高度走（窄屏折行、管理员多一项导航都会变高）。
+const siteHeader = ref<HTMLElement | null>(null)
+useHeaderHeightVar(siteHeader)
 
 /** 退出请求进行中：按钮要有明确的状态，不能点了没反应。 */
 const loggingOut = ref(false)
@@ -273,6 +277,7 @@ function navPill(active: boolean): string {
     <a class="skip-link" href="#main">跳到主要内容</a>
 
     <header
+      ref="siteHeader"
       class="site-header sticky top-0 z-30 border-b backdrop-blur-md"
       :class="quizActive ? 'border-transparent bg-paper/95' : 'border-line bg-surface/85'"
     >

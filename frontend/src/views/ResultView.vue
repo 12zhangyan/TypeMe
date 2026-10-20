@@ -299,7 +299,7 @@ onBeforeUnmount(() => {
   <!-- ── 正常报告 ──────────────────────────────────────────────────── -->
   <div v-else class="pb-12">
     <!-- 1 结论区：标题由整体状态决定，未定时不出现完整类型 -->
-    <section id="conclusion" data-report-hero class="scroll-mt-20 bg-primary-600 text-white">
+    <section id="conclusion" data-report-hero data-anchor class="bg-primary-600 text-white">
       <PageContainer page="result" class="py-8 tablet:py-10 laptop:py-12">
         <div class="grid gap-6 laptop:grid-cols-[minmax(0,1fr)_18rem] laptop:items-end laptop:gap-10">
           <div>
@@ -368,7 +368,7 @@ onBeforeUnmount(() => {
       <div class="grid gap-8 laptop:grid-cols-[minmax(0,47.5rem)_15rem] laptop:items-start laptop:gap-10">
         <div class="min-w-0 space-y-10">
           <!-- 2 各维度的说明 -->
-          <section id="dimensions" class="scroll-mt-20">
+          <section id="dimensions" data-anchor>
             <h2 class="section-title">{{ dimensionCountText }}上的结果</h2>
             <p class="mt-2 prose-sm">
               每个维度单独判断：<strong class="font-medium text-ink">信息不足</strong>不计算分数、
@@ -424,7 +424,7 @@ onBeforeUnmount(() => {
           </section>
 
           <!-- 3 为什么这样描述（默认折叠，回看题目与选择） -->
-          <section id="review" class="scroll-mt-20">
+          <section id="review" data-anchor>
             <h2 class="section-title">为什么这样描述</h2>
             <p class="mt-2 prose-sm">{{ report.copy.dimensionReviewLead }}</p>
             <div class="mt-4 divide-y divide-line border-y border-line">
@@ -476,7 +476,7 @@ onBeforeUnmount(() => {
           </section>
 
           <!-- 4 继续认识自己（自我观察，不计分） -->
-          <section id="self" class="scroll-mt-20">
+          <section id="self" data-anchor>
             <h2 class="section-title">继续认识自己</h2>
             <p class="mt-2 prose-sm">{{ report.copy.selfReflectionLead }}</p>
 
@@ -550,7 +550,7 @@ onBeforeUnmount(() => {
           </section>
 
           <!-- 5 可以尝试的做法：只用被支持的维度片段 + 通用观察 -->
-          <section id="actions" class="scroll-mt-20">
+          <section id="actions" data-anchor>
             <h2 class="section-title">可以尝试的做法</h2>
             <p class="mt-2 prose-sm">
               优先给出被本次回答支持的维度片段；没有明确方向的维度只给观察行为，不给某类型专属的优势判断。
@@ -587,7 +587,7 @@ onBeforeUnmount(() => {
           </section>
 
           <!-- 6 可选参考阅读：只有形成参考组合时才出现 -->
-          <section v-if="report.suggestedTypeCode" id="reference" class="scroll-mt-20">
+          <section v-if="report.suggestedTypeCode" id="reference" data-anchor>
             <h2 class="section-title">可选参考阅读</h2>
             <p class="mt-2 prose-sm">{{ report.copy.typeReadingLead }}</p>
             <div class="mt-3">
@@ -617,7 +617,7 @@ onBeforeUnmount(() => {
           </section>
 
           <!-- 7 保存或分享 -->
-          <section id="share" class="scroll-mt-20">
+          <section id="share" data-anchor>
             <h2 class="section-title">保存或分享这份报告</h2>
             <p class="mt-2 prose-sm">
               生成的是一张竖版卡片，内容严格等于上面这份报告：
@@ -664,7 +664,7 @@ onBeforeUnmount(() => {
           </section>
 
           <!-- 8 方法说明 -->
-          <section id="method" class="scroll-mt-20">
+          <section id="method" data-anchor>
             <h2 class="section-title">怎么看这份报告</h2>
             <div class="mt-3 divide-y divide-line border-y border-line">
               <details class="group py-3.5">
@@ -729,7 +729,7 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- 右侧目录 -->
-        <nav class="laptop:sticky laptop:top-20" aria-label="报告目录">
+        <nav class="laptop:sticky laptop:top-[calc(var(--header-h)+1rem)]" aria-label="报告目录">
           <p class="hidden text-[13px] font-semibold text-ink laptop:block">报告目录</p>
           <ul class="flex flex-wrap gap-1.5 laptop:mt-3 laptop:flex-col laptop:gap-0">
             <li v-for="section in SECTIONS" :key="section.id">

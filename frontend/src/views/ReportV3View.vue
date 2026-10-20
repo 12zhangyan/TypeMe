@@ -403,6 +403,9 @@ const methodThresholds = computed(() => {
 function jumpToSection(id: string): void {
   const target = document.getElementById(id)
   if (!target) return
+  // 过程层两节收在默认关闭的「类型推导」折叠块里：不先展开，目标没有布局盒，点了既不滚动也拿不到焦点。
+  const fold = target.closest('details')
+  if (fold && !fold.open) fold.open = true
   target.scrollIntoView({ behavior: 'smooth', block: 'start' })
   if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1')
   target.focus({ preventScroll: true })
@@ -586,7 +589,7 @@ function jumpToSection(id: string): void {
             id="report-overview"
             data-anchor
             data-report-overview
-            class="report-paper scroll-mt-24"
+            class="report-paper"
             :data-status="view.status"
           >
             <p class="report-paper-label">十六型人格参考测评</p>
@@ -643,7 +646,7 @@ function jumpToSection(id: string): void {
           </figure>
 
           <!-- ══ 四维得分条 ════════════════════════════════════════════════ -->
-          <section class="mt-10 scroll-mt-24" id="report-dimensions" data-anchor aria-labelledby="report-dimensions-title">
+          <section class="mt-10" id="report-dimensions" data-anchor aria-labelledby="report-dimensions-title">
             <div class="flex items-baseline gap-3">
               <span class="section-index" aria-hidden="true">01</span>
               <h2 id="report-dimensions-title" class="section-title">四个方面，分别怎么看</h2>
@@ -669,7 +672,7 @@ function jumpToSection(id: string): void {
             v-if="view.boundaryNotes.length > 0"
             id="report-boundaries"
             data-anchor
-            class="mt-10 scroll-mt-24"
+            class="mt-10"
             aria-labelledby="report-boundaries"
           >
             <div class="flex items-baseline gap-3">
@@ -688,7 +691,7 @@ function jumpToSection(id: string): void {
             v-if="view.candidates.length > 0"
             id="report-candidates"
             data-anchor
-            class="mt-10 scroll-mt-24"
+            class="mt-10"
             aria-labelledby="report-candidates-title"
           >
             <div class="flex items-baseline gap-3">
@@ -728,7 +731,7 @@ function jumpToSection(id: string): void {
             v-if="view.typeSections.length > 0"
             id="report-sections"
             data-anchor
-            class="mt-10 scroll-mt-24"
+            class="mt-10"
             aria-labelledby="report-sections-title"
           >
             <div class="flex items-baseline gap-3">
@@ -751,7 +754,7 @@ function jumpToSection(id: string): void {
             v-if="view.nextActions.length > 0"
             id="report-actions"
             data-anchor
-            class="mt-10 scroll-mt-24"
+            class="mt-10"
             aria-labelledby="report-actions-title"
           >
             <div class="flex items-baseline gap-3">
@@ -796,7 +799,7 @@ function jumpToSection(id: string): void {
             v-if="view.dynamics"
             id="report-dynamics"
             data-anchor
-            class="mt-10 scroll-mt-24"
+            class="mt-10"
             aria-labelledby="report-dynamics-title"
             data-dynamics
           >
@@ -869,7 +872,7 @@ function jumpToSection(id: string): void {
             v-if="view.processPlan"
             id="report-process-plan"
             data-anchor
-            class="mt-10 scroll-mt-24"
+            class="mt-10"
             aria-labelledby="report-process-plan-title"
             data-process-plan
           >
@@ -1010,7 +1013,7 @@ function jumpToSection(id: string): void {
           <section
             id="report-self"
             data-anchor
-            class="mt-10 scroll-mt-24 rounded-question border border-line bg-surface px-4 py-5 shadow-card tablet:px-6"
+            class="mt-10 rounded-question border border-line bg-surface px-4 py-5 shadow-card tablet:px-6"
             aria-labelledby="report-self-title"
           >
             <div class="flex items-baseline gap-3">
@@ -1056,7 +1059,7 @@ function jumpToSection(id: string): void {
           <section
             id="report-share"
             data-anchor
-            class="mt-10 scroll-mt-24 rounded-question border border-line bg-surface px-4 py-5 shadow-card tablet:px-6"
+            class="mt-10 rounded-question border border-line bg-surface px-4 py-5 shadow-card tablet:px-6"
             aria-labelledby="report-share-title"
           >
             <div class="flex items-baseline gap-3">
@@ -1088,7 +1091,7 @@ function jumpToSection(id: string): void {
           它列的是**这份报告实际渲染出来的区块**（没有过程层就不列那一节），
           所以不会出现"点了没反应"的死链。
         -->
-        <aside class="order-first laptop:order-none laptop:sticky laptop:top-6 laptop:self-start">
+        <aside class="order-first laptop:order-none laptop:sticky laptop:top-[calc(var(--header-h)+1.5rem)] laptop:self-start">
           <nav
             class="rounded-card border border-line bg-surface px-3 py-3 shadow-card laptop:px-3.5 laptop:py-4"
             aria-label="报告目录"
@@ -1131,7 +1134,7 @@ function jumpToSection(id: string): void {
       <AiAnalysisPanel v-if="reportId" :key="reportId" :report-id="reportId" />
 
       <!-- ══ 方法与删除 ═══════════════════════════════════════════════ -->
-      <section id="report-method" data-anchor class="mt-10 scroll-mt-24 section-rule" aria-labelledby="report-method-title">
+      <section id="report-method" data-anchor class="mt-10 section-rule" aria-labelledby="report-method-title">
         <div class="flex items-baseline gap-3">
           <span class="section-index" aria-hidden="true">10</span>
           <h2 id="report-method-title" class="section-title">这份报告是怎么来的</h2>

@@ -655,7 +655,7 @@ onMounted(() => {
       id="report-preview"
       data-anchor
       tabindex="-1"
-      class="mt-12 scroll-mt-24 focus:outline-none laptop:mt-16"
+      class="mt-12 focus:outline-none laptop:mt-16"
       data-report-preview
     >
       <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
