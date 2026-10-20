@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import AdminMembersView from './AdminMembersView.vue'
@@ -12,9 +12,11 @@ vi.mock('@/api/adminMembers', () => ({
   attempts: vi.fn(),
   reports: vi.fn(),
   report: vi.fn(),
+  revokeInvitation: vi.fn(),
 }))
 
 import * as api from '@/api/adminMembers'
+import { V3ApiError } from '@/api/v3'
 
 const member: Member = {
   id: 'user-1',
@@ -66,6 +68,10 @@ const tiedReport: MyReportRow = {
   createdAt: '2026-10-14T02:00:00Z',
 }
 
+// jsdom 没有布局也没实现 scrollBy：页面出错时的“滚到提示处”在真实浏览器脚本里验收，这里只消掉噪声。
+beforeEach(() => {
+  vi.spyOn(window, 'scrollBy').mockImplementation(() => {})
+})
 afterEach(() => {
   vi.clearAllMocks()
 })
@@ -123,5 +129,63 @@ describe('管理档案里的状态说法', () => {
     expect(text).toContain('补充答题中')
     expect(text).toContain('主测 48 / 48')
     expect(text).not.toContain('已答 48 / 48 题')
+  })
+})
+
+describe('邀请码撤销与错误提示', () => {
+  const available = { id: 'inv-1', createdAt: '2026-10-18T00:00:00Z', expiresAt: '2026-10-25T00:00:00Z', usedByUsername: null, status: 'AVAILABLE' as const }
+  const used = { ...available, usedByUsername: 'bob', status: 'USED' as const }
+
+  async function mountPage() {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [
+        { path: '/', component: AdminMembersView },
+        { path: '/admin', component: { template: '<div />' } },
+        { path: '/login', component: { template: '<div />' } },
+        { path: '/account', component: { template: '<div />' } },
+      ],
+    })
+    const wrapper = mount(AdminMembersView, { global: { plugins: [router] } })
+    await flushPromises()
+    return wrapper
+  }
+
+  it('撤销已被使用的邀请码（409）：列表刷新成服务端现状，显示服务端原话与报障编号，不建议重新登录', async () => {
+    vi.mocked(api.members).mockResolvedValue({ items: [member], page: 0, size: 20, total: 1 })
+    vi.mocked(api.invitations).mockResolvedValueOnce({ items: [available], page: 0, size: 10, total: 1 })
+      .mockResolvedValueOnce({ items: [used], page: 0, size: 10, total: 1 })
+    vi.mocked(api.revokeInvitation).mockRejectedValue(new V3ApiError(
+      { code: 'CONFLICT', message: '邀请码已经使用，不能撤销注册。请刷新列表查看使用状态。', requestId: 'req-409', details: {} },
+      { status: 409 },
+    ))
+    const wrapper = await mountPage()
+
+    const revoke = wrapper.findAll('.invite-row button').find((button) => button.text() === '撤销')
+    expect(revoke, '可用的邀请码应有撤销按钮').toBeDefined()
+    await revoke!.trigger('click')
+    await flushPromises()
+
+    expect(api.invitations).toHaveBeenCalledTimes(2)
+    const row = wrapper.get('.invite-row')
+    expect(row.text()).toContain('已使用')
+    expect(row.text()).toContain('使用人：bob')
+    expect(row.findAll('button').some((button) => button.text() === '撤销')).toBe(false)
+    const notice = wrapper.get('[data-admin-error]')
+    expect(notice.text()).toContain('邀请码已经使用，不能撤销注册')
+    expect(notice.text()).toContain('req-409')
+    expect(notice.text()).not.toContain('重新登录')
+  })
+
+  it('没有管理员权限（403）时仍给出重新登录入口', async () => {
+    vi.mocked(api.members).mockRejectedValue(new V3ApiError(
+      { code: 'FORBIDDEN', message: '没有权限', requestId: null, details: {} },
+      { status: 403 },
+    ))
+    vi.mocked(api.invitations).mockResolvedValue({ items: [], page: 0, size: 10, total: 0 })
+    const wrapper = await mountPage()
+
+    expect(wrapper.get('[data-admin-error]').text()).toContain('重新登录')
+    expect(wrapper.text()).toContain('此页面仅对管理员开放')
   })
 })

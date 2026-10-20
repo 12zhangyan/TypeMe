@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AdminReportReadout from '@/components/AdminReportReadout.vue'
+import FormErrorNotice from '@/components/FormErrorNotice.vue'
 import * as api from '@/api/adminMembers'
-import { describeError, isForbidden } from '@/api/v3'
+import { describeError, isForbidden, V3ApiError, type ErrorDisplay } from '@/api/v3'
 import type { MyAttemptRow, MyReportRow, ReportDetailView } from '@/api/platformV3'
 const empty = <T>(): api.Page<T> => ({ items: [], page: 0, size: 10, total: 0 })
 const users = ref(empty<api.Member>())
@@ -15,6 +16,19 @@ const selected = ref<api.Member | null>(null)
 const detail = ref<ReportDetailView | null>(null)
 const loading = ref(false), busy = ref(false), denied = ref(false), ready = ref(false)
 const error = ref(''), notice = ref(''), newCode = ref(''), newCodeExpiry = ref('')
+// 接口失败保留完整的 describeError 结果：服务端原话与报障编号都要给管理员看（A38 同类问题）。
+const apiError = ref<ErrorDisplay | null>(null), needsLogin = ref(false)
+// 提示块在页面顶部，手机上点的按钮往往在下方：出错时滚到可见处，否则失败原因落在视口外。
+// 顶栏在窄屏会折行（320 宽约 150px），按实际底边让开，不用固定的 --header-h。
+const errorArea = ref<HTMLElement | null>(null)
+function revealError() {
+  const area = errorArea.value
+  if (!area || typeof window.scrollBy !== 'function') return
+  const top = area.getBoundingClientRect().top
+  const headerBottom = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0
+  if (top < headerBottom + 8 || top > window.innerHeight - 48) window.scrollBy({ top: top - headerBottom - 12 })
+}
+watch([error, apiError], ([local, remote]) => { if (local || remote) void nextTick(revealError) })
 const dailyLimit = ref(0)
 const expiryDays = ref(7)
 const localDate = (date: Date) => new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
@@ -49,19 +63,34 @@ function reportStatusLabel(report: MyReportRow): string {
 }
 function fail(e: unknown) {
   const display = describeError(e)
-  if (isForbidden(e) || display.sessionExpired) { denied.value = isForbidden(e); ready.value = false; selected.value = null; detail.value = null; newCode.value = ''; users.value = empty(); invites.value = empty() }
-  error.value = display.message
+  // 只有没权限或会话失效才建议重新登录；冲突、校验失败与网络错误重新登录也解决不了。
+  needsLogin.value = isForbidden(e) || display.sessionExpired
+  if (needsLogin.value) { denied.value = isForbidden(e); ready.value = false; selected.value = null; detail.value = null; newCode.value = ''; users.value = empty(); invites.value = empty() }
+  apiError.value = display
 }
+function clearErrors() { error.value = ''; apiError.value = null; needsLogin.value = false }
 async function load() {
   if (loading.value) return
-  loading.value = true; error.value = ''; denied.value = false
+  loading.value = true; clearErrors(); denied.value = false
   try { users.value = await api.members(); invites.value = await api.invitations(); ready.value = true }
   catch (e) { fail(e) } finally { loading.value = false }
 }
 async function action(work: () => Promise<void>) {
   if (busy.value) return
-  busy.value = true; error.value = ''; notice.value = ''
+  busy.value = true; clearErrors(); notice.value = ''
   try { await work() } catch (e) { fail(e) } finally { busy.value = false }
+}
+async function revoke(id: string) {
+  await action(async () => {
+    try { await api.revokeInvitation(id) }
+    catch (e) {
+      // 409 表示邀请码已被使用：先把列表刷成服务端现状，避免它继续显示“待使用 / 撤销”；刷新失败不遮盖原错误。
+      if (e instanceof V3ApiError && e.status === 409) invites.value = await api.invitations(invites.value.page).catch(() => invites.value)
+      throw e
+    }
+    notice.value = '邀请码已撤销。'
+    invites.value = await api.invitations(invites.value.page)
+  })
 }
 async function choose(user: api.Member) {
   await action(async () => {
@@ -72,7 +101,7 @@ async function choose(user: api.Member) {
 }
 async function saveLimit() {
   const user = selected.value
-  if (!user || !Number.isInteger(dailyLimit.value) || dailyLimit.value < 0 || dailyLimit.value > 10000) { error.value = '每日额度请输入 0–10000 的整数。'; return }
+  if (!user || !Number.isInteger(dailyLimit.value) || dailyLimit.value < 0 || dailyLimit.value > 10000) { clearErrors(); error.value = '每日额度请输入 0–10000 的整数。'; return }
   await action(async () => {
     const updated = await api.setDailyLimit(user.id, dailyLimit.value)
     selected.value = updated; users.value.items = users.value.items.map(item => item.id === user.id ? updated : item)
@@ -82,7 +111,7 @@ async function saveLimit() {
 function presetExpiry() { expiresAt.value = localDate(new Date(Date.now() + expiryDays.value * 86400000)) }
 async function create() {
   const date = new Date(expiresAt.value)
-  if (!Number.isFinite(date.getTime()) || date.getTime() <= Date.now() || date.getTime() > Date.now() + 365 * 86400000) { error.value = '请选择未来一年内的过期时间。'; return }
+  if (!Number.isFinite(date.getTime()) || date.getTime() <= Date.now() || date.getTime() > Date.now() + 365 * 86400000) { clearErrors(); error.value = '请选择未来一年内的过期时间。'; return }
   await action(async () => {
     newCode.value = ''
     const created = await api.createInvitation(date.toISOString())
@@ -93,7 +122,7 @@ async function create() {
 }
 async function copy() {
   try { await navigator.clipboard.writeText(newCode.value); notice.value = '已复制邀请码。请通过可信渠道交给受邀人。' }
-  catch { error.value = '浏览器不允许复制，请手动选中邀请码复制。' }
+  catch { clearErrors(); error.value = '浏览器不允许复制，请手动选中邀请码复制。' }
 }
 onMounted(load)
 </script>
@@ -104,7 +133,10 @@ onMounted(load)
       <RouterLink to="/admin" class="link">AI 服务设置 ↗</RouterLink>
     </header>
     <p v-if="loading" role="status" class="card">正在读取成员与邀请…</p>
-    <div v-if="error" class="notice-error mt-5" role="alert">{{ error }} <button v-if="!ready && !denied" class="link" :disabled="loading" @click="load">重试</button><RouterLink to="/login" class="link ml-3">重新登录</RouterLink></div>
+    <div ref="errorArea">
+      <div v-if="error" class="notice-error mt-5" role="alert">{{ error }}</div>
+      <div v-if="apiError" class="mt-5" data-admin-error><FormErrorNotice :error="apiError" /><p class="mt-2"><button v-if="!ready && !denied" class="link" :disabled="loading" @click="load">重试</button><RouterLink v-if="needsLogin" to="/login" class="link ml-3">重新登录</RouterLink></p></div>
+    </div>
     <p v-if="denied" class="notice-uncertain mt-4">此页面仅对管理员开放。<RouterLink to="/account" class="link">返回账号页</RouterLink></p>
     <p v-if="notice" class="notice-success mt-4" role="status">{{ notice }}</p>
     <template v-if="ready && !denied">
@@ -117,7 +149,7 @@ onMounted(load)
         </form>
         <div v-if="newCode" class="invite-result" role="status"><p>完整邀请码 · 请现在保存</p><code data-testid="new-invitation">{{ newCode }}</code><p class="caption">到期：{{ time(newCodeExpiry) }}。刷新或离开页面后无法再次查看。</p><div class="flex flex-wrap gap-4 mt-3"><button class="btn-secondary" @click="copy">复制邀请码</button><button class="link" @click="newCode = ''">我已保存，隐藏</button></div></div>
         <div class="invite-list"><p v-if="!invites.items.length" class="caption">还没有邀请码。生成一份邀请，让成员加入。</p>
-          <div v-for="item in invites.items" :key="item.id" class="invite-row"><span class="status-tag">{{ label(item.status) }}</span><div><p>{{ item.usedByUsername ? `使用人：${item.usedByUsername}` : '一次性注册邀请' }}</p><p class="caption">创建 {{ time(item.createdAt) }} · 到期 {{ time(item.expiresAt) }}</p></div><button v-if="item.status === 'AVAILABLE'" class="link" :disabled="busy" @click="action(async () => { await api.revokeInvitation(item.id); notice = '邀请码已撤销。'; invites = await api.invitations(invites.page) })">撤销</button></div>
+          <div v-for="item in invites.items" :key="item.id" class="invite-row"><span class="status-tag">{{ label(item.status) }}</span><div><p>{{ item.usedByUsername ? `使用人：${item.usedByUsername}` : '一次性注册邀请' }}</p><p class="caption">创建 {{ time(item.createdAt) }} · 到期 {{ time(item.expiresAt) }}</p></div><button v-if="item.status === 'AVAILABLE'" class="link" :disabled="busy" @click="revoke(item.id)">撤销</button></div>
         </div>
         <nav class="pagination" aria-label="邀请码翻页"><button :disabled="busy || invites.page === 0" @click="action(async () => { invites = await api.invitations(invites.page - 1) })">上一页</button><span>第 {{ invites.page + 1 }} 页 · 共 {{ invites.total }} 份</span><button :disabled="busy || (invites.page + 1) * invites.size >= invites.total" @click="action(async () => { invites = await api.invitations(invites.page + 1) })">下一页</button></nav>
       </section>
