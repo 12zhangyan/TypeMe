@@ -769,7 +769,7 @@ const earlierUnanswered = computed(() =>
   <PageContainer page="quiz" tight>
     <div class="jung-workspace py-4 tablet:py-6 laptop:grid laptop:grid-cols-[17rem_minmax(0,1fr)] laptop:gap-8">
       <!-- 左栏：进度与状态（laptop 起固定在左） -->
-      <aside class="laptop:sticky laptop:top-6 laptop:self-start">
+      <aside class="laptop:sticky laptop:top-[calc(var(--header-h)+1.5rem)] laptop:self-start">
         <!--
           进度与保存状态收进一张卡里（2026-09-18 视觉重构）。
           答题页是"一屏一题"的专注界面，散落的几行小字会让"我答到哪了、存住了吗"

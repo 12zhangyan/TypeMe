@@ -132,7 +132,7 @@ function scrollTo(id: string) {
     </header>
 
     <!-- 1 如何作答 -->
-    <section id="how" class="mt-10 scroll-mt-20">
+    <section id="how" data-anchor class="mt-10">
       <h2 class="section-title">如何作答</h2>
 
       <p class="mt-3 prose-cn" data-instrument-scope>
@@ -170,7 +170,7 @@ function scrollTo(id: string) {
     </section>
 
     <!-- 2 会测到的维度 -->
-    <section id="dimensions" class="mt-10 scroll-mt-20">
+    <section id="dimensions" data-anchor class="mt-10">
       <h2 class="section-title">会测到的{{ dimensionPhrase }}</h2>
 
       <p class="mt-3 prose-cn">
@@ -195,7 +195,7 @@ function scrollTo(id: string) {
     </section>
 
     <!-- 3 如何理解结果 -->
-    <section id="result" class="mt-10 scroll-mt-20">
+    <section id="result" data-anchor class="mt-10">
       <h2 class="section-title">如何理解结果</h2>
       <ul class="mt-4 space-y-2.5 prose-cn">
         <li class="list-dot">
@@ -235,7 +235,7 @@ function scrollTo(id: string) {
     </section>
 
     <!-- 4 来源与限制 -->
-    <section id="source" class="mt-10 scroll-mt-20">
+    <section id="source" data-anchor class="mt-10">
       <h2 class="section-title">来源与限制</h2>
 
       <div class="mt-4 space-y-3 prose-cn">
@@ -262,7 +262,7 @@ function scrollTo(id: string) {
     </section>
 
     <!-- 5 数据怎么存（新测：账号 + 服务端） -->
-    <section id="data" class="mt-10 scroll-mt-20">
+    <section id="data" data-anchor class="mt-10">
       <h2 class="section-title">新测的数据怎么存</h2>
       <p class="mt-3 prose-cn">
         下面「本地记录」说的是本站更早那套在本机计分的问卷：它把进度留在这台设备上，不需要登录。
@@ -333,7 +333,7 @@ function scrollTo(id: string) {
     </section>
 
     <!-- 6 本地记录（旧问卷的本地进度；新测评不写这里） -->
-    <section id="records" class="mt-10 scroll-mt-20">
+    <section id="records" data-anchor class="mt-10">
       <h2 class="section-title">本地记录</h2>
 
       <p class="mt-3 prose-cn">

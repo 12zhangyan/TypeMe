@@ -251,7 +251,7 @@ function pickTopic(value: AnalysisTopic): void {
   <section
     id="report-ai"
     data-anchor
-    class="deep-panel deep-grid mt-12 scroll-mt-24 rounded-cover px-5 py-7 shadow-deep tablet:px-9 tablet:py-10"
+    class="deep-panel deep-grid mt-12 rounded-cover px-5 py-7 shadow-deep tablet:px-9 tablet:py-10"
     aria-labelledby="report-ai-title"
     data-ai-panel
   >

@@ -411,7 +411,7 @@ onBeforeUnmount(() => {
   <PageContainer v-else page="quiz" tight class="pad-action-bar py-4 tablet:py-6 laptop:pb-10">
     <div class="laptop:grid laptop:grid-cols-[17rem_minmax(0,1fr)] laptop:items-start laptop:gap-8">
       <!-- ── 左栏（PC 常驻）：进度 + 答题卡 ───────────────────────────── -->
-      <aside class="hidden laptop:sticky laptop:top-20 laptop:block">
+      <aside class="hidden laptop:sticky laptop:top-[calc(var(--header-h)+1rem)] laptop:block">
         <p class="text-[15px] font-medium text-ink">
           已处理 <span class="font-display text-[18px] font-bold">{{ processed }}</span> /
           {{ total }}

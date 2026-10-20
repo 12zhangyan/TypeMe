@@ -1,0 +1,1758 @@
+{
+  "checks": [
+    {
+      "label": "anon/320 home: --header-h 109 matches header 109.0",
+      "passed": true
+    },
+    {
+      "label": "anon/320 home → 选择测评: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/320 about → 如何作答: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/320 about → 会测到的维度: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/320 about → 如何理解结果: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/320 about → 来源与限制: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/320 about → 新测数据怎么存: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/320 about → 本地记录: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/320 after resize: --header-h 77 matches header 77.0",
+      "passed": true
+    },
+    {
+      "label": "anon/390 home: --header-h 109 matches header 109.0",
+      "passed": true
+    },
+    {
+      "label": "anon/390 home → 选择测评: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/390 about → 如何作答: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/390 about → 会测到的维度: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/390 about → 如何理解结果: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/390 about → 来源与限制: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/390 about → 新测数据怎么存: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/390 about → 本地记录: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "anon/390 after resize: --header-h 77 matches header 77.0",
+      "passed": true
+    },
+    {
+      "label": "anon/1440 home: --header-h 77 matches header 77.0",
+      "passed": true
+    },
+    {
+      "label": "anon/1440 home → 选择测评: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "anon/1440 about → 如何作答: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "anon/1440 about → 会测到的维度: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "anon/1440 about → 如何理解结果: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "anon/1440 about → 来源与限制: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "anon/1440 about → 新测数据怎么存: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "anon/1440 about → 本地记录: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "anon/1440 after resize: --header-h 109 matches header 109.0",
+      "passed": true
+    },
+    {
+      "label": "user/320 home: --header-h 109 matches header 109.0",
+      "passed": true
+    },
+    {
+      "label": "user/320 home → 选择测评: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 about → 如何作答: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 about → 会测到的维度: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 about → 如何理解结果: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 about → 来源与限制: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 about → 新测数据怎么存: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 about → 本地记录: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 report: --header-h 109 matches header 109.0",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-overview: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-overview: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-dimensions: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-dimensions: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-boundaries: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-boundaries: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-candidates: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-candidates: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-sections: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-sections: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-actions: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-actions: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-dynamics: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-dynamics: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-process-plan: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-process-plan: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-self: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-self: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-share: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-share: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-ai: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-ai: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-method: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/320 report → report-method: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/320 after resize: --header-h 77 matches header 77.0",
+      "passed": true
+    },
+    {
+      "label": "user/390 home: --header-h 109 matches header 109.0",
+      "passed": true
+    },
+    {
+      "label": "user/390 home → 选择测评: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 about → 如何作答: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 about → 会测到的维度: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 about → 如何理解结果: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 about → 来源与限制: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 about → 新测数据怎么存: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 about → 本地记录: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 report: --header-h 109 matches header 109.0",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-overview: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-overview: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-dimensions: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-dimensions: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-boundaries: top 124 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-boundaries: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-candidates: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-candidates: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-sections: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-sections: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-actions: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-actions: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-dynamics: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-dynamics: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-process-plan: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-process-plan: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-self: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-self: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-share: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-share: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-ai: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-ai: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-method: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "user/390 report → report-method: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/390 after resize: --header-h 77 matches header 77.0",
+      "passed": true
+    },
+    {
+      "label": "user/1440 home: --header-h 77 matches header 77.0",
+      "passed": true
+    },
+    {
+      "label": "user/1440 home → 选择测评: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 about → 如何作答: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 about → 会测到的维度: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 about → 如何理解结果: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 about → 来源与限制: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 about → 新测数据怎么存: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 about → 本地记录: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report: --header-h 77 matches header 77.0",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-overview: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-overview: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-dimensions: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-dimensions: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-boundaries: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-boundaries: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-candidates: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-candidates: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-sections: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-sections: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-actions: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-actions: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-dynamics: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-dynamics: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-process-plan: top 92 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-process-plan: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-self: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-self: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-share: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-share: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-ai: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-ai: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-method: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report → report-method: focus moved",
+      "passed": true
+    },
+    {
+      "label": "user/1440 report: sticky toc top 101 below header 77",
+      "passed": true
+    },
+    {
+      "label": "user/1440 after resize: --header-h 109 matches header 109.0",
+      "passed": true
+    },
+    {
+      "label": "admin/320 home: --header-h 153 matches header 153.0",
+      "passed": true
+    },
+    {
+      "label": "admin/320 home → 选择测评: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 about → 如何作答: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 about → 会测到的维度: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 about → 如何理解结果: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 about → 来源与限制: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 about → 新测数据怎么存: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 about → 本地记录: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report: --header-h 153 matches header 153.0",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-overview: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-overview: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-dimensions: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-dimensions: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-boundaries: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-boundaries: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-candidates: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-candidates: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-sections: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-sections: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-actions: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-actions: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-dynamics: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-dynamics: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-process-plan: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-process-plan: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-self: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-self: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-share: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-share: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-ai: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-ai: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-method: top 169 vs header 153",
+      "passed": true
+    },
+    {
+      "label": "admin/320 report → report-method: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/320 after resize: --header-h 77 matches header 77.0",
+      "passed": true
+    },
+    {
+      "label": "admin/390 home: --header-h 109 matches header 109.0",
+      "passed": true
+    },
+    {
+      "label": "admin/390 home → 选择测评: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 about → 如何作答: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 about → 会测到的维度: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 about → 如何理解结果: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 about → 来源与限制: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 about → 新测数据怎么存: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 about → 本地记录: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report: --header-h 109 matches header 109.0",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-overview: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-overview: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-dimensions: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-dimensions: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-boundaries: top 124 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-boundaries: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-candidates: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-candidates: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-sections: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-sections: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-actions: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-actions: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-dynamics: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-dynamics: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-process-plan: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-process-plan: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-self: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-self: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-share: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-share: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-ai: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-ai: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-method: top 125 vs header 109",
+      "passed": true
+    },
+    {
+      "label": "admin/390 report → report-method: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/390 after resize: --header-h 77 matches header 77.0",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 home: --header-h 77 matches header 77.0",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 home → 选择测评: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 about → 如何作答: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 about → 会测到的维度: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 about → 如何理解结果: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 about → 来源与限制: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 about → 新测数据怎么存: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 about → 本地记录: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report: --header-h 77 matches header 77.0",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-overview: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-overview: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-dimensions: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-dimensions: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-boundaries: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-boundaries: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-candidates: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-candidates: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-sections: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-sections: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-actions: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-actions: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-dynamics: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-dynamics: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-process-plan: top 92 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-process-plan: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-self: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-self: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-share: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-share: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-ai: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-ai: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-method: top 93 vs header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report → report-method: focus moved",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 report: sticky toc top 101 below header 77",
+      "passed": true
+    },
+    {
+      "label": "admin/1440 after resize: --header-h 153 matches header 153.0",
+      "passed": true
+    },
+    {
+      "label": "No browser JS errors",
+      "passed": true
+    },
+    {
+      "label": "No unexpected API requests",
+      "passed": true
+    }
+  ],
+  "landings": [
+    {
+      "label": "anon/320 home → 选择测评",
+      "top": 125.390625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/320 about → 如何作答",
+      "top": 124.734375,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/320 about → 会测到的维度",
+      "top": 124.515625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/320 about → 如何理解结果",
+      "top": 124.921875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/320 about → 来源与限制",
+      "top": 125.203125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/320 about → 新测数据怎么存",
+      "top": 124.515625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/320 about → 本地记录",
+      "top": 124.953125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/390 home → 选择测评",
+      "top": 125.296875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/390 about → 如何作答",
+      "top": 124.640625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/390 about → 会测到的维度",
+      "top": 124.796875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/390 about → 如何理解结果",
+      "top": 124.546875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/390 about → 来源与限制",
+      "top": 125.234375,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/390 about → 新测数据怎么存",
+      "top": 124.828125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/390 about → 本地记录",
+      "top": 124.953125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "anon/1440 home → 选择测评",
+      "top": 93.390625,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "anon/1440 about → 如何作答",
+      "top": 93,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "anon/1440 about → 会测到的维度",
+      "top": 93.171875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "anon/1440 about → 如何理解结果",
+      "top": 92.671875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "anon/1440 about → 来源与限制",
+      "top": 93,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "anon/1440 about → 新测数据怎么存",
+      "top": 93.15625,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "anon/1440 about → 本地记录",
+      "top": 93.46875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 home → 选择测评",
+      "top": 125.390625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 about → 如何作答",
+      "top": 124.734375,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 about → 会测到的维度",
+      "top": 124.515625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 about → 如何理解结果",
+      "top": 124.921875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 about → 来源与限制",
+      "top": 125.203125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 about → 新测数据怎么存",
+      "top": 124.515625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 about → 本地记录",
+      "top": 124.953125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 report → report-overview",
+      "top": 125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 report → report-dimensions",
+      "top": 124.5625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 report → report-boundaries",
+      "top": 125.109375,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 report → report-candidates",
+      "top": 125.046875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 report → report-sections",
+      "top": 124.609375,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 report → report-actions",
+      "top": 125.171875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 report → report-dynamics",
+      "top": 125.25,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 report → report-process-plan",
+      "top": 124.625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 report → report-self",
+      "top": 124.890625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 report → report-share",
+      "top": 124.96875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 report → report-ai",
+      "top": 125.03125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/320 report → report-method",
+      "top": 125.28125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 home → 选择测评",
+      "top": 125.296875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 about → 如何作答",
+      "top": 124.640625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 about → 会测到的维度",
+      "top": 124.796875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 about → 如何理解结果",
+      "top": 124.546875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 about → 来源与限制",
+      "top": 125.234375,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 about → 新测数据怎么存",
+      "top": 124.828125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 about → 本地记录",
+      "top": 124.953125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 report → report-overview",
+      "top": 125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 report → report-dimensions",
+      "top": 125.28125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 report → report-boundaries",
+      "top": 124.5,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 report → report-candidates",
+      "top": 124.6875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 report → report-sections",
+      "top": 124.6875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 report → report-actions",
+      "top": 125.25,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 report → report-dynamics",
+      "top": 125.390625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 report → report-process-plan",
+      "top": 125.453125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 report → report-self",
+      "top": 125.40625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 report → report-share",
+      "top": 124.546875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 report → report-ai",
+      "top": 125.484375,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/390 report → report-method",
+      "top": 124.796875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 home → 选择测评",
+      "top": 93.390625,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 about → 如何作答",
+      "top": 93,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 about → 会测到的维度",
+      "top": 93.171875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 about → 如何理解结果",
+      "top": 92.671875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 about → 来源与限制",
+      "top": 93,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 about → 新测数据怎么存",
+      "top": 93.15625,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 about → 本地记录",
+      "top": 93.46875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 report → report-overview",
+      "top": 93,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 report → report-dimensions",
+      "top": 92.78125,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 report → report-boundaries",
+      "top": 92.96875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 report → report-candidates",
+      "top": 93.21875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 report → report-sections",
+      "top": 92.953125,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 report → report-actions",
+      "top": 92.953125,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 report → report-dynamics",
+      "top": 92.59375,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 report → report-process-plan",
+      "top": 92.5,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 report → report-self",
+      "top": 93.4375,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 report → report-share",
+      "top": 93.21875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 report → report-ai",
+      "top": 92.8125,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "user/1440 report → report-method",
+      "top": 93.09375,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 home → 选择测评",
+      "top": 169.390625,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 about → 如何作答",
+      "top": 168.734375,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 about → 会测到的维度",
+      "top": 168.515625,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 about → 如何理解结果",
+      "top": 168.921875,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 about → 来源与限制",
+      "top": 169.203125,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 about → 新测数据怎么存",
+      "top": 168.515625,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 about → 本地记录",
+      "top": 168.953125,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 report → report-overview",
+      "top": 169,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 report → report-dimensions",
+      "top": 168.5625,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 report → report-boundaries",
+      "top": 169.109375,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 report → report-candidates",
+      "top": 169.046875,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 report → report-sections",
+      "top": 168.609375,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 report → report-actions",
+      "top": 169.171875,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 report → report-dynamics",
+      "top": 169.25,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 report → report-process-plan",
+      "top": 168.625,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 report → report-self",
+      "top": 168.890625,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 report → report-share",
+      "top": 168.96875,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 report → report-ai",
+      "top": 169.03125,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/320 report → report-method",
+      "top": 169.28125,
+      "header": 153,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 home → 选择测评",
+      "top": 125.296875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 about → 如何作答",
+      "top": 124.640625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 about → 会测到的维度",
+      "top": 124.796875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 about → 如何理解结果",
+      "top": 124.546875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 about → 来源与限制",
+      "top": 125.234375,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 about → 新测数据怎么存",
+      "top": 124.828125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 about → 本地记录",
+      "top": 124.953125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 report → report-overview",
+      "top": 125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 report → report-dimensions",
+      "top": 125.28125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 report → report-boundaries",
+      "top": 124.5,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 report → report-candidates",
+      "top": 124.6875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 report → report-sections",
+      "top": 124.6875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 report → report-actions",
+      "top": 125.25,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 report → report-dynamics",
+      "top": 125.390625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 report → report-process-plan",
+      "top": 125.453125,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 report → report-self",
+      "top": 125.40625,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 report → report-share",
+      "top": 124.546875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 report → report-ai",
+      "top": 125.484375,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/390 report → report-method",
+      "top": 124.796875,
+      "header": 109,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 home → 选择测评",
+      "top": 93.390625,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 about → 如何作答",
+      "top": 93,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 about → 会测到的维度",
+      "top": 93.171875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 about → 如何理解结果",
+      "top": 92.671875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 about → 来源与限制",
+      "top": 93,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 about → 新测数据怎么存",
+      "top": 93.15625,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 about → 本地记录",
+      "top": 93.46875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 report → report-overview",
+      "top": 93,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 report → report-dimensions",
+      "top": 92.78125,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 report → report-boundaries",
+      "top": 92.96875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 report → report-candidates",
+      "top": 93.21875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 report → report-sections",
+      "top": 92.953125,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 report → report-actions",
+      "top": 92.953125,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 report → report-dynamics",
+      "top": 92.59375,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 report → report-process-plan",
+      "top": 92.5,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 report → report-self",
+      "top": 93.4375,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 report → report-share",
+      "top": 93.21875,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 report → report-ai",
+      "top": 92.8125,
+      "header": 77,
+      "atEnd": false
+    },
+    {
+      "label": "admin/1440 report → report-method",
+      "top": 93.09375,
+      "header": 77,
+      "atEnd": false
+    }
+  ],
+  "errors": [],
+  "unexpected": []
+}
