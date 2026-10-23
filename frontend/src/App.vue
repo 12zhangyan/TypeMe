@@ -278,7 +278,7 @@ function navPill(active: boolean): string {
 
     <header
       ref="siteHeader"
-      class="site-header sticky top-0 z-30 border-b backdrop-blur-md"
+      class="site-header static tablet:sticky tablet:top-0 z-30 border-b backdrop-blur-md"
       :class="quizActive ? 'border-transparent bg-paper tablet:bg-paper/95' : 'border-line bg-surface tablet:bg-surface/85'"
     >
       <div
@@ -320,6 +320,7 @@ function navPill(active: boolean): string {
 
         <nav
           class="flex flex-wrap items-center justify-end gap-1 text-[13.5px] tablet:gap-2"
+          :class="{ 'quiz-nav': quizActive }"
           aria-label="站点导航"
         >
           <template v-if="quizActive">

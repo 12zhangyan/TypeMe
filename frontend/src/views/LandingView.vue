@@ -12,6 +12,7 @@ import { fetchMyAttempts, type MyAttemptRow } from '@/api/platformV3'
 import { formatLocalTime } from '@/domain/localTime'
 import type { Dimension } from '@/domain/jung/types'
 import PageContainer from '@/components/PageContainer.vue'
+import PhoneFold from '@/components/PhoneFold.vue'
 import PlatformIntro from '@/components/PlatformIntro.vue'
 import DimensionGlyph from '@/components/DimensionGlyph.vue'
 import DimensionMeter from '@/components/DimensionMeter.vue'
@@ -717,8 +718,10 @@ onMounted(() => {
       </div>
     </section>
 
+    <!-- 手机上把「想了解时才读」的四段收进一行（平板及以上照常展开） -->
+    <PhoneFold summary="更多说明" :hint="resumeIsBigFive ? '你会得到什么、会测到的方面、AI 分析' : '你会得到什么、四个维度、AI 分析、结果示例'">
     <!-- ══ 你会得到什么 ═════════════════════════════════════════════════ -->
-    <section class="mt-12 laptop:mt-16">
+    <section class="mt-6 tablet:mt-0 phone-fold-first">
       <h2 class="section-title">你会得到什么</h2>
       <ul class="mt-5 grid gap-6 tablet:grid-cols-3 tablet:gap-8">
         <li
@@ -848,6 +851,8 @@ onMounted(() => {
         类型介绍属于参考阅读；真实报告以四个维度各自的结果为主，未定的维度不会套用任何类型专属描述。
       </p>
     </section>
+
+    </PhoneFold>
 
     <!-- ══ 常见问题 ════════════════════════════════════════════════════ -->
     <section class="mt-12 laptop:mt-16">

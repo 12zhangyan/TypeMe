@@ -3,6 +3,7 @@ import { ref, onMounted, nextTick, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AdminReportReadout from '@/components/AdminReportReadout.vue'
+import AdminHeader from '@/components/AdminHeader.vue'
 import FormErrorNotice from '@/components/FormErrorNotice.vue'
 import * as api from '@/api/adminMembers'
 import { describeError, isForbidden, V3ApiError, type ErrorDisplay } from '@/api/v3'
@@ -128,10 +129,7 @@ onMounted(load)
 </script>
 <template>
   <PageContainer page="home" class="members-page">
-    <header class="members-heading">
-      <div><p class="section-kicker">管理后台 / 成员空间</p><h1>让每一次探索，<br><em>都有照应。</em></h1><p class="prose-cn mt-5">管理邀请、了解测评进度，为成员分配 AI 解读额度。</p></div>
-      <RouterLink to="/admin" class="link">AI 服务设置 ↗</RouterLink>
-    </header>
+    <AdminHeader active="members" title="成员与邀请" lead="管理邀请、了解测评进度，为成员分配 AI 解读额度。" />
     <p v-if="loading" role="status" class="card">正在读取成员与邀请…</p>
     <div ref="errorArea">
       <div v-if="error" class="notice-error mt-5" role="alert">{{ error }}</div>
@@ -178,8 +176,8 @@ onMounted(load)
 <style scoped>
 .members-page { padding-top: 3rem; padding-bottom: 5rem; }
 .members-heading,.section-top { display: flex; justify-content: space-between; align-items: baseline; gap: 1.5rem; flex-wrap: wrap; }
-h1 { font: 3.5rem/1.22 SimSun, serif; letter-spacing: -.04em; margin-top: 1rem; } h1 em { color: #313656; font-style: normal; }
-h2 { font: 1.8rem/1.5 SimSun, serif; margin-top: .5rem; }
+/* 小节标题与 AI 设置页（.section-title）同一口径：无衬线、加粗；原来的大号衬线只在这一页出现 */
+h2 { font-family: inherit; font-weight: 700; font-size: 1.35rem; line-height: 1.5; margin-top: .5rem; }
 .members-section { margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid #c1c4d6; }
 .section-top { margin-bottom: 1.5rem; }
 .invite-form,.quota-form { display: flex; align-items: end; gap: 1rem; flex-wrap: wrap; }
@@ -198,5 +196,5 @@ label { font-size: .85rem; display: grid; gap: .5rem; max-width: 100%; } .input 
 .pagination { display: flex; align-items: center; justify-content: end; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; font-size: .8rem; }.pagination button { padding: .5rem; min-height: 44px; min-width: 44px; }button:disabled { opacity: .45; cursor: not-allowed; }
 .report-paper { background: #ffffff; padding: 2rem; border-radius: 1rem; }
 @media(max-width:900px) { .member-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
-@media(max-width:600px) { .members-page { padding-top: 1.5rem; }h1 { font-size: 2.5rem; }.member-grid { grid-template-columns: 1fr; }.invite-form > label { width: 100%; }.invite-form > button { width: 100%; }.report-paper { padding: 1rem; } }
+@media(max-width:600px) { .members-page { padding-top: 1.5rem; }.member-grid { grid-template-columns: 1fr; }.invite-form > label { width: 100%; }.invite-form > button { width: 100%; }.report-paper { padding: 1rem; } }
 </style>

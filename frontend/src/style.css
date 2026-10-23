@@ -647,6 +647,7 @@
   @media (max-width: 767px) {
     .site-header > div { min-height: 64px; padding: 8px 16px; }
     .site-header nav { width: 100%; justify-content: space-between; gap: 0; }
+    .site-header nav.quiz-nav { width: auto; }
     .site-header nav .btn-ghost { padding-inline: 10px; font-size: 12px; }
     .site-header .brand-link .font-display { font-size: 22px; }
     .site-header .brand-mark { width: 20px; height: 20px; }
@@ -708,6 +709,11 @@
     .auth-page form { padding: 20px 6px; }
     .page-container[data-page='quiz'] { padding-top: 18px; }
     .jung-progress { padding: 12px 0; }
+    /* 手机上进度区更紧凑：上面的 `.jung-workspace ...`（桌面口径，25px / 18px）特异性更高，要点名覆盖，
+       否则题卡被推到首屏之下（390x844 实测题卡上沿 480px，压缩后约 290px）。 */
+    .jung-workspace .jung-progress { padding: 12px 0; }
+    .jung-workspace .jung-preview { margin-top: 0; padding: 0; }
+    .jung-workspace .jung-preview[open] { padding-bottom: 10px; }
     .jung-progress h1 { font-size: 20px; }
     .jung-question { padding: 25px 14px; }
     .jung-question h2 { font-size: 28px; margin-block: 23px; }
