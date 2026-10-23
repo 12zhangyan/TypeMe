@@ -328,7 +328,7 @@ describe('首页（产品方案 §3.1）', () => {
   it('首屏出现新主文案、说明与题数耗时', async () => {
     const { wrapper } = await mountAt('/', LandingView)
     const text = wrapper.text()
-    expect(text).toContain('了解你的偏好，也保留还不确定的部分。')
+    expect(text).toContain('按通常情况下的真实感受选择')
     expect(text).toContain('「暂时无法判断」')
 
     // 首屏的量表口径来自**新测自己**（`GET /api/v3/catalog/current`），不是旧引擎的内容包。
@@ -352,7 +352,7 @@ describe('首页（产品方案 §3.1）', () => {
   it('不计分的教学例子四条齐全，且不再承诺"测出真实类型"', async () => {
     const { wrapper } = await mountAt('/', LandingView)
     const text = wrapper.text()
-    expect(text).toContain('开始前，先说清楚怎么答')
+    expect(text).toContain('怎么作答')
     // 首页主推的是**双极作答**的十六型新测：每题一对相反描述、左边是 1、右边是 5。
     // 教学例子必须按这个格式讲。2026-09-16：此前这里断言的是旧站点默认包（IPIP-50 大五）的
     // 「一句自我描述：1 表示非常不贴切」—— 那正是"页面说的量表和实际入口不是同一份"这个缺陷。
@@ -361,7 +361,6 @@ describe('首页（产品方案 §3.1）', () => {
     expect(text).toContain('不确定该怎么理解、两边都不适用，或没有相关经历，点「暂时无法判断」。')
     expect(text).toContain('实际约束下的行为不必然等于偏好；不要为了选一个“好性格”而选答案。')
     expect(text).not.toContain('每题是一句自我描述')
-    expect(text).toContain('上面的说明不计分，也不会收集任何个人资料。')
     expect(text).not.toContain('保证测出')
   })
 
@@ -382,7 +381,7 @@ describe('首页（产品方案 §3.1）', () => {
     expect(text).toContain('INFP')
     expect(text).toContain(FALLBACK_TYPE_PROFILES['INFP'].nameCn)
     // 示例卡本身必须说明"类型介绍属于参考阅读"
-    expect(text).toContain('类型介绍属于参考阅读')
+    expect(text).toContain('类型介绍仅供参考')
     // 示例卡的标题也必须写明"四维都达到展示条件时才有"
     expect(text).toContain('四维都达到展示条件时才有')
   })
@@ -405,9 +404,9 @@ describe('首页（产品方案 §3.1）', () => {
     // 首页主推的十六型新测产出四字母类型码（四维都达到展示条件时才有），
     // 所以价值三项讲的是「四个维度的结果」，不是旧 IPIP 内容包的「五个维度」。
     // 2026-09-16：这里此前断言的是「五个维度各自的结果，而不是一个标签」。
-    expect(text).toContain('四个维度的结果，而不是一个默认类型')
-    expect(text).toContain('看得懂、答得出的过程')
-    expect(text).toContain('被答案支持的内容')
+    expect(text).toContain('四个维度各自的结果')
+    expect(text).toContain('每题有释义')
+    expect(text).toContain('解释只来自你的作答')
     expect(text).toContain('常见问题')
     expect(text).toContain('看不懂题目怎么办？')
     expect(text).toContain('选「暂时无法判断」会怎样？')
@@ -1513,10 +1512,7 @@ describe('关于页（产品方案 §3 / §8）', () => {
   it('使用统一的隐私表达，不写「不存储任何数据」', async () => {
     const { wrapper } = await mountAt('/about', AboutView)
     const text = wrapper.text()
-    expect(text).toContain(
-      '题目答案与计分在你的浏览器中处理。为了让你能接着上次继续，这台设备会保留最近一次作答，',
-    )
-    expect(text).toContain('你可以随时清除。')
+    expect(text).toContain('答案与计分都在浏览器里处理。这台设备会保留最近一次作答以便接着做，可随时清除。')
     expect(text).not.toContain('不存储任何数据')
   })
 
@@ -1588,7 +1584,7 @@ describe('关于页（产品方案 §3 / §8）', () => {
     expect(text).toContain('更早保存的作答')
     expect(text).toContain(`一份 ${builtinPackage().questionnaire.questionCount} 题的作答`)
     expect(text).toContain('一份更早的作答（2 题）')
-    expect(text).toContain('不会被套到现在的题目上，也不会被自动删除')
+    expect(text).toContain('不会套用到现在的题目，也不会被自动删除')
     for (const jargon of ['v1', 'v2', '派生会话', '快照', '签名']) {
       expect(text, `关于页不该出现旧版记录术语「${jargon}」`).not.toContain(jargon)
     }
@@ -1631,7 +1627,7 @@ describe('设计系统守卫（§4）', () => {
     expect(maxWidth['prose-result']).toBe('47.5rem')
   })
 
-  it('新版语义色齐备（冷白阅读表面 / 深靛文字 / 靛蓝主色）', async () => {
+  it('新版语义色齐备（暖白阅读表面 / 深靛文字 / 靛蓝主色）', async () => {
     const config = await import('../../tailwind.config.js')
     const colors = config.default.theme.extend.colors as {
       paper: { DEFAULT: string }
@@ -1642,12 +1638,12 @@ describe('设计系统守卫（§4）', () => {
       navy: Record<string, string>
       glow: Record<string, string>
     }
-    // 2026-10 视觉重构：冷白纸面与靛蓝主色；对比度门槛由 contrast.spec.ts 独立验证。
-    expect(colors.paper.DEFAULT).toBe('#F5F6FB')
-    expect(colors.ink.DEFAULT).toBe('#1B2038')
+    // 2026-10 视觉重构 v4：暖白纸面（#F7F6F2）与靛蓝主色；对比度门槛由 contrast.spec.ts 独立验证。
+    expect(colors.paper.DEFAULT).toBe('#F7F6F2')
+    expect(colors.ink.DEFAULT).toBe('#1C1B2E')
     expect(colors.primary[600]).toBe('#4650C8')
     expect(colors.accent[500]).toBe('#8E5A0F')
-    expect(colors.line.DEFAULT).toBe('#E0E3F0')
+    expect(colors.line.DEFAULT).toBe('#E6E2D9')
     // 深色区域（首页主视觉 / AI 洞察）用的 navy 与 glow：没有它们，
     // 「深色面板」会退回成随便一个黑底，深色区的对比度断言也就失去意义。
     expect(colors.navy[800]).toBe('#181F47')

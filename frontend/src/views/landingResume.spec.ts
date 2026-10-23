@@ -260,7 +260,7 @@ describe('首页：继续上次没答完的测评（A51）', () => {
     expect(unknownNote).not.toContain('暂时无法判断')
     expect(panel.text()).not.toContain('选「暂时无法判断」会怎样')
     expect(panel.text()).toContain('选「说不好」会怎样')
-    expect(panel.text()).not.toContain('四个维度的结果，而不是一个默认类型')
+    expect(panel.text()).not.toContain('四个维度各自的结果')
     expect(panel.get('[data-dimension-list]').text()).toContain('开放性')
     expect(panel.get('[data-dimension-list]').text()).not.toContain('精力方向')
     expect(panel.text()).not.toContain('INFP')

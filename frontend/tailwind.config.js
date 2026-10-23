@@ -12,20 +12,20 @@ export default {
       colors: {
         /* ── 浅色阅读表面 ─────────────────────────────────────────────── */
         paper: {
-          DEFAULT: '#F5F6FB',
-          soft: '#ECEEF8',
-          deep: '#E0E4F2',
+          DEFAULT: '#F7F6F2',
+          soft: '#EFEDE7',
+          deep: '#E5E2DA',
         },
         surface: {
           DEFAULT: '#FFFFFF',
-          soft: '#F8F9FD',
+          soft: '#FBFAF7',
         },
 
         /* ── 文字三层 ─────────────────────────────────────────────────── */
         ink: {
-          DEFAULT: '#1B2038',
-          soft: '#424A66',
-          faint: '#586079',
+          DEFAULT: '#1C1B2E',
+          soft: '#444260',
+          faint: '#5A5873',
         },
 
         /* ── 主色：森林绿（链接 / 主按钮 / 进度 / 选中态） ───────────────── */
@@ -80,9 +80,9 @@ export default {
 
         /* ── 分割线 ───────────────────────────────────────────────────── */
         line: {
-          DEFAULT: '#E0E3F0',
-          soft: '#EBEDF6',
-          strong: '#BFC6DC',
+          DEFAULT: '#E6E2D9',
+          soft: '#EFECE5',
+          strong: '#C4BFB2',
         },
 
         /* ── 深森林绿：报告概览 + AI 洞察区（只在深色区域使用） ──────── */

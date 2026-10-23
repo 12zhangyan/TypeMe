@@ -276,7 +276,7 @@ describe('首页的量表文案与抽象图形（LandingView.vue）', () => {
       for (const forbidden of ['每题是一句自我描述', '1 表示非常不贴切', '五个维度']) {
         expect(text, `${id} 首页串了另一份量表的说法`).not.toContain(forbidden)
       }
-      expect(text, `${id} 价值三项`).toContain('四个维度的结果，而不是一个默认类型')
+      expect(text, `${id} 价值三项`).toContain('四个维度各自的结果')
       expect(text, `${id} FAQ 连续分数`).toContain('四个维度是连续分数')
       // 部署版首页不再回答「内容版本是什么状态」这种维护向的问题
       expect(text, `${id} 首页不该出现内容状态问答`).not.toContain('内容状态')
@@ -358,8 +358,8 @@ describe('方法页（AboutView.vue）：只留用户需要的事实', () => {
         `|偏移| ≥ ${pkg.interpretation.markedDistance} 分`,
       )
       // 但「略偏」这件事必须讲清楚，且不把内部规则版本号指到报告页去
-      expect(text, `${id} 门槛说明`).toContain('「略偏」也不是一条写死的分数线')
-      expect(text, `${id} 不抄固定数字`).toContain('这里不抄一个固定数字')
+      expect(text, `${id} 门槛说明`).toContain('「略偏」由和的大小与这一维可计分的题数共同决定')
+      expect(text, `${id} 不抄固定数字`).toContain('具体门槛可在自己报告的「这份报告是怎么来的」里查看')
     }
   })
 

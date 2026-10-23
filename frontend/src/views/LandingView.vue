@@ -346,15 +346,15 @@ const faqs = computed(() => resumeIsBigFive.value ? [
 ] : [
   {
     q: '看不懂题目怎么办？',
-    a: '每题下面都有「这题是什么意思？」，点开可以看这条题的短释义，展开不会改变你的答案。如果读完仍然说不清、这句话不适用或没有相关经历，可以点「暂时无法判断」。',
+    a: '每题下面有「这题是什么意思？」，展开不会改变答案。仍说不清、不适用或没有相关经历，可以点「暂时无法判断」。',
   },
   {
     q: '选「暂时无法判断」会怎样？',
-    a: '它和「两边相近」是两件事：不会被算成 3 分，也不会被平均填充。相关维度会显示“信息不足”，不计算分数；其余维度照常给出结果，报告会明确写出哪些维度暂时没有结论。',
+    a: '它和「两边相近」不同：不会被算成 3 分，也不会被平均填充。相关维度显示“信息不足”，其余维度照常给结果，报告会写明哪些维度暂时没有结论。',
   },
   {
     q: '结果会不会一直固定不变？',
-    a: '不会。四个维度是连续分数，靠近中点时，换个时间或状态作答就可能落到另一侧。如果四个维度没有都达到展示条件，完整类型会留空，而不是给一个默认类型。',
+    a: '不会。四个维度是连续分数，靠近中点时，换个时间或状态作答可能落到另一侧。四个维度没有都达到展示条件时，类型留空，不给默认类型。',
   },
   {
     q: '我的答案会上传吗？',
@@ -362,7 +362,7 @@ const faqs = computed(() => resumeIsBigFive.value ? [
   },
   {
     q: '测到一半关掉页面怎么办？',
-    a: '登录后的作答存在你的账号里：换设备或换浏览器登录同一账号都能接着答，回来会停在你上次答到的位置附近，也可以用「上一题」回去改前面答过的题。',
+    a: '作答存在你的账号里，换设备或浏览器登录同一账号都能接着答，会回到上次答到的位置附近，也可以用「上一题」改前面的答案。',
   },
 ])
 
@@ -374,29 +374,29 @@ const VALUES = computed(() => resumeIsBigFive.value ? [
   },
   {
     icon: 'question' as const,
-    title: '中间档和「说不好」不是一回事',
+    title: '中间档与「说不好」不同',
     body: '3 是「说不上符合或不符合」，仍然算有效作答。选「说不好」表示这题没有作答。',
   },
   {
     icon: 'chart' as const,
     title: '只解释这次答过的部分',
-    body: '看不清的方面不会被补成一个方向。',
+    body: '看不清的方面不补方向。',
   },
 ] : [
   {
     icon: 'dimensions' as const,
-    title: '四个维度的结果，而不是一个默认类型',
-    body: '每一维分别给出信息不足、两侧相近、略偏、偏向四种状态。四维都达到展示条件时才拼出参考组合，否则完整类型为空。',
+    title: '四个维度各自的结果',
+    body: '每一维分别给出信息不足、两侧相近、略偏、偏向四种状态。四维都达到展示条件才给出参考类型，否则类型为空。',
   },
   {
     icon: 'question' as const,
-    title: '看得懂、答得出的过程',
-    body: '每题有「这题是什么意思？」的短释义，也有独立的「暂时无法判断」。看不懂或没有相关经历时，不必猜一个数字。',
+    title: '每题有释义',
+    body: '每题有「这题是什么意思？」的短释义，也可以选「暂时无法判断」，不必猜一个数字。',
   },
   {
     icon: 'chart' as const,
-    title: '被答案支持的内容',
-    body: '解释与建议只来自你真正作答的维度；不确定的维度给的是观察行为，不是某一类型的优势判断。',
+    title: '解释只来自你的作答',
+    body: '解释与建议只针对你作答过的维度；不确定的维度只给观察建议，不套类型描述。',
   },
 ])
 
@@ -429,19 +429,6 @@ onMounted(() => {
       还没能确认上次的作答进度。
       <button type="button" class="btn-secondary btn-sm" @click="loadPlatformDraft">重新读取进度</button>
     </div>
-    <section class="mt-10 border-t border-line pt-6" aria-labelledby="example-heading" data-dual-examples>
-      <h2 id="example-heading" class="section-title">报告示例</h2>
-      <div class="mt-4 grid gap-5 tablet:grid-cols-2">
-        <div>
-          <p class="chip chip-neutral">十六型 · 示例</p>
-          <p class="mt-2 text-[16px] text-ink">参考类型与四个方面的偏好；接近或平分会单独说明。</p>
-        </div>
-        <div>
-          <p class="chip chip-neutral">大五 · 示例</p>
-          <p class="mt-2 text-[16px] text-ink">五个方面各自解读，不给类型或总分。</p>
-        </div>
-      </div>
-    </section>
     <details class="mt-8" :open="!!resumeTarget" data-jung-introduction>
       <summary class="cursor-pointer text-[16px] font-semibold text-ink">{{ resumeIsBigFive ? `接着答：${resumeTitle}` : '十六型测评：答题和报告示例' }}</summary>
       <div class="mt-5">
@@ -464,7 +451,7 @@ onMounted(() => {
           <h2
             class="display-hero mt-5 text-[32px] leading-[1.18] text-white tablet:text-[42px] laptop:text-[50px]"
           >
-            了解你的偏好，<br class="hidden tablet:inline" />也保留还不确定的部分。
+            {{ resumeIsBigFive ? resumeTitle : instrumentFacts.title }}
           </h2>
 
           <p v-if="resumeIsBigFive" class="mt-5 max-w-[34rem] text-[15.5px] leading-[1.75] text-navy-100 tablet:text-[16.5px]">
@@ -591,8 +578,8 @@ onMounted(() => {
     <!-- ══ 开始前说明（不计分的教学例子） ═══════════════════════════════ -->
     <section class="mt-12 laptop:mt-16" data-how-to-answer>
       <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-        <h2 class="section-title">开始前，先说清楚怎么答</h2>
-        <p class="caption">这一步不计分，只是让你知道选项各自是什么意思。</p>
+        <h2 class="section-title">怎么作答</h2>
+        <p class="caption">示例不计分。</p>
       </div>
 
       <div v-if="resumeIsBigFive" class="mt-5 rounded-question border border-line bg-surface px-4 py-4 shadow-card tablet:px-6 tablet:py-5">
@@ -645,9 +632,6 @@ onMounted(() => {
           <span>{{ line }}</span>
         </li>
       </ul>
-      <p class="mt-4 fineprint">
-        上面的说明不计分，也不会收集任何个人资料。情境例子只用于解释题目，不限定整份量表的作答时间窗。
-      </p>
     </section>
 
     <!-- ══ 报告预览（首屏的第二个入口就落在这里） ══════════════════════ -->
@@ -662,8 +646,8 @@ onMounted(() => {
       <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
         <h2 class="section-title">报告长这样</h2>
         <p class="caption">
-          下面整块是<strong class="font-semibold text-accent-500">示例</strong
-          >：结构和真实报告一致，位置与结论是编的，不是任何人的结果。
+          <strong class="font-semibold text-accent-500">示例</strong
+          >，结构与真实报告一致，内容不是任何人的结果。
         </p>
       </div>
 
@@ -675,7 +659,7 @@ onMounted(() => {
           <div class="min-w-0">
             <p class="flex items-center gap-2 text-[12.5px] font-medium text-ink-faint">
               <span class="chip chip-accent">示例</span>
-              本次参考类型（四维都达到展示条件时才有）
+              参考类型（四个维度都有结论时才显示）
             </p>
             <p class="mt-2 display-hero text-[40px] leading-none tracking-[0.06em] text-ink tablet:text-[52px]">
               INFP
@@ -713,7 +697,7 @@ onMounted(() => {
       <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
         <RouterLink to="/assess" class="btn-primary btn-sm">直接开始测评</RouterLink>
         <p class="fineprint">
-          平分、略偏、信息不足这几种情况在报告里都有完整页面：不强行补类型，也不显示虚假的百分比。
+          平分、略偏、信息不足时，报告不强行补类型，也不显示百分比。
         </p>
       </div>
     </section>
@@ -779,12 +763,10 @@ onMounted(() => {
             可选 · 需要你主动生成
           </p>
           <h2 id="landing-ai" class="display-hero mt-4 text-[24px] leading-snug text-white tablet:text-[30px]">
-            报告之外，还有一段<br class="hidden tablet:inline" />为你单独写的分析
+            AI 分析（可选）
           </h2>
           <p class="mt-4 max-w-[34rem] text-[15px] leading-[1.75] text-navy-100">
-            固定报告始终完整可读 —— {{ resumeIsBigFive ? '不用 AI 也能看到五个方面各自的说明。' : '不用 AI 也能拿到四个维度、类型、解读与建议。' }}
-            AI 分析是<strong class="font-semibold text-white">额外</strong>的一段视角：它读的是你已经看到的那份报告，
-            换一段更贴近日常的说法回来，并给出可以照着做的步骤。
+            固定报告不依赖 AI。AI 分析只读你已经看到的那份报告，用更日常的说法改写，并给出可以照着做的步骤。
           </p>
 
           <ul class="mt-6 space-y-3">
@@ -801,13 +783,10 @@ onMounted(() => {
             </li>
             <li class="flex gap-3 text-[14px] leading-relaxed text-navy-100">
               <AppIcon name="alert" :size="17" class="mt-0.5 text-glow" />
-              <span>它不会改写固定结果，也不改变{{ resumeIsBigFive ? '五个方面的说明' : '四个维度' }} —— 模型说的和报告算的分开显示。这台服务器没开这项能力时，页面会直接说明，而不是给一份假的分析。</span>
+              <span>不改写固定结果，AI 的内容与报告分开显示。服务器没开这项能力时，页面会直接说明。</span>
             </li>
           </ul>
 
-          <p class="mt-6 text-[12.5px] leading-relaxed text-navy-200">
-            下面是接口真实返回的字段结构，不是设想中的能力；演示数据在页面上会明确标注。
-          </p>
         </div>
 
         <!-- 结构预览：编号 + 连接线，是"科技感来自结构清晰"而不是霓虹 -->
@@ -832,8 +811,8 @@ onMounted(() => {
       <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
         <h2 class="section-title">结果示例</h2>
         <p class="caption">
-          下面是一份<strong class="font-semibold text-accent-500">示例</strong
-          >，不是你的结果，也不代表任何真实作答。
+          <strong class="font-semibold text-accent-500">示例</strong
+          >，不是你的结果。
         </p>
       </div>
       <div class="mt-5 grid gap-5 rounded-cover border border-line bg-surface px-5 py-6 shadow-card tablet:grid-cols-[16rem_minmax(0,1fr)] tablet:gap-8 tablet:px-8">
@@ -848,7 +827,7 @@ onMounted(() => {
         </div>
       </div>
       <p class="mt-3 fineprint">
-        类型介绍属于参考阅读；真实报告以四个维度各自的结果为主，未定的维度不会套用任何类型专属描述。
+        类型介绍仅供参考；真实报告以四个维度各自的结果为主，未定的维度不套用类型描述。
       </p>
     </section>
 
@@ -882,7 +861,7 @@ onMounted(() => {
     <section class="mt-12 laptop:mt-16">
       <div class="notice-neutral flex flex-wrap items-center justify-between gap-3">
         <p class="text-[13.5px] leading-relaxed" data-unknown-note>
-          想知道分数怎么算、门槛是怎么定的、回答保存在哪，可以读
+          分数怎么算、数据存在哪，见
           <RouterLink to="/about" class="link">方法与隐私</RouterLink>。
           <template v-if="resumeIsBigFive">选「说不好」表示这题没有作答，不计入有效题；它和「说不上符合或不符合」不是一回事。</template>
           <template v-else>标记「暂时无法判断」时可选的原因有：{{ Object.values(UNKNOWN_REASON_LABEL).join(' / ') }}。</template>

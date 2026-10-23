@@ -232,8 +232,7 @@ function minutesText(card: InstrumentCard): string {
     <header class="max-w-prose">
       <h1 class="text-[26px] font-semibold leading-snug text-ink tablet:text-[30px]">开始测评</h1>
       <p class="mt-3 text-[15.5px] leading-relaxed text-ink-soft">
-        下面先列出你还没答完的，再列出可以开始的。每次测评的答案都存在服务端，
-        换设备可以接着答，报告会一直留着。
+        未答完的在上，可以开始的在下。答案保存在服务端，换设备可接着答。
       </p>
     </header>
 
@@ -258,7 +257,7 @@ function minutesText(card: InstrumentCard): string {
       </div>
 
       <p v-else-if="openDrafts.length === 0" class="mt-2 text-[14.5px] text-ink-soft" data-assess-no-drafts>
-        现在没有没答完的测评。在下面挑一项开始就行。
+        没有未答完的测评。
       </p>
 
       <ul v-else class="mt-3 grid gap-3" data-assess-drafts>
@@ -322,7 +321,7 @@ function minutesText(card: InstrumentCard): string {
             </span>
           </div>
           <p class="text-[14.5px] leading-relaxed text-ink">{{ card.summary }}</p>
-          <p class="caption">{{ minutesText(card) }} · 你会得到：{{ card.whatYouLearn.join('、') }}</p>
+          <p class="caption">{{ minutesText(card) }}</p>
           <div class="mt-auto flex flex-wrap items-center gap-2 pt-1">
             <button
               type="button"
@@ -348,7 +347,7 @@ function minutesText(card: InstrumentCard): string {
 
     <p class="caption mt-8 max-w-prose">
       测评是自我探索的参考，不是诊断，也不是官方 MBTI、招聘或配对的判定工具。
-      每份报告都会写清这次的不确定之处，以及这次没有给出方向的维度。
+      
     </p>
   </PageContainer>
 </template>

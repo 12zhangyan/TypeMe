@@ -106,8 +106,7 @@ function goLogin() {
           <span>这个恢复码已经用掉了。同一账号其余恢复码也一并作废，需要的话登录后重新生成一组。</span>
         </p>
         <p class="mt-2">
-          为了安全，这个账号在<strong class="font-medium">所有设备</strong>上的登录都已经退出 ——
-          包括你可能还开着的手机或另一台电脑。请用新密码重新登录一次。
+          出于安全，这个账号在<strong class="font-medium">所有设备</strong>上的登录都已退出。请用新密码重新登录。
         </p>
       </div>
       <button type="button" class="btn-primary mt-5" @click="goLogin">去登录</button>
@@ -123,8 +122,7 @@ function goLogin() {
           用恢复码重置密码
         </h1>
         <p class="mt-3 prose-cn max-w-prose">
-          注册时那 8 个恢复码里，任意一个都可以用来设置新密码。用掉一个就少一个，
-          而且成功之后其他设备上的登录都会退出。
+          注册时的 8 个恢复码，任意一个都可以设置新密码；用过的作废，成功后其他设备的登录会退出。
         </p>
         <IllustrationFrame name="welcome" class="auth-art auth-scene"><EditorialScene scene="welcome" /></IllustrationFrame>
       </header>
@@ -161,7 +159,7 @@ function goLogin() {
             class="mt-1.5 w-full min-w-0 break-all rounded-control border border-line-strong bg-surface px-3 py-2.5 font-mono text-[15.5px] text-ink"
           />
           <p :id="`${codeId}-help`" class="caption mt-1.5">
-            照着纸上的抄就行。大小写、连字符和空格都没关系，服务端会自己规范化。
+            大小写、连字符和空格不影响。
           </p>
         </div>
 
@@ -204,11 +202,11 @@ function goLogin() {
             服务器说明：{{ error.serverMessage }}
           </p>
           <p v-if="error.retryAfterSeconds" class="mt-2 text-[13.5px] leading-relaxed">
-            大约 {{ error.retryAfterSeconds }} 秒后再试就来得及。
+            约 {{ error.retryAfterSeconds }} 秒后可再试。
           </p>
           <p v-if="error.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
             报障编号：<code class="font-mono">{{ error.requestId }}</code>
-            <span class="block text-ink-faint">（反馈问题时把这个编号一起发过来，能直接查到这次请求。）</span>
+            <span class="block text-ink-faint">（反馈问题时请附上这个编号。）</span>
           </p>
         </div>
 
@@ -229,8 +227,7 @@ function goLogin() {
           想起来了密码？<RouterLink to="/login" class="link">直接登录</RouterLink>。
         </p>
         <p class="fineprint">
-          恢复码全丢了也没关系：还能登录的话，到「账号与数据」里用密码重新生成一组；
-          再也登录不进去的话，这个账号里的记录无法找回，只能用新账号重新开始。
+          恢复码丢失：还能登录的话，到「账号与数据」用密码重新生成一组；无法登录则账号记录无法找回，只能注册新账号。
         </p>
       </div>
     </section>

@@ -1,0 +1,199 @@
+{
+ "checks": [
+  {
+   "label": "landing/320 手机：参考内容默认收起，摘要行可见",
+   "passed": true,
+   "detail": "{\"open\":false,\"summaryShown\":true}"
+  },
+  {
+   "label": "landing/320 手机：收起时页面 8651px，展开后 12092px，收起省掉 ≥ 20%",
+   "passed": true
+  },
+  {
+   "label": "landing/320 手机：点摘要后展开并露出「你会得到什么」",
+   "passed": true
+  },
+  {
+   "label": "landing/320 无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "report/320 页首不显示悬浮目录",
+   "passed": true
+  },
+  {
+   "label": "report/320 滚过目录后出现悬浮目录入口",
+   "passed": true
+  },
+  {
+   "label": "report/320 入口在视口内且不遮挡到边缘外（右 16px / 下 16px）",
+   "passed": true
+  },
+  {
+   "label": "report/320 点开后列出 8 节",
+   "passed": true
+  },
+  {
+   "label": "report/320 选「四个维度」后滚动到该节（上沿 16px）",
+   "passed": true
+  },
+  {
+   "label": "report/320 选择后目录收起",
+   "passed": true
+  },
+  {
+   "label": "report/320 报告页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "admin/320 成员页标题为「成员与邀请」",
+   "passed": true
+  },
+  {
+   "label": "admin/320 成员页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "admin/320 经页签进入 AI 设置页（/admin）",
+   "passed": true
+  },
+  {
+   "label": "admin/320 AI 设置页当前页签标出 aria-current",
+   "passed": true
+  },
+  {
+   "label": "admin/320 AI 设置页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "admin/320 经页签回到成员页",
+   "passed": true
+  },
+  {
+   "label": "landing/390 手机：参考内容默认收起，摘要行可见",
+   "passed": true,
+   "detail": "{\"open\":false,\"summaryShown\":true}"
+  },
+  {
+   "label": "landing/390 手机：收起时页面 8231px，展开后 11250px，收起省掉 ≥ 20%",
+   "passed": true
+  },
+  {
+   "label": "landing/390 手机：点摘要后展开并露出「你会得到什么」",
+   "passed": true
+  },
+  {
+   "label": "landing/390 无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "report/390 页首不显示悬浮目录",
+   "passed": true
+  },
+  {
+   "label": "report/390 滚过目录后出现悬浮目录入口",
+   "passed": true
+  },
+  {
+   "label": "report/390 入口在视口内且不遮挡到边缘外（右 16px / 下 16px）",
+   "passed": true
+  },
+  {
+   "label": "report/390 点开后列出 8 节",
+   "passed": true
+  },
+  {
+   "label": "report/390 选「四个维度」后滚动到该节（上沿 16px）",
+   "passed": true
+  },
+  {
+   "label": "report/390 选择后目录收起",
+   "passed": true
+  },
+  {
+   "label": "report/390 报告页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "admin/390 成员页标题为「成员与邀请」",
+   "passed": true
+  },
+  {
+   "label": "admin/390 成员页「生成邀请码」在首屏内（底边 713px ≤ 844px）",
+   "passed": true
+  },
+  {
+   "label": "admin/390 成员页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "admin/390 经页签进入 AI 设置页（/admin）",
+   "passed": true
+  },
+  {
+   "label": "admin/390 AI 设置页当前页签标出 aria-current",
+   "passed": true
+  },
+  {
+   "label": "admin/390 AI 设置页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "admin/390 经页签回到成员页",
+   "passed": true
+  },
+  {
+   "label": "landing/1440 桌面：参考内容照常展开，摘要行不显示",
+   "passed": true,
+   "detail": "{\"open\":true,\"summaryShown\":false}"
+  },
+  {
+   "label": "landing/1440 桌面：全部内容展开（页面 7542px）",
+   "passed": true
+  },
+  {
+   "label": "landing/1440 无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "report/1440 页首不显示悬浮目录",
+   "passed": true
+  },
+  {
+   "label": "report/1440 桌面不出现悬浮目录（目录本来就粘在右侧）",
+   "passed": true
+  },
+  {
+   "label": "report/1440 报告页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "admin/1440 成员页标题为「成员与邀请」",
+   "passed": true
+  },
+  {
+   "label": "admin/1440 成员页「生成邀请码」在首屏内（底边 561px ≤ 900px）",
+   "passed": true
+  },
+  {
+   "label": "admin/1440 成员页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "admin/1440 经页签进入 AI 设置页（/admin）",
+   "passed": true
+  },
+  {
+   "label": "admin/1440 AI 设置页当前页签标出 aria-current",
+   "passed": true
+  },
+  {
+   "label": "admin/1440 AI 设置页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "admin/1440 经页签回到成员页",
+   "passed": true
+  }
+ ]
+}

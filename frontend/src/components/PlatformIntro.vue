@@ -26,7 +26,7 @@ function exploreAssessments(): void {
 <template>
   <section data-platform-intro class="atelier-platform">
     <header class="discovery-hero">
-      <div class="discovery-edition"><span>TypeMe / 自我探索手记</span></div>
+      <div class="discovery-edition"><span>人格倾向参考测评</span></div>
       <div class="discovery-copy">
         <h1>了解你的<span>性格倾向</span></h1>
         <div class="discovery-caption"><p>十六型看四个方面的偏好，大五看五个方面的倾向。</p></div>
@@ -53,7 +53,6 @@ function exploreAssessments(): void {
 
     <div id="available-assessments" class="catalog-heading" tabindex="-1">
       <div><p class="section-kicker">从这里开始</p><h2>选择测评</h2></div>
-      <p>两种视角，选你此刻更想了解的。</p>
     </div>
 
     <p v-if="instruments.loading" class="notice-info mt-5" role="status">正在载入可选测评…</p>

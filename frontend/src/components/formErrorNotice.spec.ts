@@ -74,9 +74,9 @@ describe('FormErrorNotice', () => {
       },
     })
 
-    expect(wrapper.text()).toContain('大约 42 秒后再试就来得及。')
+    expect(wrapper.text()).toContain('约 42 秒后可再试。')
     expect(wrapper.text()).toContain('req-0123456789abcdef')
-    expect(wrapper.text()).toContain('反馈问题时把这个编号一起发过来')
+    expect(wrapper.text()).toContain('反馈问题时请附上这个编号')
   })
 
   it('requestHint=false 时只留编号本身（排版更紧的场合）', () => {
@@ -88,7 +88,7 @@ describe('FormErrorNotice', () => {
     })
 
     expect(wrapper.text()).toContain('req-abc')
-    expect(wrapper.text()).not.toContain('反馈问题时把这个编号一起发过来')
+    expect(wrapper.text()).not.toContain('反馈问题时请附上这个编号')
   })
 
   it('是 assertive 的告警区域，并把外部传进来的 data-* 钩子合并到根元素', () => {

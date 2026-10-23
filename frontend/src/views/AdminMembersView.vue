@@ -139,20 +139,20 @@ onMounted(load)
     <p v-if="notice" class="notice-success mt-4" role="status">{{ notice }}</p>
     <template v-if="ready && !denied">
       <section class="members-section" aria-labelledby="invite-title">
-        <div class="section-top"><div><p class="section-kicker">01 / 邀请加入</p><h2 id="invite-title">从一份邀请开始</h2></div><p class="caption">一码一人 · 使用即失效</p></div>
+        <div class="section-top"><div><p class="section-kicker">01 / 邀请码</p><h2 id="invite-title">生成邀请码</h2></div><p class="caption">一码一人 · 使用即失效</p></div>
         <form class="invite-form" @submit.prevent="create">
           <label>有效时长<select v-model="expiryDays" class="input" :disabled="busy" @change="presetExpiry"><option :value="1">1 天</option><option :value="7">7 天</option><option :value="30">30 天</option></select></label>
           <label>过期时间（本地时间）<input v-model="expiresAt" class="input" type="datetime-local" required :disabled="busy" /></label>
           <button class="btn-primary" :disabled="busy">生成邀请码</button>
         </form>
         <div v-if="newCode" class="invite-result" role="status"><p>完整邀请码 · 请现在保存</p><code data-testid="new-invitation">{{ newCode }}</code><p class="caption">到期：{{ time(newCodeExpiry) }}。刷新或离开页面后无法再次查看。</p><div class="flex flex-wrap gap-4 mt-3"><button class="btn-secondary" @click="copy">复制邀请码</button><button class="link" @click="newCode = ''">我已保存，隐藏</button></div></div>
-        <div class="invite-list"><p v-if="!invites.items.length" class="caption">还没有邀请码。生成一份邀请，让成员加入。</p>
+        <div class="invite-list"><p v-if="!invites.items.length" class="caption">还没有邀请码。</p>
           <div v-for="item in invites.items" :key="item.id" class="invite-row"><span class="status-tag">{{ label(item.status) }}</span><div><p>{{ item.usedByUsername ? `使用人：${item.usedByUsername}` : '一次性注册邀请' }}</p><p class="caption">创建 {{ time(item.createdAt) }} · 到期 {{ time(item.expiresAt) }}</p></div><button v-if="item.status === 'AVAILABLE'" class="link" :disabled="busy" @click="revoke(item.id)">撤销</button></div>
         </div>
         <nav class="pagination" aria-label="邀请码翻页"><button :disabled="busy || invites.page === 0" @click="action(async () => { invites = await api.invitations(invites.page - 1) })">上一页</button><span>第 {{ invites.page + 1 }} 页 · 共 {{ invites.total }} 份</span><button :disabled="busy || (invites.page + 1) * invites.size >= invites.total" @click="action(async () => { invites = await api.invitations(invites.page + 1) })">下一页</button></nav>
       </section>
       <section class="members-section" aria-labelledby="members-title">
-        <div class="section-top"><div><p class="section-kicker">02 / 成员档案</p><h2 id="members-title">每个人的探索足迹</h2></div><span class="caption">{{ users.total }} 位成员</span></div>
+        <div class="section-top"><div><p class="section-kicker">02 / 成员档案</p><h2 id="members-title">成员</h2></div><span class="caption">{{ users.total }} 位成员</span></div>
         <p class="caption mb-5">最近活动表示会话最后使用时间，不代表此刻在线。每日额度于 UTC 00:00（北京时间 08:00）重置。</p>
         <p v-if="!users.items.length" class="caption">暂无成员。</p>
         <div class="member-grid"><button v-for="user in users.items" :key="user.id" class="member-card" :class="{ selected: selected?.id === user.id }" :disabled="busy" @click="choose(user)"><div class="flex justify-between gap-3"><strong>{{ user.nickname || user.username }}</strong><span class="status-tag">{{ label(user.status) }}</span></div><p class="caption">{{ user.username }} · {{ user.role === 'ADMIN' ? '管理员' : '成员' }}</p><p class="member-stat">{{ user.reportCount ?? '—' }} <small>份报告</small><span>{{ user.attemptCount }} 次测评</span></p><p class="caption">AI 今日已用 {{ user.aiUsedToday }} / {{ user.effectiveAiDailyLimit }} 次</p><p class="caption">最近活动 {{ time(user.lastSeenAt) }}</p><span class="member-open">查看档案与报告 →</span></button></div>
@@ -178,21 +178,21 @@ onMounted(load)
 .members-heading,.section-top { display: flex; justify-content: space-between; align-items: baseline; gap: 1.5rem; flex-wrap: wrap; }
 /* 小节标题与 AI 设置页（.section-title）同一口径：无衬线、加粗；原来的大号衬线只在这一页出现 */
 h2 { font-family: inherit; font-weight: 700; font-size: 1.35rem; line-height: 1.5; margin-top: .5rem; }
-.members-section { margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid #c1c4d6; }
+.members-section { margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid var(--c-line-2); }
 .section-top { margin-bottom: 1.5rem; }
 .invite-form,.quota-form { display: flex; align-items: end; gap: 1rem; flex-wrap: wrap; }
-label { font-size: .85rem; display: grid; gap: .5rem; max-width: 100%; } .input { min-height: 2.8rem; width: 100%; border: 1px solid #c3c6d7; border-radius: .5rem; background: #ffffff; padding: .6rem .8rem; font-size: 1rem; }
+label { font-size: .85rem; display: grid; gap: .5rem; max-width: 100%; } .input { min-height: 2.8rem; width: 100%; border: 1px solid var(--c-line-2); border-radius: .5rem; background: #ffffff; padding: .6rem .8rem; font-size: 1rem; }
 .quota-form > p { flex-basis: 100%; }.quota-form input { max-width: 12rem; }
-.invite-result { padding: 1.5rem; background: #dfe1ed; margin-top: 1.5rem; border-radius: 1rem; }
+.invite-result { padding: 1.5rem; background: var(--c-brand-tint); margin-top: 1.5rem; border-radius: 1rem; }
 .invite-result code { display: block; font-size: 1.35rem; overflow-wrap: anywhere; margin: .8rem 0; user-select: all; }
-.invite-list { margin-top: 1.5rem; }.invite-row,.record-row { display: flex; gap: 1rem; align-items: center; border-bottom: 1px solid #d7d9e5; padding: 1rem 0; flex-wrap: wrap; }
+.invite-list { margin-top: 1.5rem; }.invite-row,.record-row { display: flex; gap: 1rem; align-items: center; border-bottom: 1px solid var(--c-line); padding: 1rem 0; flex-wrap: wrap; }
 .invite-row > div,.record-row > div { flex: 1; min-width: 150px; overflow-wrap: anywhere; }
-.status-tag { color: #313656; background: #dfe1ed; padding: .25rem .6rem; border-radius: 20px; font-size: .72rem; white-space: nowrap; }
+.status-tag { color: var(--c-brand-deep); background: var(--c-brand-tint); padding: .25rem .6rem; border-radius: 20px; font-size: .72rem; white-space: nowrap; }
 .member-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1rem; }
-.member-card { text-align: left; padding: 1.5rem; background: #ffffff; border: 1px solid #d5d7e3; border-radius: 1rem; overflow-wrap: anywhere; transition: border-color .15s; }
-.member-card:hover,.member-card.selected { border-color: #313656; }.member-card:focus-visible { outline: 2px solid #313656; outline-offset: 3px; }
-.member-stat { font: 2.5rem/1.3 Georgia,serif; margin: 1.5rem 0 .8rem; }.member-stat small,.member-stat span { font: .8rem/1.5 sans-serif; }.member-stat span { display: block; color: #545a7e; }
-.member-open { display: block; margin-top: 1.2rem; color: #313656; font-size: .85rem; }
+.member-card { text-align: left; padding: 1.5rem; background: #ffffff; box-shadow: var(--shadow-soft); border: 1px solid var(--c-line); border-radius: var(--r-lg); overflow-wrap: anywhere; transition: border-color .15s, transform .15s; }
+.member-card:hover,.member-card.selected { border-color: var(--c-brand-deep); }.member-card:focus-visible { outline: 2px solid var(--c-brand-deep); outline-offset: 3px; }
+.member-stat { font-size: 2.5rem; font-weight: 800; line-height: 1.3; letter-spacing: -.03em; margin: 1.5rem 0 .8rem; }.member-stat small,.member-stat span { font: .8rem/1.5 sans-serif; }.member-stat span { display: block; color: var(--c-ink-3); }
+.member-open { display: block; margin-top: 1.2rem; color: var(--c-brand-deep); font-size: .85rem; }
 .pagination { display: flex; align-items: center; justify-content: end; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; font-size: .8rem; }.pagination button { padding: .5rem; min-height: 44px; min-width: 44px; }button:disabled { opacity: .45; cursor: not-allowed; }
 .report-paper { background: #ffffff; padding: 2rem; border-radius: 1rem; }
 @media(max-width:900px) { .member-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }

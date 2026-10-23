@@ -112,9 +112,7 @@ function scrollTo(id: string) {
         题目从哪来，分数怎么算，哪些结论不该下
       </h1>
       <p class="mt-3 prose-cn">
-        这一页说的就是首页那份<strong class="font-medium text-ink">{{ facts.title }}</strong
-        >。它不打算说服你相信结果，只把可查证的来源、可复算的算法，以及我们明确做不到的事情
-        写清楚，剩下的判断留给你。
+        本页说明<strong class="font-medium text-ink">{{ facts.title }}</strong>的来源、算法和限制。
       </p>
 
       <!-- 页内锚点：可查证的来源和容易理解的说明 -->
@@ -150,12 +148,11 @@ function scrollTo(id: string) {
         <li class="list-dot" data-answer-format>
           每题给出一对<strong class="font-medium text-ink">相反的描述</strong>：两边都读完，再选自己更靠近哪一边，
           <strong class="font-medium text-ink">左边永远是 1，右边永远是 5</strong>。
-          五个位置是连续的：明显偏左、有些偏左、两边相近、有些偏右、明显偏右，
-          两个端点的顺序不会因为美观而调换。
+          五个位置连续：明显偏左、有些偏左、两边相近、有些偏右、明显偏右。
         </li>
         <li class="list-dot">
           中间那一档（3）是<strong class="font-medium text-ink">真实答案</strong>，不是"没想好"。
-          但五个位置都不代表"更理想"，只代表更接近哪一侧。
+          五个位置都不代表"更理想"，只代表更接近哪一侧。
         </li>
         <li class="list-dot">
           <strong class="font-medium text-ink">看不懂、没有相关经历、两边都不适用时，</strong>
@@ -175,7 +172,7 @@ function scrollTo(id: string) {
 
       <p class="mt-3 prose-cn">
         主测的每一题都只属于一个维度，{{ dimensionPhrase }}各由同样多的题目计分。
-        每个维度都是一条连续分数，不是几个格子；两端标记与下面的一句话说明，就是这份量表自己的写法。
+        每个维度都是一条连续分数。
       </p>
 
       <dl data-dimension-list class="mt-4 grid gap-x-10 gap-y-4 tablet:grid-cols-2">
@@ -199,37 +196,27 @@ function scrollTo(id: string) {
       <h2 class="section-title">如何理解结果</h2>
       <ul class="mt-4 space-y-2.5 prose-cn">
         <li class="list-dot">
-          <strong class="font-medium text-ink">这是一次倾向，不是一个身份。</strong>
-          {{ dimensionPhrase }}都是连续分数，四字母只是把连续分数切成四段之后的一种叫法。
+          <strong class="font-medium text-ink">结果是一次倾向，不是身份。</strong>
+          四字母只是把连续分数切成四段后的叫法。
         </li>
         <li class="list-dot">
           <strong class="font-medium text-ink">允许"未定"。</strong>
-          每个维度会分别给出四种状态：信息不足（缺有效数字答案，不计算分数）、本次两侧相近
-          （没有主导侧）、本次略偏某侧（建议继续观察）、本次回答偏向某侧（可用于参考组合）。
-          {{ dimensionPhrase }}都达到展示条件时才会拼出四字母，否则完整类型为空 ——
-          不会退回某个默认类型。
+          每个维度单独给出状态：信息不足（缺有效数字答案，不计算分数）、两侧相近（没有主导侧）、略偏（建议继续观察）、偏向（可用于参考组合）。
+          {{ dimensionPhrase }}都达到展示条件才拼出四字母，否则类型为空，不退回默认类型。
         </li>
         <li class="list-dot" data-threshold>
-          <strong class="font-medium text-ink">越靠近中点，越不该当成确定结论。</strong>
-          一维的结果不是数一数哪边更多：每题的答案先换算成一个带符号的数（1 与 5 是两端、3 是中间，
-          再按这题哪一端是负极决定正负号），同一维的有效作答加起来，方向看这个和的符号。
-          「略偏」也不是一条写死的分数线：它由这个和的大小、以及这一维实际可计分的题数一起决定
-          —— 这一维的有效作答多一些，这条线就跟着放宽一点（比例与取整细节都固定在规则里）。
-          <strong class="font-medium text-ink">这里不抄一个固定数字</strong>：题目或规则一改，
-          抄下来的数字就会变成假话。登录后打开自己的历史报告，在「这份报告是怎么来的」里
-          能看到那一份记下的题数门槛。这条门槛是为了给出一个方向而定下的规则，
-          <strong class="font-medium text-ink">不是统计上的显著性判断</strong>，
-          也没有证据证明它提升了这份量表的判断质量。
+          <strong class="font-medium text-ink">越靠近中点，越不宜当成确定结论。</strong>
+          每题答案先换算成带符号的数（1 与 5 是两端，3 是中间），同一维的有效作答相加，方向看和的符号。
+          「略偏」由和的大小与这一维可计分的题数共同决定；具体门槛可在自己报告的「这份报告是怎么来的」里查看。
+          这条门槛是为给出方向定的规则，<strong class="font-medium text-ink">不是统计显著性判断</strong>，也没有证据证明它提升了判断质量。
         </li>
         <li class="list-dot">
-          <strong class="font-medium text-ink">不给人群比较。</strong>
-          我们没有本土常模样本，所以不会说"你比多少人更外向"，也不会给出类型占比；
-          位置与分数只表示偏离中点的程度，不是你在人群里的位置。
+          <strong class="font-medium text-ink">不做人群比较。</strong>
+          没有本土常模样本，所以不会说"你比多少人更外向"，也不给类型占比；位置与分数只表示偏离中点的程度。
         </li>
         <li class="list-dot">
           <strong class="font-medium text-ink">压线不等于"没测出来"。</strong>
-          它说明本次作答在那一维两边差不多。这份量表在信度与效度上没有证据，我们也就无法告诉你
-          哪一维更稳：压线的维度只当观察方向，隔一段时间、换个状态再看一次。
+          它说明本次作答在那一维两边差不多。量表没有信度与效度证据，无法判断哪一维更稳；压线的维度只当观察方向，隔一段时间、换个状态再看一次。
         </li>
       </ul>
     </section>
@@ -246,17 +233,14 @@ function scrollTo(id: string) {
           任何商业人格测评机构，也不是任何机构的官方测评。
         </p>
         <p class="rounded-control bg-paper-soft px-4 py-3 text-[14px] leading-relaxed">
-          这份量表的内容仍在内部核对中，题目与解释都会继续调整。它
-          <strong class="font-medium text-ink">没有信度或效度方面的证据</strong>：
-          我们拿不出任何材料来证明它"测得准"。这不是客气话，而是它此刻的真实状态。
+          内容仍在内部核对中，题目与解释会继续调整。它
+          <strong class="font-medium text-ink">没有信度或效度方面的证据</strong>，无法证明它"测得准"。
         </p>
         <p>
-          <strong class="font-medium text-ink">三点限制值得说清。</strong>
-          一是样本：我们没有本土常模样本，所以不给人群比较、类型占比这类结论。
-          二是语言：中文题面由本项目自行撰写，可读性经过人工核对与逐题释义，
-          但没有经过中文样本的检验；人工核对不等于测量学意义上的验证。
-          三是用途：它是参考测评，不是心理诊断，不涉及心理疾病，
-          也不能用于招聘、晋升或任何筛选。
+          <strong class="font-medium text-ink">三点限制。</strong>
+          一是样本：没有本土常模样本，所以不给人群比较、类型占比这类结论。
+          二是语言：中文题面由本项目自行撰写，经过人工核对与逐题释义，但没有经过中文样本的检验。
+          三是用途：它是参考测评，不是心理诊断，不涉及心理疾病，也不能用于招聘、晋升或任何筛选。
         </p>
       </div>
     </section>
@@ -265,10 +249,8 @@ function scrollTo(id: string) {
     <section id="data" data-anchor class="mt-10">
       <h2 class="section-title">新测的数据怎么存</h2>
       <p class="mt-3 prose-cn">
-        下面「本地记录」说的是本站更早那套在本机计分的问卷：它把进度留在这台设备上，不需要登录。
-        首页「开始测评」进的那份不一样 ——
-        <strong class="font-medium text-ink">登录后</strong>才会开始，因为它的目的是让你
-        <strong class="font-medium text-ink">换一台设备也能接着答、也能回看历次报告</strong>。
+        首页「开始测评」进入的新测<strong class="font-medium text-ink">需要登录</strong>，作答保存在账号里，可换设备接着答、回看历次报告。
+        「本地记录」一节说明的是更早那套在本机计分的问卷，它把进度留在这台设备上，不需要登录。
       </p>
 
       <dl class="mt-4 divide-y divide-line border-y border-line text-[14px]">
@@ -310,7 +292,7 @@ function scrollTo(id: string) {
           <dt class="w-40 shrink-0 font-medium text-ink">怎么导出</dt>
           <dd class="text-ink-soft">
             在「账号与数据」页可以导出一份 JSON 文件，里面有账号基本资料、每次测评的作答、
-            报告内容与 AI 记录。拿到的是原始数据，你可以在别处留一份。
+            报告内容与 AI 记录。
           </dd>
         </div>
         <div class="flex flex-col gap-1 py-3 tablet:flex-row tablet:gap-6">
@@ -326,7 +308,7 @@ function scrollTo(id: string) {
           <dd class="text-ink-soft">
             新测的结果是<strong class="font-medium text-ink">参考测评</strong>，
             不是心理诊断，不能用于招聘、晋升或任何筛选，也不涉及心理疾病。
-            解释内容还在通过内部核对，措辞会继续调整；请把它当成一个话题，而不是一个判决。
+            解释内容仍在内部核对，措辞会继续调整。
           </dd>
         </div>
       </dl>
@@ -337,8 +319,7 @@ function scrollTo(id: string) {
       <h2 class="section-title">本地记录</h2>
 
       <p class="mt-3 prose-cn">
-        这一段说的是本站更早那套在本机计分的问卷（首页已不再提供它的入口）：题目答案与计分在你的浏览器中处理。为了让你能接着上次继续，这台设备会保留最近一次作答，
-        你可以随时清除。首页主推的那份新测评不在这台设备上留底，它的数据在哪见上面的「新测的数据怎么存」。
+        本站更早那套在本机计分的问卷（首页已不再提供入口），答案与计分都在浏览器里处理。这台设备会保留最近一次作答以便接着做，可随时清除。新测评的数据存放见上一节。
       </p>
 
       <dl class="mt-4 divide-y divide-line border-y border-line text-[14px]">
@@ -359,7 +340,7 @@ function scrollTo(id: string) {
         <div class="flex flex-col gap-1 py-3 tablet:flex-row tablet:gap-6">
           <dt class="w-40 shrink-0 font-medium text-ink">保留多久</dt>
           <dd class="text-ink-soft">
-            保留最近一次作答，直到你主动清除或确认重新测试。我们不设定时清理，也不会替你决定什么时候删。
+            保留最近一次作答，直到你清除或确认重新测试，不定时清理。
           </dd>
         </div>
         <div class="flex flex-col gap-1 py-3 tablet:flex-row tablet:gap-6">
@@ -384,8 +365,7 @@ function scrollTo(id: string) {
             ><template v-if="quiz.legacyV2 && quiz.legacyV1">，以及</template
             ><template v-if="quiz.legacyV1"
               >一份更早的作答（{{ quiz.legacyV1.answeredCount }} 题）</template
-            >。它们用的是当时的题目，所以不会被套到现在的题目上，也不会被自动删除；
-            首页已经不再提供打开它们的入口，你只能在这里查看数量并一并清除。
+            >。它们用的是当时的题目，不会套用到现在的题目，也不会被自动删除；这里只能查看数量并一并清除。
           </dd>
         </div>
       </dl>
@@ -416,14 +396,13 @@ function scrollTo(id: string) {
     <section class="mt-10 rounded-question border border-line bg-surface px-5 py-5">
       <h2 class="section-title">本站不做的事</h2>
       <ul class="mt-3 space-y-2 prose-sm">
-        <li class="list-dot">不给「你在人群中排第几」——没有本土常模，给了就是编的。</li>
+        <li class="list-dot">不给「你在人群中排第几」，因为没有本土常模。</li>
         <li class="list-dot">不做诊断、不涉及心理疾病，也不用于招聘、晋升或任何筛选。</li>
         <li class="list-dot">
-          不做公开排行，也不做「你比别人如何」的对比；没有常模，比了也是编的。
+          不做公开排行，也不做与他人的对比。
         </li>
         <li class="list-dot">
-          账号只服务两件事：换设备接着答、回看历次报告。不投放广告，不把作答交给任何第三方统计，
-          也不设付费墙：该给的信息在结果页一次给完。
+          账号只用于换设备接着答和回看历次报告。不投放广告，不把作答交给第三方统计，不设付费墙。
         </li>
       </ul>
     </section>
