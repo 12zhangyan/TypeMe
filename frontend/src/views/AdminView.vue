@@ -327,8 +327,7 @@ onMounted(load)
     -->
     <AdminHeader active="ai" title="AI 分析设置">
       <template #lead>
-        这里改的是<strong class="font-semibold text-ink">服务端当前生效</strong>的运行参数。保存后立刻生效，不需要重启 ——
-        正在排队的分析会按新参数继续。
+        修改后<strong class="font-semibold text-ink">立即生效</strong>，无需重启；排队中的分析按新参数继续。
       </template>
     </AdminHeader>
 
@@ -349,8 +348,7 @@ onMounted(load)
         <span>这个页面只对管理员开放。</span>
       </p>
       <p class="mt-2 text-[14px] leading-relaxed text-ink-soft">
-        你现在是登录状态，但当前账号不是管理员。权限是在服务端判定的，
-        所以这个页面看不到任何设置内容 —— 不是加载失败，也不是网络问题。
+        当前账号已登录，但不是管理员。权限由服务端判定，所以看不到设置内容；这不是加载失败。
       </p>
       <p class="mt-2 text-[14px] leading-relaxed text-ink-soft">
         需要权限的话，请让已有的管理员在后台把你的账号角色改成 ADMIN；
@@ -375,8 +373,7 @@ onMounted(load)
         <span>登录状态已经失效，需要重新登录。</span>
       </p>
       <p class="mt-2 text-[14px] leading-relaxed text-ink-soft">
-        服务端说这次请求没有有效的登录态（可能是会话超时、在别处退出，或换了账号）。
-        这和"没有管理员权限"、和"后端没响应"都不是一回事，重新登录即可。
+        可能是会话超时、在别处退出或换了账号。重新登录即可。
       </p>
       <p v-if="accessError?.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
         报障编号：<code class="font-mono">{{ accessError.requestId }}</code>
@@ -401,9 +398,7 @@ onMounted(load)
         <span>没能确认你的权限：{{ accessError?.message }}</span>
       </p>
       <p class="mt-2 text-[13.5px] leading-relaxed">
-        服务端这次没有给出可用的答复（网络、超时或服务异常）。这不代表你没有权限 ——
-        权限不足会单独提示「只对管理员开放」，登录失效也会单独提示。
-        请不要据此去改权限配置。
+        服务端没有给出可用的答复（网络、超时或服务异常），这不代表你没有权限，请不要据此去改权限配置。
       </p>
       <p v-if="accessError?.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
         报障编号：<code class="font-mono">{{ accessError.requestId }}</code>
@@ -449,8 +444,7 @@ onMounted(load)
           </div>
         </dl>
         <p class="caption mt-3 max-w-prose">
-          指纹是密钥的 sha256 前 8 位，只用来确认密钥有没有换过；它不可逆，也不能用来调用上游。
-          密钥本身在这个页面上永远不回显。
+          指纹为密钥 sha256 的前 8 位，仅用于确认密钥是否更换；密钥本身不会显示。
         </p>
       </section>
 
@@ -460,10 +454,8 @@ onMounted(load)
           API 密钥
         </h2>
         <p class="mt-2 prose-sm max-w-prose">
-          只写不读：填入新密钥后保存会替换掉现有的；留空则不动。要彻底清除，勾选下面的「清除密钥」。
-          保存前请确认部署中已配置
-          <code class="font-mono text-[13px]">typeme.security.settings-secret</code>，
-          否则服务端会拒绝写入（不会退化成明文保存）。
+          新密钥保存后替换现有的，留空则不改；要清除请勾选下面的「清除已保存的密钥」。需要部署中已配置
+          <code class="font-mono text-[13px]">typeme.security.settings-secret</code>，否则服务端拒绝写入。
         </p>
 
         <div class="mt-4 max-w-prose">
@@ -480,7 +472,7 @@ onMounted(load)
             class="mt-1.5 w-full min-w-0 rounded-control border border-line-strong bg-surface px-3 py-2.5 font-mono text-[15px] text-ink"
           />
           <p class="caption mt-2">
-            填在这里的值只用于本次提交，保存成功后输入框会被清空；页面上不会显示已保存的密钥。
+            保存成功后输入框会清空。
           </p>
 
           <div class="mt-4 flex items-start gap-2.5">
@@ -504,8 +496,7 @@ onMounted(load)
           >
             <AppIcon name="alert" :size="17" class="mt-0.5" />
             <span>
-              保存后会清除已保存的密钥。如果部署环境变量里还有密钥，则会回落到那一份 ——
-              想彻底断开，请同时处理环境变量。
+              保存后会清除已保存的密钥；部署环境变量里若还有密钥，会回落到那一份。
             </span>
           </p>
         </div>
@@ -517,7 +508,7 @@ onMounted(load)
           运行参数
         </h2>
         <p class="mt-2 prose-sm max-w-prose">
-          留空表示保持当前值。所有数值都是正整数，输入不合法时保存按钮会被禁用并说明原因。
+          留空表示保持当前值；数值须为正整数。
         </p>
 
         <div class="mt-4 grid max-w-[46rem] gap-5 tablet:grid-cols-2">
@@ -536,8 +527,7 @@ onMounted(load)
               class="mt-1.5 w-full min-w-0 rounded-control border border-line-strong bg-surface px-3 py-2.5 font-mono text-[15px] text-ink"
             />
             <p class="caption mt-2">
-              读取接口只返回主机名（<span class="font-mono">{{ saved?.baseUrlHost ?? '未记录' }}</span>），
-              所以这里<strong class="font-medium text-ink-soft">不预填</strong>：改地址必须重新输入完整 URL，避免把主机名写成缺协议的坏值。
+              接口只返回主机名（<span class="font-mono">{{ saved?.baseUrlHost ?? '未记录' }}</span>），所以不预填；修改时请输入完整 URL。
             </p>
             <p v-if="invalidFields.baseUrl" class="mt-1.5 text-[13px] text-accent-700">{{ invalidFields.baseUrl }}</p>
           </div>
@@ -679,9 +669,7 @@ onMounted(load)
           账号概览（只读）
         </h2>
         <p class="mt-2 prose-sm max-w-prose">
-          用来确认"设置到底对谁生效"。这一页<strong class="font-medium text-ink-soft">不提供</strong>改角色或禁用账号的操作：
-          禁用会撤销对方的全部会话、把账号置为不可登录，属于不可逆操作，
-          需要单独确认后再开放入口。
+          只读列表。本页<strong class="font-medium text-ink-soft">不提供</strong>改角色或禁用账号的操作。
         </p>
 
         <div v-if="usersError" class="notice-error mt-3 max-w-prose" role="alert">

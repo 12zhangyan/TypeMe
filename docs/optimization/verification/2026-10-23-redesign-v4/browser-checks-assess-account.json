@@ -1,0 +1,147 @@
+{
+ "checks": [
+  {
+   "label": "anon/320 登录页不对新访客说「登录状态已经失效」",
+   "passed": true
+  },
+  {
+   "label": "anon/320 密码错误时提示块可见（高度 197px）",
+   "passed": true,
+   "detail": "用户名或密码不对。 | 服务器说明：用户名或密码不正确。 | 报障编号：d53ddf7c-6bdc-49a3-8761-20ab0e1b6f21 | （反馈问题"
+  },
+  {
+   "label": "anon/320 登录页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "user/320 答题页题卡上沿 277px ≤ 300px",
+   "passed": true
+  },
+  {
+   "label": "user/320 手机顶栏不吸顶（static），--header-h=0px",
+   "passed": true
+  },
+  {
+   "label": "user/320 答题页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "user/320 报告列表三个入口左缘与宽度一致",
+   "passed": true,
+   "detail": "[{\"t\":\"再测一次\",\"x\":16,\"w\":288,\"y\":1008},{\"t\":\"比较两份十六型报告\",\"x\":16,\"w\":288,\"y\":1060},{\"t\":\"比较两份大五报告\",\"x\":16,\"w\":288,\"y\":1112}]"
+  },
+  {
+   "label": "user/320 报告列表无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "user/320 账号页刚登录就显示注册时间（无「没有记录」）",
+   "passed": true
+  },
+  {
+   "label": "user/320 账号页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "user/320 报告页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "anon/390 登录页不对新访客说「登录状态已经失效」",
+   "passed": true
+  },
+  {
+   "label": "anon/390 密码错误时提示块可见（高度 175px）",
+   "passed": true,
+   "detail": "用户名或密码不对。 | 服务器说明：用户名或密码不正确。 | 报障编号：0bb7b048-8ab8-48f2-9001-5bc261aeca6f | （反馈问题"
+  },
+  {
+   "label": "anon/390 登录页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "user/390 答题页题卡上沿 277px ≤ 300px",
+   "passed": true
+  },
+  {
+   "label": "user/390 手机顶栏不吸顶（static），--header-h=0px",
+   "passed": true
+  },
+  {
+   "label": "user/390 答题页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "user/390 首屏（844px）内能看到题目与五档选项（选项底边 749px）",
+   "passed": true,
+   "detail": ""
+  },
+  {
+   "label": "user/390 报告列表三个入口左缘与宽度一致",
+   "passed": true,
+   "detail": "[{\"t\":\"再测一次\",\"x\":16,\"w\":358,\"y\":963},{\"t\":\"比较两份十六型报告\",\"x\":16,\"w\":358,\"y\":1015},{\"t\":\"比较两份大五报告\",\"x\":16,\"w\":358,\"y\":1067}]"
+  },
+  {
+   "label": "user/390 报告列表无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "user/390 账号页刚登录就显示注册时间（无「没有记录」）",
+   "passed": true
+  },
+  {
+   "label": "user/390 账号页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "user/390 报告页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "anon/1440 登录页不对新访客说「登录状态已经失效」",
+   "passed": true
+  },
+  {
+   "label": "anon/1440 密码错误时提示块可见（高度 133px）",
+   "passed": true,
+   "detail": "用户名或密码不对。 | 服务器说明：用户名或密码不正确。 | 报障编号：b0fc00f3-2c7e-4c82-bac9-b8c74981d255 | （反馈问题"
+  },
+  {
+   "label": "anon/1440 登录页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "user/1440 答题页题卡上沿 137px ≤ 330px",
+   "passed": true
+  },
+  {
+   "label": "user/1440 平板/桌面顶栏仍吸顶（sticky），--header-h=73px",
+   "passed": true
+  },
+  {
+   "label": "user/1440 答题页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "user/1440 报告列表三个入口并排同一行",
+   "passed": true,
+   "detail": "[{\"t\":\"再测一次\",\"x\":96,\"w\":80,\"y\":827},{\"t\":\"比较两份十六型报告\",\"x\":184,\"w\":152,\"y\":827},{\"t\":\"比较两份大五报告\",\"x\":344,\"w\":138,\"y\":827}]"
+  },
+  {
+   "label": "user/1440 报告列表无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "user/1440 账号页刚登录就显示注册时间（无「没有记录」）",
+   "passed": true
+  },
+  {
+   "label": "user/1440 账号页无横向溢出",
+   "passed": true
+  },
+  {
+   "label": "user/1440 报告页无横向溢出",
+   "passed": true
+  }
+ ]
+}

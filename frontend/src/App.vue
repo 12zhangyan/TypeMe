@@ -79,7 +79,7 @@ const legacyScope = computed(() => isLegacyEngineRoute(route.name))
 
 /** 副标题：旧引擎页面按当前内容包生成；新站页面用新测自己的量表名。 */
 const shellTagline = computed(() =>
-  legacyScope.value ? legacyInstrumentTagline(quiz.value?.activePackage) : '多种测评，帮助你理解自己',
+  legacyScope.value ? legacyInstrumentTagline(quiz.value?.activePackage) : '多种测评',
 )
 
 /** 答题页自己渲染完整的进度与操作区；这里不再重复导航，避免误触清空进度。 */
@@ -448,7 +448,7 @@ function navPill(active: boolean): string {
       <div
         class="mx-auto w-full max-w-shell-wide px-3 py-7 tablet:px-6 tablet:py-9 laptop:px-8"
       >
-        <div class="footer-wordmark" aria-hidden="true">TypeMe<span>向内探索，<br />向外生长。</span></div>
+        <div class="footer-wordmark" aria-hidden="true">TypeMe</div>
         <div class="flex flex-col gap-5 laptop:flex-row laptop:justify-between laptop:gap-10">
           <div class="max-w-prose space-y-2">
             <p class="text-[13.5px] font-semibold text-ink">TypeMe · {{ shellTagline }}</p>

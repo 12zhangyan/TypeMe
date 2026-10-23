@@ -423,7 +423,7 @@ function jumpToSection(id: string): void {
           你的测评记录
         </h1>
         <p class="mt-3 prose-cn">
-          按时间倒序排列。报告是提交那一刻的快照，之后改答不会改它 —— 想对比就再来一次。
+          按时间倒序排列。报告是提交时的快照，之后改答不会改变它；想对比请再测一次。
         </p>
         <!--
           复测比较的入口（2026-09-17 新增）。只在**至少两份**报告时才显示：
@@ -508,14 +508,13 @@ function jumpToSection(id: string): void {
           这次测评还没有报告可看
         </h1>
         <p class="mt-3 prose-cn">
-          报告不是每题一答就开始生成的：有维度没达到最少有效作答数时，我们宁可不出报告，
-          也不出一份看起来完整、实际上靠默认值拼出来的结论。
+          有维度没达到最少有效作答数时不出报告，避免用默认值拼出一份看起来完整的结论。
         </p>
         <ul class="mt-4 space-y-2 prose-cn">
           <li class="list-dot">可能有题目还没处理（既没有选，也没有标「这题我说不好」）。</li>
           <li class="list-dot">也可能某个维度的有效作答太少，或者补充题被跳过了。</li>
           <li class="list-dot">
-            回到答题页时会直接告诉你是哪几个维度、还差几题 —— 不写"信息不足"四个字了事。
+            回到答题页会看到是哪几个维度、还差几题。
           </li>
         </ul>
         <div class="mt-5 flex flex-wrap items-center gap-3">
@@ -530,17 +529,17 @@ function jumpToSection(id: string): void {
           这份报告打不开了
         </h1>
         <p class="mt-3 prose-cn">
-          服务端说没有这份报告。常见的原因有三个，都不是"系统坏了"：
+          服务端没有找到这份报告，可能的原因：
         </p>
         <ul class="mt-4 space-y-2 prose-cn">
           <li class="list-dot">它已经被删除了（删除是立刻生效的，链接会失效）。</li>
-          <li class="list-dot">这个链接属于另一个账号 —— 报告只对生成它的账号可见。</li>
+          <li class="list-dot">这个链接属于另一个账号，报告只对生成它的账号可见。</li>
           <li class="list-dot">链接里的编号不完整或被改动过。</li>
         </ul>
         <p class="mt-3 prose-cn text-[13.5px] text-ink-soft">
           如果这份报告是刚刚生成的，可以
           <button type="button" class="link" @click="reports.loadReport(reportId ?? '')">再读一次</button>；
-          已经交卷的测评不会因为打不开这一页而消失。
+          已交卷的测评不会因此消失。
         </p>
         <div class="mt-5 flex flex-wrap items-center gap-3">
           <RouterLink to="/reports" class="btn-primary">回到历史报告</RouterLink>
@@ -565,7 +564,7 @@ function jumpToSection(id: string): void {
       <p class="text-[15px] font-medium">这份报告的内容读不出来</p>
       <p class="mt-1 text-[13.5px] leading-relaxed">{{ shapeError }}</p>
       <p class="mt-1 text-[13px] leading-relaxed">
-        页面不会用默认值补齐缺失字段 —— 那样会显示一份看起来正常、实际上是我们编的报告。
+        页面不会用默认值补齐缺失字段。
       </p>
     </div>
 
@@ -1022,8 +1021,7 @@ function jumpToSection(id: string): void {
               <h2 id="report-self-title" class="section-title">你自己的理解</h2>
             </div>
             <p class="mt-2 text-[13.5px] leading-relaxed text-ink-soft">
-              问卷结果是问卷算出来的；这里是你自己的判断。两者分开显示，
-              <strong class="font-medium text-ink">谁都不会覆盖谁</strong>。
+              问卷结果与你自己的判断分开显示，<strong class="font-medium text-ink">互不覆盖</strong>。
             </p>
             <div class="mt-4 grid gap-4 tablet:grid-cols-[10rem_minmax(0,1fr)]">
               <div>
@@ -1201,7 +1199,7 @@ function jumpToSection(id: string): void {
     <ConfirmDialog
       :open="confirmDelete"
       title="删除这份报告会同时删掉它的答案与相关记录，是否继续？"
-      description="删除后无法恢复。这是你自己数据的一部分，任何时候都可以删。"
+      description="删除后无法恢复。"
       confirm-label="删除报告"
       cancel-label="保留"
       danger
@@ -1214,7 +1212,7 @@ function jumpToSection(id: string): void {
     <ConfirmDialog
       :open="deleteTarget !== null"
       title="删除这条记录会同时删掉它的答案与相关记录，是否继续？"
-      description="删除后无法恢复。这是你自己数据的一部分，任何时候都可以删。"
+      description="删除后无法恢复。"
       confirm-label="删除记录"
       cancel-label="保留"
       danger

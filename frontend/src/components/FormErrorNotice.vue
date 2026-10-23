@@ -21,7 +21,7 @@ import AppIcon from '@/components/AppIcon.vue'
  * <p>这里原来是 `defineProps<{ requestHint?: boolean }>()` + 模板里 `v-if="requestHint !== false"`，
  * 想法是"不传就显示"。但 Vue 对**布尔** prop 有一个容易忘的规则：缺席的布尔 prop 会被转成
  * `false`（`disabled` 那套语义），于是 `undefined !== false` 这个判断永远不成立 ——
- * 「（反馈问题时把这个编号一起发过来，能直接查到这次请求。）」这句话在
+ * 「（反馈问题时请附上这个编号。）」这句话在
  * **所有页面上都没有渲染过**，而组件注释写的是"默认显示"。
  * 用 `withDefaults` 把默认值写进声明，让"默认"由类型系统而不是模板条件来保证。
  */
@@ -60,12 +60,12 @@ withDefaults(
       服务器说明：{{ error.serverMessage }}
     </p>
     <p v-if="error.retryAfterSeconds" class="mt-2 text-[13.5px] leading-relaxed">
-      大约 {{ error.retryAfterSeconds }} 秒后再试就来得及。
+      约 {{ error.retryAfterSeconds }} 秒后可再试。
     </p>
     <p v-if="error.requestId" class="mt-2 break-all text-[12.5px] leading-relaxed">
       报障编号：<code class="font-mono">{{ error.requestId }}</code>
       <span v-if="requestHint !== false" class="block text-ink-faint">
-        （反馈问题时把这个编号一起发过来，能直接查到这次请求。）
+        （反馈问题时请附上这个编号。）
       </span>
     </p>
   </div>

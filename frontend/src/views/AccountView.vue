@@ -288,7 +288,7 @@ function goHome() {
           <span>这个账号已经不能登录了，你的测评记录与报告正在被删除，删除过程无法中止。</span>
         </p>
         <p class="mt-2">
-          如果只是想换个用户名，很遗憾没有改名功能：账号删除后用户名会被释放，但记录不会跟着走。
+          本站没有改名功能；账号删除后用户名会被释放，记录不会保留。
         </p>
         <p v-if="deletionJobId" class="mt-2 break-all">
           删除任务编号：<code class="font-mono">{{ deletionJobId }}</code>
@@ -372,7 +372,7 @@ function goHome() {
             class="mt-1.5 w-full min-w-0 rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[16px] text-ink"
           />
           <p :id="`${nicknameId}-help`" class="caption mt-1.5">
-            最多 32 个字，会显示在页面上。留空是不允许的，不想显示昵称就保持现在的。
+            最多 32 个字，不能留空。
           </p>
 
           <FormErrorNotice
@@ -533,7 +533,7 @@ function goHome() {
               <span>这组新恢复码只显示这一次，请现在就抄下来。</span>
             </p>
             <p class="mt-1">
-              旧的恢复码已经全部作废。页面不会自动复制到剪贴板，也不会帮你保存到任何地方。
+              旧恢复码已全部作废。页面不会自动复制或保存它们。
             </p>
           </div>
           <!-- 一组码收在一张卡里、用细分隔线分开，和注册页保持同一套读法 -->
@@ -626,9 +626,8 @@ function goHome() {
           删除单份报告，请前往 <RouterLink to="/reports" class="link">我的报告</RouterLink>。
         </p>
         <p class="mt-2 prose-sm max-w-prose">
-          本机浏览器里还留着一份最近作答的副本（就是「方法与隐私」页里说的那份本地记录），
-          它不在这里删 —— 那属于
-          <RouterLink to="/about" class="link">本地记录</RouterLink>，清不清由你决定。
+          本机浏览器里可能还留着一份最近作答的副本，不在这里删，请到
+          <RouterLink to="/about" class="link">本地记录</RouterLink>清除。
         </p>
       </section>
 
@@ -656,8 +655,7 @@ function goHome() {
           <p class="flex items-start gap-2 text-[14.5px] font-medium leading-relaxed">
             <AppIcon name="alert" :size="17" class="mt-0.5" />
             <span>
-              刚才那次导出<strong class="font-medium">不是完整备份</strong>，先别注销 ——
-              请重新导出成功后再回来删除账号。
+              刚才的导出<strong class="font-medium">不是完整备份</strong>，先别注销，请重新导出成功后再回来删除账号。
             </span>
           </p>
         </div>
@@ -688,8 +686,7 @@ function goHome() {
             再确认一次
           </h3>
           <p class="mt-2 text-[14px] leading-relaxed text-accent-700">
-            这会删除你的全部测评记录与报告，无法恢复。账号会立刻无法登录，用户名将被释放，
-            但你不会因此找回之前的数据。
+            这会删除全部测评记录与报告，无法恢复。账号立即无法登录，用户名将被释放。
           </p>
 
           <div class="mt-4 flex items-start gap-2.5">

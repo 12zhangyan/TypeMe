@@ -378,7 +378,7 @@ async function leave() {
       </p>
 
       <p class="mt-6 fineprint max-w-prose">
-        注册成功后会给一组恢复码，用来在忘记密码时重置，所以下一步别急着关掉页面。
+        注册成功后会显示一组恢复码，用于忘记密码时重置，请先保存。
       </p>
     </section>
   </PageContainer>

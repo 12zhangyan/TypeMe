@@ -272,7 +272,7 @@ function pickTopic(value: AnalysisTopic): void {
     </div>
 
     <p class="mt-4 max-w-[44rem] text-[14.5px] leading-[1.75] text-navy-100">
-      把这份报告放进你关心的生活场景，看看哪些解释符合自己，再选一件小事试试。
+      结合你关心的场景解读这份报告，并给出一件可以试的小事。
     </p>
 
     <!-- ① 问不到状态（未登录 / 网络失败）：只说明，不给按钮 -->
@@ -384,7 +384,7 @@ function pickTopic(value: AnalysisTopic): void {
             <p class="text-[14.5px] font-medium leading-relaxed text-white">{{ job.status === 'QUEUED' ? '已排队，等待生成' : '正在生成' }}</p>
           </div>
           <p class="mt-2 max-w-[42rem] text-[14px] leading-relaxed text-navy-100">
-            通常需要十几秒到一分钟。可以留在这个页面，也可以先去别处 —— 回来时进度还在。
+            通常需要十几秒到一分钟，可以先离开，回来时进度还在。
           </p>
           <!-- 骨架屏只是占位，不表示"已完成 60%" -->
           <div class="mt-4 space-y-2.5" aria-hidden="true">
@@ -393,8 +393,7 @@ function pickTopic(value: AnalysisTopic): void {
             <div class="skeleton skeleton-on-deep h-3.5 w-[80%]" />
           </div>
           <p v-if="ai.pollingGaveUp" class="mt-4 text-[13px] leading-relaxed text-navy-200" data-ai-polling-gave-up>
-            已经等了很久还没有结果，自动刷新先停下来了。任务本身可能还在跑 ——
-            点下面这个按钮再问一次，或者过一会儿刷新页面。
+            等待时间较长，自动刷新已停止，任务可能仍在运行。点下面的按钮再查一次，或稍后刷新页面。
           </p>
           <button
             v-if="ai.pollingGaveUp"
@@ -803,7 +802,7 @@ function pickTopic(value: AnalysisTopic): void {
           class="mt-3 text-[13px] leading-relaxed text-navy-200"
           data-ai-other-running
         >
-          另一次生成还在进行中。等它结束后再开始新的分析 —— 同一份报告同时跑两个不会更快。
+          另一次生成还在进行中，请等它结束后再开始新的分析。
         </p>
       </div>
 

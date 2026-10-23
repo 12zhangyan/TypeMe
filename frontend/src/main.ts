@@ -5,7 +5,7 @@ import { router } from './router'
 import { installSessionExpiryBridge } from './stores/auth'
 import { useIllustrationAssetsStore } from './stores/illustrationAssetsV3'
 import './style.css'
-import './design/atelier.css'
+import './design/surfaces.css'
 
 const app = createApp(App)
 const pinia = createPinia()
