@@ -17,6 +17,11 @@ function stubRect() {
   vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(() => ({ height } as DOMRect))
 }
 
+/** jsdom 不解析样式表：用桩声明顶栏当前是吸顶（sticky）还是随页面滚走（static）。 */
+function stubPosition(position: 'sticky' | 'static') {
+  vi.spyOn(window, 'getComputedStyle').mockImplementation(() => ({ position } as CSSStyleDeclaration))
+}
+
 function readVar() {
   return document.documentElement.style.getPropertyValue(HEADER_HEIGHT_VAR)
 }
@@ -37,6 +42,7 @@ describe('useHeaderHeightVar', () => {
       disconnect = disconnect
     })
     stubRect()
+    stubPosition('sticky')
     height = 152.4
 
     const wrapper = mount(Host)
@@ -49,6 +55,26 @@ describe('useHeaderHeightVar', () => {
     wrapper.unmount()
     expect(disconnect).toHaveBeenCalledTimes(1)
     expect(readVar()).toBe('')
+  })
+
+  it('手机宽度顶栏不吸顶 → 写 0，页内跳转不必再让出一截；回到吸顶宽度后恢复实际高度', () => {
+    let notify = () => {}
+    vi.stubGlobal('ResizeObserver', class {
+      constructor(callback: () => void) { notify = callback }
+      observe() {}
+      disconnect() {}
+    })
+    stubRect()
+    stubPosition('static')
+    height = 109
+
+    const wrapper = mount(Host)
+    expect(readVar()).toBe('0px')
+
+    stubPosition('sticky')
+    notify()
+    expect(readVar()).toBe('109px')
+    wrapper.unmount()
   })
 
   it('没有 ResizeObserver 时不写内联值，沿用样式表默认的 60/64px', () => {

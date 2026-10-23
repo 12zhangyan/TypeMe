@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import ReportFloatingToc from '@/components/ReportFloatingToc.vue'
 import FormErrorNotice from '@/components/FormErrorNotice.vue'
 import AiAnalysisPanel from '@/components/AiAnalysisPanel.vue'
 import DimensionMeter from '@/components/DimensionMeter.vue'
@@ -1193,6 +1194,9 @@ function jumpToSection(id: string): void {
     <p v-if="notice" class="notice-neutral mt-6 whitespace-pre-wrap text-[13.5px] leading-relaxed" role="status" aria-live="polite" data-notice>
       {{ notice }}
     </p>
+
+    <!-- 手机上读到后面想回看某一节：目录只在最上面，这里补一个固定入口（笔记本起不显示） -->
+    <ReportFloatingToc v-if="reportId && TOC.length > 0" :items="TOC" @jump="jumpToSection" />
 
     <ConfirmDialog
       :open="confirmDelete"

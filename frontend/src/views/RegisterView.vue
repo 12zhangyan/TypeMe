@@ -8,6 +8,7 @@ import { refreshCsrfToken } from '@/api/v3'
 import { DISCLAIMER_TEXT } from '@/domain/disclaimerV3'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
+import FormErrorNotice from '@/components/FormErrorNotice.vue'
 
 /**
  * 注册 —— 契约 `02-数据模型与API-v1.md` §7.2（`POST /auth/register`）。

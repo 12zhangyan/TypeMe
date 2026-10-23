@@ -767,7 +767,7 @@ const earlierUnanswered = computed(() =>
 
 <template>
   <PageContainer page="quiz" tight>
-    <div class="jung-workspace py-4 tablet:py-6 laptop:grid laptop:grid-cols-[17rem_minmax(0,1fr)] laptop:gap-8">
+    <div class="jung-workspace py-2 tablet:py-6 laptop:grid laptop:grid-cols-[17rem_minmax(0,1fr)] laptop:gap-8">
       <!-- 左栏：进度与状态（laptop 起固定在左） -->
       <aside class="laptop:sticky laptop:top-[calc(var(--header-h)+1.5rem)] laptop:self-start">
         <!--
@@ -777,12 +777,12 @@ const earlierUnanswered = computed(() =>
           同时不与右边的题卡抢焦点。
         -->
         <div class="jung-progress">
-          <p class="section-kicker">十六型人格参考测评</p>
-          <h1 class="mt-1 font-display text-[19px] font-bold leading-tight text-ink tablet:text-[22px]">
+          <p class="section-kicker hidden tablet:block">十六型人格参考测评</p>
+          <h1 class="font-display tablet:mt-1 text-[19px] font-bold leading-tight text-ink tablet:text-[22px]">
             第 {{ activeNumber }} / {{ activeTotal }} 题
           </h1>
 
-          <div class="mt-4 space-y-1.5">
+          <div class="mt-1.5 space-y-1.5 laptop:mt-4">
             <p v-if="step === 'base' || step === 'clarify-offer'" class="text-[14px] font-medium text-ink">
               主测 {{ processedBase }} / {{ totalBase }}
             </p>
@@ -792,15 +792,16 @@ const earlierUnanswered = computed(() =>
             >
               补充 {{ clarificationProcessed }} / {{ totalClarification }}
             </p>
-            <p v-if="step === 'base'" class="text-[13px] text-ink-soft">
+            <!-- 与上面的标题是同一件事：手机上省掉，把首屏让给题目（笔记本左栏才有空间） -->
+            <p v-if="step === 'base'" class="hidden text-[13px] text-ink-soft laptop:block">
               第 {{ activeNumber }} 题 / 共 {{ activeTotal }} 题
             </p>
-            <p v-else-if="step === 'clarification'" class="text-[13px] text-ink-soft">
+            <p v-else-if="step === 'clarification'" class="hidden text-[13px] text-ink-soft laptop:block">
               补充题 第 {{ activeNumber }} 题 / 共 {{ activeTotal }} 题
             </p>
           </div>
 
-          <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-line-soft" role="presentation">
+          <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-line-soft laptop:mt-3" role="presentation">
             <div
               class="h-full rounded-full bg-primary-500 transition-[width] duration-300"
               :style="{
@@ -809,7 +810,7 @@ const earlierUnanswered = computed(() =>
             />
           </div>
 
-          <p class="mt-3 flex items-start gap-2 text-[13px] leading-relaxed" :class="saveTone" data-save-state>
+          <p class="mt-2 flex items-start gap-2 text-[13px] leading-relaxed laptop:mt-3" :class="saveTone" data-save-state>
             <AppIcon name="refresh" :size="14" class="mt-[3px] shrink-0 opacity-70" />
             <span>{{ saveLabel }}</span>
           </p>
@@ -868,7 +869,7 @@ const earlierUnanswered = computed(() =>
 
         <!-- 本地预览：明确标注为"目前的粗略倾向"，不是结论。放在进度卡外面：
              它是"参考"，和"答到哪了 / 存住了吗"不是同一层级。 -->
-        <details v-if="previewLines.length > 0" class="jung-preview mt-4">
+        <details v-if="previewLines.length > 0" class="jung-preview mt-1 tablet:mt-4">
           <summary class="cursor-pointer min-h-[44px] py-2 text-[13px] text-ink-soft">查看目前的粗略倾向</summary>
           <p class="flex items-center gap-2 text-[12.5px] font-medium text-ink-soft">
             <AppIcon name="chart" :size="14" class="text-primary-500" />
@@ -896,7 +897,7 @@ const earlierUnanswered = computed(() =>
       </aside>
 
       <!-- 右栏：题卡 -->
-      <section class="mt-5 min-w-0 laptop:mt-0">
+      <section class="mt-3 min-w-0 tablet:mt-5 laptop:mt-0">
         <!-- 同步冲突：绝不静默覆盖 -->
         <div
           v-if="assessment.conflict"

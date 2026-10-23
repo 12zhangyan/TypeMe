@@ -219,6 +219,8 @@ describe('管理后台 · AI 设置', () => {
 
   it('baseUrl 不预填：留空时不进补丁（避免把主机名当完整地址写进去）', async () => {
     fetchAdminAiSettings.mockResolvedValue(settings())
+    // 保存成功要有响应体：不 mock 的话 store 读到 undefined，会把一次「保存成功」测成「未预期错误」。
+    updateAdminAiSettings.mockResolvedValue(settings({ enabled: false }))
     const { wrapper } = await mountAdmin()
 
     const baseUrl = wrapper.find('[data-admin-base-url]').element as HTMLInputElement

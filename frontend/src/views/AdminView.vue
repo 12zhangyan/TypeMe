@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, useId } from 'vue'
 import { RouterLink } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
+import AdminHeader from '@/components/AdminHeader.vue'
 import AppIcon from '@/components/AppIcon.vue'
 import { describeError, isForbidden, isSessionExpired, type ErrorDisplay } from '@/api/v3'
 import { formatLocalTime } from '@/domain/localTime'
@@ -321,24 +322,15 @@ onMounted(load)
 <template>
   <PageContainer page="article">
     <!--
-      后台不是普通阅读页：页头用整页唯一一块深色面板把它和前台区分开，
-      同时把"这里改的是服务端当前生效的值"这件事放在最显眼的位置。
-      下面所有设置与表格仍然留在浅色表面上 —— 管理员要逐项核对数字。
+      与成员页共用同一个页头（面包屑 + 标题 + 页签）。
+      「这里改的是服务端当前生效的值」仍放在说明里最显眼的位置：保存后立刻生效，没有"草稿"这一层。
     -->
-    <header class="deep-panel deep-grid rounded-cover px-5 py-7 shadow-deep tablet:px-10 tablet:py-10">
-      <p class="chip chip-on-deep">
-        <AppIcon name="sliders" :size="14" />
-        管理后台
-      </p>
-      <h1 class="display-hero mt-4 text-[24px] leading-tight text-white tablet:text-[30px]">
-        AI 分析设置
-      </h1>
-      <RouterLink to="/admin/members" class="btn-primary mt-4 inline-flex">成员、报告与邀请码 →</RouterLink>
-      <p class="mt-3 max-w-prose text-[15px] leading-[1.75] text-navy-100 tablet:text-[16.5px]">
-        这里改的是<strong class="font-semibold text-white">服务端当前生效</strong>的运行参数。保存后立刻生效，不需要重启 ——
+    <AdminHeader active="ai" title="AI 分析设置">
+      <template #lead>
+        这里改的是<strong class="font-semibold text-ink">服务端当前生效</strong>的运行参数。保存后立刻生效，不需要重启 ——
         正在排队的分析会按新参数继续。
-      </p>
-    </header>
+      </template>
+    </AdminHeader>
 
     <!-- ── 正在确认权限 ─────────────────────────────────────────────── -->
     <p

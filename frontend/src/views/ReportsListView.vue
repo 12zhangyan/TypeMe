@@ -263,10 +263,11 @@ async function confirmDelete(): Promise<void> {
       <p class="caption mt-1">这份报告仍然在列表里，可以再试一次。</p>
     </div>
 
-    <div class="mt-8 flex flex-wrap gap-2">
-      <RouterLink to="/instruments" class="btn-primary btn-sm">再测一次</RouterLink>
-      <RouterLink to="/reports/compare" class="btn-ghost btn-sm">比较两份十六型报告</RouterLink>
-      <RouterLink to="/reports/compare/big-five" class="btn-ghost btn-sm">比较两份大五报告</RouterLink>
+    <!-- 手机上三个入口各占一行、等宽对齐；平板起并排（原先在 390 宽会折成两行且左缘不齐） -->
+    <div class="mt-8 grid gap-2 tablet:flex tablet:flex-wrap">
+      <RouterLink to="/instruments" class="btn-primary btn-sm tablet:w-auto">再测一次</RouterLink>
+      <RouterLink to="/reports/compare" class="btn-secondary btn-sm tablet:w-auto">比较两份十六型报告</RouterLink>
+      <RouterLink to="/reports/compare/big-five" class="btn-secondary btn-sm tablet:w-auto">比较两份大五报告</RouterLink>
     </div>
 
     <ConfirmDialog
