@@ -11,6 +11,7 @@ import {
   describeError,
   exportAccountData,
   fetchMe,
+  isSessionExpired,
   isV3ApiError,
   invalidateSessionRequests,
   SESSION_CHANGED_CODE,
@@ -205,6 +206,13 @@ export const useAuthStore = defineStore('auth', {
       try {
         this.applyProfile(await fetchMe())
       } catch (error) {
+        // 首次探测就 401 只说明「现在没有登录态」：新访客、清过 cookie、或很久之前的会话都是这样，
+        // 不能对他说「登录状态已经失效」（真实浏览器里匿名打开登录页就会看到这句，像是被踢下线）。
+        // 只有「用着用着被服务端拒绝」（captureError 走的路径）才值得解释为什么要重新登录。
+        if (isSessionExpired(error)) {
+          this.applyAnonymous(null)
+          return
+        }
         this.markCheckUnavailable(error)
       }
     },

@@ -103,7 +103,19 @@ onMounted(() => {
   nickname.value = profile.value?.nickname ?? ''
   const userId = profile.value?.userId
   if (userId) void refreshAdminProbe(userId)
+  // 刚登录/注册时 store 里的资料来自登录响应，不含「注册时间 / 上次改密」；
+  // 不补读的话这两行会一直写着「没有记录」，直到整页刷新。
+  if (profile.value && !profile.value.createdAt) void loadFullProfile()
 })
+
+/** 补读完整资料。失败不打扰用户：这两行只是信息，读不到时维持「没有记录」即可。 */
+async function loadFullProfile() {
+  try {
+    await auth.refreshProfile()
+  } catch {
+    // 会话失效等真正的问题会在用户做下一步操作时由各自的区块报告
+  }
+}
 
 /** ISO 时间 → 本地时间；服务端给的时间一律按 UTC 存，展示要按用户时区。 */
 function formatTime(value: string | null): string {

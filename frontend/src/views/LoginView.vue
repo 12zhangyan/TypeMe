@@ -5,6 +5,7 @@ import { computed, onMounted, ref, useId } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { refreshCsrfToken } from '@/api/v3'
+import FormErrorNotice from '@/components/FormErrorNotice.vue'
 import PageContainer from '@/components/PageContainer.vue'
 
 /**
