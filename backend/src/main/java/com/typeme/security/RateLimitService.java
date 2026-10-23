@@ -67,6 +67,17 @@ public class RateLimitService {
      */
     public static final String OP_CATALOG = "catalog";
 
+    /**
+     * 已登录用户的「再次输入当前密码」类操作（改密、重发恢复码、注销）。
+     *
+     * <p>这些接口是把"一个有效会话"升级为"账号控制权"的门槛：没有限流的话，
+     * 拿到会话（如 cookie 被盗）的人可以不限次数猜当前密码。按 userId 计数而不是 IP，
+     * 因为会话持有者可以换 IP；窗口与上限取登录的用户维度同一口径，不另开配置项。
+     */
+    public static final String OP_PASSWORD_CONFIRM = "password_confirm";
+    private static final Duration PASSWORD_CONFIRM_WINDOW = Duration.ofMinutes(15);
+    private static final int PASSWORD_CONFIRM_LIMIT = 10;
+
     /** 窗口起点用 UTC 分钟精度字符串，保证 key 可读、可比较、长度稳定。 */
     private static final DateTimeFormatter WINDOW_FORMAT =
             DateTimeFormatter.ofPattern("yyyyMMddHHmm").withZone(ZoneOffset.UTC);
@@ -141,6 +152,12 @@ public class RateLimitService {
         }
         TypemeProperties.Window cfg = properties.ratelimit().catalog();
         count(OP_CATALOG, "ip", clientIp, cfg.window(), cfg.ipLimit(), "访问过于频繁，请稍后再试。");
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void checkPasswordConfirm(String userId) {
+        count(OP_PASSWORD_CONFIRM, "user", userId, PASSWORD_CONFIRM_WINDOW, PASSWORD_CONFIRM_LIMIT,
+                "密码验证尝试过于频繁，请稍后再试。");
     }
 
     /** 供测试与运维查看某个 key 的当前计数（不影响计数）。 */

@@ -11,6 +11,7 @@ import com.typeme.account.repository.UserRepository;
 import com.typeme.account.repository.UserSessionRepository;
 import com.typeme.common.ApiErrorCodes;
 import com.typeme.common.ApiException;
+import com.typeme.security.RateLimitService;
 import com.typeme.security.RecoveryCodeGenerator;
 import com.typeme.security.SessionRegistryService;
 import com.typeme.security.TypemeUserPrincipal;
@@ -83,6 +84,9 @@ public class AccountService {
     private final AuthenticationManager authenticationManager;
     private final TypemeProperties properties;
     private final InvitationService invitations;
+    private final RateLimitService rateLimit;
+    /** 恢复接口抹平耗时用的占位 hash，首次使用时生成（不同编码器参数下 hash 不能写死）。 */
+    private volatile String dummyRecoveryHash;
 
     public AccountService(UserRepository users,
                           RecoveryCodeRepository recoveryCodes,
@@ -93,7 +97,8 @@ public class AccountService {
                           SessionAuthenticationStrategy sessionAuthenticationStrategy,
                           SecurityContextRepository securityContextRepository,
                           AuthenticationManager authenticationManager,
-                          TypemeProperties properties, InvitationService invitations) {
+                          TypemeProperties properties, InvitationService invitations,
+                          RateLimitService rateLimit) {
         this.users = users;
         this.recoveryCodes = recoveryCodes;
         this.sessions = sessions;
@@ -105,6 +110,7 @@ public class AccountService {
         this.authenticationManager = authenticationManager;
         this.properties = properties;
         this.invitations = invitations;
+        this.rateLimit = rateLimit;
     }
 
     // ------------------------------------------------------------------ 注册
@@ -335,6 +341,7 @@ public class AccountService {
     @Transactional
     public void changePassword(String userId, String currentSessionId, String currentPassword, String newPassword) {
         UserRecord user = requireActive(userId);
+        rateLimit.checkPasswordConfirm(user.id());
         if (!passwordEncoder.matches(currentPassword, user.passwordHash())) {
             // 失败不是"参数错误"而是"凭据错误"：给 401，前端才知道要重新输入当前密码。
             throw new ApiException(ApiErrorCodes.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED,
@@ -353,6 +360,7 @@ public class AccountService {
     @Transactional
     public RecoveryCodesResponse regenerateRecoveryCodes(String userId, String currentPassword) {
         UserRecord user = requireActive(userId);
+        rateLimit.checkPasswordConfirm(user.id());
         if (!passwordEncoder.matches(currentPassword, user.passwordHash())) {
             throw new ApiException(ApiErrorCodes.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED,
                     "当前密码不正确。");
@@ -380,21 +388,28 @@ public class AccountService {
     public void recover(String rawUsername, String rawRecoveryCode, String newPassword) {
         String normalized = UserRepository.normalize(rawUsername.trim());
         Optional<UserRecord> found = users.findByNormalizedUsername(normalized);
+        String candidate = RecoveryCodeGenerator.normalize(rawRecoveryCode);
         if (found.isEmpty() || !found.get().active()) {
             // 与"码不对"同一个响应：不能通过恢复接口探测账号是否存在/是否已注销。
+            // 响应内容相同还不够：存在的账号要做若干次 PBKDF2 比对，不存在的若立刻返回，
+            // 耗时差就是账号枚举器。所以这里补做同样次数的比对再失败。
+            padRecoveryMatchWork(candidate, 0);
             throw ApiException.invalidCredentials();
         }
         UserRecord user = found.get();
 
-        String candidate = RecoveryCodeGenerator.normalize(rawRecoveryCode);
         String matchedId = null;
+        int compared = 0;
         for (RecoveryCodeRecord code : recoveryCodes.findUsable(user.id())) {
+            compared++;
             if (passwordEncoder.matches(candidate, code.codeHash())) {
                 matchedId = code.id();
                 break;
             }
         }
         if (matchedId == null) {
+            // 可用码不足一整套（用掉了几个）时也补齐，让失败路径的耗时不随剩余码数变化。
+            padRecoveryMatchWork(candidate, compared);
             throw ApiException.invalidCredentials();
         }
 
@@ -415,6 +430,25 @@ public class AccountService {
         log.info("password recovered via recovery code");
     }
 
+    /**
+     * 把失败路径上的 PBKDF2 比对次数补到一整套恢复码的数量，抹平耗时差异。
+     * 比对对象是一个进程内固定的占位 hash，结果丢弃。
+     */
+    private void padRecoveryMatchWork(String candidate, int alreadyCompared) {
+        for (int i = alreadyCompared; i < RecoveryCodeGenerator.CODES_PER_SET; i++) {
+            passwordEncoder.matches(candidate, dummyRecoveryHash());
+        }
+    }
+
+    private String dummyRecoveryHash() {
+        String hash = dummyRecoveryHash;
+        if (hash == null) {
+            hash = passwordEncoder.encode("typeme-dummy-recovery-code");
+            dummyRecoveryHash = hash;
+        }
+        return hash;
+    }
+
     // ------------------------------------------------------------------ 注销申请
 
     /**
@@ -429,6 +463,7 @@ public class AccountService {
     @Transactional
     public void disableForDeletion(String userId, String currentPassword) {
         UserRecord user = requireActive(userId);
+        rateLimit.checkPasswordConfirm(user.id());
         if (!passwordEncoder.matches(currentPassword, user.passwordHash())) {
             throw new ApiException(ApiErrorCodes.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED,
                     "当前密码不正确。");

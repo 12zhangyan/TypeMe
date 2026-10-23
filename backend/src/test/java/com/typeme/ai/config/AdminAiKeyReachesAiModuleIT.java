@@ -8,8 +8,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 
 /**
  * 跨模块不变量：**管理员在后台保存的 apiKey，AI 模块必须真的能用**。
@@ -46,7 +48,8 @@ class AdminAiKeyReachesAiModuleIT extends AccountIntegrationTestBase {
     @Autowired
     private AiSettingsService aiSettingsService;
 
-    @Autowired
+    /** spy 只用来隔离进程环境变量（见 noKeyReportedAsNone）；其余读取路径仍是真实实现。 */
+    @SpyBean
     private AiRuntimeSettingsProvider runtimeSettings;
 
     /** 修复前这个 bean 不存在（{@code SecretCipher} 没有实现），拿到的是 null。 */
@@ -116,6 +119,9 @@ class AdminAiKeyReachesAiModuleIT extends AccountIntegrationTestBase {
     @Test
     @DisplayName("未配置密钥时如实报 none，不能把「没 key」说成「有 key」")
     void noKeyReportedAsNone() {
+        // 开发机/CI 可能真的设了 DEEPSEEK_API_KEY；本用例要验证的是「库里清空且环境也没有」的结果，
+        // 所以显式把环境读取置空，而不是假设运行环境干净。
+        doReturn(null).when(runtimeSettings).envApiKey();
         aiSettingsService.update(
                 new AdminAiSettingsUpdateRequest(
                         true, null, null, null, null, null, null, null, null,
@@ -123,7 +129,7 @@ class AdminAiKeyReachesAiModuleIT extends AccountIntegrationTestBase {
                 "admin-user-id");
 
         AiRuntimeSettings effective = runtimeSettings.settings();
-        // 测试环境没有 DEEPSEEK_API_KEY，所以清空后应当既没有 key、来源为 none。
+        // 环境读取已隔离，所以清空后应当既没有 key、来源为 none。
         assertThat(effective.hasApiKey()).isFalse();
         assertThat(effective.apiKeySource()).isEqualTo(AiRuntimeSettings.AiKeySource.NONE);
     }

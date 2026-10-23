@@ -209,8 +209,9 @@ public class AiRuntimeSettingsProvider implements AiSettingsStore, AiSettingsCac
     /**
      * 环境变量 key：主名 {@code DEEPSEEK_API_KEY}（契约 03 §1），兼容别名 {@code TYPEME_AI_API_KEY}。
      * 两者都读 System.getProperty 是为了让测试/本地脚本不必真的设置进程环境。
+     * 包内可见：测试要断言「没有 key」时需要把进程环境隔离掉（开发机常常真的设了 DEEPSEEK_API_KEY）。
      */
-    private String envApiKey() {
+    String envApiKey() {
         String primary = firstNonBlank(System.getenv("DEEPSEEK_API_KEY"), System.getProperty("DEEPSEEK_API_KEY"));
         if (primary != null) {
             return primary;
