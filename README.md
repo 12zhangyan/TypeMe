@@ -1,6 +1,6 @@
 # TypeMe · 多量表测评平台（十六型参考测评 + 大五倾向测评）
 
-**管理员与邀请注册（2026-09-18）：** 新账号必须使用管理员生成的一次性邀请码。成员管理入口 `/#/admin/members`，支持查看状态、进度、固定报告和分配每日 AI 额度。默认管理员用户名为 `typeme_admin`，首次创建需要通过部署环境提供初始密码；部署与迁移说明见 [管理员上线说明](docs/handoffs/2026-09-18/admin-invitations-deployment.md)。
+**管理员与注册（2026-10-27 更新）：** 注册不再需要邀请码，改为图形验证码，并有分层限流与全站注册总量熔断（方案见 [注册验证码与防刷方案](docs/2026-10-27/注册验证码与防刷方案.md)）；部署必须注入 `TYPEME_CAPTCHA_SECRET`（至少 32 位）。成员管理入口 `/#/admin/members`，支持查看状态、进度、固定报告和分配每日 AI 额度。默认管理员用户名为 `typeme_admin`，首次创建需要通过部署环境提供初始密码；部署与迁移说明见 [管理员上线说明](docs/handoffs/2026-09-18/admin-invitations-deployment.md)。
 
 > **站点是一个多量表平台，当前提供两项测评。**
 >
@@ -244,15 +244,43 @@ mvn.cmd package -DskipTests             # 产出 target\typeme-backend-1.0.0.jar
 java -jar target\typeme-backend-1.0.0.jar --server.address=0.0.0.0 --server.port=8080
 ```
 
-- 部署形态只有这一种：**同一个 jar 提供页面与 `/api/v2` 内容包接口**，没有数据库、没有写接口，
-  答案与计分全在浏览器里完成（服务端拿不到作答）。
-- 只想托管静态页面时，把 `frontend/dist` 交给任意静态服务器，并让 `/api` 指到后端的
-  `--server.address` 即可（前端在接口不可达时会用**同一个内容版本**的内置副本，不会静默换题）。
+- 默认形态：**同一个 jar 同时提供页面与接口**（上面的步骤）。新测流程（登录、服务端保存草稿与报告）
+  需要数据库，这里描述的"没有数据库、没有写接口"只适用于旧流程。
+- **前后端分开部署**见下一节：前端自己构建成静态站，后端用 `-P api-only` 只打接口。
+- 只想托管静态页面时，把 `frontend/dist` 交给任意静态服务器，并让 `/api` 指到后端
+  （前端在接口不可达时会用**同一个内容版本**的内置副本，不会静默换题）。
 - 部署版文案纪律（本轮清理后的约定）：**维护细节不进访客界面** —— 内容包 ID、`draft`/审校状态、
   修订号、解释政策版本号、本地键名、服务端/内置副本这类字眼只允许出现在控制台日志、接口响应
   与仓库文档里。首页版本选择只给干净版本名（`大五人格 50 题` / `快速版 32 题`），
   内部那版审校候选仍登记在注册表里但不再作为入口。
   对应的守卫：`frontend/src/views/instrumentCopy.spec.ts` + `views.spec.ts` 与两条浏览器验收脚本。
+
+## 前后端分开部署（前端独立）
+
+前端（`frontend/`）已经是纯静态产物：`base: './'`、hash 路由，不依赖后端模板。分开部署时：
+
+```powershell
+# 前端：构建成静态站，把 frontend\dist 的内容放到 Nginx 的站点目录
+Set-Location frontend
+npm.cmd run build
+
+# 后端：只打接口，jar 里不带页面
+Set-Location ..\backend
+$env:JAVA_HOME='D:\develop\jdk-21'
+mvn.cmd -P api-only package -DskipTests
+java -jar target\typeme-backend-1.0.0.jar --server.address=127.0.0.1 --server.port=8080
+```
+
+- Nginx 示例见 [`deploy/nginx/typeme.conf.example`](deploy/nginx/typeme.conf.example)：页面和 `/api/` 用**同一个域名**，
+  `/api/` 反代到后端。**不要分成两个域名**——会话 Cookie 是 `SameSite=Lax`，CSRF 靠 Cookie + 请求头配对，
+  跨域需要另外设计 CORS 与跨站 Cookie，本仓库没有这一套。
+- 反向代理后面必须配置 `TYPEME_TRUSTED_PROXIES`（Nginx 的地址），否则后端看到的客户端 IP 全是 Nginx，
+  所有人共用一个限流桶，注册与登录限流会互相误伤，也会被一个攻击者锁死。
+- 示例里的 `limit_req` 是应用外的第一道限流（应用内限流每个请求都写库，挡不住大流量）。阈值按实际流量调整。
+- 不带 `-P api-only` 时行为不变（单 jar 同时提供页面与接口，用于本地联调）。
+- 发布顺序：先部署后端，再替换前端静态文件；回滚时反向操作。前端文件名带内容哈希，`index.html` 不缓存即可。
+- 前端构建仍会运行仓库根目录的 `scripts/gen-fallback-content.mjs`（旧量表内容从后端 YAML 生成副本），
+  所以"独立部署"指**运行时**独立，构建仍需要完整仓库。若要把前端拆成独立 Git 仓库，需要先把这个生成步骤的输入迁移过去。
 
 ### 开发专用的可复现答卷（验收 / 截图用）
 

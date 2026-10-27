@@ -226,7 +226,7 @@ const FIELD_LABELS: Record<string, string> = {
   confirm: '确认词',
   // 注册页的免责声明同意项（2026-09-17）。后端回的是字段名，标签在这里补。
   disclaimerAccepted: '免责声明同意',
-  invitationCode: '邀请码',
+  captchaAnswer: '验证码',
 }
 
 /**
@@ -745,6 +745,29 @@ export async function loginAccount(input: { username: string; password: string }
   return readProfile(await readJson<unknown>(response, '/auth/login'))
 }
 
+export interface CaptchaChallenge {
+  token: string
+  /** `data:image/png;base64,…`，直接放进 `<img src>`。 */
+  image: string
+  expiresInSeconds: number
+}
+
+/** 取一张注册用图形验证码。答案不在响应里；令牌与图片一一对应，用过一次就作废。 */
+export async function fetchCaptcha(): Promise<CaptchaChallenge> {
+  const response = await request('GET', '/auth/captcha')
+  const raw = await readJson<unknown>(response, '/auth/captcha')
+  const record = isRecord(raw) ? raw : {}
+  const token = readText(record.token)
+  const image = readText(record.image)
+  const expiresInSeconds = record.expiresInSeconds
+  // 图片只接受 PNG 的 data URL：响应被篡改成别的协议时宁可报错，也不往 <img> 里塞任意地址。
+  if (!token || !image || !image.startsWith('data:image/png;base64,')
+    || typeof expiresInSeconds !== 'number' || !(expiresInSeconds > 0)) {
+    throw unexpectedResponse('验证码响应格式不正确，请重试。')
+  }
+  return { token, image, expiresInSeconds }
+}
+
 export async function registerAccount(input: {
   username: string
   password: string
@@ -757,13 +780,16 @@ export async function registerAccount(input: {
    * 而不是等线上用户注册时撞 400。
    */
   disclaimerAccepted: boolean
-  invitationCode: string
+  /** 图形验证码：令牌来自 `fetchCaptcha()`，答案是用户看图填的。 */
+  captchaToken: string
+  captchaAnswer: string
 }): Promise<RegisterResult> {
   const body: Record<string, unknown> = {
     username: input.username,
     password: input.password,
     disclaimerAccepted: input.disclaimerAccepted,
-    invitationCode: input.invitationCode,
+    captchaToken: input.captchaToken,
+    captchaAnswer: input.captchaAnswer,
   }
   const nickname = input.nickname?.trim()
   if (nickname) body.nickname = nickname

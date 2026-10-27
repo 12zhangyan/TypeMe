@@ -1,0 +1,99 @@
+# TypeMe 前后端分开部署的 Nginx 示例（server 块，放进 http { include ...; }）。
+#
+# 拓扑：浏览器 → Nginx（同一个域名）
+#         /          → frontend/dist 里的静态文件（前端用 hash 路由，不需要 try_files 回退）
+#         /api/      → 后端 jar（java -jar typeme-backend-*.jar，用 mvn -P api-only 打的包）
+#
+# 为什么必须同域：会话 Cookie 是 SameSite=Lax + Secure，CSRF 靠 XSRF-TOKEN Cookie + 请求头配对。
+# 前端和 API 放在不同域名就要改成跨域 Cookie / CORS，安全面大得多，本方案不这么做。
+#
+# 占位符（部署时替换，不要把真实域名、证书路径提交进仓库）：
+#   typeme.example.com                  站点域名
+#   /etc/nginx/certs/typeme.*           证书
+#   /srv/typeme/frontend                前端构建产物目录（= frontend/dist 的内容）
+#   127.0.0.1:8080                      后端监听地址（--server.address=127.0.0.1 --server.port=8080）
+
+# ── 限流（在 server 之外，http 级别）─────────────────────────────────────────
+# 应用内限流每个请求都要写库，挡不住大流量；这一层在 Nginx 拦掉，请求到不了后端。
+# 注册相关接口：验证码签发、注册、登录、找回。
+limit_req_zone $binary_remote_addr zone=typeme_auth:10m rate=30r/m;
+# 其余 API 的宽松兜底。
+limit_req_zone $binary_remote_addr zone=typeme_api:10m rate=300r/m;
+limit_conn_zone $binary_remote_addr zone=typeme_conn:10m;
+
+server {
+    listen 80;
+    server_name typeme.example.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name typeme.example.com;
+
+    ssl_certificate     /etc/nginx/certs/typeme.crt;
+    ssl_certificate_key /etc/nginx/certs/typeme.key;
+
+    root /srv/typeme/frontend;
+    index index.html;
+
+    limit_conn typeme_conn 30;
+    client_max_body_size 1m;
+
+    # 页面入口：不缓存，保证发布后用户立刻拿到新的 hash 文件名。
+    location = /index.html {
+        add_header Cache-Control "no-cache";
+    }
+
+    # Vite 产物文件名带内容哈希，可以长期缓存。
+    location /assets/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+    }
+
+    location / {
+        # 前端用 hash 路由（#/register），服务器只会收到 /，不需要回退到 index.html。
+        try_files $uri $uri/ =404;
+    }
+
+    # 认证相关接口：更严的限流。burst 允许正常用户偶尔连点（比如多次"换一张"）。
+    location ~ ^/api/v3/auth/(captcha|register|login|recover)$ {
+        limit_req zone=typeme_auth burst=10 nodelay;
+        limit_req_status 429;
+        include /etc/nginx/typeme-proxy.inc;
+        proxy_pass http://127.0.0.1:8080;
+    }
+
+    location /api/ {
+        limit_req zone=typeme_api burst=60 nodelay;
+        limit_req_status 429;
+        include /etc/nginx/typeme-proxy.inc;
+        proxy_pass http://127.0.0.1:8080;
+    }
+
+    # 健康检查等运维端点不对公网开放。
+    location /actuator/ {
+        return 404;
+    }
+}
+
+# ── /etc/nginx/typeme-proxy.inc（单独一个文件，两个 location 共用）──────────────
+#
+#   proxy_http_version 1.1;
+#   proxy_set_header Host              $host;
+#   proxy_set_header X-Real-IP         $remote_addr;
+#   # 用 $remote_addr 覆盖而不是追加：客户端自带的 X-Forwarded-For 不可信。
+#   proxy_set_header X-Forwarded-For   $remote_addr;
+#   proxy_set_header X-Forwarded-Proto $scheme;
+#   # 必须 >= 后端 AI 的单次 deadline（默认 90s），否则 AI 调用会先被网关掐断。
+#   proxy_read_timeout 120s;
+#
+# 后端必须同时配置可信代理，否则看到的"客户端 IP"永远是 Nginx 自己，
+# 所有人共用同一个限流桶，一个攻击者就能锁死全站注册：
+#   TYPEME_TRUSTED_PROXIES=127.0.0.1        # Nginx 与后端同机
+#   # 不同机时填 Nginx 所在地址或网段，例如 10.0.0.0/24
+#   TYPEME_CAPTCHA_SECRET=<至少 32 位的随机串>
+#
+# 若 Nginx 前面还有 CDN / 负载均衡，$remote_addr 是它们的地址，需要先在 Nginx 用
+# real_ip 模块还原真实客户端 IP（set_real_ip_from + real_ip_header），再走上面的配置。

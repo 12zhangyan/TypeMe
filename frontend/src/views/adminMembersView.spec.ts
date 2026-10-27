@@ -8,11 +8,10 @@ import type { MyAttemptRow, MyReportRow } from '@/api/platformV3'
 
 vi.mock('@/api/adminMembers', () => ({
   members: vi.fn(),
-  invitations: vi.fn(),
   attempts: vi.fn(),
   reports: vi.fn(),
   report: vi.fn(),
-  revokeInvitation: vi.fn(),
+  setDailyLimit: vi.fn(),
 }))
 
 import * as api from '@/api/adminMembers'
@@ -79,7 +78,6 @@ afterEach(() => {
 describe('管理档案里的状态说法', () => {
   it('大五未完成不叫主测，并列结果和报告页用同一句话', async () => {
     vi.mocked(api.members).mockResolvedValue({ items: [member], page: 0, size: 20, total: 1 })
-    vi.mocked(api.invitations).mockResolvedValue({ items: [], page: 0, size: 10, total: 0 })
     vi.mocked(api.attempts).mockResolvedValue({ items: [bigFiveDraft], page: 0, size: 10, total: 1 })
     vi.mocked(api.reports).mockResolvedValue({ items: [tiedReport], page: 0, size: 10, total: 1 })
 
@@ -112,7 +110,6 @@ describe('管理档案里的状态说法', () => {
       requiredCount: 48,
     }
     vi.mocked(api.members).mockResolvedValue({ items: [member], page: 0, size: 20, total: 1 })
-    vi.mocked(api.invitations).mockResolvedValue({ items: [], page: 0, size: 10, total: 0 })
     vi.mocked(api.attempts).mockResolvedValue({ items: [clarifying], page: 0, size: 10, total: 1 })
     vi.mocked(api.reports).mockResolvedValue({ items: [], page: 0, size: 10, total: 0 })
 
@@ -132,10 +129,7 @@ describe('管理档案里的状态说法', () => {
   })
 })
 
-describe('邀请码撤销与错误提示', () => {
-  const available = { id: 'inv-1', createdAt: '2026-10-18T00:00:00Z', expiresAt: '2026-10-25T00:00:00Z', usedByUsername: null, status: 'AVAILABLE' as const }
-  const used = { ...available, usedByUsername: 'bob', status: 'USED' as const }
-
+describe('成员页错误提示', () => {
   async function mountPage() {
     const router = createRouter({
       history: createMemoryHistory(),
@@ -151,28 +145,29 @@ describe('邀请码撤销与错误提示', () => {
     return wrapper
   }
 
-  it('撤销已被使用的邀请码（409）：列表刷新成服务端现状，显示服务端原话与报障编号，不建议重新登录', async () => {
+  it('页面不再有邀请码入口', async () => {
     vi.mocked(api.members).mockResolvedValue({ items: [member], page: 0, size: 20, total: 1 })
-    vi.mocked(api.invitations).mockResolvedValueOnce({ items: [available], page: 0, size: 10, total: 1 })
-      .mockResolvedValueOnce({ items: [used], page: 0, size: 10, total: 1 })
-    vi.mocked(api.revokeInvitation).mockRejectedValue(new V3ApiError(
-      { code: 'CONFLICT', message: '邀请码已经使用，不能撤销注册。请刷新列表查看使用状态。', requestId: 'req-409', details: {} },
+    const wrapper = await mountPage()
+    expect(wrapper.text()).not.toContain('邀请')
+    expect(wrapper.find('.invite-form').exists()).toBe(false)
+  })
+
+  it('保存额度遇到 409：显示服务端原话与报障编号，不建议重新登录', async () => {
+    vi.mocked(api.members).mockResolvedValue({ items: [member], page: 0, size: 20, total: 1 })
+    vi.mocked(api.attempts).mockResolvedValue({ items: [], page: 0, size: 10, total: 0 })
+    vi.mocked(api.reports).mockResolvedValue({ items: [], page: 0, size: 10, total: 0 })
+    vi.mocked(api.setDailyLimit).mockRejectedValue(new V3ApiError(
+      { code: 'CONFLICT', message: '额度已被其他管理员修改，请刷新后再试。', requestId: 'req-409', details: {} },
       { status: 409 },
     ))
     const wrapper = await mountPage()
-
-    const revoke = wrapper.findAll('.invite-row button').find((button) => button.text() === '撤销')
-    expect(revoke, '可用的邀请码应有撤销按钮').toBeDefined()
-    await revoke!.trigger('click')
+    await wrapper.get('button.member-card').trigger('click')
+    await flushPromises()
+    await wrapper.get('form.quota-form').trigger('submit')
     await flushPromises()
 
-    expect(api.invitations).toHaveBeenCalledTimes(2)
-    const row = wrapper.get('.invite-row')
-    expect(row.text()).toContain('已使用')
-    expect(row.text()).toContain('使用人：bob')
-    expect(row.findAll('button').some((button) => button.text() === '撤销')).toBe(false)
     const notice = wrapper.get('[data-admin-error]')
-    expect(notice.text()).toContain('邀请码已经使用，不能撤销注册')
+    expect(notice.text()).toContain('额度已被其他管理员修改')
     expect(notice.text()).toContain('req-409')
     expect(notice.text()).not.toContain('重新登录')
   })
@@ -182,7 +177,6 @@ describe('邀请码撤销与错误提示', () => {
       { code: 'FORBIDDEN', message: '没有权限', requestId: null, details: {} },
       { status: 403 },
     ))
-    vi.mocked(api.invitations).mockResolvedValue({ items: [], page: 0, size: 10, total: 0 })
     const wrapper = await mountPage()
 
     expect(wrapper.get('[data-admin-error]').text()).toContain('重新登录')

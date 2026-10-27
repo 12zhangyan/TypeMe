@@ -83,7 +83,6 @@ public class AccountService {
     private final SecurityContextRepository securityContextRepository;
     private final AuthenticationManager authenticationManager;
     private final TypemeProperties properties;
-    private final InvitationService invitations;
     private final RateLimitService rateLimit;
     /** 恢复接口抹平耗时用的占位 hash，首次使用时生成（不同编码器参数下 hash 不能写死）。 */
     private volatile String dummyRecoveryHash;
@@ -97,7 +96,7 @@ public class AccountService {
                           SessionAuthenticationStrategy sessionAuthenticationStrategy,
                           SecurityContextRepository securityContextRepository,
                           AuthenticationManager authenticationManager,
-                          TypemeProperties properties, InvitationService invitations,
+                          TypemeProperties properties,
                           RateLimitService rateLimit) {
         this.users = users;
         this.recoveryCodes = recoveryCodes;
@@ -109,7 +108,6 @@ public class AccountService {
         this.securityContextRepository = securityContextRepository;
         this.authenticationManager = authenticationManager;
         this.properties = properties;
-        this.invitations = invitations;
         this.rateLimit = rateLimit;
     }
 
@@ -125,7 +123,7 @@ public class AccountService {
      */
     @Transactional
     public RegisterResponse register(String rawUsername, String rawPassword, String rawNickname,
-                                     boolean disclaimerAccepted, String invitationCode) {
+                                     boolean disclaimerAccepted) {
         requireDisclaimerIfConfigured(disclaimerAccepted);
         String display = rawUsername.trim();
         String normalized = UserRepository.normalize(display);
@@ -144,7 +142,6 @@ public class AccountService {
             throw new ApiException(ApiErrorCodes.CONFLICT, HttpStatus.CONFLICT, "该用户名已被注册。");
         }
 
-        invitations.consume(invitationCode, userId);
         List<String> plainCodes = issueRecoveryCodes(userId, now);
         log.info("account registered");
         return new RegisterResponse(userId, display, nickname, plainCodes, RECOVERY_CODE_POLICY_VERSION);

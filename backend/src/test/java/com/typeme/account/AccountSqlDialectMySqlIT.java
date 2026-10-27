@@ -149,7 +149,8 @@ class AccountSqlDialectMySqlIT {
                 new TypemeProperties.Login(Duration.ofMinutes(15), ipLimit, 10),
                 original.recover(),
                 original.ai(),
-                original.catalog());
+                original.catalog(),
+                original.registration());
         return new RateLimitService(jdbc, new TypemeProperties(null, tuned, null, null, null));
     }
 

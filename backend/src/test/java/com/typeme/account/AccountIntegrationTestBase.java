@@ -60,6 +60,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
         "typeme.admin.bootstrap-username=",
         "typeme.admin.bootstrap-password=",
         "typeme.security.settings-secret=test-settings-secret-0123456789",
+        "typeme.security.captcha-secret=" + TestCaptcha.SECRET,
+        // 注册防刷的三层预算同样放宽（原因同上）；验证码本身的一次性/防爆破不受影响，有专门用例。
+        "typeme.ratelimit.registration.attempt.ip-limit=10000",
+        "typeme.ratelimit.registration.captcha-issue.ip-limit=10000",
+        "typeme.ratelimit.registration.global.limit=100000",
         // 限流在功能测试里放宽：这些用例关心的是"认证/CSRF/隔离"的正确性，
         // 而不是限流本身（限流有专门的一条用例，用严格配置独立起一份上下文）。
         // 不放开的话，共用同一个 remoteAddr 的数十次注册/登录会互相把对方限流掉，
@@ -215,13 +220,27 @@ public abstract class AccountIntegrationTestBase {
         MvcResult result = mockMvc.perform(withCsrf(post("/api/v3/auth/register")
                         .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("username", username, "password", password,
+                        .content(json(TestCaptcha.body("username", username, "password", password,
                                 // 2026-09-17 起注册必须带免责声明同意（AccountService 复核）。
                                 // 帮助方法默认替用例同意，就像真实前端默认会带上勾选状态一样；
                                 // 不带的用例必须显式构造请求体，见 RegistrationAndLoginIT 的那条。
-                                "disclaimerAccepted", true, "invitationCode", TestInvitations.create(invitationJdbc)))), csrf)).andReturn();
+                                "disclaimerAccepted", true))), csrf)).andReturn();
         JsonNode node = body(result);
         return new RegisteredAccount(result.getResponse().getStatus(), node, session);
+    }
+
+    /** 原样提交注册请求体（验证码用例自己构造 body），可指定来源地址。 */
+    protected MvcResult registerRaw(Map<String, Object> requestBody, String remoteAddr) throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        CsrfContext csrf = csrf(session);
+        return mockMvc.perform(withCsrf(post("/api/v3/auth/register")
+                .session(session)
+                .with(request -> {
+                    request.setRemoteAddr(remoteAddr);
+                    return request;
+                })
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json(requestBody)), csrf)).andReturn();
     }
 
     /** 登录并返回同一会话上的结果。 */

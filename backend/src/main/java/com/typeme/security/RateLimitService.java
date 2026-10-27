@@ -50,6 +50,11 @@ public class RateLimitService {
     public static final String OP_LOGIN = "login";
     public static final String OP_RECOVER = "recover";
     public static final String OP_AI_CREATE = "ai_create";
+    /** 注册防刷（图形验证码方案）：签发、提交尝试、全站总量，以及按令牌计的答错次数。 */
+    public static final String OP_CAPTCHA_ISSUE = "captcha_issue";
+    public static final String OP_REGISTER_ATTEMPT = "register_attempt";
+    public static final String OP_REGISTER_GLOBAL = "register_global";
+    public static final String OP_CAPTCHA_WRONG = "captcha_wrong";
 
     /**
      * 匿名目录（{@code GET /api/v3/catalog/current} 与 {@code /catalog/current/package}）。
@@ -115,6 +120,77 @@ public class RateLimitService {
     public void checkRegisterIp(String clientIp) {
         TypemeProperties.Window cfg = properties.ratelimit().register();
         count(OP_REGISTER, "ip", clientIp, cfg.window(), cfg.ipLimit(), "注册过于频繁，请稍后再试。");
+    }
+
+    /** 签发验证码：按 IP 计数。签发本身不写库，这里的计数是唯一的落库点。 */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void checkCaptchaIssueIp(String clientIp) {
+        TypemeProperties.Window cfg = properties.ratelimit().registration().captchaIssue();
+        count(OP_CAPTCHA_ISSUE, "ip", clientIp, cfg.window(), cfg.ipLimit(), "获取验证码过于频繁，请稍后再试。");
+    }
+
+    /**
+     * 注册提交（含验证码答错）：按 IP 计数的宽松预算，排在验证码校验之前，
+     * 让"反复试验证码"本身有上限，同时不占用通过验证码之后的严格预算。
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void checkRegisterAttemptIp(String clientIp) {
+        TypemeProperties.Window cfg = properties.ratelimit().registration().attempt();
+        count(OP_REGISTER_ATTEMPT, "ip", clientIp, cfg.window(), cfg.ipLimit(), "注册尝试过于频繁，请稍后再试。");
+    }
+
+    /**
+     * 全站注册总量熔断：只统计已通过验证码的提交。
+     * 代价是能解开验证码的攻击者可以把额度用完挤占真人，但总量被卡住，
+     * 且调用方会拿到明确的 429；额度由运维调整。
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void checkRegisterGlobal() {
+        TypemeProperties.Global cfg = properties.ratelimit().registration().global();
+        count(OP_REGISTER_GLOBAL, "all", "all", cfg.window(), cfg.limit(), "当前注册人数较多，请稍后再试。");
+    }
+
+    /**
+     * 某个验证码令牌已经答错了几次（只读，不增加计数）。
+     *
+     * <p>验证码的防爆破不受 {@code ratelimit.enabled} 开关影响：它是令牌自身的安全属性，
+     * 不是流量治理。
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public int captchaWrongCount(String nonce, Duration window) {
+        java.util.List<Integer> rows = jdbc.queryForList(
+                "SELECT counter FROM rate_limit_bucket WHERE bucket_key = ?", Integer.class,
+                bucketKey(OP_CAPTCHA_WRONG, "nonce", nonce, Instant.now(), window));
+        return rows.isEmpty() || rows.get(0) == null ? 0 : rows.get(0);
+    }
+
+    /** 记一次答错。独立事务提交：调用方随后会抛异常回滚，这次错误不能跟着消失。 */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void recordCaptchaWrong(String nonce, Duration window) {
+        Instant now = Instant.now();
+        incrementAndRead(bucketKey(OP_CAPTCHA_WRONG, "nonce", nonce, now, window), windowStart(now, window));
+    }
+
+    /**
+     * 清掉早已过期的桶（容量治理，之前这张表没有任何清理）。
+     *
+     * <p>{@code cutoff} 之前开始的窗口不会再被命中。调用方传入的截止时间必须晚于所有窗口的
+     * 最长配置，否则会误删仍在计数的桶；先查键再按键删，避免 {@code DELETE ... LIMIT} 的方言差异。
+     */
+    @Transactional
+    public int deleteStaleBuckets(Instant cutoff, int limit) {
+        if (limit <= 0) {
+            return 0;
+        }
+        java.util.List<String> keys = jdbc.queryForList(
+                "SELECT bucket_key FROM rate_limit_bucket WHERE window_start < ? ORDER BY window_start LIMIT ?",
+                String.class, java.sql.Timestamp.from(cutoff), limit);
+        int deleted = 0;
+        for (String key : keys) {
+            deleted += jdbc.update("DELETE FROM rate_limit_bucket WHERE bucket_key = ? AND window_start < ?",
+                    key, java.sql.Timestamp.from(cutoff));
+        }
+        return deleted;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

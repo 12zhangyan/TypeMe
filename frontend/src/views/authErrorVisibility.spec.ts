@@ -11,7 +11,7 @@ import { V3ApiError } from '@/api/v3'
  * 登录页与注册页的失败提示必须真的显示出来。
  *
  * 真实浏览器里发现的缺陷：这两页的模板里有 `<FormErrorNotice>`，脚本里却没有 import，
- * Vue 把它当成未知的自定义元素渲染成一个空标签 —— 密码错、邀请码无效、被限流时
+ * Vue 把它当成未知的自定义元素渲染成一个空标签 —— 密码错、验证码不对、被限流时
  * 用户点了按钮什么都没发生。旧用例只断言「有 `[data-login-error]` 这个元素」，
  * 空标签也满足，所以一直没拦住。这里断言的是用户能读到的文字与报障编号。
  */
@@ -26,6 +26,7 @@ vi.mock('@/api/v3', async () => {
     loginAccount: (...args: unknown[]) => loginAccount(...args),
     registerAccount: (...args: unknown[]) => registerAccount(...args),
     refreshCsrfToken: () => Promise.resolve(null),
+    fetchCaptcha: () => Promise.resolve({ token: 'tok-1', image: 'data:image/png;base64,AAAA', expiresInSeconds: 180 }),
   }
 })
 
@@ -91,11 +92,11 @@ describe('登录页 / 注册页 · 失败提示可见', () => {
     expect(text).toContain('365')
   })
 
-  it('注册失败：邀请码无效之类的原因显示在表单里', async () => {
-    registerAccount.mockRejectedValue(rejection('VALIDATION_FAILED', '邀请码无效、已使用、已撤销或已过期，请联系管理员。', 400))
+  it('注册失败：验证码不对之类的原因显示在表单里', async () => {
+    registerAccount.mockRejectedValue(rejection('VALIDATION_FAILED', '验证码不对或已过期，请换一张再试。', 400))
     const wrapper = await mountView(RegisterView, '/register')
 
-    await wrapper.find('input[name=invitationCode]').setValue('a'.repeat(32))
+    await wrapper.find('input[name=captchaAnswer]').setValue('ab7k2')
     await wrapper.find("input[name='username']").setValue('zhangsan')
     await wrapper.find("input[name='new-password']").setValue('GoodPassw0rd!')
     await wrapper.find("input[name='confirm-password']").setValue('GoodPassw0rd!')

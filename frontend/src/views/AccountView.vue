@@ -317,12 +317,12 @@ function goHome() {
       <!--
         管理入口必须在改密 / 导出 / 删除之前：它夹在「删除数据」和「注销账号」中间时，
         看起来像危险操作，管理员也要滚过一整页个人设置才能进去。
-        默认落到成员与邀请页，AI 设置是次要入口。
+        默认落到成员页，AI 设置是次要入口。
       -->
       <section v-if="isAdmin" class="notice-info mt-8 max-w-prose" aria-labelledby="account-admin-heading" data-admin-entry>
         <h2 id="account-admin-heading" class="text-[15.5px] font-semibold text-ink">管理后台</h2>
         <p class="mt-1.5 text-[14px] leading-relaxed text-ink-soft">
-          成员、邀请码和报告在这里；AI 分析参数在另一页。
+          成员和报告在这里；AI 分析参数在另一页。
         </p>
         <div class="mt-3 flex flex-wrap gap-2">
           <RouterLink to="/admin/members" class="btn-secondary btn-sm" data-admin-entry-link>打开管理后台</RouterLink>

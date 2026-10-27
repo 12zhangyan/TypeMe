@@ -307,7 +307,7 @@ worker 分事务删除报告/答案/attempt/AI/恢复码/幂等记录/配额 →
 
 ## 7. `/api/v3` 接口契约
 
-所有路径以 `/api/v3` 为前缀。除 `GET /auth/csrf`、`POST /auth/register|login|recover`、
+所有路径以 `/api/v3` 为前缀。除 `GET /auth/csrf|captcha`、`POST /auth/register|login|recover`、
 公开内容 GET 外都需要登录会话。**服务端从认证主体取 userId，任何请求体里的 owner/userId 一律忽略并拒绝。**
 报告与认证相关响应加 `Cache-Control: no-store`。
 
@@ -358,12 +358,22 @@ worker 分事务删除报告/答案/attempt/AI/恢复码/幂等记录/配额 →
 | 方法 路径 | 请求 | 响应 |
 |---|---|---|
 | `GET /auth/csrf` | — | `200 {token, headerName:"X-XSRF-TOKEN", parameterName:"_csrf"}`；`no-store` |
-| `POST /auth/register` | `{username, password, nickname?, disclaimerAccepted}` | `201 {userId, username, nickname, recoveryCodes:[8 个字符串], recoveryCodePolicyVersion}`；`no-store` |
+| `GET /auth/captcha` | — | `200 {token, image:"data:image/png;base64,…", expiresInSeconds}`；`no-store`；匿名可访问，按 IP 限流 |
+| `POST /auth/register` | `{username, password, nickname?, disclaimerAccepted, captchaToken, captchaAnswer}` | `201 {userId, username, nickname, recoveryCodes:[8 个字符串], recoveryCodePolicyVersion}`；`no-store` |
 | `POST /auth/login` | `{username, password}` | `200 {userId, username, nickname}`；**轮换会话 ID** |
 | `POST /auth/logout` | — | `204`；撤销当前会话 |
 | `POST /auth/recover` | `{username, recoveryCode, newPassword}` | `204`；消费恢复码 + 改密 + 撤销该用户全部会话 + 作废其余恢复码 |
 
 - 注册成功后**立即建立会话**（用户不用再登录一次），同时返回恢复码。
+- 图形验证码（**2026-10-27 新增**，取代此前的邀请码）：先 `GET /auth/captcha` 取令牌和图片，用户填写图中 5 个字符
+  （不分大小写，不含 `0/O/1/I`）后随注册请求提交 `captchaToken` + `captchaAnswer`。
+  令牌是服务端签名的无状态挑战，**一次性**：答对即作废，注册后续失败（如用户名冲突）也不会复活；同一令牌答错 3 次作废；
+  有效期 3 分钟。缺失、答错、篡改、过期、已使用统一返回 `400 VALIDATION_FAILED`，字段 `captchaAnswer`，文案相同。
+  验证码在任何密码加密与写库之前校验。签名密钥 `typeme.security.captcha-secret`（环境变量 `TYPEME_CAPTCHA_SECRET`，
+  ≥32 字符）未配置时，`GET /auth/captcha` 与 `POST /auth/register` 均返回 `503 NOT_CONFIGURED`。
+- 注册防刷的限流顺序：每 IP 提交尝试（含答错，宽松）→ 验证码校验 → 通过后的每 IP 注册预算（`ratelimit.register`）→
+  全站注册总量（`ratelimit.registration.global`）；`GET /auth/captcha` 另按 IP 限流。超限为 `429 RATE_LIMITED`
+  并带 `details.retryAfterSeconds`。
 - `disclaimerAccepted`（**2026-09-17 新增**）：注册页「我已阅读并理解」勾选框的状态。
   这是**对现有请求体的一处收紧** —— 缺省或 `false` 会返回
   `400 VALIDATION_FAILED`，错误体带字段名 `disclaimerAccepted`（前端翻成「免责声明同意」）。

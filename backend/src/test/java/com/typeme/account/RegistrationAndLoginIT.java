@@ -72,8 +72,8 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
         MvcResult result = mockMvc.perform(withCsrf(post("/api/v3/auth/register")
                         .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("username", username, "password", "TestPassw0rd!",
-                                "disclaimerAccepted", true, "invitationCode", TestInvitations.create(invitationJdbc)))), csrf))
+                        .content(json(TestCaptcha.body("username", username, "password", "TestPassw0rd!",
+                                "disclaimerAccepted", true))), csrf))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Cache-Control", org.hamcrest.Matchers.containsString("no-store")))
                 .andReturn();
@@ -90,8 +90,8 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
             MvcResult result = mockMvc.perform(withCsrf(post("/api/v3/auth/register")
                             .session(session)
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(json(Map.of("username", bad, "password", "TestPassw0rd!",
-                                    "disclaimerAccepted", true, "invitationCode", TestInvitations.create(invitationJdbc)))), csrf))
+                            .content(json(TestCaptcha.body("username", bad, "password", "TestPassw0rd!",
+                                    "disclaimerAccepted", true))), csrf))
                     .andReturn();
             assertThat(result.getResponse().getStatus())
                     .as("用户名「%s」必须被拒", bad)
@@ -108,8 +108,8 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
         MvcResult result = mockMvc.perform(withCsrf(post("/api/v3/auth/register")
                         .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("username", uniqueUsername("shortpw"), "password", "1234567",
-                                "disclaimerAccepted", true, "invitationCode", TestInvitations.create(invitationJdbc)))), csrf))
+                        .content(json(TestCaptcha.body("username", uniqueUsername("shortpw"), "password", "1234567",
+                                "disclaimerAccepted", true))), csrf))
                 .andReturn();
         assertThat(result.getResponse().getStatus()).isEqualTo(400);
         assertThat(body(result).path("code").asText()).isEqualTo("VALIDATION_FAILED");
@@ -126,8 +126,8 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
         MvcResult result = mockMvc.perform(withCsrf(post("/api/v3/auth/register")
                         .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("username", username.toUpperCase(java.util.Locale.ROOT),
-                                "password", "TestPassw0rd!", "disclaimerAccepted", true, "invitationCode", TestInvitations.create(invitationJdbc)))), csrf))
+                        .content(json(TestCaptcha.body("username", username.toUpperCase(java.util.Locale.ROOT),
+                                "password", "TestPassw0rd!", "disclaimerAccepted", true))), csrf))
                 .andReturn();
         // 用户名大小写不敏感（规范化后唯一）：大写形式同样视为重复
         assertThat(result.getResponse().getStatus()).isEqualTo(409);
@@ -150,6 +150,11 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
             if (missing != null) {
                 payload.put("disclaimerAccepted", missing);
             }
+            // 验证码先于免责声明被校验（都是廉价检查，但验证码要排在一切昂贵操作之前），
+            // 所以这条用例也要带一道合法验证码，才能走到免责声明这一关；每轮用新的，上一道已被消耗。
+            var captcha = TestCaptcha.challenge();
+            payload.put("captchaToken", captcha.token());
+            payload.put("captchaAnswer", captcha.answer());
 
             MvcResult result = mockMvc.perform(withCsrf(post("/api/v3/auth/register")
                             .session(session)
@@ -173,8 +178,8 @@ class RegistrationAndLoginIT extends AccountIntegrationTestBase {
         MvcResult ok = mockMvc.perform(withCsrf(post("/api/v3/auth/register")
                         .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json(Map.of("username", username, "password", "TestPassw0rd!",
-                                "disclaimerAccepted", true, "invitationCode", TestInvitations.create(invitationJdbc)))), csrf))
+                        .content(json(TestCaptcha.body("username", username, "password", "TestPassw0rd!",
+                                "disclaimerAccepted", true))), csrf))
                 .andReturn();
         assertThat(ok.getResponse().getStatus()).isEqualTo(201);
     }

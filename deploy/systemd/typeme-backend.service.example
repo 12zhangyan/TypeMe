@@ -1,0 +1,33 @@
+# /etc/systemd/system/typeme-backend.service
+# 占位符部署时替换；环境文件见 deploy/env/typeme.env.example（权限 600，属主 typeme）。
+[Unit]
+Description=TypeMe backend (API only)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=typeme
+Group=typeme
+WorkingDirectory=/opt/typeme
+EnvironmentFile=/etc/typeme/typeme.env
+# 必须是 prod profile：它要求数据库连接全部来自环境变量、没有开发默认值。
+# 绝不能省略，否则会落到 application.yml 里的本机开发默认库。
+ExecStart=/usr/bin/java -Xms256m -Xmx768m \
+  -jar /opt/typeme/typeme-backend-1.0.0.jar \
+  --spring.profiles.active=prod --server.address=127.0.0.1 --server.port=8080
+# 第一次启动会自动执行数据库迁移：失败时不要让 systemd 反复拉起，先看日志。
+Restart=on-failure
+RestartSec=10
+StartLimitIntervalSec=300
+StartLimitBurst=3
+SuccessExitStatus=143
+LimitNOFILE=65536
+
+# 基础加固
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

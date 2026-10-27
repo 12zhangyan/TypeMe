@@ -6,7 +6,7 @@ import { RouterLink } from 'vue-router'
  *
  * 为什么抽出来：成员页和 AI 设置页原来是两套完全不同的页头（一页是大号衬线营销句，
  * 另一页是深色面板），页签也只有单向链接 —— 管理员在两页之间切换时像是进了两个站点，
- * 而且成员页的大标题把真正要用的「生成邀请码」表单推到了手机首屏之下。
+ * 而且成员页的大标题把真正要用的内容推到了手机首屏之下。
  * 这里两页用同一个结构，页签双向可达，当前页用 `aria-current` 标出（读屏也能知道在哪一页）。
  */
 defineProps<{
@@ -16,7 +16,7 @@ defineProps<{
 }>()
 
 const TABS = [
-  { key: 'members', label: '成员与邀请', to: '/admin/members' },
+  { key: 'members', label: '成员', to: '/admin/members' },
   { key: 'ai', label: 'AI 服务设置', to: '/admin' },
 ] as const
 </script>

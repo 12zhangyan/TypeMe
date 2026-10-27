@@ -90,6 +90,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 1) 认证入口：公开（其余 /api/v3/** 一律要认证）。
                         .requestMatchers("/api/v3/auth/csrf",
+                                "/api/v3/auth/captcha",
                                 "/api/v3/auth/register",
                                 "/api/v3/auth/login",
                                 "/api/v3/auth/recover").permitAll()

@@ -5,6 +5,7 @@ import {
   changePassword,
   describeError,
   exportAccountData,
+  fetchCaptcha,
   fetchMe,
   isForbidden,
   isSessionExpired,
@@ -111,13 +112,14 @@ describe('请求形状', () => {
     expect(profile.userId).toBe('u-1')
   })
 
-  it('注册打 POST /api/v3/auth/register，并带上免责声明同意与邀请码', async () => {
+  it('注册打 POST /api/v3/auth/register，并带上免责声明同意与验证码令牌、答案', async () => {
     responder = () => json(PROFILE)
     await registerAccount({
       username: 'alice',
       password: 'pw-1',
       disclaimerAccepted: true,
-      invitationCode: 'INV-1',
+      captchaToken: 'tok-1',
+      captchaAnswer: 'ab7k2',
     })
 
     const post = business('POST')
@@ -125,8 +127,10 @@ describe('请求形状', () => {
     expect(post.body).toMatchObject({
       username: 'alice',
       disclaimerAccepted: true,
-      invitationCode: 'INV-1',
+      captchaToken: 'tok-1',
+      captchaAnswer: 'ab7k2',
     })
+    expect(post.body).not.toHaveProperty('invitationCode')
   })
 
   it('没传昵称时请求体里不出现 nickname 键（不是传一个 null 上去）', async () => {
@@ -135,7 +139,8 @@ describe('请求形状', () => {
       username: 'alice',
       password: 'pw-1',
       disclaimerAccepted: true,
-      invitationCode: 'INV-1',
+      captchaToken: 'tok-1',
+      captchaAnswer: 'ab7k2',
     })
 
     const body = business('POST').body as Record<string, unknown>
@@ -149,10 +154,37 @@ describe('请求形状', () => {
       password: 'pw-1',
       nickname: '   ',
       disclaimerAccepted: true,
-      invitationCode: 'INV-1',
+      captchaToken: 'tok-1',
+      captchaAnswer: 'ab7k2',
     })
 
     expect(Object.prototype.hasOwnProperty.call(business('POST').body, 'nickname')).toBe(false)
+  })
+
+  it('取验证码是 GET /api/v3/auth/captcha，不多跑一次取 CSRF token，并读出令牌与图片', async () => {
+    responder = () => json({ token: 'tok-1', image: 'data:image/png;base64,AAAA', expiresInSeconds: 180 })
+    const challenge = await fetchCaptcha()
+
+    expect(calls).toHaveLength(1)
+    expect(calls[0]!.method).toBe('GET')
+    expect(calls[0]!.url).toBe('/api/v3/auth/captcha')
+    expect(challenge).toEqual({ token: 'tok-1', image: 'data:image/png;base64,AAAA', expiresInSeconds: 180 })
+  })
+
+  it('验证码响应格式不对（缺令牌 / 图片不是 PNG data URL / 有效期无效）一律报 UNEXPECTED_RESPONSE，不把任意地址交给 <img>', async () => {
+    const bad = [
+      { image: 'data:image/png;base64,AAAA', expiresInSeconds: 180 },
+      { token: 'tok-1', image: 'https://evil.example/x.png', expiresInSeconds: 180 },
+      { token: 'tok-1', image: 'data:image/svg+xml;base64,AAAA', expiresInSeconds: 180 },
+      { token: 'tok-1', image: 'data:image/png;base64,AAAA', expiresInSeconds: 0 },
+      { token: 'tok-1', image: 'data:image/png;base64,AAAA' },
+    ]
+    for (const payload of bad) {
+      calls.length = 0
+      responder = () => json(payload)
+      const error = await catches(fetchCaptcha())
+      expect((error as V3ApiError).code).toBe(UNEXPECTED_RESPONSE_CODE)
+    }
   })
 
   it('读自己的资料是 GET /api/v3/me，且不会为读操作多跑一次取 CSRF token', async () => {
@@ -271,7 +303,8 @@ describe('响应解析：缺关键字段必须当场报错', () => {
       username: 'alice',
       password: 'pw-1',
       disclaimerAccepted: true,
-      invitationCode: 'INV-1',
+      captchaToken: 'tok-1',
+      captchaAnswer: 'ab7k2',
     })
 
     expect(result.recoveryCodes).toEqual([])
@@ -284,7 +317,8 @@ describe('响应解析：缺关键字段必须当场报错', () => {
       username: 'alice',
       password: 'pw-1',
       disclaimerAccepted: true,
-      invitationCode: 'INV-1',
+      captchaToken: 'tok-1',
+      captchaAnswer: 'ab7k2',
     })
 
     expect(result.recoveryCodes).toEqual(['A1-B2'])
