@@ -54,7 +54,8 @@ public record TypemeProperties(
     }
 
     /** 限流：每个操作一个窗口与上限。 */
-    public record RateLimit(boolean enabled, Window register, Login login, Window recover, Login ai, Window catalog) {
+    public record RateLimit(boolean enabled, Window register, Login login, Window recover, Login ai, Window catalog,
+                            Registration registration) {
         public RateLimit {
             register = register == null ? new Window(Duration.ofHours(1), 5, 0) : register;
             login = login == null ? new Login(Duration.ofMinutes(15), 20, 10) : login;
@@ -64,6 +65,7 @@ public record TypemeProperties(
             // 缺项时按最严格的一侧兜底 —— 这是唯一一条**匿名**可打的接口，
             // 失败方向必须是"拦得太紧"而不是"完全不拦"。
             catalog = catalog == null ? new Window(Duration.ofMinutes(5), 120, 0) : catalog;
+            registration = registration == null ? Registration.defaults() : registration;
         }
 
         static RateLimit defaults() {
@@ -72,7 +74,38 @@ public record TypemeProperties(
                     new Login(Duration.ofMinutes(15), 20, 10),
                     new Window(Duration.ofHours(1), 10, 0),
                     new Login(Duration.ofHours(1), 30, 20),
-                    new Window(Duration.ofMinutes(5), 120, 0));
+                    new Window(Duration.ofMinutes(5), 120, 0),
+                    Registration.defaults());
+        }
+    }
+
+    /**
+     * 注册防刷的附加预算（图形验证码方案，见 docs/2026-10-27/注册验证码与防刷方案.md）。
+     *
+     * <p>{@code register} 窗口仍是"通过验证码之后"的每 IP 严格预算；这里的三项在它前后补齐：
+     * 签发验证码、提交验证码（含答错）、全站注册总量。缺项一律取较紧的一侧。
+     */
+    public record Registration(Window captchaIssue, Window attempt, Global global,
+                               Duration captchaTtl, int captchaMaxWrong) {
+        public Registration {
+            captchaIssue = captchaIssue == null ? new Window(Duration.ofHours(1), 60, 0) : captchaIssue;
+            attempt = attempt == null ? new Window(Duration.ofHours(1), 30, 0) : attempt;
+            global = global == null ? new Global(Duration.ofHours(1), 60) : global;
+            captchaTtl = captchaTtl == null || captchaTtl.isZero() || captchaTtl.isNegative()
+                    ? Duration.ofMinutes(3) : captchaTtl;
+            captchaMaxWrong = captchaMaxWrong <= 0 ? 3 : captchaMaxWrong;
+        }
+
+        static Registration defaults() {
+            return new Registration(null, null, null, null, 0);
+        }
+    }
+
+    /** 不分维度的全站窗口（注册总量熔断）。 */
+    public record Global(Duration window, int limit) {
+        public Global {
+            window = window == null || window.isZero() || window.isNegative() ? Duration.ofHours(1) : window;
+            limit = limit <= 0 ? 60 : limit;
         }
     }
 
@@ -95,14 +128,27 @@ public record TypemeProperties(
     }
 
     /** 安全相关的杂项。 */
-    public record Security(String trustedProxies, String settingsSecret) {
+    public record Security(String trustedProxies, String settingsSecret, String captchaSecret) {
         public Security {
             trustedProxies = trustedProxies == null ? "" : trustedProxies.trim();
             settingsSecret = settingsSecret == null ? "" : settingsSecret;
+            captchaSecret = captchaSecret == null ? "" : captchaSecret;
         }
 
         static Security defaults() {
-            return new Security("", "");
+            return new Security("", "", "");
+        }
+
+        /**
+         * 验证码签名密钥；未配置或太短时抛 503（失败关闭）。
+         * 主 application.yml 刻意不给默认值：prod 继承它，写死的密钥等于公开的密钥，
+         * 攻击者可以自己签出"答案已知"的令牌。
+         */
+        public String requireCaptchaSecret() {
+            if (captchaSecret.length() < 32) {
+                throw ApiException.notConfigured("注册验证码暂不可用，请稍后再试。");
+            }
+            return captchaSecret;
         }
 
         /** 逗号分隔的代理地址列表；空列表表示"不信任任何转发头"。 */

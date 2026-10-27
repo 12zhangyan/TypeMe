@@ -120,6 +120,24 @@ typeme:
       window: 1h
       ip-limit: 30
       user-limit: 20
+    # 注册防刷（图形验证码方案，见 docs/2026-10-27/注册验证码与防刷方案.md）。
+    # 上面的 register 是"通过验证码之后"的每 IP 严格预算；这里补三层：
+    #   captcha-issue  签发验证码（每 IP）；
+    #   attempt        提交注册，含验证码答错（每 IP，宽松，排在验证码校验之前）；
+    #   global         全站注册总量熔断，只统计已通过验证码的提交。
+    # 数值是按小流量站点的假设，上线前按预期日注册量复核。
+    registration:
+      captcha-ttl: 3m
+      captcha-max-wrong: 3
+      captcha-issue:
+        window: 1h
+        ip-limit: 60
+      attempt:
+        window: 1h
+        ip-limit: 30
+      global:
+        window: 1h
+        limit: 60
 
   security:
     # 只有在这里显式列出的代理地址，才会去解析 X-Forwarded-For 取真实来源 IP；
@@ -130,6 +148,10 @@ typeme:
     # 避免为了让应用能启动而悄悄用一个硬编码密钥加密用户的生产 key。
     # 生产必须通过 TYPEME_SETTINGS_SECRET 注入（>=16 字符，且与数据库同级的保密级别）。
     settings-secret: ${TYPEME_SETTINGS_SECRET:}
+    # 注册验证码的签名密钥（>=32 字符）。**这里刻意不给默认值**：本文件会被 prod 继承，
+    # 写死的密钥等于公开的密钥，攻击者可以自己签出"答案已知"的令牌。
+    # 留空时签发与注册都返回 503（失败关闭），而不是放行。
+    captcha-secret: ${TYPEME_CAPTCHA_SECRET:}
 
   # 首次部署提供初始密码才创建管理员；已有管理员时不重设密码、不提升已有同名用户。
   admin:

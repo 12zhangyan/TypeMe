@@ -188,4 +188,31 @@
     </plugins>
   </build>
 
+  <profiles>
+    <!--
+      前后端分开部署：只打后端接口，不把 frontend/dist 复制进 jar。
+      用法：mvn -P api-only package。前端自己构建成静态站（见 deploy/nginx/typeme.conf.example），
+      由 Nginx 提供页面并把 /api 反代到后端，保持同域（Cookie / CSRF 行为不变）。
+      只关掉"复制"这一步；上面的清理步骤保留，这样 target/classes/static 里遗留的旧前端产物也会被清掉，
+      不会混进 api-only 的 jar。不带 -P 时行为与以前完全相同（单 jar 同时提供页面与接口）。
+    -->
+    <profile>
+      <id>api-only</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-frontend-dist</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>

@@ -29,6 +29,8 @@ typeme:
     # 生产必须注入：缺失时后台"写入 apiKey"会返回 503，而不会用弱密钥加密。
     # 轮换该值会让已存的 apiKey 无法解密（属预期：需要在后台重新填写 key）。
     settings-secret: ${TYPEME_SETTINGS_SECRET:}
+    # 生产必须注入（>=32 字符）：缺失时注册返回 503，不会放行也不会用默认密钥。
+    captcha-secret: ${TYPEME_CAPTCHA_SECRET:}
   admin:
     # 生产留空：管理员由已有 ADMIN 在后台维护，不做自动提权。
     bootstrap-username: ""

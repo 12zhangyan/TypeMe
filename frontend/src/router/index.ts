@@ -73,12 +73,12 @@ export const router = createRouter({
     },
     // 管理后台。顶栏只对**已确认的管理员**露出「管理」；普通用户看不到。
     // 权限仍由服务端判定（非管理员得到 403），入口隐藏不是为了"安全靠隐蔽"。
-    // 默认落到成员 / 邀请 / 报告（`/admin/members`），AI 设置在 `/admin`。
+    // 默认落到成员 / 报告（`/admin/members`），AI 设置在 `/admin`。
     {
       path: '/admin/members',
       name: 'admin-members',
       component: () => import('@/views/AdminMembersView.vue'),
-      meta: { title: '成员与邀请 · TypeMe', requiresAuth: true },
+      meta: { title: '成员 · TypeMe', requiresAuth: true },
     },
     {
       path: '/admin',

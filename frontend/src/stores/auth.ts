@@ -259,13 +259,14 @@ export const useAuthStore = defineStore('auth', {
       password: string,
       nickname: string | undefined,
       disclaimerAccepted: boolean,
-      invitationCode: string,
+      captchaToken: string,
+      captchaAnswer: string,
     ): Promise<RegisterResult> {
       const operation = ++this.operationRevision
       this.busy = true
       this.lastError = null
       try {
-        const result = await registerAccount({ username, password, nickname, disclaimerAccepted, invitationCode })
+        const result = await registerAccount({ username, password, nickname, disclaimerAccepted, captchaToken, captchaAnswer })
         this.applyProfile(result.profile)
         clearCsrfToken()
         return result

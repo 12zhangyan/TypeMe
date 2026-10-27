@@ -1,5 +1,7 @@
 package com.typeme.account.controller;
 
+import com.typeme.account.captcha.CaptchaService;
+import com.typeme.account.dto.CaptchaResponse;
 import com.typeme.account.dto.CsrfTokenResponse;
 import com.typeme.account.dto.LoginRequest;
 import com.typeme.account.dto.LoginResponse;
@@ -39,12 +41,26 @@ public class AuthController {
     private final AccountService accountService;
     private final RateLimitService rateLimit;
     private final ClientIpResolver clientIpResolver;
+    private final CaptchaService captcha;
 
     public AuthController(AccountService accountService, RateLimitService rateLimit,
-                          ClientIpResolver clientIpResolver) {
+                          ClientIpResolver clientIpResolver, CaptchaService captcha) {
         this.accountService = accountService;
         this.rateLimit = rateLimit;
         this.clientIpResolver = clientIpResolver;
+        this.captcha = captcha;
+    }
+
+    /**
+     * 取一张注册用图形验证码。匿名可访问，按 IP 限流；签发不写库（见 {@link CaptchaService}）。
+     */
+    @GetMapping("/captcha")
+    public ResponseEntity<CaptchaResponse> captcha(HttpServletRequest httpRequest) {
+        rateLimit.checkCaptchaIssueIp(clientIpResolver.resolve(httpRequest));
+        CaptchaService.Issued issued = captcha.issue();
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .body(new CaptchaResponse(issued.token(), issued.image(), issued.expiresInSeconds()));
     }
 
     /**
@@ -65,15 +81,26 @@ public class AuthController {
     /**
      * 注册：创建账号 → 返回**仅此一次**的恢复码 → 立即建立会话（用户不用再登录一次）。
      *
-     * <p>限流按来源 IP：注册是最容易被脚本刷的入口（每个账号都写两行数据 + 8 次 PBKDF2）。
+     * <p>防刷顺序是"先便宜、后昂贵"：每个账号要做 9 次 PBKDF2 并写约 10 行数据，所以
+     * 验证码和各级限流必须全部排在 {@code accountService.register} 之前——被拦下的请求不做任何 PBKDF2。
+     * <ol>
+     *   <li>每 IP 的提交尝试预算（宽松，含验证码答错）；</li>
+     *   <li>验证码校验并消耗（答对即烧掉，注册后续失败也不会复活）；</li>
+     *   <li>通过验证码之后的每 IP 严格预算；</li>
+     *   <li>全站注册总量熔断。</li>
+     * </ol>
      */
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request,
                                                      HttpServletRequest httpRequest) {
-        rateLimit.checkRegisterIp(clientIpResolver.resolve(httpRequest));
+        String clientIp = clientIpResolver.resolve(httpRequest);
+        rateLimit.checkRegisterAttemptIp(clientIp);
+        captcha.verifyAndConsume(request.captchaToken(), request.captchaAnswer());
+        rateLimit.checkRegisterIp(clientIp);
+        rateLimit.checkRegisterGlobal();
         RegisterResponse response = accountService.register(
                 request.username(), request.password(), request.nickname(),
-                Boolean.TRUE.equals(request.disclaimerAccepted()), request.invitationCode());
+                Boolean.TRUE.equals(request.disclaimerAccepted()));
         // 建立会话：注册后立刻可用（契约 §7.2）。
         accountService.establishSessionForNewUser(httpRequest, response.userId(), response.username());
         return ResponseEntity.status(HttpStatus.CREATED)

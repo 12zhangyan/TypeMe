@@ -42,8 +42,14 @@ public record RegisterRequest(
 
         Boolean disclaimerAccepted,
 
-        @Size(max = 128, message = "邀请码格式不正确")
-        String invitationCode
+        /**
+         * 图形验证码（{@code GET /api/v3/auth/captcha} 取得）。不用 bean validation 注解：
+         * 缺失、过长、错误必须得到与"答错"完全相同的响应（见 CaptchaService），
+         * 注解会给出另一套文案，等于给脚本分类信号。
+         */
+        String captchaToken,
+
+        String captchaAnswer
 ) {
     @Override public String toString() { return "RegisterRequest[REDACTED]"; }
 }

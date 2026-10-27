@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import EditorialScene from '@/components/EditorialScene.vue'
 import IllustrationFrame from '@/components/IllustrationFrame.vue'
-import { computed, onMounted, ref, useId } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { refreshCsrfToken } from '@/api/v3'
+import { describeError, fetchCaptcha, refreshCsrfToken, type CaptchaChallenge, type ErrorDisplay } from '@/api/v3'
 import { DISCLAIMER_TEXT } from '@/domain/disclaimerV3'
 import PageContainer from '@/components/PageContainer.vue'
 import AppIcon from '@/components/AppIcon.vue'
@@ -28,7 +28,6 @@ const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 
-const invitationCode = ref('')
 const username = ref('')
 const nickname = ref('')
 const password = ref('')
@@ -44,7 +43,8 @@ const recoveryCodes = ref<string[]>([])
 const codesCopied = ref(false)
 const registered = ref(false)
 
-const invitationId = `reg-invitation-${useId()}`
+const captchaId = `reg-captcha-${useId()}`
+const captchaHelpId = `reg-captcha-help-${useId()}`
 const usernameId = `reg-username-${useId()}`
 const nicknameId = `reg-nickname-${useId()}`
 const passwordId = `reg-password-${useId()}`
@@ -53,6 +53,55 @@ const hintId = `reg-hint-${useId()}`
 const copiedId = `reg-copied-${useId()}`
 const disclaimerId = `reg-disclaimer-${useId()}`
 const disclaimerText = DISCLAIMER_TEXT
+
+/**
+ * 图形验证码。令牌与图片一一对应，**提交一次就作废**（服务端答对即烧掉，注册后续失败也不复活），
+ * 所以每次提交返回（无论成败）都要换一张；过期后不自动换新——用户可能正在输入，
+ * 悄悄换图会清掉他刚打的字。
+ */
+const captcha = ref<CaptchaChallenge | null>(null)
+const captchaAnswer = ref('')
+const captchaLoading = ref(false)
+const captchaExpired = ref(false)
+const captchaLoadError = ref<ErrorDisplay | null>(null)
+let captchaRevision = 0
+let captchaTimer: ReturnType<typeof setTimeout> | undefined
+
+function clearCaptchaTimer() {
+  if (captchaTimer !== undefined) clearTimeout(captchaTimer)
+  captchaTimer = undefined
+}
+
+async function loadCaptcha() {
+  const revision = ++captchaRevision
+  clearCaptchaTimer()
+  captcha.value = null
+  captchaAnswer.value = ''
+  captchaExpired.value = false
+  captchaLoadError.value = null
+  captchaLoading.value = true
+  try {
+    const challenge = await fetchCaptcha()
+    if (revision !== captchaRevision) return
+    captcha.value = challenge
+    // 提前 5 秒标记过期：留给请求在途的时间，避免用户刚点提交就被服务端判过期。
+    captchaTimer = setTimeout(() => {
+      if (revision === captchaRevision) captchaExpired.value = true
+    }, Math.max(1, challenge.expiresInSeconds - 5) * 1000)
+  } catch (error) {
+    if (revision !== captchaRevision) return
+    captchaLoadError.value = describeError(error)
+  } finally {
+    if (revision === captchaRevision) captchaLoading.value = false
+  }
+}
+
+const captchaStatus = computed(() => {
+  if (captchaLoading.value) return '验证码加载中…'
+  if (captchaExpired.value) return '验证码已过期，请换一张。'
+  if (!captcha.value) return '验证码没有加载出来，请点「换一张」重试。'
+  return ''
+})
 
 const error = computed(() => auth.lastError)
 const done = computed(() => registered.value)
@@ -82,7 +131,8 @@ const localProblem = computed(() => {
   // 同意项放在最后校验：前面的格式问题更常发生，先让人把字打对。
   // 服务端也校验这一条 —— 这里只是让用户少一次注定失败的往返。
   if (!disclaimerAccepted.value) return problem('请先勾选并阅读下面的说明，再创建账号。', disclaimerId)
-  if (!/^[A-Za-z0-9_-]{32}$/.test(invitationCode.value.trim())) return problem('请输入管理员提供的 32 位邀请码。', invitationId)
+  if (captchaStatus.value) return problem(captchaStatus.value, captchaId)
+  if (!captchaAnswer.value.trim()) return problem('请输入图片里的验证码。', captchaId)
   return null
 })
 
@@ -116,6 +166,13 @@ const leaveReason = computed(() => {
 onMounted(() => {
   auth.clearError()
   void refreshCsrfToken()
+  void loadCaptcha()
+})
+
+onBeforeUnmount(() => {
+  // 作废在途的验证码请求并清掉过期计时器，避免离开页面后还去改状态。
+  captchaRevision++
+  clearCaptchaTimer()
 })
 
 async function onSubmit() {
@@ -126,12 +183,16 @@ async function onSubmit() {
       password.value,
       nickname.value.trim(),
       disclaimerAccepted.value,
-      invitationCode.value.trim(),
+      captcha.value!.token,
+      captchaAnswer.value.trim(),
     )
     recoveryCodes.value = result.recoveryCodes
     registered.value = true
+    captchaRevision++
+    clearCaptchaTimer()
   } catch {
-    // 失败已存进 auth.lastError
+    // 失败已存进 auth.lastError；这张验证码已被服务端消耗（或已过期），必须换新才能再试。
+    void loadCaptcha()
   }
 }
 
@@ -230,18 +291,13 @@ async function leave() {
           注册
         </h1>
         <p class="mt-3 prose-cn max-w-prose">
-          注册需要邀请码。
+          填写用户名和密码，再输入图片里的验证码即可创建账号。
         </p>
         <IllustrationFrame name="welcome" class="auth-art auth-scene"><EditorialScene scene="welcome" /></IllustrationFrame>
       </header>
 
       <!-- 表单是这一页唯一的焦点元素，所以收进一张卡片，和页头的说明拉开层次 -->
       <form class="card mt-6 max-w-[30rem]" novalidate @submit.prevent="onSubmit">
-        <div class="mb-5">
-          <label :for="invitationId" class="block text-[14.5px] font-medium text-ink">邀请码</label>
-          <input :id="invitationId" v-model="invitationCode" name="invitationCode" class="mt-1.5 w-full min-w-0 rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[16px] text-ink" autocomplete="off" autocapitalize="none" :spellcheck="false" maxlength="32" :disabled="auth.busy" aria-describedby="invitation-help" />
-          <p id="invitation-help" class="caption mt-2">请向管理员领取。一码仅能注册一个账号，过期或撤销后不可使用。</p>
-        </div>
         <div>
           <label :for="usernameId" class="block text-[14.5px] font-medium text-ink">用户名</label>
           <input
@@ -302,6 +358,55 @@ async function leave() {
             autocomplete="new-password"
             class="mt-1.5 w-full min-w-0 rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[16px] text-ink"
           />
+        </div>
+
+        <div class="mt-5">
+          <label :for="captchaId" class="block text-[14.5px] font-medium text-ink">验证码</label>
+          <div class="mt-1.5 flex flex-wrap items-center gap-3">
+            <img
+              v-if="captcha && !captchaExpired"
+              :src="captcha.image"
+              alt="验证码图片：5 个字母或数字"
+              width="170"
+              height="60"
+              class="h-[60px] w-[170px] max-w-full rounded-control border border-line bg-surface"
+              data-captcha-image
+            />
+            <div
+              v-else
+              class="flex h-[60px] w-[170px] max-w-full items-center justify-center rounded-control border border-dashed border-line-strong bg-surface-soft px-2 text-center text-[13px] text-ink-soft"
+              data-captcha-placeholder
+            >
+              {{ captchaLoading ? '加载中…' : captchaExpired ? '已过期' : '未加载' }}
+            </div>
+            <button
+              type="button"
+              class="btn-secondary btn-sm"
+              :disabled="captchaLoading || auth.busy"
+              data-captcha-refresh
+              @click="loadCaptcha"
+            >
+              换一张
+            </button>
+          </div>
+          <input
+            :id="captchaId"
+            v-model="captchaAnswer"
+            name="captchaAnswer"
+            type="text"
+            autocomplete="off"
+            autocapitalize="characters"
+            autocorrect="off"
+            spellcheck="false"
+            maxlength="8"
+            :aria-describedby="captchaHelpId"
+            class="mt-3 w-full min-w-0 rounded-control border border-line-strong bg-surface px-3 py-2.5 text-[16px] uppercase tracking-widest text-ink"
+          />
+          <p :id="captchaHelpId" class="caption mt-1.5">
+            输入图片里的字符，不分大小写，不含 0、O、1、I。看不清就换一张。
+          </p>
+          <p class="sr-only" role="status" aria-live="polite">{{ captchaStatus }}</p>
+          <FormErrorNotice v-if="captchaLoadError" :error="captchaLoadError" class="mt-3" data-captcha-error />
         </div>
 
         <div class="mt-5">

@@ -21,9 +21,11 @@ import { DISCLAIMER_TEXT } from '@/domain/disclaimerV3'
  */
 
 const registerAccount = vi.fn()
+const fetchCaptcha = vi.fn()
 
 vi.mock('@/api/v3', () => ({
   registerAccount: (...args: unknown[]) => registerAccount(...args),
+  fetchCaptcha: (...args: unknown[]) => fetchCaptcha(...args),
   refreshCsrfToken: () => Promise.resolve(null),
   describeError: () => ({
     message: '注册没有成功。',
@@ -62,7 +64,7 @@ async function mountRegister(attachToDocument = false) {
 }
 
 async function fillValidForm(wrapper: ReturnType<typeof mount>) {
-  await wrapper.find("input[name=invitationCode]").setValue("a".repeat(32))
+  await wrapper.find("input[name=captchaAnswer]").setValue('ab7k2')
   await wrapper.find("input[name='username']").setValue('zhangsan')
   await wrapper.find("input[name='new-password']").setValue('GoodPassw0rd!')
   await wrapper.find("input[name='confirm-password']").setValue('GoodPassw0rd!')
@@ -73,6 +75,8 @@ describe('注册页：免责声明同意项', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     registerAccount.mockReset()
+    fetchCaptcha.mockReset()
+    fetchCaptcha.mockResolvedValue({ token: 'tok-1', image: 'data:image/png;base64,AAAA', expiresInSeconds: 180 })
     registerAccount.mockResolvedValue({
       profile: { userId: 'u1', username: 'zhangsan', nickname: null, role: 'USER' },
       recoveryCodes: ['AAAA-BBBB-CCCC-DDDD'],
@@ -80,15 +84,93 @@ describe('注册页：免责声明同意项', () => {
     })
   })
 
-  it('没有邀请码不能提交，并明确管理员可查看的范围', async () => {
+  it('进入页面就取验证码并显示图片；不再要求邀请码', async () => {
+    const { wrapper } = await mountRegister()
+    expect(fetchCaptcha).toHaveBeenCalledTimes(1)
+    expect(wrapper.get('[data-captcha-image]').attributes('src')).toBe('data:image/png;base64,AAAA')
+    expect(wrapper.find('input[name=invitationCode]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('邀请码')
+  })
+
+  it('没填验证码不能提交，并说明原因；同时说明管理员可查看的范围', async () => {
     const { wrapper } = await mountRegister()
     await fillValidForm(wrapper)
     await wrapper.find("input[name='disclaimer-accepted']").setValue(true)
-    await wrapper.find("input[name=invitationCode]").setValue('')
+    await wrapper.find('input[name=captchaAnswer]').setValue('')
     await wrapper.find('form').trigger('submit')
     expect(registerAccount).not.toHaveBeenCalled()
+    expect(wrapper.text()).toContain('请输入图片里的验证码')
     expect(wrapper.text()).toContain('管理员可查看账号状态、测评进度和报告')
     expect((wrapper.find("button[type='submit']").element as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('提交时带上令牌和用户填的答案', async () => {
+    const { wrapper } = await mountRegister()
+    await fillValidForm(wrapper)
+    await wrapper.find("input[name='disclaimer-accepted']").setValue(true)
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    const payload = registerAccount.mock.calls[0]![0] as Record<string, unknown>
+    expect(payload['captchaToken']).toBe('tok-1')
+    expect(payload['captchaAnswer']).toBe('ab7k2')
+    expect(payload).not.toHaveProperty('invitationCode')
+  })
+
+  it('提交失败后自动换一张新验证码并清空答案（旧码已被服务端消耗）', async () => {
+    registerAccount.mockRejectedValue(new Error('boom'))
+    fetchCaptcha
+      .mockResolvedValueOnce({ token: 'tok-1', image: 'data:image/png;base64,AAAA', expiresInSeconds: 180 })
+      .mockResolvedValueOnce({ token: 'tok-2', image: 'data:image/png;base64,BBBB', expiresInSeconds: 180 })
+    const { wrapper } = await mountRegister()
+    await fillValidForm(wrapper)
+    await wrapper.find("input[name='disclaimer-accepted']").setValue(true)
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+
+    expect(fetchCaptcha).toHaveBeenCalledTimes(2)
+    expect(wrapper.get('[data-captcha-image]').attributes('src')).toBe('data:image/png;base64,BBBB')
+    expect((wrapper.get('input[name=captchaAnswer]').element as HTMLInputElement).value).toBe('')
+    // 用户名等其它字段保留，不让人重填整张表
+    expect((wrapper.get("input[name='username']").element as HTMLInputElement).value).toBe('zhangsan')
+    expect((wrapper.get("button[type='submit']").element as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('验证码加载失败：显示原因、不能提交，点「换一张」可重试', async () => {
+    fetchCaptcha.mockRejectedValueOnce(new Error('network'))
+    const { wrapper } = await mountRegister()
+    await fillValidForm(wrapper)
+    await wrapper.find("input[name='disclaimer-accepted']").setValue(true)
+    expect(wrapper.find('[data-captcha-error]').exists()).toBe(true)
+    expect(wrapper.find('[data-captcha-image]').exists()).toBe(false)
+    expect(wrapper.text()).toContain('验证码没有加载出来')
+    expect((wrapper.get("button[type='submit']").element as HTMLButtonElement).disabled).toBe(true)
+
+    await wrapper.get('[data-captcha-refresh]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-captcha-error]').exists()).toBe(false)
+    expect(wrapper.find('[data-captcha-image]').exists()).toBe(true)
+  })
+
+  it('验证码过期后标记为已过期并禁止提交，不悄悄换图', async () => {
+    vi.useFakeTimers()
+    try {
+      fetchCaptcha.mockResolvedValue({ token: 'tok-1', image: 'data:image/png;base64,AAAA', expiresInSeconds: 30 })
+      const { wrapper } = await mountRegister()
+      await fillValidForm(wrapper)
+      await wrapper.find("input[name='disclaimer-accepted']").setValue(true)
+      expect((wrapper.get("button[type='submit']").element as HTMLButtonElement).disabled).toBe(false)
+
+      await vi.advanceTimersByTimeAsync(26_000)
+      await flushPromises()
+      expect(fetchCaptcha).toHaveBeenCalledTimes(1)
+      expect(wrapper.find('[data-captcha-image]').exists()).toBe(false)
+      expect(wrapper.text()).toContain('验证码已过期')
+      expect((wrapper.get("button[type='submit']").element as HTMLButtonElement).disabled).toBe(true)
+      // 用户正在输入的答案不被清掉
+      expect((wrapper.get('input[name=captchaAnswer]').element as HTMLInputElement).value).toBe('ab7k2')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('默认不勾选：不能提交，且不会静默替用户同意', async () => {
