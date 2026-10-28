@@ -279,7 +279,12 @@ function readRetryAfterSeconds(details: Record<string, unknown>): number | null 
 export function describeError(error: unknown): ErrorDisplay {
   if (isV3ApiError(error)) {
     const mapped = ERROR_MESSAGES[error.code]
-    const serverMessage = error.message && error.message !== mapped ? error.message : null
+    // 服务端原文若只是把某条字段提示再说一遍（字段行已经显示了它），就不再单独列出。
+    const trimTail = (text: string) => text.trim().replace(/[。.!！\s]+$/u, '')
+    const restatesField = (text: string) =>
+      Object.values(error.fieldErrors).some((m) => trimTail(m) !== '' && trimTail(text).includes(trimTail(m)))
+    const serverMessage =
+      error.message && error.message !== mapped && !restatesField(error.message) ? error.message : null
     const fields: FieldMessage[] = Object.entries(error.fieldErrors).map(([field, message]) => ({
       field,
       label: FIELD_LABELS[field] ?? field,

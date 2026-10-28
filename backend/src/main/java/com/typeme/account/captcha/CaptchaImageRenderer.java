@@ -83,13 +83,15 @@ final class CaptchaImageRenderer {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.setColor(BACKGROUND);
             g.fillRect(0, 0, WIDTH, HEIGHT);
-            noiseLines(g, random, 4);
+            // 干扰先画在字下面、颜色偏浅：字形保持深色实心，机器靠颜色分层去噪变难，人眼读起来不受影响。
+            noiseDots(g, random, 70);
+            noiseLines(g, random, 5);
             int slot = (WIDTH - 20) / text.length();
             for (int i = 0; i < text.length(); i++) {
                 drawGlyph(g, text.charAt(i), 10 + i * slot + slot / 2, HEIGHT / 2, random);
             }
-            noiseLines(g, random, 3);
-            noiseDots(g, random, 90);
+            // 字上只压两条细浅线，保留"线穿过字"的干扰，但不盖住笔画。
+            noiseLines(g, random, 2);
         } finally {
             g.dispose();
         }
@@ -98,9 +100,9 @@ final class CaptchaImageRenderer {
 
     private static void drawGlyph(Graphics2D g, char c, int centerX, int centerY, SecureRandom random) {
         String[] rows = GLYPHS.get(c);
-        double scale = 0.72 + random.nextDouble() * 0.2;
-        double angle = Math.toRadians(random.nextInt(41) - 20);
-        double shear = (random.nextDouble() - 0.5) * 0.35;
+        double scale = 0.9 + random.nextDouble() * 0.15;
+        double angle = Math.toRadians(random.nextInt(29) - 14);
+        double shear = (random.nextDouble() - 0.5) * 0.24;
         AffineTransform saved = g.getTransform();
         g.translate(centerX + random.nextInt(5) - 2, centerY + random.nextInt(7) - 3);
         g.rotate(angle);
@@ -123,15 +125,15 @@ final class CaptchaImageRenderer {
 
     private static void noiseLines(Graphics2D g, SecureRandom random, int count) {
         for (int i = 0; i < count; i++) {
-            g.setColor(new Color(60 + random.nextInt(140), 60 + random.nextInt(140), 60 + random.nextInt(140)));
-            g.setStroke(new BasicStroke(1f + random.nextFloat() * 1.2f));
+            g.setColor(new Color(120 + random.nextInt(90), 120 + random.nextInt(90), 120 + random.nextInt(90)));
+            g.setStroke(new BasicStroke(1f + random.nextFloat() * 0.8f));
             g.drawLine(random.nextInt(WIDTH), random.nextInt(HEIGHT), random.nextInt(WIDTH), random.nextInt(HEIGHT));
         }
     }
 
     private static void noiseDots(Graphics2D g, SecureRandom random, int count) {
         for (int i = 0; i < count; i++) {
-            g.setColor(new Color(40 + random.nextInt(160), 40 + random.nextInt(160), 40 + random.nextInt(160)));
+            g.setColor(new Color(110 + random.nextInt(100), 110 + random.nextInt(100), 110 + random.nextInt(100)));
             g.fillRect(random.nextInt(WIDTH), random.nextInt(HEIGHT), 2, 2);
         }
     }
@@ -139,7 +141,7 @@ final class CaptchaImageRenderer {
     /** 整图的正弦波纹扭曲：逐列纵向平移，破坏点阵字形的规整边缘。 */
     private static BufferedImage wave(BufferedImage source, SecureRandom random) {
         BufferedImage out = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-        double amplitude = 2.0 + random.nextDouble() * 1.5;
+        double amplitude = 1.5 + random.nextDouble();
         double period = 38 + random.nextDouble() * 18;
         double phase = random.nextDouble() * Math.PI * 2;
         int background = BACKGROUND.getRGB();
