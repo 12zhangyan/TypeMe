@@ -120,7 +120,7 @@ public class CaptchaService {
     }
 
     private static ApiException invalid() {
-        return ApiException.validation(INVALID_MESSAGE, Map.of(ANSWER_FIELD, "验证码不对或已过期"));
+        return ApiException.validation(INVALID_MESSAGE, Map.of(ANSWER_FIELD, "验证码不对或已过期，请换一张再试"));
     }
 
     private static String sign(String secret, String nonce, long expiry, String answer) {

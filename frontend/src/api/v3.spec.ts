@@ -400,6 +400,29 @@ describe('错误映射：没登录 / 已登录但没权限，必须分开', () =
     expect(display.message).toContain('网络')
     expect(display.sessionExpired).toBe(false)
   })
+
+  it('服务器说明只是复述字段提示时不重复列出；说了别的事则照常保留', async () => {
+    responder = () =>
+      json({
+        code: 'VALIDATION_FAILED',
+        message: '验证码不对或已过期，请换一张再试。',
+        details: { captchaAnswer: '验证码不对或已过期，请换一张再试' },
+      }, 400)
+    const restated = describeError(await catches(fetchMe()))
+    expect(restated.fields).toEqual([
+      { field: 'captchaAnswer', label: '验证码', message: '验证码不对或已过期，请换一张再试' },
+    ])
+    expect(restated.serverMessage).toBeNull()
+
+    responder = () =>
+      json({
+        code: 'VALIDATION_FAILED',
+        message: '当前密码不正确。',
+        details: { captchaAnswer: '验证码不对或已过期，请换一张再试' },
+      }, 400)
+    const different = describeError(await catches(fetchMe()))
+    expect(different.serverMessage).toBe('当前密码不正确。')
+  })
 })
 
 /**
