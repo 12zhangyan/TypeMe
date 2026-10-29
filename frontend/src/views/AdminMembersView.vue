@@ -94,10 +94,19 @@ function goPage(page: number) {
   resetBatch()
   return action(async () => { await fetchMembers(page, exhaustedOnly.value) })
 }
-/** 重读当前页（带筛选）；当前页因此变空且不是第一页时退回上一页。 */
+/**
+ * 重读当前页（带筛选）；当前页因此变空且不是第一页时退回上一页。
+ * 勾选只保留仍在当前页的成员（需求 Q-1）：重读后看不到的人不能留在“已选”里被批量修改。
+ */
 async function reloadPage() {
   const page = await fetchMembers(users.value.page, exhaustedOnly.value)
   if (!page.items.length && page.page > 0) await fetchMembers(page.page - 1, exhaustedOnly.value)
+  picked.value = picked.value.filter(id => users.value.items.some(user => user.id === id))
+}
+/** 保存已成功后刷新列表：刷新失败不能吞掉“已保存”的结果，只补充说明列表可能不是最新。 */
+async function reloadAfterSave() {
+  try { await reloadPage() }
+  catch (e) { fail(e); notice.value += ' 但刷新成员列表失败，列表可能不是最新，请稍后翻页或刷新页面核对。' }
 }
 // 批量修改只作用于当前页的勾选（需求 Q-1）；换页、切换筛选、取消或成功后清空。
 const picked = ref<string[]>([])
@@ -130,16 +139,17 @@ async function submitBatch() {
     confirming.value = null
     const saved = result.results.find(item => item.ok && item.member?.id === selected.value?.id)?.member
     if (saved) { selected.value = saved; dailyLimit.value = saved.effectiveAiDailyLimit }
-    await reloadPage()
+    // 服务端已写入：先把结果落到页面上，再刷新列表，刷新失败也不丢失失败名单。
     const failed = result.results.filter(item => !item.ok)
     batchFailures.value = failed.map(item => ({ id: item.userId, name: names.get(item.userId) ?? item.userId, message: item.message ?? '保存失败。' }))
-    // 失败者若仍在当前页就保持勾选，方便重试；成功者清除勾选。
-    picked.value = failed.map(item => item.userId).filter(id => users.value.items.some(user => user.id === id))
+    // 失败者保持勾选方便重试；刷新后不在当前页的会被 reloadPage 去掉。
+    picked.value = failed.map(item => item.userId)
     notice.value = result.failed
       ? `已保存 ${result.updated} 位成员，${result.failed} 位未保存，见下方名单。`
       : mode === 'reset'
         ? `已将 ${result.updated} 位成员恢复为沿用系统默认额度。今天已经使用的次数保留。`
         : `已将 ${result.updated} 位成员的每日额度设为 ${limit}。今天已经使用的次数保留。`
+    await reloadAfterSave()
   })
 }
 async function action(work: () => Promise<void>) {
@@ -160,9 +170,9 @@ async function saveLimit() {
   await action(async () => {
     const updated = await api.setDailyLimit(user.id, dailyLimit.value)
     selected.value = updated; users.value.items = users.value.items.map(item => item.id === user.id ? updated : item)
-    // 筛选状态下改额度可能让成员不再符合条件：重载当前页，不留已不符合的卡片。
-    if (exhaustedOnly.value) await reloadPage()
     notice.value = '每日额度已保存。今天已经使用的次数保留。'
+    // 筛选状态下改额度可能让成员不再符合条件：重载当前页，不留已不符合的卡片。
+    if (exhaustedOnly.value) await reloadAfterSave()
   })
 }
 onMounted(load)

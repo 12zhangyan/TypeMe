@@ -288,6 +288,60 @@ describe('只看今日额度已用完', () => {
     expect(wrapper.findAll('button.member-card')).toHaveLength(0)
     expect(wrapper.text()).toContain('每日额度已保存')
   })
+
+  it('MI-1：筛选状态下改单人额度后，离开列表的成员不再留在批量勾选里', async () => {
+    let raised = false
+    vi.mocked(api.members).mockImplementation(async (page = 0, aiExhausted = false) => aiExhausted
+      ? { items: raised ? [] : [exhausted], page, size: 20, total: raised ? 0 : 1 }
+      : { items: [member, exhausted], page, size: 20, total: 2 })
+    vi.mocked(api.attempts).mockResolvedValue({ items: [], page: 0, size: 10, total: 0 })
+    vi.mocked(api.reports).mockResolvedValue({ items: [], page: 0, size: 10, total: 0 })
+    vi.mocked(api.setDailyLimit).mockImplementation(async (id, aiDailyLimit) => {
+      raised = true
+      return { ...exhausted, id, aiDailyLimit, effectiveAiDailyLimit: aiDailyLimit, aiRemainingToday: aiDailyLimit - 3 }
+    })
+    const wrapper = await mountPage()
+    await wrapper.get('[data-exhausted-filter]').setValue(true)
+    await flushPromises()
+    await wrapper.get('[data-member-pick]').setValue(true)
+    expect(wrapper.get('[data-batch-bar]').text()).toContain('已选 1 位')
+    await wrapper.get('button.member-card').trigger('click')
+    await flushPromises()
+
+    await wrapper.get('form.quota-form input').setValue(10)
+    await wrapper.get('form.quota-form').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.findAll('button.member-card')).toHaveLength(0)
+    expect(wrapper.find('[data-batch-bar]').exists()).toBe(false)
+  })
+
+  it('MI-2：单人额度已保存但随后刷新列表失败时，仍说明已保存，并提示列表可能不是最新', async () => {
+    let saved = false
+    vi.mocked(api.members).mockImplementation(async (page = 0, aiExhausted = false) => {
+      if (aiExhausted && saved) throw new V3ApiError({ code: 'SERVICE_UNAVAILABLE', message: '暂时无法读取', requestId: 'req-503', details: {} }, { status: 503 })
+      return { items: [exhausted], page, size: 20, total: 1 }
+    })
+    vi.mocked(api.attempts).mockResolvedValue({ items: [], page: 0, size: 10, total: 0 })
+    vi.mocked(api.reports).mockResolvedValue({ items: [], page: 0, size: 10, total: 0 })
+    vi.mocked(api.setDailyLimit).mockImplementation(async (id, aiDailyLimit) => {
+      saved = true
+      return { ...exhausted, id, aiDailyLimit, effectiveAiDailyLimit: aiDailyLimit, aiRemainingToday: aiDailyLimit - 3 }
+    })
+    const wrapper = await mountPage()
+    await wrapper.get('[data-exhausted-filter]').setValue(true)
+    await flushPromises()
+    await wrapper.get('button.member-card').trigger('click')
+    await flushPromises()
+
+    await wrapper.get('form.quota-form input').setValue(10)
+    await wrapper.get('form.quota-form').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('每日额度已保存')
+    expect(wrapper.text()).toContain('刷新成员列表失败')
+    expect(wrapper.get('[data-admin-error]').text()).toContain('req-503')
+  })
 })
 
 describe('批量修改每日额度', () => {
@@ -359,6 +413,26 @@ describe('批量修改每日额度', () => {
     expect(wrapper.get('[data-batch-failures]').text()).toContain('bob：成员不存在或已删除。')
     // 失败者仍在当前页：保持勾选，方便重试。
     expect(wrapper.get('[data-batch-bar]').text()).toContain('已选 1 位')
+  })
+
+  it('MI-2：批量已写入但刷新列表失败时，保留部分成功的提示和失败名单，并说明列表可能不是最新', async () => {
+    vi.mocked(api.setDailyLimits).mockResolvedValue({ updated: 1, failed: 1, results: [
+      { userId: 'user-1', ok: true, member: { ...member, aiDailyLimit: 4, effectiveAiDailyLimit: 4 } },
+      { userId: 'user-2', ok: false, code: 'NOT_FOUND', message: '成员不存在或已删除。' },
+    ] })
+    const wrapper = await mountPage()
+    vi.mocked(api.members).mockRejectedValueOnce(new V3ApiError(
+      { code: 'SERVICE_UNAVAILABLE', message: '暂时无法读取', requestId: 'req-503', details: {} }, { status: 503 }))
+    await wrapper.get('[data-pick-all]').setValue(true)
+    await wrapper.get('[data-batch-bar] input[type="number"]').setValue(4)
+    await wrapper.get('[data-batch-bar]').trigger('submit')
+    await wrapper.get('[data-batch-confirm] button.btn-primary').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('已保存 1 位成员，1 位未保存')
+    expect(wrapper.text()).toContain('刷新成员列表失败')
+    expect(wrapper.get('[data-batch-failures]').text()).toContain('bob：成员不存在或已删除。')
+    expect(wrapper.get('[data-admin-error]').text()).toContain('req-503')
   })
 
   it('恢复系统默认：不需要填额度，确认文案说明会清除单独额度，提交走恢复接口', async () => {
