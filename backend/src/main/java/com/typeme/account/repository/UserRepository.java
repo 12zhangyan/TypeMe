@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -151,6 +152,31 @@ public class UserRepository {
                 "SELECT COUNT(*) FROM app_user WHERE status <> ?", Long.class, UserRecord.STATUS_DELETED);
         return count == null ? 0L : count;
     }
+
+    /**
+     * 今日 AI 次数已用完的用户（后台筛选）：当日已预留次数 ≥ 生效额度，且生效额度 > 0。
+     * 额度为 0 是管理员主动停用，不算"用完"；生效额度为单独额度，NULL 时取站点默认。
+     * 排序与 {@link #page} 一致；分页与 {@link #countAiExhausted} 用同一条件，跨页计数才准确。
+     */
+    public List<UserRecord> pageAiExhausted(LocalDate quotaDate, int siteDefaultLimit, int offset, int limit) {
+        return jdbc.query("SELECT " + COLUMNS + AI_EXHAUSTED_FROM_WHERE
+                        + " ORDER BY created_at DESC, id ASC LIMIT ? OFFSET ?",
+                MAPPER, quotaDate, UserRecord.STATUS_DELETED, siteDefaultLimit, siteDefaultLimit, limit, offset);
+    }
+
+    public long countAiExhausted(LocalDate quotaDate, int siteDefaultLimit) {
+        Long count = jdbc.queryForObject("SELECT COUNT(*)" + AI_EXHAUSTED_FROM_WHERE, Long.class,
+                quotaDate, UserRecord.STATUS_DELETED, siteDefaultLimit, siteDefaultLimit);
+        return count == null ? 0L : count;
+    }
+
+    /** 参数依次为：额度日、DELETED、站点默认 ×2。scope_key 形态见 {@code AiBudgetRepository}（{@code user:<uuid>}）。 */
+    private static final String AI_EXHAUSTED_FROM_WHERE =
+            " FROM app_user u JOIN ai_usage_budget b"
+                    + " ON b.scope_key = CONCAT('user:', u.id) AND b.budget_date = ?"
+                    + " WHERE u.status <> ?"
+                    + " AND COALESCE(u.ai_daily_limit, ?) > 0"
+                    + " AND b.reserved_calls >= COALESCE(u.ai_daily_limit, ?)";
 
     /** 生成主键；集中在仓储层是为了让"id 一律是 36 位 UUID 文本"只有一处约定。 */
     public static String newId() {

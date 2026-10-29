@@ -1,5 +1,7 @@
 package com.typeme.account;
 
+import com.typeme.account.repository.UserRecord;
+import com.typeme.account.repository.UserRepository;
 import com.typeme.account.service.TypemeProperties;
 import com.typeme.security.RateLimitService;
 import org.flywaydb.core.Flyway;
@@ -367,6 +369,42 @@ class AccountSqlDialectMySqlIT {
         } finally {
             pool.shutdownNow();
         }
+    }
+
+    @Test
+    @DisplayName("真实 MySQL：今日额度已用完筛选（CONCAT 关联 ai_usage_budget）不报排序规则冲突，分页与计数一致")
+    void aiExhaustedFilterWorksOnRealMySql() throws Exception {
+        withTempDatabase(jdbc -> {
+            UserRepository users = new UserRepository(jdbc);
+            java.time.LocalDate today = java.time.LocalDate.of(2026, 9, 16);
+            int siteDefault = 2;
+            String hit = quotaUser(jdbc, users, "hit", NOW.plusSeconds(7), 2, today, 2);
+            String partial = quotaUser(jdbc, users, "partial", NOW.plusSeconds(6), 2, today, 1);
+            String inherits = quotaUser(jdbc, users, "inherits", NOW.plusSeconds(5), null, today, siteDefault);
+            String stopped = quotaUser(jdbc, users, "stopped", NOW.plusSeconds(4), 0, today, 0);
+            String over = quotaUser(jdbc, users, "over", NOW.plusSeconds(3), 1, today, 3);
+            String yesterday = quotaUser(jdbc, users, "yesterday", NOW.plusSeconds(2), 1, today.minusDays(1), 1);
+            String deleted = quotaUser(jdbc, users, "deleted", NOW.plusSeconds(1), 1, today, 1);
+            users.markDeletedWithRewrittenUsername(deleted, NOW);
+
+            assertEquals(3L, users.countAiExhausted(today, siteDefault));
+            List<String> firstPage = users.pageAiExhausted(today, siteDefault, 0, 2).stream().map(UserRecord::id).toList();
+            List<String> secondPage = users.pageAiExhausted(today, siteDefault, 2, 2).stream().map(UserRecord::id).toList();
+            // 排序与未筛选列表一致：created_at 倒序。
+            assertThat(firstPage).containsExactly(hit, inherits);
+            assertThat(secondPage).containsExactly(over);
+            assertThat(firstPage).doesNotContain(partial, stopped, yesterday, deleted);
+        });
+    }
+
+    private static String quotaUser(JdbcTemplate jdbc, UserRepository users, String name, Instant createdAt,
+                                    Integer limit, java.time.LocalDate budgetDate, int reservedCalls) {
+        String id = UserRepository.newId();
+        users.insert(id, "it_" + name, "it_" + name, "x", null, "USER", createdAt);
+        users.updateAiDailyLimit(id, limit);
+        jdbc.update("INSERT INTO ai_usage_budget (scope_key, budget_date, reserved_calls) VALUES (?, ?, ?)",
+                "user:" + id, budgetDate, reservedCalls);
+        return id;
     }
 
     /** 断言这个操作会被数据库拒绝（约束违反）。若它成功了，测试失败并带上原因。 */

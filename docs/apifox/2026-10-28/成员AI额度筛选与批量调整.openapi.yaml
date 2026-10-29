@@ -1,0 +1,120 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "TypeMe 成员 AI 额度筛选与批量调整",
+    "version": "2026-10-28",
+    "description": "来源方案：docs/2026-10-28/成员AI额度筛选与批量调整-开发方案.md。只包含本次新增或契约变化的接口；单人 PUT /api/v3/admin/users/{id}/ai-limit 不变，未列出。所有接口仅管理员可用，写接口需要 CSRF。"
+  },
+  "servers": [{ "url": "/" }],
+  "paths": {
+    "/api/v3/admin/users": {
+      "get": {
+        "operationId": "adminListUsers",
+        "summary": "分页列出成员（新增可选筛选 aiExhausted）",
+        "description": "不带 aiExhausted 或为 false 时行为与现有接口一致。为 true 时只返回今日（UTC 日）AI 次数已用完的成员：今日已用 ≥ 生效额度且生效额度 > 0；total 为筛选后的人数。",
+        "tags": ["admin-members"],
+        "parameters": [
+          { "name": "page", "in": "query", "required": false, "schema": { "type": "integer", "minimum": 0, "default": 0 } },
+          { "name": "size", "in": "query", "required": false, "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 } },
+          { "name": "aiExhausted", "in": "query", "required": false, "schema": { "type": "boolean", "default": false } }
+        ],
+        "responses": {
+          "200": { "description": "成员分页", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MemberPage" } } } },
+          "401": { "$ref": "#/components/responses/Error" },
+          "403": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/api/v3/admin/users/ai-limits": {
+      "put": {
+        "operationId": "adminBatchUpdateAiLimits",
+        "summary": "批量设定或恢复成员每日 AI 额度",
+        "description": "先整体校验，任一项不合法返回 400 且不修改任何成员；校验通过后逐人处理，成功的保留，已删除或不存在的成员记为失败。不修改今日已用次数。",
+        "tags": ["admin-members"],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BatchAiLimitRequest" } } }
+        },
+        "responses": {
+          "200": { "description": "逐人结果", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/BatchAiLimitResult" } } } },
+          "400": { "$ref": "#/components/responses/Error" },
+          "401": { "$ref": "#/components/responses/Error" },
+          "403": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Member": {
+        "type": "object",
+        "description": "与现有列表条目同结构（节选与额度相关字段）。",
+        "required": ["id", "username", "role", "status", "effectiveAiDailyLimit", "aiUsedToday", "aiRemainingToday", "quotaDate"],
+        "properties": {
+          "id": { "type": "string" },
+          "username": { "type": "string" },
+          "nickname": { "type": "string", "nullable": true },
+          "role": { "type": "string", "enum": ["USER", "ADMIN"] },
+          "status": { "type": "string" },
+          "aiDailyLimit": { "type": "integer", "nullable": true, "minimum": 0, "maximum": 10000, "description": "null 表示沿用站点默认" },
+          "effectiveAiDailyLimit": { "type": "integer" },
+          "aiUsedToday": { "type": "integer" },
+          "aiRemainingToday": { "type": "integer" },
+          "quotaDate": { "type": "string", "format": "date", "description": "UTC 日" }
+        }
+      },
+      "MemberPage": {
+        "type": "object",
+        "required": ["items", "page", "size", "total"],
+        "properties": {
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/Member" } },
+          "page": { "type": "integer" },
+          "size": { "type": "integer" },
+          "total": { "type": "integer" }
+        }
+      },
+      "BatchAiLimitRequest": {
+        "type": "object",
+        "required": ["userIds", "action"],
+        "properties": {
+          "userIds": { "type": "array", "minItems": 1, "maxItems": 20, "uniqueItems": true, "items": { "type": "string" } },
+          "action": { "type": "string", "enum": ["SET", "RESET_DEFAULT"], "description": "SET 必须携带 aiDailyLimit；RESET_DEFAULT 不得携带，表示清除单独额度、回到沿用站点默认" },
+          "aiDailyLimit": { "type": "integer", "minimum": 0, "maximum": 10000 }
+        }
+      },
+      "BatchAiLimitItem": {
+        "type": "object",
+        "required": ["userId", "ok"],
+        "properties": {
+          "userId": { "type": "string" },
+          "ok": { "type": "boolean" },
+          "member": { "$ref": "#/components/schemas/Member" },
+          "code": { "type": "string", "enum": ["NOT_FOUND"] },
+          "message": { "type": "string" }
+        }
+      },
+      "BatchAiLimitResult": {
+        "type": "object",
+        "required": ["updated", "failed", "results"],
+        "properties": {
+          "updated": { "type": "integer" },
+          "failed": { "type": "integer" },
+          "results": { "type": "array", "items": { "$ref": "#/components/schemas/BatchAiLimitItem" } }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "type": "string" },
+          "message": { "type": "string" },
+          "requestId": { "type": "string" },
+          "details": { "type": "object", "additionalProperties": true }
+        }
+      }
+    },
+    "responses": {
+      "Error": { "description": "错误", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ApiError" } } } }
+    }
+  }
+}

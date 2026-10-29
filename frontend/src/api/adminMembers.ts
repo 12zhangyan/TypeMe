@@ -24,8 +24,23 @@ function parseMember(raw: unknown, path: string): Member {
   if (!item || !isText(item.id) || !isText(item.username)) throw unexpectedResponse(`成员条目缺少 id 或 username：${path}`)
   return item as Member
 }
-export const members = (page = 0) => list<Member>(`/admin/users?page=${page}&size=20`, parseMember)
+// 不筛选时 URL 与旧版完全一致；筛选在服务端做，跨页的 total 才准确。
+export const members = (page = 0, aiExhausted = false) =>
+  list<Member>(`/admin/users?page=${page}&size=20${aiExhausted ? '&aiExhausted=true' : ''}`, parseMember)
 export const setDailyLimit = (id: string, aiDailyLimit: number) => request<Member>('PUT', `/admin/users/${encodeURIComponent(id)}/ai-limit`, { aiDailyLimit })
+export interface BatchAiLimitItem { userId: string; ok: boolean; member?: Member; code?: string; message?: string }
+export interface BatchAiLimitResult { updated: number; failed: number; results: BatchAiLimitItem[] }
+// 批量修改：服务端先整体校验、再逐人处理，响应逐人给结果；结构不对时报错，不让页面把未知结果当成功。
+export const setDailyLimits = (userIds: string[], aiDailyLimit: number) => batchLimits({ userIds, action: 'SET', aiDailyLimit })
+// 恢复默认用显式 action，不传 aiDailyLimit：清除单独额度，之后跟随站点默认。
+export const resetDailyLimits = (userIds: string[]) => batchLimits({ userIds, action: 'RESET_DEFAULT' })
+async function batchLimits(body: { userIds: string[]; action: 'SET' | 'RESET_DEFAULT'; aiDailyLimit?: number }): Promise<BatchAiLimitResult> {
+  const path = '/admin/users/ai-limits'
+  const data = await request<Partial<BatchAiLimitResult> | null>('PUT', path, body)
+  if (!data || !Number.isInteger(data.updated) || !Number.isInteger(data.failed) || !Array.isArray(data.results)) throw unexpectedResponse('批量修改的结果格式不正确，请刷新后核对额度。')
+  const results = data.results.map((item, i) => item.ok ? { ...item, member: parseMember(item.member, `${path}.results[${i}]`) } : item)
+  return { updated: data.updated as number, failed: data.failed as number, results }
+}
 export const attempts = (id: string, page = 0) => list(`/admin/users/${encodeURIComponent(id)}/attempts?page=${page}&size=10`, parseMyAttempt)
 export const reports = (id: string, page = 0) => list(`/admin/users/${encodeURIComponent(id)}/reports?page=${page}&size=10`, parseMyReport)
 export async function report(id: string, reportId: string) {

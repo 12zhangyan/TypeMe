@@ -69,15 +69,16 @@ public class AdminController {
 
     // ------------------------------------------------------------------ 用户管理
 
-    /** 分页列出用户（不回密码 hash）。 */
+    /** 分页列出用户（不回密码 hash）；{@code aiExhausted=true} 只列今日 AI 次数已用完的用户。 */
     @GetMapping("/users")
     public ResponseEntity<Map<String, Object>> users(
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size) {
+            @RequestParam(name = "size", defaultValue = "20") int size,
+            @RequestParam(name = "aiExhausted", defaultValue = "false") boolean aiExhausted) {
         currentUser.require();
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
-                .body(adminUserService.list(page, size));
+                .body(adminUserService.list(page, size, aiExhausted));
     }
 
     /** 改角色。不能把自己降级（否则可能无人可管后台）。 */
@@ -98,6 +99,23 @@ public class AdminController {
     public ResponseEntity<Map<String, Object>> updateAiLimit(@PathVariable("id") String userId, @Valid @RequestBody AiLimitRequest request) {
         currentUser.require();
         return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(adminUserService.updateAiDailyLimit(userId, request.aiDailyLimit().intValueExact()));
+    }
+
+    public record BatchAiLimitRequest(
+            @jakarta.validation.constraints.NotNull
+            @jakarta.validation.constraints.Size(min = 1, max = AdminUserService.MAX_BATCH_SIZE)
+            java.util.List<@jakarta.validation.constraints.NotBlank String> userIds,
+            @jakarta.validation.constraints.NotBlank String action,
+            @jakarta.validation.constraints.Min(0) @jakarta.validation.constraints.Max(10000)
+            @jakarta.validation.constraints.Digits(integer = 5, fraction = 0) java.math.BigDecimal aiDailyLimit) {}
+
+    /** 批量设定（SET）或恢复站点默认（RESET_DEFAULT）每日 AI 额度；整体校验失败时不改任何人，通过后逐人处理并返回每人的结果。 */
+    @PutMapping("/users/ai-limits")
+    public ResponseEntity<Map<String, Object>> batchUpdateAiLimits(@Valid @RequestBody BatchAiLimitRequest request) {
+        currentUser.require();
+        Integer limit = request.aiDailyLimit() == null ? null : request.aiDailyLimit().intValueExact();
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .body(adminUserService.batchUpdateAiDailyLimit(request.userIds(), request.action(), limit));
     }
 
     /** 禁用账号并撤销其全部会话。不能禁用自己。 */
