@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { clearCsrfToken } from '@/api/csrf'
 import { UNEXPECTED_RESPONSE_CODE, V3ApiError } from './v3'
-import { attempts, members, setDailyLimit } from './adminMembers'
+import { attempts, members, resetDailyLimits, setDailyLimit, setDailyLimits } from './adminMembers'
 
 /**
  * 成员接口层（`api/adminMembers.ts`）测试（backlog A71 剩余部分）。
@@ -78,6 +78,18 @@ describe('列表读取', () => {
     expect(result.items).toEqual([MEMBER])
   })
 
+  it('只看今日额度已用完：同一路径加 aiExhausted=true；默认不带该参数', async () => {
+    onBusiness = () => json({ ...page([MEMBER]), size: 20 })
+
+    await members(1, true)
+    await members(0, false)
+
+    expect(business().map((call) => call.url)).toEqual([
+      '/api/v3/admin/users?page=1&size=20&aiExhausted=true',
+      '/api/v3/admin/users?page=0&size=20',
+    ])
+  })
+
   it('外层不是分页结构时抛 UNEXPECTED_RESPONSE', async () => {
     onBusiness = () => json({ items: null, page: 0, total: 0 })
 
@@ -103,6 +115,49 @@ describe('写操作', () => {
     expect(put!.headers['X-CSRF']).toBe('tok-1')
     expect(put!.body).toEqual({ aiDailyLimit: 0 })
     expect(updated.effectiveAiDailyLimit).toBe(0)
+  })
+
+  it('批量设定打 PUT /api/v3/admin/users/ai-limits，带 CSRF，请求体为 userIds + action SET + aiDailyLimit；逐人结果原样返回', async () => {
+    onBusiness = () => json({
+      updated: 1, failed: 1,
+      results: [
+        { userId: 'u-1', ok: true, member: { ...MEMBER, aiDailyLimit: 5, effectiveAiDailyLimit: 5 } },
+        { userId: 'u-2', ok: false, code: 'NOT_FOUND', message: '成员不存在或已删除。' },
+      ],
+    })
+
+    const result = await setDailyLimits(['u-1', 'u-2'], 5)
+
+    const [put] = business()
+    expect(put).toMatchObject({ method: 'PUT', url: '/api/v3/admin/users/ai-limits' })
+    expect(put!.headers['X-CSRF']).toBe('tok-1')
+    expect(put!.body).toEqual({ userIds: ['u-1', 'u-2'], action: 'SET', aiDailyLimit: 5 })
+    expect(result.updated).toBe(1)
+    expect(result.results[0]!.member!.aiDailyLimit).toBe(5)
+    expect(result.results[1]).toMatchObject({ ok: false, code: 'NOT_FOUND' })
+  })
+
+  it('恢复默认打同一接口，action 为 RESET_DEFAULT，请求体不带 aiDailyLimit', async () => {
+    onBusiness = () => json({ updated: 1, failed: 0, results: [{ userId: 'u-1', ok: true, member: MEMBER }] })
+
+    const result = await resetDailyLimits(['u-1'])
+
+    const [put] = business()
+    expect(put).toMatchObject({ method: 'PUT', url: '/api/v3/admin/users/ai-limits' })
+    expect(put!.headers['X-CSRF']).toBe('tok-1')
+    expect(put!.body).toEqual({ userIds: ['u-1'], action: 'RESET_DEFAULT' })
+    expect(result.results[0]!.member!.aiDailyLimit).toBeNull()
+  })
+
+  it('批量结果缺 updated/results 或成功项缺成员时抛 UNEXPECTED_RESPONSE，不当成成功', async () => {
+    onBusiness = () => json({ ok: true })
+    const shapeless = await catches(setDailyLimits(['u-1'], 5))
+    expect(shapeless).toBeInstanceOf(V3ApiError)
+    expect((shapeless as V3ApiError).code).toBe(UNEXPECTED_RESPONSE_CODE)
+
+    onBusiness = () => json({ updated: 1, failed: 0, results: [{ userId: 'u-1', ok: true }] })
+    const memberless = await catches(setDailyLimits(['u-1'], 5))
+    expect((memberless as V3ApiError).code).toBe(UNEXPECTED_RESPONSE_CODE)
   })
 })
 

@@ -32,6 +32,12 @@ class AdminApiIT extends AccountIntegrationTestBase {
     @Autowired
     private AiSettingRepository aiSettingRepository;
 
+    @Autowired
+    private com.typeme.ai.service.AiBudgetRepository aiBudgetRepository;
+
+    @Autowired
+    private com.typeme.ai.config.AiRuntimeSettingsProvider aiRuntimeSettingsProvider;
+
     private TestAccounts testAccounts() {
         return new TestAccounts(mockMvc, objectMapper, userRepository, invitationJdbc);
     }
@@ -243,6 +249,220 @@ class AdminApiIT extends AccountIntegrationTestBase {
             }
         }
         assertThat(found).as("新注册用户应出现在列表里").isTrue();
+    }
+
+    @Test
+    @DisplayName("GET users?aiExhausted=true：跨页只列今日已用完者，额度 0、昨日用完、已删除不算；total 与翻页一致")
+    void listUsersFiltersAiExhaustedAcrossPages() throws Exception {
+        String adminUsername = uniqueUsername("quotaadmin");
+        register(adminUsername, "TestPassw0rd!");
+        testAccounts().promoteToAdmin(adminUsername);
+        MockHttpSession session = new MockHttpSession();
+        login(csrf(session), session, adminUsername, "TestPassw0rd!", uniqueIp());
+
+        java.time.LocalDate today = aiBudgetRepository.today();
+        int siteDefault = aiRuntimeSettingsProvider.settings().dailyLimitPerUser();
+        java.time.Instant base = java.time.Instant.now().plusSeconds(86_400);
+        // 创建时间交错，让“已用完”的人分散在未筛选列表的不同位置。
+        String limitHit = quotaUser("hit", base.plusSeconds(7), 2, today, 2);
+        String notUsedUp = quotaUser("partial", base.plusSeconds(6), 2, today, 1);
+        String defaultHit = quotaUser("default", base.plusSeconds(5), null, today, siteDefault);
+        String stopped = quotaUser("stopped", base.plusSeconds(4), 0, today, 0);
+        String overLimit = quotaUser("over", base.plusSeconds(3), 1, today, 3);
+        String yesterday = quotaUser("yesterday", base.plusSeconds(2), 1, today.minusDays(1), 1);
+        String deleted = quotaUser("deleted", base.plusSeconds(1), 1, today, 1);
+        userRepository.markDeletedWithRewrittenUsername(deleted, java.time.Instant.now());
+
+        java.util.List<String> collected = new java.util.ArrayList<>();
+        long total = -1;
+        for (int page = 0; page < 50; page++) {
+            JsonNode body = body(mockMvc.perform(get("/api/v3/admin/users?page=" + page + "&size=2&aiExhausted=true")
+                            .session(session))
+                    .andExpect(status().isOk())
+                    .andReturn());
+            if (total < 0) total = body.path("total").asLong();
+            assertThat(body.path("total").asLong()).as("每一页的 total 都按筛选结果计算").isEqualTo(total);
+            if (body.path("items").isEmpty()) break;
+            for (JsonNode item : body.path("items")) {
+                collected.add(item.path("id").asText());
+                assertThat(item.path("aiUsedToday").asInt())
+                        .isGreaterThanOrEqualTo(item.path("effectiveAiDailyLimit").asInt());
+                assertThat(item.path("effectiveAiDailyLimit").asInt()).isPositive();
+            }
+        }
+
+        assertThat(collected).as("翻页不重复").doesNotHaveDuplicates();
+        assertThat((long) collected.size()).as("逐页收集的人数等于 total").isEqualTo(total);
+        assertThat(collected).contains(limitHit, defaultHit, overLimit)
+                .doesNotContain(notUsedUp, stopped, yesterday, deleted);
+    }
+
+    @Test
+    @DisplayName("PUT users/ai-limits SET：逐人写入同一额度，今日已用不变，额度判定立即读到新值；调低到已用以下则剩余 0")
+    void batchSetUpdatesEachMemberAndKeepsUsage() throws Exception {
+        AdminSession admin = adminSession("batchset");
+        java.time.LocalDate today = aiBudgetRepository.today();
+        java.time.Instant now = java.time.Instant.now();
+        String own = quotaUser("own", now, 2, today, 2);
+        String inherits = quotaUser("inherits", now, null, today, 1);
+        String stopped = quotaUser("stopped", now, 0, today, 0);
+
+        JsonNode body = body(batch(admin, Map.of("userIds", java.util.List.of(own, inherits, stopped),
+                "action", "SET", "aiDailyLimit", 5)).andExpect(status().isOk()).andReturn());
+
+        assertThat(body.path("updated").asInt()).isEqualTo(3);
+        assertThat(body.path("failed").asInt()).isZero();
+        for (JsonNode result : body.path("results")) {
+            assertThat(result.path("ok").asBoolean()).isTrue();
+            assertThat(result.path("member").path("aiDailyLimit").asInt()).isEqualTo(5);
+        }
+        int siteDefault = aiRuntimeSettingsProvider.settings().dailyLimitPerUser();
+        for (String id : java.util.List.of(own, inherits, stopped)) {
+            // AnalysisCreationWriter 创建分析时读的就是 effectiveUserLimit：写库即生效。
+            assertThat(aiBudgetRepository.effectiveUserLimit(id, siteDefault, false)).isEqualTo(5);
+        }
+        assertThat(aiBudgetRepository.reservedCalls("user:" + own, today)).as("今日已用不被清零").isEqualTo(2);
+        assertThat(aiBudgetRepository.reservedCalls("user:" + inherits, today)).isEqualTo(1);
+
+        JsonNode lowered = body(batch(admin, Map.of("userIds", java.util.List.of(own), "action", "SET", "aiDailyLimit", 1))
+                .andExpect(status().isOk()).andReturn());
+        JsonNode member = lowered.path("results").get(0).path("member");
+        assertThat(member.path("aiUsedToday").asInt()).isEqualTo(2);
+        assertThat(member.path("aiRemainingToday").asInt()).isZero();
+    }
+
+    @Test
+    @DisplayName("PUT users/ai-limits RESET_DEFAULT：清除单独额度、之后跟随站点默认，今日已用不变；本来就沿用默认的不报错")
+    void batchResetDefaultClearsOverrideAndFollowsSiteDefault() throws Exception {
+        AdminSession admin = adminSession("batchreset");
+        java.time.LocalDate today = aiBudgetRepository.today();
+        java.time.Instant now = java.time.Instant.now();
+        String custom = quotaUser("custom", now, 5, today, 3);
+        String inherits = quotaUser("alreadydefault", now, null, today, 1);
+
+        JsonNode body = body(batch(admin, Map.of("userIds", java.util.List.of(custom, inherits), "action", "RESET_DEFAULT"))
+                .andExpect(status().isOk()).andReturn());
+
+        assertThat(body.path("updated").asInt()).isEqualTo(2);
+        assertThat(body.path("failed").asInt()).isZero();
+        int siteDefault = aiRuntimeSettingsProvider.settings().dailyLimitPerUser();
+        for (JsonNode result : body.path("results")) {
+            assertThat(result.path("ok").asBoolean()).isTrue();
+            assertThat(result.path("member").path("aiDailyLimit").isNull()).as("回到沿用站点默认").isTrue();
+            assertThat(result.path("member").path("effectiveAiDailyLimit").asInt()).isEqualTo(siteDefault);
+        }
+        assertThat(userRepository.findById(custom).orElseThrow().aiDailyLimit()).isNull();
+        // 清除而不是写入当前默认数字：站点默认以后变化，这些成员跟着变。
+        assertThat(aiBudgetRepository.effectiveUserLimit(custom, siteDefault + 7, false)).isEqualTo(siteDefault + 7);
+        assertThat(aiBudgetRepository.reservedCalls("user:" + custom, today)).as("今日已用不被清零").isEqualTo(3);
+        assertThat(aiBudgetRepository.reservedCalls("user:" + inherits, today)).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("PUT users/ai-limits：人数 0 或超过 20、重复、额度缺失/越界/小数、未知 action → 400 且没有任何人被修改")
+    void batchRejectsInvalidRequestsWithoutWriting() throws Exception {
+        AdminSession admin = adminSession("batchbad");
+        java.time.Instant now = java.time.Instant.now();
+        String target = quotaUser("target", now, 3, aiBudgetRepository.today(), 0);
+        java.util.List<String> tooMany = new java.util.ArrayList<>(java.util.List.of(target));
+        for (int i = 0; i < 20; i++) tooMany.add(UserRepository.newId());
+
+        java.util.List<String> bodies = java.util.List.of(
+                json(Map.of("userIds", java.util.List.of(), "action", "SET", "aiDailyLimit", 5)),
+                json(Map.of("userIds", tooMany, "action", "SET", "aiDailyLimit", 5)),
+                json(Map.of("userIds", java.util.List.of(target, target), "action", "SET", "aiDailyLimit", 5)),
+                json(Map.of("userIds", java.util.List.of(target, " "), "action", "SET", "aiDailyLimit", 5)),
+                json(Map.of("userIds", java.util.List.of(target), "action", "SET")),
+                json(Map.of("userIds", java.util.List.of(target), "action", "SET", "aiDailyLimit", -1)),
+                json(Map.of("userIds", java.util.List.of(target), "action", "SET", "aiDailyLimit", 10001)),
+                "{\"userIds\":[\"" + target + "\"],\"action\":\"SET\",\"aiDailyLimit\":1.5}",
+                json(Map.of("userIds", java.util.List.of(target), "action", "ADD", "aiDailyLimit", 5)),
+                json(Map.of("userIds", java.util.List.of(target), "action", "RESET_DEFAULT", "aiDailyLimit", 5)),
+                json(Map.of("userIds", java.util.List.of(target), "aiDailyLimit", 5)));
+        for (String requestBody : bodies) {
+            MvcResult result = mockMvc.perform(withCsrf(put("/api/v3/admin/users/ai-limits").session(admin.session())
+                            .contentType(MediaType.APPLICATION_JSON).content(requestBody), admin.csrf()))
+                    .andReturn();
+            assertThat(result.getResponse().getStatus()).as(requestBody).isEqualTo(400);
+            assertThat(body(result).path("code").asText()).as(requestBody).isEqualTo("VALIDATION_FAILED");
+        }
+        assertThat(userRepository.findById(target).orElseThrow().aiDailyLimit()).as("任何非法请求都不写库").isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("PUT users/ai-limits：其中一人已删除时其余照常保存，失败项为 NOT_FOUND，不整批回滚")
+    void batchKeepsSuccessfulMembersWhenOneIsDeleted() throws Exception {
+        AdminSession admin = adminSession("batchpartial");
+        java.time.LocalDate today = aiBudgetRepository.today();
+        java.time.Instant now = java.time.Instant.now();
+        String first = quotaUser("first", now, 1, today, 0);
+        String gone = quotaUser("gone", now, 1, today, 0);
+        String last = quotaUser("last", now, 1, today, 0);
+        userRepository.markDeletedWithRewrittenUsername(gone, now);
+
+        JsonNode body = body(batch(admin, Map.of("userIds", java.util.List.of(first, gone, last),
+                "action", "SET", "aiDailyLimit", 4)).andExpect(status().isOk()).andReturn());
+
+        assertThat(body.path("updated").asInt()).isEqualTo(2);
+        assertThat(body.path("failed").asInt()).isEqualTo(1);
+        JsonNode failed = body.path("results").get(1);
+        assertThat(failed.path("userId").asText()).isEqualTo(gone);
+        assertThat(failed.path("ok").asBoolean()).isFalse();
+        assertThat(failed.path("code").asText()).isEqualTo("NOT_FOUND");
+        assertThat(userRepository.findById(first).orElseThrow().aiDailyLimit()).isEqualTo(4);
+        assertThat(userRepository.findById(last).orElseThrow().aiDailyLimit()).isEqualTo(4);
+        assertThat(userRepository.findById(gone).orElseThrow().aiDailyLimit()).as("已删除成员不被修改").isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("PUT users/ai-limits：非管理员 403 FORBIDDEN，缺 CSRF 403 CSRF_INVALID，额度都不变")
+    void batchRequiresAdminAndCsrf() throws Exception {
+        String target = quotaUser("guarded", java.time.Instant.now(), 3, aiBudgetRepository.today(), 0);
+        String payload = json(Map.of("userIds", java.util.List.of(target), "action", "SET", "aiDailyLimit", 9));
+
+        RegisteredAccount plain = register(uniqueUsername("plainbatch"), "TestPassw0rd!");
+        CsrfContext plainCsrf = csrf(plain.session());
+        MvcResult forbidden = mockMvc.perform(withCsrf(put("/api/v3/admin/users/ai-limits").session(plain.session())
+                .contentType(MediaType.APPLICATION_JSON).content(payload), plainCsrf)).andReturn();
+        assertThat(forbidden.getResponse().getStatus()).isEqualTo(403);
+        assertThat(body(forbidden).path("code").asText()).isEqualTo("FORBIDDEN");
+
+        AdminSession admin = adminSession("batchcsrf");
+        MvcResult noCsrf = mockMvc.perform(put("/api/v3/admin/users/ai-limits").session(admin.session())
+                .contentType(MediaType.APPLICATION_JSON).content(payload)).andReturn();
+        assertThat(noCsrf.getResponse().getStatus()).isEqualTo(403);
+        assertThat(body(noCsrf).path("code").asText()).isEqualTo("CSRF_INVALID");
+
+        assertThat(userRepository.findById(target).orElseThrow().aiDailyLimit()).isEqualTo(3);
+    }
+
+    private record AdminSession(MockHttpSession session, CsrfContext csrf) {}
+
+    private AdminSession adminSession(String prefix) throws Exception {
+        String username = uniqueUsername(prefix);
+        register(username, "TestPassw0rd!");
+        testAccounts().promoteToAdmin(username);
+        MockHttpSession session = new MockHttpSession();
+        CsrfContext csrf = csrf(session);
+        login(csrf, session, username, "TestPassw0rd!", uniqueIp());
+        return new AdminSession(session, csrf(session));
+    }
+
+    private org.springframework.test.web.servlet.ResultActions batch(AdminSession admin, Map<String, Object> payload) throws Exception {
+        return mockMvc.perform(withCsrf(put("/api/v3/admin/users/ai-limits").session(admin.session())
+                .contentType(MediaType.APPLICATION_JSON).content(json(payload)), admin.csrf()));
+    }
+
+    /** 直接写库造一个成员及其指定日期的 AI 预留次数；不走注册，避免触发注册限流。 */
+    private String quotaUser(String prefix, java.time.Instant createdAt, Integer limit,
+                             java.time.LocalDate budgetDate, int reservedCalls) {
+        String id = UserRepository.newId();
+        String username = uniqueUsername(prefix);
+        userRepository.insert(id, UserRepository.normalize(username), username, "unused-hash", null, "USER", createdAt);
+        userRepository.updateAiDailyLimit(id, limit);
+        invitationJdbc.update("INSERT INTO ai_usage_budget (scope_key, budget_date, reserved_calls) VALUES (?, ?, ?)",
+                "user:" + id, budgetDate, reservedCalls);
+        return id;
     }
 
     @Test

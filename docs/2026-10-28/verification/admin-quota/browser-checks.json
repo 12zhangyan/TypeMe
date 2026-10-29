@@ -1,0 +1,278 @@
+{
+  "checks": [
+    {
+      "label": "320: first page shows 20 members",
+      "passed": true
+    },
+    {
+      "label": "320: pick targets are at least 44px tall",
+      "passed": true
+    },
+    {
+      "label": "320/list: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320: filtered count from server (11: '成员档案\\n\\n成员\\n11 位今日额度已用完')",
+      "passed": true
+    },
+    {
+      "label": "320: only exhausted members listed",
+      "passed": true
+    },
+    {
+      "label": "320/filtered: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320: batch bar stays inside the viewport while scrolling",
+      "passed": true
+    },
+    {
+      "label": "320: batch buttons are at least 44px tall {'设为该额度': 52, '恢复系统默认': 48, '取消选择': 44}",
+      "passed": true
+    },
+    {
+      "label": "320: set confirmation names count and value",
+      "passed": true
+    },
+    {
+      "label": "320: confirm buttons are at least 44px tall [52, 44]",
+      "passed": true
+    },
+    {
+      "label": "320/confirm-set: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320: one SET request with the selected ids",
+      "passed": true
+    },
+    {
+      "label": "320: selection cleared after success",
+      "passed": true
+    },
+    {
+      "label": "320/after-set: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320: failed member listed with reason",
+      "passed": true
+    },
+    {
+      "label": "320: partial notice is not \"all saved\"",
+      "passed": true
+    },
+    {
+      "label": "320: deleted member gone after reload",
+      "passed": true
+    },
+    {
+      "label": "320/partial: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320: reset confirmation explains clearing",
+      "passed": true
+    },
+    {
+      "label": "320/confirm-reset: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "320: reset sends no aiDailyLimit",
+      "passed": true
+    },
+    {
+      "label": "320/after-reset: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390: first page shows 20 members",
+      "passed": true
+    },
+    {
+      "label": "390: pick targets are at least 44px tall",
+      "passed": true
+    },
+    {
+      "label": "390/list: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390: filtered count from server (11: '成员档案\\n\\n成员\\n11 位今日额度已用完')",
+      "passed": true
+    },
+    {
+      "label": "390: only exhausted members listed",
+      "passed": true
+    },
+    {
+      "label": "390/filtered: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390: batch bar stays inside the viewport while scrolling",
+      "passed": true
+    },
+    {
+      "label": "390: batch buttons are at least 44px tall {'设为该额度': 52, '恢复系统默认': 48, '取消选择': 44}",
+      "passed": true
+    },
+    {
+      "label": "390: set confirmation names count and value",
+      "passed": true
+    },
+    {
+      "label": "390: confirm buttons are at least 44px tall [52, 44]",
+      "passed": true
+    },
+    {
+      "label": "390/confirm-set: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390: one SET request with the selected ids",
+      "passed": true
+    },
+    {
+      "label": "390: selection cleared after success",
+      "passed": true
+    },
+    {
+      "label": "390/after-set: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390: failed member listed with reason",
+      "passed": true
+    },
+    {
+      "label": "390: partial notice is not \"all saved\"",
+      "passed": true
+    },
+    {
+      "label": "390: deleted member gone after reload",
+      "passed": true
+    },
+    {
+      "label": "390/partial: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390: reset confirmation explains clearing",
+      "passed": true
+    },
+    {
+      "label": "390/confirm-reset: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "390: reset sends no aiDailyLimit",
+      "passed": true
+    },
+    {
+      "label": "390/after-reset: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: first page shows 20 members",
+      "passed": true
+    },
+    {
+      "label": "1440: pick targets are at least 44px tall",
+      "passed": true
+    },
+    {
+      "label": "1440/list: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: filtered count from server (11: '成员档案\\n\\n成员\\n11 位今日额度已用完')",
+      "passed": true
+    },
+    {
+      "label": "1440: only exhausted members listed",
+      "passed": true
+    },
+    {
+      "label": "1440/filtered: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: batch bar stays inside the viewport while scrolling",
+      "passed": true
+    },
+    {
+      "label": "1440: batch buttons are at least 44px tall {'设为该额度': 48, '恢复系统默认': 48, '取消选择': 44}",
+      "passed": true
+    },
+    {
+      "label": "1440: set confirmation names count and value",
+      "passed": true
+    },
+    {
+      "label": "1440: confirm buttons are at least 44px tall [48, 44]",
+      "passed": true
+    },
+    {
+      "label": "1440/confirm-set: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: one SET request with the selected ids",
+      "passed": true
+    },
+    {
+      "label": "1440: selection cleared after success",
+      "passed": true
+    },
+    {
+      "label": "1440/after-set: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: failed member listed with reason",
+      "passed": true
+    },
+    {
+      "label": "1440: partial notice is not \"all saved\"",
+      "passed": true
+    },
+    {
+      "label": "1440: deleted member gone after reload",
+      "passed": true
+    },
+    {
+      "label": "1440/partial: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: reset confirmation explains clearing",
+      "passed": true
+    },
+    {
+      "label": "1440/confirm-reset: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "1440: reset sends no aiDailyLimit",
+      "passed": true
+    },
+    {
+      "label": "1440/after-reset: no horizontal overflow",
+      "passed": true
+    },
+    {
+      "label": "No browser JS errors",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "unexpected": [
+    "GET /api/v3/admin/ai-settings",
+    "GET /api/v3/catalog/current",
+    "GET /api/v3/platform/illustrations"
+  ]
+}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import PageContainer from '@/components/PageContainer.vue'
 import AdminReportReadout from '@/components/AdminReportReadout.vue'
@@ -66,11 +66,81 @@ function fail(e: unknown) {
   apiError.value = display
 }
 function clearErrors() { error.value = ''; apiError.value = null; needsLogin.value = false }
+// 只看今日 AI 额度已用完的成员；切换、翻页、保存后的重载都带上这个条件。
+// exhaustedOnly 是开关状态，shownExhausted 是当前列表实际按什么条件取回：请求返回前两者可能不同，
+// 计数与空态文案只看后者，否则切换瞬间会把未筛选的总数显示成“N 位今日额度已用完”。
+const exhaustedOnly = ref(false), shownExhausted = ref(false)
+async function fetchMembers(page: number, exhausted: boolean) {
+  const result = await api.members(page, exhausted)
+  users.value = result; shownExhausted.value = exhausted
+  return result
+}
 async function load() {
   if (loading.value) return
   loading.value = true; clearErrors(); denied.value = false
-  try { users.value = await api.members(); ready.value = true }
+  try { await fetchMembers(0, exhaustedOnly.value); ready.value = true }
   catch (e) { fail(e) } finally { loading.value = false }
+}
+async function toggleExhausted(next: boolean) {
+  const previous = exhaustedOnly.value
+  exhaustedOnly.value = next
+  resetBatch()
+  await action(async () => {
+    try { await fetchMembers(0, next) }
+    catch (e) { exhaustedOnly.value = previous; throw e } // 失败时开关回到与列表一致的状态
+  })
+}
+function goPage(page: number) {
+  resetBatch()
+  return action(async () => { await fetchMembers(page, exhaustedOnly.value) })
+}
+/** 重读当前页（带筛选）；当前页因此变空且不是第一页时退回上一页。 */
+async function reloadPage() {
+  const page = await fetchMembers(users.value.page, exhaustedOnly.value)
+  if (!page.items.length && page.page > 0) await fetchMembers(page.page - 1, exhaustedOnly.value)
+}
+// 批量修改只作用于当前页的勾选（需求 Q-1）；换页、切换筛选、取消或成功后清空。
+const picked = ref<string[]>([])
+const batchLimit = ref<number | ''>('')
+// 待确认的批量操作：设为同一额度，或恢复为沿用系统默认；null 表示没有待确认的操作。
+const confirming = ref<'set' | 'reset' | null>(null)
+const batchFailures = ref<{ id: string; name: string; message: string }[]>([])
+const allPicked = computed(() => users.value.items.length > 0 && users.value.items.every(user => picked.value.includes(user.id)))
+function resetBatch() { picked.value = []; confirming.value = null; batchFailures.value = [] }
+function togglePick(id: string, on: boolean) {
+  picked.value = on ? [...picked.value, id] : picked.value.filter(item => item !== id)
+  confirming.value = null; batchFailures.value = []
+}
+function togglePickAll(on: boolean) {
+  picked.value = on ? users.value.items.map(user => user.id) : []
+  confirming.value = null; batchFailures.value = []
+}
+function askConfirm(mode: 'set' | 'reset') {
+  const limit = batchLimit.value
+  if (mode === 'set' && (typeof limit !== 'number' || !Number.isInteger(limit) || limit < 0 || limit > 10000)) { clearErrors(); error.value = '每日额度请输入 0–10000 的整数。'; return }
+  clearErrors(); batchFailures.value = []; confirming.value = mode
+}
+async function submitBatch() {
+  const mode = confirming.value
+  if (!mode) return
+  const ids = [...picked.value], limit = batchLimit.value as number
+  const names = new Map(users.value.items.map(user => [user.id, user.nickname || user.username]))
+  await action(async () => {
+    const result = mode === 'reset' ? await api.resetDailyLimits(ids) : await api.setDailyLimits(ids, limit)
+    confirming.value = null
+    const saved = result.results.find(item => item.ok && item.member?.id === selected.value?.id)?.member
+    if (saved) { selected.value = saved; dailyLimit.value = saved.effectiveAiDailyLimit }
+    await reloadPage()
+    const failed = result.results.filter(item => !item.ok)
+    batchFailures.value = failed.map(item => ({ id: item.userId, name: names.get(item.userId) ?? item.userId, message: item.message ?? '保存失败。' }))
+    // 失败者若仍在当前页就保持勾选，方便重试；成功者清除勾选。
+    picked.value = failed.map(item => item.userId).filter(id => users.value.items.some(user => user.id === id))
+    notice.value = result.failed
+      ? `已保存 ${result.updated} 位成员，${result.failed} 位未保存，见下方名单。`
+      : mode === 'reset'
+        ? `已将 ${result.updated} 位成员恢复为沿用系统默认额度。今天已经使用的次数保留。`
+        : `已将 ${result.updated} 位成员的每日额度设为 ${limit}。今天已经使用的次数保留。`
+  })
 }
 async function action(work: () => Promise<void>) {
   if (busy.value) return
@@ -90,6 +160,8 @@ async function saveLimit() {
   await action(async () => {
     const updated = await api.setDailyLimit(user.id, dailyLimit.value)
     selected.value = updated; users.value.items = users.value.items.map(item => item.id === user.id ? updated : item)
+    // 筛选状态下改额度可能让成员不再符合条件：重载当前页，不留已不符合的卡片。
+    if (exhaustedOnly.value) await reloadPage()
     notice.value = '每日额度已保存。今天已经使用的次数保留。'
   })
 }
@@ -105,13 +177,21 @@ onMounted(load)
     </div>
     <p v-if="denied" class="notice-uncertain mt-4">此页面仅对管理员开放。<RouterLink to="/account" class="link">返回账号页</RouterLink></p>
     <p v-if="notice" class="notice-success mt-4" role="status">{{ notice }}</p>
+    <div v-if="batchFailures.length" class="notice-error mt-4" role="alert" data-batch-failures><p>以下成员未保存：</p><ul class="batch-failures"><li v-for="item in batchFailures" :key="item.id">{{ item.name }}：{{ item.message }}</li></ul></div>
     <template v-if="ready && !denied">
       <section class="members-section" aria-labelledby="members-title">
-        <div class="section-top"><div><p class="section-kicker">成员档案</p><h2 id="members-title">成员</h2></div><span class="caption">{{ users.total }} 位成员</span></div>
-        <p class="caption mb-5">最近活动表示会话最后使用时间，不代表此刻在线。每日额度于 UTC 00:00（北京时间 08:00）重置。</p>
-        <p v-if="!users.items.length" class="caption">暂无成员。</p>
-        <div class="member-grid"><button v-for="user in users.items" :key="user.id" class="member-card" :class="{ selected: selected?.id === user.id }" :disabled="busy" @click="choose(user)"><div class="flex justify-between gap-3"><strong>{{ user.nickname || user.username }}</strong><span class="status-tag">{{ label(user.status) }}</span></div><p class="caption">{{ user.username }} · {{ user.role === 'ADMIN' ? '管理员' : '成员' }}</p><p class="member-stat">{{ user.reportCount ?? '—' }} <small>份报告</small><span>{{ user.attemptCount }} 次测评</span></p><p class="caption">AI 今日已用 {{ user.aiUsedToday }} / {{ user.effectiveAiDailyLimit }} 次</p><p class="caption">最近活动 {{ time(user.lastSeenAt) }}</p><span class="member-open">查看档案与报告 →</span></button></div>
-        <nav class="pagination" aria-label="成员翻页"><button :disabled="busy || users.page === 0" @click="action(async () => { users = await api.members(users.page - 1) })">上一页</button><span>第 {{ users.page + 1 }} 页</span><button :disabled="busy || (users.page + 1) * users.size >= users.total" @click="action(async () => { users = await api.members(users.page + 1) })">下一页</button></nav>
+        <div class="section-top"><div><p class="section-kicker">成员档案</p><h2 id="members-title">成员</h2></div><span class="caption">{{ shownExhausted ? `${users.total} 位今日额度已用完` : `${users.total} 位成员` }}</span></div>
+        <p class="caption mb-3">最近活动表示会话最后使用时间，不代表此刻在线。每日额度于 UTC 00:00（北京时间 08:00）重置。</p>
+        <div class="member-tools mb-4"><label class="filter-toggle"><input type="checkbox" :checked="exhaustedOnly" :disabled="busy || loading" data-exhausted-filter @change="toggleExhausted(($event.target as HTMLInputElement).checked)" />只看今日额度已用完</label><label v-if="users.items.length" class="filter-toggle"><input type="checkbox" :checked="allPicked" :disabled="busy" data-pick-all @change="togglePickAll(($event.target as HTMLInputElement).checked)" />全选本页</label></div>
+        <p v-if="!users.items.length" class="caption">{{ shownExhausted ? '没有今天额度已用完的成员。' : '暂无成员。' }}</p>
+        <div class="member-grid"><div v-for="user in users.items" :key="user.id" class="member-item"><button class="member-card" :class="{ selected: selected?.id === user.id }" :disabled="busy" @click="choose(user)"><div class="flex justify-between gap-3"><strong>{{ user.nickname || user.username }}</strong><span class="status-tag">{{ label(user.status) }}</span></div><p class="caption">{{ user.username }} · {{ user.role === 'ADMIN' ? '管理员' : '成员' }}</p><p class="member-stat">{{ user.reportCount ?? '—' }} <small>份报告</small><span>{{ user.attemptCount }} 次测评</span></p><p class="caption">AI 今日已用 {{ user.aiUsedToday }} / {{ user.effectiveAiDailyLimit }} 次</p><p class="caption">最近活动 {{ time(user.lastSeenAt) }}</p><span class="member-open">查看档案与报告 →</span></button><label class="member-pick"><input type="checkbox" :checked="picked.includes(user.id)" :disabled="busy" :aria-label="`选中 ${user.nickname || user.username}`" data-member-pick @change="togglePick(user.id, ($event.target as HTMLInputElement).checked)" />选中</label></div></div>
+        <form v-if="picked.length" class="batch-bar" data-batch-bar @submit.prevent="askConfirm('set')">
+          <p class="batch-count">已选 {{ picked.length }} 位</p>
+          <label>每日 AI 额度<input v-model.number="batchLimit" class="input" type="number" min="0" max="10000" step="1" required :disabled="busy" /></label>
+          <button class="btn-primary" :disabled="busy">设为该额度</button><button type="button" class="btn-secondary" :disabled="busy" data-batch-reset @click="askConfirm('reset')">恢复系统默认</button><button type="button" class="link" :disabled="busy" @click="resetBatch">取消选择</button>
+          <div v-if="confirming" class="batch-confirm" data-batch-confirm><p v-if="confirming === 'reset'">将 {{ picked.length }} 位成员恢复为沿用系统默认额度，之后随系统默认变化。今天已经使用的次数保留；原来单独设定的额度会被清除，且无法查回。</p><p v-else>将修改 {{ picked.length }} 位成员的每日额度为 {{ batchLimit }}。今天已经使用的次数保留；原来单独设定的额度会被覆盖，且无法查回。</p><button type="button" class="btn-primary" :disabled="busy" @click="submitBatch">确认修改</button><button type="button" class="link" :disabled="busy" @click="confirming = null">再想想</button></div>
+        </form>
+        <nav class="pagination" aria-label="成员翻页"><button :disabled="busy || users.page === 0" @click="goPage(users.page - 1)">上一页</button><span>第 {{ users.page + 1 }} 页</span><button :disabled="busy || (users.page + 1) * users.size >= users.total" @click="goPage(users.page + 1)">下一页</button></nav>
       </section>
       <p v-if="busy" role="status" class="caption">正在处理，请稍等…</p>
       <section v-if="selected" class="member-detail members-section" aria-labelledby="detail-title">
@@ -136,6 +216,14 @@ h2 { font-family: inherit; font-weight: 700; font-size: 1.35rem; line-height: 1.
 .members-section { margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid var(--c-line-2); }
 .section-top { margin-bottom: 1.5rem; }
 .quota-form { display: flex; align-items: end; gap: 1rem; flex-wrap: wrap; }
+.filter-toggle { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; font-size: .875rem; cursor: pointer; }.filter-toggle input,.member-pick input { width: 1.125rem; height: 1.125rem; }
+.member-tools { display: flex; flex-wrap: wrap; gap: .25rem 1.5rem; }
+.member-item { display: flex; flex-direction: column; gap: .25rem; min-width: 0; }.member-item > .member-card { flex: 1; }
+.member-pick { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; padding: 0 .25rem; font-size: .875rem; cursor: pointer; }
+.batch-bar { position: sticky; bottom: 0; z-index: 2; display: flex; align-items: end; flex-wrap: wrap; gap: .75rem 1rem; margin-top: 1rem; padding: 1rem; background: #ffffff; border: 1px solid var(--c-line); border-radius: var(--r-lg); box-shadow: var(--shadow-soft); }
+.batch-bar .input { max-width: 10rem; }.batch-bar .link { min-height: 44px; padding: 0 .25rem; }.batch-count { margin: 0; font-weight: 600; align-self: center; }
+.batch-confirm { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; }.batch-confirm > p { flex-basis: 100%; margin: 0; }
+.batch-failures { margin: .5rem 0 0; padding-left: 1.25rem; list-style: disc; }
 label { font-size: .85rem; display: grid; gap: .5rem; max-width: 100%; } .input { min-height: 2.8rem; width: 100%; border: 1px solid var(--c-line-2); border-radius: .5rem; background: #ffffff; padding: .6rem .8rem; font-size: 1rem; }
 .quota-form > p { flex-basis: 100%; }.quota-form input { max-width: 12rem; }
 .record-row { display: flex; gap: 1rem; align-items: center; border-bottom: 1px solid var(--c-line); padding: 1rem 0; flex-wrap: wrap; }
