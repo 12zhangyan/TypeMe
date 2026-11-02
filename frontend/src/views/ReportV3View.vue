@@ -614,6 +614,10 @@ function jumpToSection(id: string): void {
                   {{ view.typeNameCn }}
                 </p>
               </div>
+              <!-- 角色插画放在类型名旁边：它只是装饰，不该单独占一整块版面。平分时没有类型，不显示。 -->
+              <figure v-if="view.typeCode" class="report-character-study" data-report-character>
+                <PersonalityPortrait :code="view.typeCode" /><figcaption>类型角色插画，仅供参考。</figcaption>
+              </figure>
             </div>
 
             <!--
@@ -641,9 +645,6 @@ function jumpToSection(id: string): void {
               <details class="mt-4"><summary class="cursor-pointer text-[13px]">查看保存时的完整摘要</summary><p class="mt-2">{{ view.summary }}</p></details>
             </div>
           </article>
-          <figure v-if="view.typeCode" class="report-character-study" data-report-character>
-            <PersonalityPortrait :code="view.typeCode" /><figcaption>类型角色插画，仅供参考。</figcaption>
-          </figure>
 
           <!-- ══ 四维得分条 ════════════════════════════════════════════════ -->
           <section class="mt-10" id="report-dimensions" data-anchor aria-labelledby="report-dimensions-title">
@@ -655,14 +656,20 @@ function jumpToSection(id: string): void {
               位置点表示本次作答落在两端之间的哪个地方。靠哪一端都不是「更好」，
               只是这一侧的解释更贴近本次的作答。
             </p>
-            <div class="mt-4 space-y-3">
-              <div v-for="(row, index) in view.dimensionRows" :key="row.dimension">
-              <p class="reading-example"><span>{{ plainReadings[index]?.title }} · 举个例子</span>{{ plainReadings[index]?.example }}例子只帮助理解，不代表你一定经历过。</p>
-              <DimensionMeter
-                :row="row"
-                :index="index"
-                show-details
-              />
+            <!-- 例子跟在对应维度的卡片底部，同属一张卡：放在卡片前面时，读起来像上一维的结尾。 -->
+            <div class="mt-4 space-y-4">
+              <div
+                v-for="(row, index) in view.dimensionRows"
+                :key="row.dimension"
+                class="dimension-group"
+                :class="{ 'is-boundary': row.boundary }"
+              >
+                <DimensionMeter
+                  :row="row"
+                  :index="index"
+                  show-details
+                />
+                <p class="reading-example"><span>{{ plainReadings[index]?.title }} · 举个例子</span>{{ plainReadings[index]?.example }}例子只帮助理解，不代表你一定经历过。</p>
               </div>
             </div>
           </section>
@@ -761,7 +768,7 @@ function jumpToSection(id: string): void {
               <span class="section-index" aria-hidden="true">05</span>
               <h2 id="report-actions-title" class="section-title">可以试试</h2>
             </div>
-            <div class="mt-4 grid gap-3 tablet:grid-cols-2">
+            <div class="mt-4 grid gap-3" :class="{ 'tablet:grid-cols-2': view.nextActions.length > 1 }">
               <article
                 v-for="action in view.nextActions"
                 :key="action.title"
@@ -1080,7 +1087,7 @@ function jumpToSection(id: string): void {
               <p class="text-[13px] text-ink-soft">
                 图片替代文本：<span class="text-ink">{{ view.share.alt }}</span>
               </p>
-              <pre class="whitespace-pre-wrap rounded-card border border-line-soft bg-surface-soft px-3 py-2.5 text-[13px] leading-relaxed text-ink-soft" data-share-text>{{ view.share.text }}</pre>
+              <pre class="whitespace-pre-wrap rounded-card border border-line-soft bg-surface-soft px-3 py-2.5 font-sans text-[13px] leading-relaxed text-ink-soft" data-share-text>{{ view.share.text }}</pre>
             </div>
           </section>
         </div>

@@ -228,7 +228,7 @@ function minutesText(card: InstrumentCard): string {
 </script>
 
 <template>
-  <PageContainer page="home">
+  <PageContainer page="quiz">
     <header class="max-w-prose">
       <h1 class="text-[26px] font-semibold leading-snug text-ink tablet:text-[30px]">开始测评</h1>
       <p class="mt-3 text-[15.5px] leading-relaxed text-ink-soft">

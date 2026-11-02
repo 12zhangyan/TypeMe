@@ -154,12 +154,20 @@ const countsText = computed(() => {
 
       <div
         class="relative mt-2 h-3 w-full rounded-pill"
-        :class="row.position === null ? 'border border-dashed border-line-strong bg-transparent' : 'bg-line-soft'"
+        :class="row.position === null ? 'border border-dashed border-line-strong bg-transparent' : 'bg-line'"
       >
         <!-- 中点刻度：只有一条细线，不做"合格线"的暗示 -->
         <div class="absolute inset-y-[-3px] left-1/2 w-px -translate-x-1/2 bg-ink/30" aria-hidden="true" />
 
         <template v-if="dotPercent !== null">
+          <!-- 从中点到位置点的浅色填充：只是把"落在哪一侧、离中点多远"画出来，与位置点同源 -->
+          <div
+            class="absolute inset-y-0 bg-gradient-to-r"
+            :class="dotPercent >= 50 ? 'rounded-r-pill from-primary-200 to-primary-400' : 'rounded-l-pill from-primary-400 to-primary-200'"
+            :style="{ left: `${Math.min(dotPercent, 50)}%`, width: `${Math.abs(dotPercent - 50)}%` }"
+            aria-hidden="true"
+            data-position-fill
+          />
           <!-- 光晕：让位置点在一屏之外也看得见，且不表示强度 -->
           <div
             class="absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-400/25"
