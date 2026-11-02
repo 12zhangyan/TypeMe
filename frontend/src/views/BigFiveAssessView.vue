@@ -393,7 +393,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
 
     <template v-else>
       <!-- 页头：量表名 + 进度 + 保存状态。三者都是"我做到哪了"的一部分，放在一起。 -->
-      <header class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+      <header class="quiz-head flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
         <div>
           <h1 class="text-[20px] font-semibold leading-snug text-ink tablet:text-[23px]">
             {{ attempt.instrumentTitle }}
@@ -415,7 +415,7 @@ const serverMissingSet = computed(() => new Set(store.incompleteQuestionIds))
 
       <!-- 进度条：不只是装饰，它是"还剩多少"的唯一即时反馈 -->
       <div
-        class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-line"
+        class="quiz-progress mt-3 h-1.5 w-full overflow-hidden rounded-full bg-line"
         role="progressbar"
         :aria-valuenow="progressPercent"
         aria-valuemin="0"
