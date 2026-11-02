@@ -132,6 +132,8 @@ function safeToPrint(text, credentials) {
 
 const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'))
 const items = manifest.items
+/** 仅远端的条目（`remoteOnly`）已在桶里、本地不随包：只校验和上传本地有的那些。 */
+const uploadItems = items.filter((item) => !item.remoteOnly)
 console.log(`桶：${BUCKET}　地域：${REGION}　访问域名：${ENDPOINT}`)
 console.log(`发布版本：${manifest.release}　对象数：${items.length}　总字节：${manifest.totals.bytes}`)
 console.log(`前缀：${manifest.objectPrefix}`)
@@ -140,7 +142,11 @@ console.log(`前缀：${manifest.objectPrefix}`)
 if (!EXECUTE && !VERIFY_KEY) {
   let total = 0
   const problems = []
-  for (const item of items) {
+  for (const item of items.filter((entry) => entry.remoteOnly)) {
+    console.log(`  ${item.objectKey}`)
+    console.log('    （仅远端：已上传，本地不随包，跳过）')
+  }
+  for (const item of uploadItems) {
     const local = join(ROOT, item.localPath)
     if (!existsSync(local)) {
       problems.push(`缺少本地文件：${item.localPath}`)
@@ -159,7 +165,7 @@ if (!EXECUTE && !VERIFY_KEY) {
     for (const problem of problems) console.error(`    ${problem}`)
     process.exit(1)
   }
-  console.log(`\n✓ 本地 ${items.length} 个文件与清单逐条一致（${total} 字节）`)
+  console.log(`\n✓ 本地 ${uploadItems.length} 个文件与清单逐条一致（${total} 字节）`)
   console.log('\n下一步（都需要你先提供凭据）：')
   console.log('  1) node scripts/cos-upload-images.mjs --verify-key   # 先确认签名被 COS 接受，不写任何数据')
   console.log('  2) node scripts/cos-upload-images.mjs --execute      # 上传并逐个 HEAD 复核')
@@ -212,9 +218,9 @@ if (VERIFY_KEY) {
 }
 
 // ---------------------------------------------------------------- 执行上传
-console.log(`\n开始上传 ${items.length} 个对象（PUT，带 Content-Type 与 Cache-Control）……`)
+console.log(`\n开始上传 ${uploadItems.length} 个对象（PUT，带 Content-Type 与 Cache-Control）……`)
 const results = []
-for (const item of items) {
+for (const item of uploadItems) {
   const local = join(ROOT, item.localPath)
   const body = readFileSync(local)
   const signed = signRequest({
@@ -257,7 +263,7 @@ for (const item of items) {
 }
 
 const failed = results.filter((item) => !item.ok)
-console.log(`\n上传完成：${results.length - failed.length}/${items.length} 通过复核`)
+console.log(`\n上传完成：${results.length - failed.length}/${uploadItems.length} 通过复核`)
 for (const item of failed) console.error(`  ✗ ${item.key} —— ${item.note}`)
 if (failed.length > 0) {
   console.error('\n有对象没通过复核，先不要切前端。可以重复执行本命令：对象键含内容哈希，重传是幂等的。')

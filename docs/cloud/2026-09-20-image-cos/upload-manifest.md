@@ -6,6 +6,9 @@
 **只包含网站公开插画**：5 张场景图 + 16 张人物图。不含报告、答卷、账号信息或任何私人文件；
 脚本按白名单校验，素材目录里出现名单以外的图片会直接报错。
 
+标「仅远端」的 2 张已上传、由数据库地址表提供，本地不再随包：
+清单沿用已有的对象键与哈希，上传脚本跳过它们。
+
 对象键一律为 `illustrations/2026-09-20/<名字>.<内容哈希前 12 位><扩展名>`。
 同名文件改了内容就是新对象，因此可以放心长缓存（`public, max-age=31536000, immutable`），
 永远不需要刷缓存，也不会出现"旧内容配新页面"。
@@ -13,8 +16,8 @@
 | 文件名 | 对象键 | SHA-256（前 16 位） | 字节 | Content-Type | Cache-Control |
 | --- | --- | --- | ---: | --- | --- |
 | `assessment-bigfive.webp` | `illustrations/2026-09-20/assessment-bigfive.e13c9e572c1c.webp` | `e13c9e572c1cf9de…` | 188506 | `image/webp` | `public, max-age=31536000, immutable` |
-| `assessment-jung.webp` | `illustrations/2026-09-20/assessment-jung.b364f47f1802.webp` | `b364f47f1802989b…` | 250596 | `image/webp` | `public, max-age=31536000, immutable` |
-| `home-hero.webp` | `illustrations/2026-09-20/home-hero.4583aa734b96.webp` | `4583aa734b964aba…` | 236960 | `image/webp` | `public, max-age=31536000, immutable` |
+| `assessment-jung`（仅远端） | `illustrations/2026-09-20/assessment-jung.b364f47f1802.webp` | `b364f47f1802989b…` | 250596 | `image/webp` | `public, max-age=31536000, immutable` |
+| `home-hero`（仅远端） | `illustrations/2026-09-20/home-hero.4583aa734b96.webp` | `4583aa734b964aba…` | 236960 | `image/webp` | `public, max-age=31536000, immutable` |
 | `reflection.webp` | `illustrations/2026-09-20/reflection.6923255424c0.webp` | `6923255424c004f6…` | 188174 | `image/webp` | `public, max-age=31536000, immutable` |
 | `type-enfj.webp` | `illustrations/2026-09-20/type-enfj.3e54194d48bf.webp` | `3e54194d48bf2da6…` | 115146 | `image/webp` | `public, max-age=31536000, immutable` |
 | `type-enfp.webp` | `illustrations/2026-09-20/type-enfp.c06b798e47d3.webp` | `c06b798e47d3cabe…` | 82260 | `image/webp` | `public, max-age=31536000, immutable` |

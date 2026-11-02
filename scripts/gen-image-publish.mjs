@@ -117,6 +117,16 @@ const sqlLiteral = (value) => `'${String(value).replace(/'/g, "''")}'`
 /** 场景插画白名单：与 `assets/illustrations/README.md` 的「场景文件」一节一致。 */
 const SCENE_ILLUSTRATIONS = ['assessment-bigfive', 'assessment-jung', 'home-hero', 'reflection', 'welcome']
 
+/**
+ * 只在远端提供、本地不再随包的插画（2026-11-01 起）。
+ *
+ * 它们已按 2026-09-20 版本上传，线上地址由 `illustration_asset` 表给出；本地文件删掉后，
+ * 远端加载失败时页面直接画兜底 SVG（`illustrationLocalFallback` 返回 undefined）。
+ * 本地缺文件时，清单沿用已有清单里的对象键与哈希，并标记 `remoteOnly`，上传脚本跳过它们。
+ * 以后把文件放回目录，就按普通素材重新计算、重新发布。
+ */
+const REMOTE_ONLY = new Set(['assessment-jung', 'home-hero'])
+
 const EXTENSIONS = ['.webp', '.avif', '.png']
 const CONTENT_TYPES = { '.webp': 'image/webp', '.avif': 'image/avif', '.png': 'image/png' }
 /**
@@ -187,10 +197,26 @@ for (const name of byName.keys()) {
     fail(`素材「${name}」的名字不符合 ^[a-z0-9][a-z0-9-]*$：改文件名后再发布（它要进对象键与数据库主键）`)
   }
 }
+const previousItems = new Map()
+try {
+  for (const item of JSON.parse(readFileSync(MANIFEST_JSON, 'utf8')).items ?? []) previousItems.set(item.name, item)
+} catch {
+  // 还没有清单：仅远端的插画在下面报"找不到对象键"
+}
+
+const remoteOnlyItems = []
 for (const name of allowed) {
-  if (!byName.has(name)) {
+  if (byName.has(name)) continue
+  if (!REMOTE_ONLY.has(name)) {
     fail(`公开插画「${name}」缺少素材文件：发布映射会缺一项，页面配置图片域名后会回退到本地资源`)
+    continue
   }
+  const previous = previousItems.get(name)
+  if (!previous?.objectKey || !previous?.sha256) {
+    fail(`仅远端的插画「${name}」在已有清单里找不到对象键与哈希：先把素材放回目录发布一次`)
+    continue
+  }
+  remoteOnlyItems.push({ ...previous, localPath: null, remoteOnly: true })
 }
 
 /* ── 4. 计算哈希与对象键 ───────────────────────────────────────────────── */
@@ -211,6 +237,7 @@ const items = [...byName.values()]
       cacheControl: CACHE_CONTROL,
     }
   })
+  .concat(remoteOnlyItems)
   .sort((a, b) => (a.name < b.name ? -1 : 1))
 
 if (items.length === 0) fail('素材目录里没有扫到任何公开插画，拒绝生成空清单')
@@ -239,7 +266,7 @@ const manifest = {
 const mdRows = items
   .map(
     (item) =>
-      `| \`${item.localPath.split('/').pop()}\` | \`${item.objectKey}\` | \`${item.sha256.slice(0, 16)}…\` | ${item.bytes} | \`${item.contentType}\` | \`${item.cacheControl}\` |`,
+      `| ${item.localPath ? `\`${item.localPath.split('/').pop()}\`` : `\`${item.name}\`（仅远端）`} | \`${item.objectKey}\` | \`${item.sha256.slice(0, 16)}…\` | ${item.bytes} | \`${item.contentType}\` | \`${item.cacheControl}\` |`,
   )
   .join('\n')
 
@@ -250,7 +277,10 @@ const manifestMd = `# 图片上传清单（发布版本 ${RELEASE}）
 
 **只包含网站公开插画**：5 张场景图 + 16 张人物图。不含报告、答卷、账号信息或任何私人文件；
 脚本按白名单校验，素材目录里出现名单以外的图片会直接报错。
-
+${remoteOnlyItems.length > 0 ? `
+标「仅远端」的 ${remoteOnlyItems.length} 张已上传、由数据库地址表提供，本地不再随包：
+清单沿用已有的对象键与哈希，上传脚本跳过它们。
+` : ''}
 对象键一律为 \`illustrations/${RELEASE}/<名字>.<内容哈希前 12 位><扩展名>\`。
 同名文件改了内容就是新对象，因此可以放心长缓存（\`${CACHE_CONTROL}\`），
 永远不需要刷缓存，也不会出现"旧内容配新页面"。

@@ -6,6 +6,8 @@
 
 场景文件：`home-hero.webp`、`assessment-jung.webp`、`assessment-bigfive.webp`、`reflection.webp`、`welcome.webp`。
 
+**仅远端（2026-11-01 起）**：`home-hero`、`assessment-jung` 已从本目录删除，只由图片域名提供（地址见数据库表 `illustration_asset`）。它们没有本地回退：远端加载失败时页面直接画兜底 SVG。发布脚本沿用已有清单里的对象键与哈希（`scripts/gen-image-publish.mjs` 的 `REMOTE_ONLY`），上传脚本跳过它们。要恢复随包，把文件放回本目录并重新运行发布脚本。
+
 人物文件：`type-intj.png`、`type-intp.png`、`type-entj.png`、`type-entp.png`、`type-infj.png`、`type-infp.png`、`type-enfj.png`、`type-enfp.png`、`type-istj.png`、`type-isfj.png`、`type-estj.png`、`type-esfj.png`、`type-istp.png`、`type-isfp.png`、`type-estp.png`、`type-esfp.png`。
 
 也接受同名 `.avif`、`.png` 或 `.webp`；同名优先顺序 WebP、AVIF、PNG。仅本目录下这些固定名称会在页面使用。请勿把未经筛选的生成稿、敏感照片或无关素材放到这里。
@@ -31,6 +33,6 @@
    - 只想换一张图的地址时，不必发版也不必动 SQL：管理员
      `PUT /api/v3/platform/illustrations`（见 `docs/2026-09-20/图片URL入库方案.md`），下一次加载即生效。
    - 三方核对（库 ↔ 本目录素材 ↔ 远端对象）：`node scripts/check-remote-images.mjs --from-api=<服务地址>`。
-4. 本目录的图片**始终随包发布**：它既是地址表里没有这张图时的资源，也是远端加载失败时唯一一次回退的目标。
+4. 本目录的图片随包发布：它既是地址表里没有这张图时的资源，也是远端加载失败时唯一一次回退的目标。上面标「仅远端」的两张例外。
 
 上传用的密钥只在运维侧，不进前端、不进仓库、不进日志。

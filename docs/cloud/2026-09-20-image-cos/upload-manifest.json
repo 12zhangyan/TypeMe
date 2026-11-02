@@ -19,21 +19,23 @@
     },
     {
       "name": "assessment-jung",
-      "localPath": "frontend/src/assets/illustrations/assessment-jung.webp",
+      "localPath": null,
       "objectKey": "illustrations/2026-09-20/assessment-jung.b364f47f1802.webp",
       "sha256": "b364f47f1802989b0be73abce2dd99fc6ea986380382e12c442ccca85c7029b6",
       "bytes": 250596,
       "contentType": "image/webp",
-      "cacheControl": "public, max-age=31536000, immutable"
+      "cacheControl": "public, max-age=31536000, immutable",
+      "remoteOnly": true
     },
     {
       "name": "home-hero",
-      "localPath": "frontend/src/assets/illustrations/home-hero.webp",
+      "localPath": null,
       "objectKey": "illustrations/2026-09-20/home-hero.4583aa734b96.webp",
       "sha256": "4583aa734b964aba28f8b5c862e69d81b595e6f6ab25d2bf879b06bf27e54a8d",
       "bytes": 236960,
       "contentType": "image/webp",
-      "cacheControl": "public, max-age=31536000, immutable"
+      "cacheControl": "public, max-age=31536000, immutable",
+      "remoteOnly": true
     },
     {
       "name": "reflection",

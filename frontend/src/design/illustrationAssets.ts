@@ -22,6 +22,7 @@
 //
 // 本地素材**继续随包发布**：它既是"地址表里没有这张图"时的资源，也是远端加载失败时
 // 唯一一次回退的目标（见 `illustrationLocalFallback`）。
+// 例外：home-hero / assessment-jung 只由图片域名提供（见 assets/illustrations/README.md），没有本地回退。
 import { normalizeRemoteImageUrl } from './remoteImageUrl'
 
 const files = import.meta.glob<string>('../assets/illustrations/*.{webp,png,avif}', {
